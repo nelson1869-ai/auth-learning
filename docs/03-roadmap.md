@@ -18,6 +18,8 @@
 >   Ang mga review day ay may 🔍 task: suriin na tugma pa ang lahat sa code.
 > - **🏗️ Architecture:** kapag nagbabago ang folder structure, may 🏗️ task —
 >   sundan ang [`06-architecture.md`](06-architecture.md), at i-update ito kapag nagbago.
+> - **🧰 Tools:** kapag may bagong tool o library, may 🧰 task sa araw na iyon —
+>   tingnan ang [`02-tech-stack.md`](02-tech-stack.md) kung para saan ito.
 > - Sa dulo ng bawat phase: **checkpoint** — isang tag sa Git, at mga tanong na
 >   dapat kaya mo nang sagutin nang hindi tumitingin.
 
@@ -107,6 +109,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `.env` at `.env.example` (ano ang secret, bakit hindi sa Git)
 - [ ] Drizzle: koneksyon mula sa backend, `users` schema
 - [ ] 🏗️ Bagong folder: `src/db/` — i-update ang `docs/06-architecture.md` kung may nagbago
+- [ ] 🧰 `npm install drizzle-orm pg` at `drizzle-kit`; basahin ang `.env` gamit ang `node --env-file=.env` (hindi na `dotenv` — tingnan ang tech stack)
 - **Matututunan:** environment variables, ORM
 
 ### Day 11 — Migrations
@@ -152,6 +155,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] I-set ito sa `httpOnly` cookie — bakit hindi `localStorage`? 🔐
 - [ ] 📝 Sa `04-login.http`, tingnan ang `Set-Cookie` header sa response
 - [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang JWT + cookie
+- [ ] 🧰 `cookie-parser` para mabasa ang cookie; i-decode ang JWT sa **jwt.io** para makita ang laman nito
 - **Matututunan:** stateless na session, cookie flags — *Reference: item 5*
 
 ### Day 17 — Protektadong route
@@ -185,6 +189,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `npm create vite@latest frontend` (React); patakbuhin
 - [ ] Ano ang component at JSX
 - [ ] 🏗️ Frontend structure: `pages/`, `components/`, `api/` (tingnan ang §4)
+- [ ] 🧰 Buksan ang **Chrome DevTools** (F12) → Network tab — dito mo makikita ang bawat request
 - **Matututunan:** frontend dev server, component
 
 ### Day 21 — State at forms
@@ -195,6 +200,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `fetch` sa `/api/auth/register`, ipakita ang tagumpay o error
 - [ ] **CORS** — bakit hinaharangan ng browser, at paano ito ayusin nang ligtas 🔐
 - [ ] 📊 `docs/diagrams/07-frontend-backend.md` — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
+- [ ] 🧰 `cors` package sa backend; tingnan ang CORS error sa DevTools **bago** ito ayusin
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`
 
 ### Day 23 — Login at profile
@@ -225,6 +231,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 27 — GitHub Actions
 - [ ] `.github/workflows/ci.yml`: kusang pinapatakbo ang tests sa bawat push/PR
 - [ ] 📊 `docs/diagrams/08-ci-pipeline.md` — push → CI jobs → ✅/❌
+- [ ] 🧰 **ESLint** — idagdag sa CI kasama ng tests; i-install ang ESLint extension sa VS Code
 - **Matututunan:** CI — *Reference: item 9*
 
 ### Day 28 — Protektahan ang `main`

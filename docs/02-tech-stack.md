@@ -1,61 +1,109 @@
 # 02 — Tech Stack (ang mga tools ng bawat role)
 
 > Sa totoong team, pinag-uusapan ito bago magsimula para iisa ang gamit ng lahat.
-> Ang **"Kailan"** ay ang phase sa [roadmap](03-roadmap.md) kung kailan natin ito unang gagamitin.
+>
+> **Mga patakaran:**
+> - **Idinadagdag lang ang tool kapag dumating na ang Day nito** sa
+>   [roadmap](03-roadmap.md) — hindi lahat nang sabay.
+> - **Bawat tool ay may problemang nilulutas.** Walang tool dahil lang "sikat" ito.
+> - **Versions:** sinusuri sa araw ng pag-install (`npm install` ang kumukuha ng
+>   pinakabago). Kapag iba ang API sa nasa tutorial, isusulat natin:
+>   `LUMANG PARAAN → KASALUKUYANG PARAAN`.
 
-## Para sa buong team
+---
 
-| Tool | Para saan | Kailan |
+## 1. Development tools — ang ginagamit mo araw-araw
+
+Hindi ito bahagi ng app — ito ang "gamit sa workshop" mo.
+
+| Tool | Para saan | Unang gamit |
 |---|---|---|
-| **VS Code** | Code editor | Ngayon |
-| **Git** | Nagtatanda ng bawat pagbabago (version control) | Ngayon |
-| **GitHub** | Kopya ng repo sa internet, Pull Requests, CI | Phase 1 |
-| **REST Client** (VS Code extension) | Pagsubok ng API gamit ang `.http` files | Phase 2 |
-| **Mermaid** | Mga diagram na isinusulat bilang text sa `.md` (kaya nasa Git at may history) | Ngayon |
-| **`docs/diagrams/build.mjs`** | Gumagawa ng `index.html` na may navigator para makita ang lahat ng diagram sa Chrome | Ngayon |
+| **WSL2 terminal (bash)** | Kung saan mo pinapatakbo ang lahat ng command | Day 01 |
+| **Git** | Nagtatanda ng bawat pagbabago (version control) | Day 01 |
+| **GitHub** (website) | Kopya ng repo sa internet, Pull Requests, CI | Day 02 |
+| **SSH key + `keychain`** | Ligtas na koneksyon sa GitHub; passphrase isang beses lang bawat araw | Day 02 |
+| **VS Code** | Code editor | Day 01 |
+| **npm / npx** | Pag-install at pagpapatakbo ng mga package (kasama ng Node) | Day 03 |
+| **`node --watch`** | Kusang nire-restart ang server kapag nag-save ka | Day 05 |
+| **`curl`** | Pagpapadala ng request mula sa terminal | Day 04 |
+| **Docker** + **Docker Compose** | Pagpapatakbo ng Postgres (at mamaya, ng buong app) sa container | Day 07 |
+| **`psql`** | Direktang pakikipag-usap sa Postgres gamit ang SQL | Day 08 |
+| **Drizzle Studio** | Pagtingin sa tables at data sa browser | Day 11 |
+| **Chrome DevTools** (F12) | **Network tab:** tingnan ang bawat request, response, cookie, at CORS error | Day 20 |
+| **jwt.io** | I-decode at tingnan ang laman ng isang JWT | Day 16 |
+| **Mermaid** + `docs/diagrams/build.mjs` | Mga diagram bilang text, makikita sa Chrome na may navigator | Day 01 |
 
-## Frontend Developer
+### VS Code extensions
 
-| Tool | Para saan | Kailan |
+I-install lang kapag kailangan na (`code --install-extension <id>`):
+
+| Extension | ID | Para saan | Unang gamit |
+|---|---|---|---|
+| **REST Client** | `humao.rest-client` | Pagpapatakbo ng `.http` files | Day 05 |
+| **Markdown Preview Mermaid Support** | `bierner.markdown-mermaid` | Makita ang diagrams sa Markdown Preview | Day 06 |
+| **ESLint** | `dbaeumer.vscode-eslint` | Makita agad sa editor ang mga pagkakamaling nahuhuli ng ESLint | Day 27 |
+| **Docker** | `ms-azuretools.vscode-docker` | Makita ang containers sa VS Code (optional) | Day 07 |
+
+### AI assistants (Claude Code, ChatGPT, …)
+
+**Gabay, hindi developer.** Ipinapaliwanag, nagbibigay ng maliit na halimbawa,
+at nagre-review ng code mo — pero **ikaw ang nagta-type ng code.** Puwede nilang
+i-edit ang docs kapag hiniling mo. Tingnan ang [`AGENTS.md`](../AGENTS.md).
+
+---
+
+## 2. Frontend Developer
+
+| Tool | Para saan | Unang gamit |
 |---|---|---|
-| **React** | Paggawa ng UI mula sa maliliit na piraso (components) | Phase 5 |
-| **Vite** | Mabilis na development server at build tool para sa React | Phase 5 |
-| **JavaScript** → **TypeScript** | Ang language (TypeScript ay idadagdag mamaya) | Phase 5 / 7 |
-| **fetch** (built-in sa browser) | Pagtawag sa backend API | Phase 5 |
+| **React** | Paggawa ng UI mula sa maliliit na piraso (components) | Day 20 |
+| **Vite** | Mabilis na development server at build tool para sa React | Day 20 |
+| **JavaScript** → **TypeScript** | Ang language (TypeScript sa Phase 7) | Day 20 / 29 |
+| **fetch** (built-in sa browser) | Pagtawag sa backend API — walang dagdag na library | Day 22 |
 
-## Backend Developer
+## 3. Backend Developer
 
-| Tool | Para saan | Kailan |
+| Tool | Para saan | Unang gamit |
 |---|---|---|
-| **Node.js** (v24) | Nagpapatakbo ng JavaScript sa server | Phase 2 |
-| **Express** (v5) | Framework para sa API: routes, requests, responses | Phase 2 |
-| **JavaScript** → **TypeScript** | Ang language | Phase 2 / 7 |
-| **Zod** | Pagsuri kung tama ang datos na ipinadala (validation) | Phase 4 |
-| **argon2** | Pag-hash ng password (hindi kailanman plain text) | Phase 4 |
-| **jsonwebtoken** | "Pass" na nagpapatunay na naka-login ka (JWT) | Phase 4 |
-| **Vitest** + **Supertest** | Automated tests | Phase 6 |
+| **Node.js** (v24) | Nagpapatakbo ng JavaScript sa server | Day 03 |
+| **Express** (v5) | Framework para sa API: routes, requests, responses | Day 03 |
+| **`node --env-file=.env`** | Pagbasa ng `.env` — **built-in na sa Node**, hindi na kailangan ng `dotenv` | Day 10 |
+| **Zod** | Pagsuri kung tama ang datos na ipinadala (validation) | Day 14 |
+| **argon2** | Pag-hash ng password (hindi kailanman plain text) | Day 12 |
+| **jsonwebtoken** | "Pass" na nagpapatunay na naka-login ka (JWT) | Day 16 |
+| **cookie-parser** | Pagbasa ng cookies mula sa request (dito nakatira ang JWT) | Day 16 |
+| **cors** | Pinapayagan ang frontend (ibang port/domain) na tumawag sa backend | Day 22 |
+| **Vitest** + **Supertest** | Automated tests | Day 25 |
+| **ESLint** | Nahuhuli ang mga karaniwang pagkakamali bago pa tumakbo ang code | Day 27 |
+| **TypeScript** + **tsx** | Types, at pagpapatakbo ng `.ts` nang direkta | Day 29 |
 
-## Database Engineer
+> **`dotenv` → `--env-file`:** Sa maraming tutorial, `require('dotenv').config()`
+> ang makikita mo. **Luma na iyan** — mula Node 20.6, built-in na ang
+> `node --env-file=.env src/index.js`. Isang dependency na hindi na kailangan.
 
-| Tool | Para saan | Kailan |
+## 4. Database Engineer
+
+| Tool | Para saan | Unang gamit |
 |---|---|---|
-| **PostgreSQL** (v17) | Ang database | Phase 3 |
-| **Docker** | Pagpapatakbo ng Postgres sa sarili mong PC nang walang manual install | Phase 3 |
-| **SQL** | Ang wika ng database | Phase 3 |
-| **Drizzle ORM** + **drizzle-kit** | Pag-access sa DB mula sa JavaScript + migrations (pagbabago ng tables) | Phase 3 |
-| **Neon** o **Supabase** | Managed Postgres sa internet — **may automatic backup** | Phase 8 |
+| **PostgreSQL** (v17) | Ang database | Day 07 |
+| **SQL** | Ang wika ng database | Day 08 |
+| **Drizzle ORM** + **drizzle-kit** | Pag-access sa DB mula sa JavaScript + migrations | Day 10 |
+| **pg** | Ang "driver" — ang aktwal na nakikipag-usap sa Postgres (ginagamit ng Drizzle) | Day 10 |
+| **Neon** o **Supabase** | Managed Postgres sa internet — **may automatic backup** | Day 35 |
 
-## DevOps Engineer
+## 5. DevOps Engineer
 
-| Tool | Para saan | Kailan |
+| Tool | Para saan | Unang gamit |
 |---|---|---|
-| **Docker** + **Docker Compose** | Pagpapatakbo ng buong system sa iisang command | Phase 3 / 6 |
-| **GitHub Actions** | CI: kusang pinapatakbo ang tests sa bawat push | Phase 6 |
-| **Sariling domain** (~$10/taon) | Stable na address, hal. `auth.<pangalan-mo>.com` | Phase 8 |
-| **Cloudflare** (DNS + named Tunnel) | HTTPS at pag-expose ng app sa internet nang libre | Phase 8 |
-| **Prometheus** + **Grafana** | Monitoring (ilang request, gaano kabilis, may error ba) | Phase 9+ |
+| **Docker Compose** | Postgres ngayon; ang buong system mamaya | Day 07 |
+| **GitHub Actions** | CI (tests sa bawat push) at CD (kusang deploy) | Day 27 / 37 |
+| **Dockerfile** | Pagbuo ng image ng backend para sa deploy | Day 34 |
+| **Sariling domain** (~$10/taon) | Stable na address, hal. `auth.<pangalan-mo>.com` | Day 33 |
+| **Cloudflare** (DNS + named Tunnel) | HTTPS at pag-expose ng app sa internet nang libre | Day 33 / 36 |
 
-## Pagkatapos ng MVP (Phase 9–19)
+---
+
+## 6. Pagkatapos ng MVP (Phase 9–19)
 
 Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 
@@ -69,6 +117,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas | Backend | 16 |
 | **knip** | Paghahanap ng unused code at dependencies | QA | 16 |
 | **OpenTelemetry** | Metrics at tracing | DevOps | 17 |
+| **Prometheus** + **Grafana** | Pag-iipon ng metrics at dashboards | DevOps | 17 |
 | **Alertmanager** | Email kapag may sira | DevOps | 17 |
 | **Dependabot**, **gitleaks**, **Grype** | Supply-chain at container security | DevOps / Security | 18 |
 | **Redis** | Shared na store ng rate limiter (maraming server) | DevOps | 18 |
