@@ -51,8 +51,12 @@ Nelson is a **beginner** rebuilding an authentication system from scratch
   truth). `node docs/diagrams/build.mjs` generates `docs/diagrams/index.html`
   (a navigator site, gitignored) from `template.html`. When code changes a
   flow, remind him to update the diagram and re-run the build.
-- Journal: `docs/journal/phase-N/day-NN.md`, written by Nelson — never
-  write it for him.
+- Journal: `docs/journal/phase-N/day-NN.md`. Prefer that Nelson writes it;
+  **if he asks, you may draft it** from what actually happened that day, then
+  ask him to review it and add his own "Mga tanong ko pa".
+- **Docs vs code:** Nelson has allowed AI to edit `.md` docs (roadmap
+  checkboxes, journal, blueprint) when he asks. **Code is different — he
+  types it himself** (explain + small snippet + review), per the rule above.
 
 ## Reference project
 
