@@ -27,15 +27,15 @@ Node 24, npm, Git, Docker, VS Code — naka-install na.
 
 ### Day 01 — Blueprint at unang commit
 - [x] Gumawa ng folder at role folders (Lesson 1)
-- [ ] `git init -b main` *(kailangang gawin ulit — nawala ang `.git`)*
-- [ ] Basahin ang blueprint: `README.md`, `AGENTS.md`, `docs/01`–`05`
-- [ ] Isulat ang "sa sarili kong salita" sa 4 na role README
-- [ ] Unang journal: `docs/journal/phase-1/day-01.md`
-- [ ] Unang commit
+- [x] `git init -b main` *(ginawa ulit — nawala ang unang `.git`)*
+- [x] Basahin ang blueprint: `README.md`, `AGENTS.md`, `docs/01`–`05`
+- [x] Isulat ang "sa sarili kong salita" sa 4 na role README
+- [x] Unang journal: `docs/journal/phase-1/day-01.md`
+- [x] Unang commit
 - **Matututunan:** repo, commit, `git add` (staging), `.gitignore`
 
 ### Day 02 — GitHub at ang team workflow
-- [ ] Gumawa ng GitHub repo at i-push ang `main`
+- [x] Gumawa ng GitHub repo at i-push ang `main`
 - [ ] Unang branch → maliit na pagbabago → Pull Request → merge
 - [ ] `git pull`, at burahin ang merged branch
 - **Matututunan:** remote, push/pull, branch, PR — ang araw-araw na workflow ng team
