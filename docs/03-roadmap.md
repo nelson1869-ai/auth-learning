@@ -62,8 +62,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 2 — Unang API · ⚙️ *Backend* · Day 03–06
 
 ### Day 03 — Node.js at npm
-- [ ] `npm init`, basahin ang `package.json`
-- [ ] Ano ang "dependency"; i-install ang Express; bakit hindi sine-save ang `node_modules/`
+- [x] `npm init`, basahin ang `package.json`
+- [x] Ano ang "dependency"; i-install ang Express; bakit hindi sine-save ang `node_modules/`
 - **Matututunan:** Node vs browser JavaScript, npm, package.json
 
 ### Day 04 — Hello World server
