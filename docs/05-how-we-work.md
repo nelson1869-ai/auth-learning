@@ -48,6 +48,7 @@ tests (simula Phase 6).
 - [ ] 🧪 QA: may test (simula Phase 6)
 - [ ] 📝 May `.http` file kung may bagong endpoint (o na-update kung nagbago)
 - [ ] 📊 May diagram kung may bago o nagbagong flow — at tugma ito sa code
+- [ ] 📋 Na-update ang `docs/07-api-contract.md` kung may bago o nagbagong endpoint (simula Day 13)
 - [ ] Naka-commit na may malinaw na mensahe
 - [ ] Na-update ang docs kung may nagbago (hal. roadmap ✅)
 

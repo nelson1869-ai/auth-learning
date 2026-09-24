@@ -20,6 +20,10 @@
 >   sundan ang [`06-architecture.md`](06-architecture.md), at i-update ito kapag nagbago.
 > - **🧰 Tools:** kapag may bagong tool o library, may 🧰 task sa araw na iyon —
 >   tingnan ang [`02-tech-stack.md`](02-tech-stack.md) kung para saan ito.
+> - **Buhay na plano:** sa bawat checkpoint, suriin — tama pa ba ang bilis? Kung
+>   may Day na umabot ng 3 session, o may konseptong kailangang ulitin, ayusin ang
+>   natitirang plano. Alam ng reference **kung ano** ang gagawin; hindi nito alam
+>   **kung gaano ka kabilis** matututo.
 > - Sa dulo ng bawat phase: **checkpoint** — isang tag sa Git, at mga tanong na
 >   dapat kaya mo nang sagutin nang hindi tumitingin.
 
@@ -134,6 +138,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `POST /api/auth/register` — hashed password, 201
 - [ ] Dobleng email → 409; 📝 `backend/http/03-register.http`
 - [ ] 📊 `docs/diagrams/03-register-flow.md` — flow ng register, kasama ang 409 branch
+- [ ] 📋 Simulan ang `docs/07-api-contract.md`: table ng bawat endpoint (method, path, request body, response, status codes) — i-update tuwing may bagong endpoint
 - **Matututunan:** paglikha ng resource, error cases
 
 ### Day 14 — Validation
@@ -201,6 +206,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] **CORS** — bakit hinaharangan ng browser, at paano ito ayusin nang ligtas 🔐
 - [ ] 📊 `docs/diagrams/07-frontend-backend.md` — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
 - [ ] 🧰 `cors` package sa backend; tingnan ang CORS error sa DevTools **bago** ito ayusin
+- [ ] 📋 Sundan ang `docs/07-api-contract.md` sa pagtawag sa backend — ito ang "kasunduan" ng frontend at backend
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`
 
 ### Day 23 — Login at profile
