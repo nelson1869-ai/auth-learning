@@ -1,8 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "> Ano ang ginagawa ng backend developer? Isulat mo rito, 1–3 pangungusap. > Babalikan natin ito pagkatapos ng Phase 4 — tingnan kung nagbago ang pagkakaintindi mo.",
-  "main": "index.js",
+  "description": "Backend API ng auth-learning (Express)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,5 +11,6 @@
   "type": "module",
   "dependencies": {
     "express": "^5.2.1"
-  }
+  },
+  "private": true
 }
