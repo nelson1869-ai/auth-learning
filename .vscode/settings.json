@@ -35,5 +35,13 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  // SQL: walang auto-format — ginawang 4 space at hinati-hati ng database
+  // extension ang bawat INSERT (Day 08). Tayo ang nag-aayos ng SQL.
+  "[sql]": {
+    "editor.formatOnSave": false
+  },
+
+  // Laging may bagong linya sa dulo ng file (karaniwang patakaran; iwas "No newline" sa diff)
+  "files.insertFinalNewline": true
 }
