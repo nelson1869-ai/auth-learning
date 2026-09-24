@@ -48,6 +48,9 @@ and this `AGENTS.md`.
 
 - **Language:** Taglish (Tagalog-English mix). Code, identifiers and commit
   messages stay in English.
+- **Code comments:** Taglish, short, explain the *why* (see
+  `docs/05-how-we-work.md` §11). In reviews, flag commented-out code — Git
+  keeps the history.
 - **Lesson format** (see `docs/05-how-we-work.md` §7):
   🎯 Layunin → 💡 Konsepto → ✍️ Gagawin mo → ✅ Inaasahang resulta → 🔍 Checklist
 - Use simple words. Explain any new term the first time it appears.
