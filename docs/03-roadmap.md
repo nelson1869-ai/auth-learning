@@ -102,8 +102,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** containers, ports, volumes (bakit hindi nawawala ang data)
 
 ### Day 08 — Unang SQL
-- [ ] Kumonekta gamit ang `psql`
-- [ ] `CREATE TABLE`, `INSERT`, `SELECT`, `UPDATE`, `DELETE` — i-save sa `database/sql-practice/`
+- [x] Kumonekta gamit ang `psql`
+- [x] `CREATE TABLE`, `INSERT`, `SELECT`, `UPDATE`, `DELETE` — i-save sa `database/sql-practice/`
 - **Matututunan:** table, row, column, ang apat na pangunahing SQL command
 
 ### Day 09 — Constraints (mga patakaran ng data)
