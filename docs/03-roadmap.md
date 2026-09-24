@@ -257,18 +257,294 @@ direktang nagtatrabaho sa `main`?*
 
 ---
 
-## Phase 9+ — Security at production upgrades · *lahat*
+## Pagkatapos ng MVP — ang daan papuntang senior-level
 
-Isa-isa, mga 2–3 Days bawat isa. Pagkatapos ng MVP, idedetalye natin ang bawat isa.
+> Hango sa **tunay na pagkakabuo ng reference project** (129 commits, tingnan ang
+> `git log` doon), pero **inayos para sa pag-aaral**:
+> - Inuna ang mga pundasyon (hal. headers at error handling) bago ang mga advanced
+> - Nilaktawan ang hindi na kailangan (hal. bcrypt → Argon2 migration — Argon2 na tayo mula Day 12)
+> - **May frontend task ang bawat feature** — wala nito ang reference (backend lang siya)
+>
+> Bawat phase ay may **"Reference"** — ang mga commit sa reference project na
+> gumawa ng parehong bagay. Tingnan gamit ang `git log --oneline --grep "<salita>"` doon.
 
-| Upgrade | Bakit | Reference |
-|---|---|---|
-| Rate limiting | Pigilan ang panghuhula ng password | item 7, 25 |
-| CSRF protection | Pigilan ang pekeng request mula sa ibang site | item 6 |
-| Refresh tokens + rotation | Maikling access token nang hindi laging nagla-login | item 3 |
-| Account lockout | 5 maling password → pansamantalang lock | item 7, 27 |
-| Password reset + email verification | Totoong email | item 13 |
-| Race conditions at transactions | Tamang behavior kahit maraming sabay na request | item 25, 26 |
-| Monitoring | Malaman agad kapag may sira | item 20, 24 |
-| Data retention | Hindi lumalaki nang walang hanggan ang DB | item 31 |
-| Passkeys | Login nang walang password | item 17 |
+**Tantya:** Phase 9–19 ≈ **62 Days** — mga 12–13 linggo pagkatapos ng MVP.
+
+---
+
+## Phase 9 — Pangunahing hardening · 🔐 *Security* + ⚙️ *Backend* · Day 39–44
+
+### Day 39 — Secure headers
+- [ ] `helmet`: ano ang bawat header (CSP, X-Frame-Options, HSTS) at anong atake ang pinipigilan
+- **Matututunan:** clickjacking, XSS, MIME sniffing
+
+### Day 40 — Fail-fast na config
+- [ ] I-validate ang `.env` gamit ang Zod pagka-start — ayaw magsimula kung may kulang
+- **Matututunan:** "mas mabuting mag-crash agad kaysa tumakbo nang mali"
+
+### Day 41 — Sentral na error handling
+- [ ] Isang error handler para sa lahat; **generic na mensahe sa 5xx**, detalye sa logs lang
+- **Matututunan:** bakit mapanganib ipakita ang internal errors · *Reference: `fix(errors)`*
+
+### Day 42 — Structured logging
+- [ ] Pino + request ID sa bawat request; itago (redact) ang passwords at cookies sa logs
+- **Matututunan:** paano mag-debug sa production · *Reference: `structured logging with Pino`*
+
+### Day 43 — Rate limiting
+- [ ] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!)
+- **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
+
+### Day 44 — CSRF protection
+- [ ] Double-submit cookie; i-update ang frontend at lahat ng `.http` files
+- **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
+
+**✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*
+
+---
+
+## Phase 10 — Roles at admin · ⚙️ *Backend* + 🎨 *Frontend* + 🗄️ *Database* · Day 45–50
+
+### Day 45 — Roles sa database
+- [ ] `role` column (`user` / `admin`) gamit ang migration; seed script para sa unang admin
+- **Matututunan:** enum, seed data · *Reference: `user_role enum`, `seed script`*
+
+### Day 46 — Authorization middleware
+- [ ] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo)
+- **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
+
+### Day 47 — Listahan ng users (admin) + pagination
+- [ ] `GET /api/admin/users?page=&limit=` na may max limit
+- **Matututunan:** bakit laging may limit ang listahan · *Reference: `pagination`*
+
+### Day 48 — Audit log
+- [ ] `audit_logs` table: sino, ano, kailan, saan (IP) — para sa login, logout, admin actions
+- **Matututunan:** forensic trail · *Reference: `audit logging`*
+
+### Day 49 — Admin page (frontend)
+- [ ] Listahan ng users at audit logs; itago ang admin menu sa hindi admin
+- **Matututunan:** bakit **hindi sapat** na itago lang sa frontend (dapat din sa backend) 🔐
+
+### Day 50 — Review day
+- [ ] Balikan ang Phase 9–10; sagutin ang "Mga tanong ko pa" sa journal
+
+**✅ Checkpoint (`checkpoint-phase-10`):** *Ano ang pagkakaiba ng 401 at 403?*
+
+---
+
+## Phase 11 — Mas ligtas na sessions · ⚙️ *Backend* + 🔐 *Security* · Day 51–57
+
+### Day 51 — Refresh tokens
+- [ ] Maikling access token (15 min) + mahabang refresh token na naka-hash sa DB
+- **Matututunan:** bakit dalawang token · *Reference: `refresh-token session foundation`*
+
+### Day 52 — Rotation at reuse detection
+- [ ] Bagong refresh token bawat gamit; ang pag-replay ng luma = **nakaw** → i-revoke ang buong family
+- **Matututunan:** token rotation · *Reference: `refresh-token rotation with reuse detection`*
+
+### Day 53 — Totoong logout
+- [ ] I-revoke ang refresh token sa DB, hindi lang i-clear ang cookie
+- **Matututunan:** stateful vs stateless na logout
+
+### Day 54 — Mga device ko (sessions page)
+- [ ] `GET /api/auth/sessions` at `DELETE /api/auth/sessions/:id` (naka-scope sa sariling user — IDOR 🔐)
+- [ ] Frontend: listahan ng naka-login na devices, may "Logout" bawat isa
+- **Matututunan:** IDOR · *Reference: `session management`*
+
+### Day 55 — Change password
+- [ ] Kailangan ang kasalukuyang password (reauthentication); i-revoke ang LAHAT ng session
+- [ ] Frontend: change-password form
+- **Matututunan:** high-risk events · *Reference: `change-password with reauthentication`*
+
+### Day 56 — RS256 at JWT claims
+- [ ] Asymmetric keys (private para mag-sign, public para mag-verify); `iss` at `aud`
+- **Matututunan:** HS256 vs RS256 · *Reference: `HS256 to RS256`, `iss/aud claim validation`*
+
+### Day 57 — Review day + session flow diagram
+
+**✅ Checkpoint (`checkpoint-phase-11`):** *Bakit nire-revoke ang BUONG family kapag may reuse?*
+
+---
+
+## Phase 12 — Email · ⚙️ *Backend* + 🎨 *Frontend* + 🚀 *DevOps* · Day 58–62
+
+### Day 58 — Totoong email provider
+- [ ] Resend o Brevo; API key sa `.env` lang
+- **Matututunan:** transactional email, deliverability (bakit napupunta sa spam)
+
+### Day 59 — Password reset
+- [ ] Single-use na token (hashed, may expiry); laging "kung may account, may email na"
+- **Matututunan:** single-use tokens · *Reference: `password reset and email verification`*
+
+### Day 60 — Email verification
+- [ ] Link sa email pagka-register; markahan ang `email_verified_at`
+
+### Day 61 — Frontend pages
+- [ ] Forgot password, reset password, at verify email pages
+
+### Day 62 — Review day
+
+**✅ Checkpoint (`checkpoint-phase-12`):** Nakatanggap ka ng totoong reset email sa sarili mong inbox.
+
+---
+
+## Phase 13 — Account lockout · 🔐 *Security* · Day 63–65
+
+### Day 63 — Per-account lockout
+- [ ] 5 maling password → 15 minutong lock (hiwalay sa IP rate limit)
+- **Matututunan:** bakit hindi sapat ang IP limit (maraming IP ang attacker) · *Reference: `per-account lockout`*
+
+### Day 64 — Lockout DoS at device cookies
+- [ ] Kayang i-lock ng kahit sino ang account mo — ayusin gamit ang device cookies (OWASP)
+- **Matututunan:** kapag ang depensa mismo ang nagiging atake · *Reference: `device cookies`*
+
+### Day 65 — Review day
+
+**✅ Checkpoint (`checkpoint-phase-13`):** *Paano naaabuso ng attacker ang lockout, at paano ito naayos?*
+
+---
+
+## Phase 14 — Tama kahit sabay-sabay · 🗄️ *Database* + 🧪 *QA* · Day 66–70
+
+> **Ang pinakamahalagang aral ng reference project:** gumagana ang lahat sa isang
+> request, pero **nasisira kapag 20 request ang sabay** — at nagmukha itong "10/10" bago nahuli.
+
+### Day 66 — Race conditions
+- [ ] Test na nagpapadala ng 20 sabay na request (`Promise.all`) — mahuli ang bug
+- **Matututunan:** TOCTOU ("check then act") · *Reference: `race-safe`*
+
+### Day 67 — Atomic SQL
+- [ ] `UPDATE ... WHERE ... RETURNING` sa halip na "hanapin muna, tapos baguhin"
+- **Matututunan:** hayaang ang database ang magpasya kung sino ang mananalo
+
+### Day 68 — Transactions
+- [ ] Change/reset password: lahat o wala; side effects (email, cookies) PAGKATAPOS ng commit
+- **Matututunan:** atomicity · *Reference: `atomic with transactions`*
+
+### Day 69 — Unique constraint bilang huling bantay
+- [ ] Sabay na register ng parehong email → 409, hindi 500
+- **Matututunan:** bakit ang DB constraint ang tunay na garantiya
+
+### Day 70 — Review day
+
+**✅ Checkpoint (`checkpoint-phase-14`):** *Bakit hindi sapat ang "hanapin muna ang user, tapos i-update"?*
+
+---
+
+## Phase 15 — Huwag ibunyag kung sino ang may account · 🔐 *Security* · Day 71–73
+
+### Day 71 — Pareho ang sagot
+- [ ] Login, forgot-password: pareho ang status at mensahe kahit may account o wala
+- **Matututunan:** user enumeration · *Reference: `revealing which emails have accounts`*
+
+### Day 72 — Pareho ang oras
+- [ ] Dummy password hash para sa walang-account na email; sukatin ang timing
+- **Matututunan:** timing attacks
+
+### Day 73 — Review day
+
+---
+
+## Phase 16 — Malinis na architecture · 🏗️ *Architect* + ⚙️ *Backend* · Day 74–79
+
+### Day 74–76 — Service layer
+- [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express)
+- [ ] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang
+- **Matututunan:** separation of concerns, refactoring nang ligtas · *Reference: `service layer`*
+
+### Day 77 — Mass-assignment guard
+- [ ] Parsed na input lang ang ipinapasa sa service; test na may isiningit na `userId` 🔐
+- **Matututunan:** mass assignment · *Reference: `mass-assignment guard`*
+
+### Day 78 — API documentation
+- [ ] OpenAPI + Swagger UI mula sa parehong Zod schemas
+- **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
+
+### Day 79 — Walang naiwang unused code
+- [ ] `noUnusedLocals` + knip sa CI
+- **Matututunan:** bakit nakakalito ang patay na code · *Reference: `remove unused code`*
+
+**✅ Checkpoint (`checkpoint-phase-16`):** *Ano ang dapat at HINDI dapat nasa loob ng isang controller?*
+
+---
+
+## Phase 17 — Observability · 🚀 *DevOps* · Day 80–86
+
+### Day 80 — Health checks
+- [ ] `/health/live` (buhay ba ang process) vs `/health/ready` (handa ba ang DB)
+- **Matututunan:** bakit dalawa · *Reference: `two-tier health checks`*
+
+### Day 81 — Metrics
+- [ ] OpenTelemetry + `/metrics` (ilang request, gaano kabilis, ilang error)
+- **Matututunan:** metrics vs logs · *Reference: `metrics + distributed tracing`*
+
+### Day 82–83 — Dashboards
+- [ ] Prometheus + Grafana: isang dashboard ng app
+- **Matututunan:** "nakikita mo ba ang problema bago pa magreklamo ang user?"
+
+### Day 84 — Alerts
+- [ ] Alertmanager: email kapag down ang app — **subukan talaga** (patayin ang app)
+- **Matututunan:** alert na may `for:` delay · *Reference: `monitoring stack`*
+
+### Day 85 — Graceful shutdown
+- [ ] Tapusin ang mga kasalukuyang request bago mag-exit sa deploy
+- **Matututunan:** zero-drop deploys · *Reference: `graceful shutdown`*
+
+### Day 86 — Review day
+
+**✅ Checkpoint (`checkpoint-phase-17`):** Nakatanggap ka ng alert email nang sadyang patayin ang app.
+
+---
+
+## Phase 18 — Production maturity · 🚀 *DevOps* + 🗄️ *Database* · Day 87–93
+
+### Day 87 — Supply-chain security
+- [ ] Dependabot, `npm audit` sa CI, secret scanning (gitleaks)
+- **Matututunan:** bakit mapanganib ang dependencies · *Reference: `Dependabot, npm audit gate, and secret scanning`*
+
+### Day 88 — Container scanning
+- [ ] I-scan ang Docker image sa CI (Grype); tanggalin ang hindi kailangan sa runtime image
+- **Matututunan:** CVEs · *Reference: `CI image scanning`*
+
+### Day 89 — Ligtas na CD
+- [ ] Deploy lang ang eksaktong commit na pumasa sa CI; i-verify ang migrations bago mag-restart
+- **Matututunan:** mga totoong insidente sa reference · *Reference: `fix(cd)` (2 commits)*
+
+### Day 90 — Data retention
+- [ ] Oras-oras na paglilinis ng expired na data, may advisory lock
+- **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
+
+### Day 91 — Backup drill
+- [ ] Sadyang "sirain" ang staging DB at i-restore mula sa backup; orasan ito
+- **Matututunan:** RPO/RTO — gaano karaming data ang puwedeng mawala, at gaano katagal bago bumalik
+
+### Day 92 — Distributed rate limiting
+- [ ] Redis bilang store ng rate limiter (para gumana kahit maraming server)
+- **Matututunan:** bakit nabubutas ang in-memory limit · *Reference: `Redis-backed distributed rate limiting`*
+
+### Day 93 — Review day
+
+---
+
+## Phase 19 — Passkeys · 🔐 *Security* + 🎨 *Frontend* + 🧪 *QA* · Day 94–100
+
+### Day 94 — Paano gumagana ang WebAuthn
+- [ ] Public-key cryptography, challenge, at kung bakit hindi nananakaw ang passkey sa phishing
+- **Matututunan:** ang konsepto bago ang code · *Reference: `WebAuthn/passkey`*
+
+### Day 95–96 — Pagdagdag ng passkey
+- [ ] Registration ceremony (backend + frontend button)
+
+### Day 97–98 — Login gamit ang passkey
+- [ ] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐
+
+### Day 99 — E2E test
+- [ ] Playwright + virtual authenticator — totoong browser, walang totoong hardware
+- **Matututunan:** kailan kailangan ng E2E sa halip na API test
+
+### Day 100 — 🎓 Final review
+- [ ] Isulat sa journal: ang buong paglalakbay, ang pinakamahirap, ang pinakanatutunan
+- [ ] I-update ang "Sa sarili kong salita" sa 4 na role README — ikumpara sa Day 01!
+- [ ] Ihambing ang project mo sa reference project — ano ang pareho, ano ang mas maganda?
+
+**✅ Checkpoint (`checkpoint-senior`):** Kaya mong ipaliwanag ang bawat bahagi ng
+system — **nang hindi tumitingin sa code.**

@@ -55,5 +55,25 @@
 | **Cloudflare** (DNS + named Tunnel) | HTTPS at pag-expose ng app sa internet nang libre | Phase 8 |
 | **Prometheus** + **Grafana** | Monitoring (ilang request, gaano kabilis, may error ba) | Phase 9+ |
 
+## Pagkatapos ng MVP (Phase 9–19)
+
+Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
+
+| Tool | Para saan | Role | Phase |
+|---|---|---|---|
+| **helmet** | Secure HTTP headers | Backend / Security | 9 |
+| **Pino** | Structured logging | Backend / DevOps | 9 |
+| **express-rate-limit** | Limitahan ang dami ng request (brute force) | Security | 9 |
+| **csrf-csrf** | CSRF protection (double-submit cookie) | Security | 9 |
+| **Resend** o **Brevo** | Totoong pagpapadala ng email | Backend | 12 |
+| **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas | Backend | 16 |
+| **knip** | Paghahanap ng unused code at dependencies | QA | 16 |
+| **OpenTelemetry** | Metrics at tracing | DevOps | 17 |
+| **Alertmanager** | Email kapag may sira | DevOps | 17 |
+| **Dependabot**, **gitleaks**, **Grype** | Supply-chain at container security | DevOps / Security | 18 |
+| **Redis** | Shared na store ng rate limiter (maraming server) | DevOps | 18 |
+| **@simplewebauthn** | Passkeys (server + browser) | Security / Frontend | 19 |
+| **Playwright** | End-to-end test sa totoong browser | QA | 19 |
+
 > ⚠️ Madalas magbago ang presyo at libreng tier ng mga online service —
 > tingnan ang kasalukuyang pricing page bago mag-sign up.
