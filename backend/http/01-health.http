@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 HEALTH CHECK — "buhay ba ang server?"
-### 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (idinagdag ang `time`)
+### 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`) at Day 06 (inilipat sa routes/)
 ### =========================================================================
 ### Ang pinakasimpleng endpoint: walang database, walang login. Sumasagot lang
 ### ng { "status": "ok" } kapag tumatakbo ang server.
@@ -15,7 +15,7 @@
 ###   2. I-click ang "Send Request" sa itaas ng bawat request sa ibaba
 ###   3. Tingnan ang sagot sa kanang panel — status code, headers, at body
 ###
-### Code: backend/src/index.js
+### Code: backend/src/routes/health.js (kinakabit sa backend/src/index.js)
 ### =========================================================================
 
 ### -------------------------------------------------------------------------

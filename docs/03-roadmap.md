@@ -82,11 +82,11 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** HTTP methods at status codes, manual na pagsubok
 
 ### Day 06 — Pagtanggap ng data
-- [ ] `express.json()` at isang `POST` route na nagbabalik ng natanggap na body
-- [ ] Hatiin ang routes sa `backend/src/routes/`
-- [ ] 📝 `backend/http/02-echo.http` — subukan ang POST na may body
-- [ ] 📊 I-update ang `01-request-lifecycle.md`: idagdag ang POST na may request body
-- [ ] 🏗️ Unang hati: `src/routes/` — bakit ngayon? (dumarami na ang URLs)
+- [x] `express.json()` at isang `POST` route na nagbabalik ng natanggap na body
+- [x] Hatiin ang routes sa `backend/src/routes/`
+- [x] 📝 `backend/http/02-echo.http` — subukan ang POST na may body
+- [x] 📊 I-update ang `01-request-lifecycle.md`: idagdag ang POST na may request body
+- [x] 🏗️ Unang hati: `src/routes/` — bakit ngayon? (dumarami na ang URLs)
 - **Matututunan:** request body, middleware (unang silip), pag-organisa ng files
 
 **✅ Checkpoint (`checkpoint-phase-2`):** `GET /api/health` gumagana, may `.http`.
