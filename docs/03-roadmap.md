@@ -11,6 +11,11 @@
 >   (tuloy-tuloy ang numero ng Day sa lahat ng phase: day-01, day-02, ...).
 > - **"Reference"** = ang katumbas na bahagi sa `express-authentication-demo`
 >   (tingnan ang `AGENTS.md` doon, "What's implemented").
+> - **📝 `.http` at 📊 diagram:** bawat araw na may **bagong endpoint** ay may
+>   bagong `.http` file (`backend/http/NN-*.http`); bawat bagong o **nagbagong
+>   flow** ay may bago o in-update na diagram (`docs/diagrams/NN-*.md`). Parehong
+>   tuloy-tuloy ang numero — tingnan ang pinakamataas na numero bago gumawa ng bago.
+>   Ang mga review day ay may 🔍 task: suriin na tugma pa ang lahat sa code.
 > - Sa dulo ng bawat phase: **checkpoint** — isang tag sa Git, at mga tanong na
 >   dapat kaya mo nang sagutin nang hindi tumitingin.
 
@@ -60,7 +65,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** server, port, route, request/response, JSON
 
 ### Day 05 — `.http` files at status codes
-- [ ] I-install ang REST Client; `backend/http/01-health.http`
+- [ ] I-install ang REST Client; 📝 `backend/http/01-health.http`
 - [ ] Mga status code: 200, 201, 400, 401, 404, 500 — ano ang ibig sabihin ng bawat isa
 - [ ] `node --watch` para kusang mag-restart ang server
 - **Matututunan:** HTTP methods at status codes, manual na pagsubok
@@ -68,7 +73,8 @@ direktang nagtatrabaho sa `main`?*
 ### Day 06 — Pagtanggap ng data
 - [ ] `express.json()` at isang `POST` route na nagbabalik ng natanggap na body
 - [ ] Hatiin ang routes sa `backend/src/routes/`
-- [ ] Unang diagram mo: request → route → response (`docs/diagrams/`)
+- [ ] 📝 `backend/http/02-echo.http` — subukan ang POST na may body
+- [ ] 📊 `docs/diagrams/01-request-lifecycle.md` — request → route → response (`TD`)
 - **Matututunan:** request body, middleware (unang silip), pag-organisa ng files
 
 **✅ Checkpoint (`checkpoint-phase-2`):** `GET /api/health` gumagana, may `.http`.
@@ -101,7 +107,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 11 — Migrations
 - [ ] `drizzle-kit generate` at `migrate` — ang unang migration
 - [ ] Tingnan ang table sa Drizzle Studio
-- [ ] ER diagram ng `users` (`docs/diagrams/`)
+- [ ] 📊 `docs/diagrams/02-er-diagram.md` — ER diagram ng database (`erDiagram`); ia-update tuwing may bagong table
 - **Matututunan:** bakit dumadaan sa migration ang pagbabago ng table
 
 **✅ Checkpoint (`checkpoint-phase-3`):** May `users` table na ginawa ng migration.
@@ -118,35 +124,46 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 13 — Register endpoint
 - [ ] `POST /api/auth/register` — hashed password, 201
-- [ ] Dobleng email → 409; `backend/http/02-register.http`
+- [ ] Dobleng email → 409; 📝 `backend/http/03-register.http`
+- [ ] 📊 `docs/diagrams/03-register-flow.md` — flow ng register, kasama ang 409 branch
 - **Matututunan:** paglikha ng resource, error cases
 
 ### Day 14 — Validation
 - [ ] Zod schema para sa register (email format, haba ng password) → 400
+- [ ] 📝 Idagdag sa `03-register.http` ang mga maling input (walang `@`, maikling password) → 400
+- [ ] 📊 I-update ang `03-register-flow.md`: idagdag ang validation branch
 - **Matututunan:** "huwag magtiwala sa input ng user" — 🔐
 
 ### Day 15 — Login endpoint
 - [ ] `POST /api/auth/login` — i-verify ang password
 - [ ] Iisang mensahe para sa maling email AT maling password — bakit? 🔐
+- [ ] 📝 `backend/http/04-login.http` — tamang password, maling password, walang account
+- [ ] 📊 `docs/diagrams/04-login-flow.md` (`TD`)
 - **Matututunan:** authentication, user enumeration (unang silip) — *Reference: item 28*
 
 ### Day 16 — JWT at cookies
 - [ ] Ano ang JWT (at ano ang HINDI dapat nasa loob nito)
 - [ ] I-set ito sa `httpOnly` cookie — bakit hindi `localStorage`? 🔐
+- [ ] 📝 Sa `04-login.http`, tingnan ang `Set-Cookie` header sa response
+- [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang JWT + cookie
 - **Matututunan:** stateless na session, cookie flags — *Reference: item 5*
 
 ### Day 17 — Protektadong route
 - [ ] Middleware na sumusuri sa JWT; `GET /api/auth/me`
+- [ ] 📝 `backend/http/05-me.http` — may cookie (200) at walang cookie (401)
+- [ ] 📊 `docs/diagrams/05-auth-middleware.md` — paano sinusuri ng middleware ang JWT
 - **Matututunan:** middleware, authentication vs authorization
 
 ### Day 18 — Logout at flow diagram
 - [ ] `POST /api/auth/logout` — i-clear ang cookie
-- [ ] Flowchart ng login (`TD`) sa `docs/diagrams/`
+- [ ] 📝 `backend/http/06-logout.http`
+- [ ] 📊 `docs/diagrams/06-auth-sequence.md` — `sequenceDiagram` ng buong auth: register → login → me → logout
 - **Matututunan:** buong auth flow mula simula hanggang dulo
 
 ### Day 19 — Review day
 - [ ] Balikan ang lahat ng code: may hindi ba malinaw? Linisin ang pangalan at files
 - [ ] Sagutin ang lahat ng "Mga tanong ko pa" sa journal hanggang ngayon
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 - **Matututunan:** refactoring — pagpapaganda nang hindi binabago ang behavior
 
 **✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`.
@@ -168,6 +185,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 22 — Pagtawag sa backend
 - [ ] `fetch` sa `/api/auth/register`, ipakita ang tagumpay o error
 - [ ] **CORS** — bakit hinaharangan ng browser, at paano ito ayusin nang ligtas 🔐
+- [ ] 📊 `docs/diagrams/07-frontend-backend.md` — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`
 
 ### Day 23 — Login at profile
@@ -196,6 +214,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 27 — GitHub Actions
 - [ ] `.github/workflows/ci.yml`: kusang pinapatakbo ang tests sa bawat push/PR
+- [ ] 📊 `docs/diagrams/08-ci-pipeline.md` — push → CI jobs → ✅/❌
 - **Matututunan:** CI — *Reference: item 9*
 
 ### Day 28 — Protektahan ang `main`
@@ -245,6 +264,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 37 — CD: kusang deploy pagka-merge sa `main`
 - [ ] GitHub Actions job na nagde-deploy kapag pumasa ang CI (Phase 6)
 - [ ] Deploy lang mula sa `main`, at lang kapag berde ang lahat ng tests
+- [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → deploy; i-update ang `00-architecture.md`
 - **Matututunan:** CD — at kung bakit **manual muna, tapos automate** (hindi mo
   magagawang awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
 
@@ -284,6 +304,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 41 — Sentral na error handling
 - [ ] Isang error handler para sa lahat; **generic na mensahe sa 5xx**, detalye sa logs lang
+- [ ] 📊 `docs/diagrams/10-middleware-pipeline.md` — pagkakasunod ng middleware (helmet → parsers → routes → error handler)
 - **Matututunan:** bakit mapanganib ipakita ang internal errors · *Reference: `fix(errors)`*
 
 ### Day 42 — Structured logging
@@ -292,10 +313,14 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 43 — Rate limiting
 - [ ] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!)
+- [ ] 📝 `backend/http/07-rate-limit.http` — pindutin nang 11 beses → 429
+- [ ] 📊 I-update ang `10-middleware-pipeline.md`
 - **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
 
 ### Day 44 — CSRF protection
 - [ ] Double-submit cookie; i-update ang frontend at lahat ng `.http` files
+- [ ] 📝 `backend/http/08-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
+- [ ] 📊 I-update ang `10-middleware-pipeline.md` at `07-frontend-backend.md`
 - **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
 
 **✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*
@@ -306,18 +331,24 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 45 — Roles sa database
 - [ ] `role` column (`user` / `admin`) gamit ang migration; seed script para sa unang admin
+- [ ] 📊 I-update ang `02-er-diagram.md` (`role` column)
 - **Matututunan:** enum, seed data · *Reference: `user_role enum`, `seed script`*
 
 ### Day 46 — Authorization middleware
 - [ ] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo)
+- [ ] 📝 `backend/http/09-admin-rbac.http` — user (403), admin (200), walang login (401)
+- [ ] 📊 `docs/diagrams/11-rbac.md` — 401 vs 403 na desisyon
 - **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
 
 ### Day 47 — Listahan ng users (admin) + pagination
 - [ ] `GET /api/admin/users?page=&limit=` na may max limit
+- [ ] 📝 `backend/http/10-pagination.http` — page, limit, at sobrang laking limit (400)
 - **Matututunan:** bakit laging may limit ang listahan · *Reference: `pagination`*
 
 ### Day 48 — Audit log
 - [ ] `audit_logs` table: sino, ano, kailan, saan (IP) — para sa login, logout, admin actions
+- [ ] 📝 `backend/http/11-audit-logs.http`
+- [ ] 📊 I-update ang `02-er-diagram.md` (`audit_logs` table)
 - **Matututunan:** forensic trail · *Reference: `audit logging`*
 
 ### Day 49 — Admin page (frontend)
@@ -326,6 +357,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 50 — Review day
 - [ ] Balikan ang Phase 9–10; sagutin ang "Mga tanong ko pa" sa journal
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-10`):** *Ano ang pagkakaiba ng 401 at 403?*
 
@@ -339,27 +371,37 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 52 — Rotation at reuse detection
 - [ ] Bagong refresh token bawat gamit; ang pag-replay ng luma = **nakaw** → i-revoke ang buong family
+- [ ] 📝 `backend/http/12-refresh-tokens.http` — normal na refresh, at pag-replay ng lumang token
+- [ ] 📊 `docs/diagrams/12-refresh-rotation.md` — `sequenceDiagram` ng rotation + reuse detection
+- [ ] 📊 I-update ang `02-er-diagram.md` (`refresh_tokens` table)
 - **Matututunan:** token rotation · *Reference: `refresh-token rotation with reuse detection`*
 
 ### Day 53 — Totoong logout
 - [ ] I-revoke ang refresh token sa DB, hindi lang i-clear ang cookie
+- [ ] 📝 I-update ang `06-logout.http`: subukang gamitin ang lumang refresh token pagkatapos mag-logout → 401
 - **Matututunan:** stateful vs stateless na logout
 
 ### Day 54 — Mga device ko (sessions page)
 - [ ] `GET /api/auth/sessions` at `DELETE /api/auth/sessions/:id` (naka-scope sa sariling user — IDOR 🔐)
 - [ ] Frontend: listahan ng naka-login na devices, may "Logout" bawat isa
+- [ ] 📝 `backend/http/13-sessions.http` — listahan, pag-revoke, at pag-revoke ng session ng IBANG user (404)
+- [ ] 📊 `docs/diagrams/13-sessions.md`
 - **Matututunan:** IDOR · *Reference: `session management`*
 
 ### Day 55 — Change password
 - [ ] Kailangan ang kasalukuyang password (reauthentication); i-revoke ang LAHAT ng session
 - [ ] Frontend: change-password form
+- [ ] 📝 `backend/http/14-change-password.http`
+- [ ] 📊 `docs/diagrams/14-change-password.md`
 - **Matututunan:** high-risk events · *Reference: `change-password with reauthentication`*
 
 ### Day 56 — RS256 at JWT claims
 - [ ] Asymmetric keys (private para mag-sign, public para mag-verify); `iss` at `aud`
+- [ ] 📝 I-update ang `04-login.http`: i-decode ang JWT (jwt.io) at tingnan ang `alg`, `iss`, `aud`
 - **Matututunan:** HS256 vs RS256 · *Reference: `HS256 to RS256`, `iss/aud claim validation`*
 
 ### Day 57 — Review day + session flow diagram
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-11`):** *Bakit nire-revoke ang BUONG family kapag may reuse?*
 
@@ -373,15 +415,21 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 59 — Password reset
 - [ ] Single-use na token (hashed, may expiry); laging "kung may account, may email na"
+- [ ] 📝 `backend/http/15-password-reset.http`
+- [ ] 📊 `docs/diagrams/15-password-reset.md`
+- [ ] 📊 I-update ang `02-er-diagram.md` (`verification_tokens` table)
 - **Matututunan:** single-use tokens · *Reference: `password reset and email verification`*
 
 ### Day 60 — Email verification
 - [ ] Link sa email pagka-register; markahan ang `email_verified_at`
+- [ ] 📝 `backend/http/16-verify-email.http`
+- [ ] 📊 `docs/diagrams/16-verify-email.md`
 
 ### Day 61 — Frontend pages
 - [ ] Forgot password, reset password, at verify email pages
 
 ### Day 62 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-12`):** Nakatanggap ka ng totoong reset email sa sarili mong inbox.
 
@@ -391,13 +439,18 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 63 — Per-account lockout
 - [ ] 5 maling password → 15 minutong lock (hiwalay sa IP rate limit)
+- [ ] 📝 `backend/http/17-lockout.http` — 5 maling password → 423
+- [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang lockout branch
 - **Matututunan:** bakit hindi sapat ang IP limit (maraming IP ang attacker) · *Reference: `per-account lockout`*
 
 ### Day 64 — Lockout DoS at device cookies
 - [ ] Kayang i-lock ng kahit sino ang account mo — ayusin gamit ang device cookies (OWASP)
+- [ ] 📝 `backend/http/18-device-cookies.http`
+- [ ] 📊 I-update ang `04-login-flow.md` at `02-er-diagram.md` (`trusted_devices`)
 - **Matututunan:** kapag ang depensa mismo ang nagiging atake · *Reference: `device cookies`*
 
 ### Day 65 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-13`):** *Paano naaabuso ng attacker ang lockout, at paano ito naayos?*
 
@@ -418,6 +471,8 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 68 — Transactions
 - [ ] Change/reset password: lahat o wala; side effects (email, cookies) PAGKATAPOS ng commit
+- [ ] 📊 I-update ang `03-register-flow.md`, `14-change-password.md`, `15-password-reset.md`: markahan ang transaction boundary (`subgraph`)
+- [ ] 📝 Hindi kayang magpadala ng sabay na request ang `.http` — dito, ang **tests** ang patunay
 - **Matututunan:** atomicity · *Reference: `atomic with transactions`*
 
 ### Day 69 — Unique constraint bilang huling bantay
@@ -425,6 +480,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit ang DB constraint ang tunay na garantiya
 
 ### Day 70 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-14`):** *Bakit hindi sapat ang "hanapin muna ang user, tapos i-update"?*
 
@@ -434,13 +490,16 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 71 — Pareho ang sagot
 - [ ] Login, forgot-password: pareho ang status at mensahe kahit may account o wala
+- [ ] 📝 `backend/http/19-user-enumeration.http` — ikumpara ang sagot para sa may account at wala
 - **Matututunan:** user enumeration · *Reference: `revealing which emails have accounts`*
 
 ### Day 72 — Pareho ang oras
 - [ ] Dummy password hash para sa walang-account na email; sukatin ang timing
+- [ ] 📊 I-update ang `04-login-flow.md`: ang dummy-hash branch
 - **Matututunan:** timing attacks
 
 ### Day 73 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 ---
 
@@ -449,6 +508,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 74–76 — Service layer
 - [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express)
 - [ ] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang
+- [ ] 📊 I-update ang LAHAT ng diagram: hiwalay na banggitin ang controller (HTTP) at service (logic)
 - **Matututunan:** separation of concerns, refactoring nang ligtas · *Reference: `service layer`*
 
 ### Day 77 — Mass-assignment guard
@@ -457,6 +517,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 78 — API documentation
 - [ ] OpenAPI + Swagger UI mula sa parehong Zod schemas
+- [ ] 📝 `backend/http/20-openapi.http` — kunin ang spec
 - **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
 
 ### Day 79 — Walang naiwang unused code
@@ -471,10 +532,13 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 80 — Health checks
 - [ ] `/health/live` (buhay ba ang process) vs `/health/ready` (handa ba ang DB)
+- [ ] 📝 `backend/http/21-health-checks.http` — `/live` at `/ready`
 - **Matututunan:** bakit dalawa · *Reference: `two-tier health checks`*
 
 ### Day 81 — Metrics
 - [ ] OpenTelemetry + `/metrics` (ilang request, gaano kabilis, ilang error)
+- [ ] 📝 `backend/http/22-metrics.http`
+- [ ] 📊 `docs/diagrams/17-observability.md` — app → Prometheus → Grafana/Alertmanager
 - **Matututunan:** metrics vs logs · *Reference: `metrics + distributed tracing`*
 
 ### Day 82–83 — Dashboards
@@ -490,6 +554,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** zero-drop deploys · *Reference: `graceful shutdown`*
 
 ### Day 86 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 **✅ Checkpoint (`checkpoint-phase-17`):** Nakatanggap ka ng alert email nang sadyang patayin ang app.
 
@@ -507,10 +572,13 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 89 — Ligtas na CD
 - [ ] Deploy lang ang eksaktong commit na pumasa sa CI; i-verify ang migrations bago mag-restart
+- [ ] 📊 I-update ang `09-cd-pipeline.md`: ang mga bagong safety check
 - **Matututunan:** mga totoong insidente sa reference · *Reference: `fix(cd)` (2 commits)*
 
 ### Day 90 — Data retention
 - [ ] Oras-oras na paglilinis ng expired na data, may advisory lock
+- [ ] 📝 `backend/http/23-retention.http` — gabay kung paano obserbahan ang cleanup job
+- [ ] 📊 `docs/diagrams/18-retention.md`
 - **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
 
 ### Day 91 — Backup drill
@@ -519,9 +587,11 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 92 — Distributed rate limiting
 - [ ] Redis bilang store ng rate limiter (para gumana kahit maraming server)
+- [ ] 📝 I-update ang `07-rate-limit.http`
 - **Matututunan:** bakit nabubutas ang in-memory limit · *Reference: `Redis-backed distributed rate limiting`*
 
 ### Day 93 — Review day
+- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 
 ---
 
@@ -533,9 +603,12 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 95–96 — Pagdagdag ng passkey
 - [ ] Registration ceremony (backend + frontend button)
+- [ ] 📝 `backend/http/24-passkeys.http` — options lang (kailangan ng browser para sa verify)
+- [ ] 📊 `docs/diagrams/19-passkey-register.md`
 
 ### Day 97–98 — Login gamit ang passkey
 - [ ] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐
+- [ ] 📊 `docs/diagrams/20-passkey-login.md`, kasama ang decoy options branch
 
 ### Day 99 — E2E test
 - [ ] Playwright + virtual authenticator — totoong browser, walang totoong hardware

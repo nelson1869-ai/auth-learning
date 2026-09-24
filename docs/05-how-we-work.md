@@ -46,6 +46,8 @@ tests (simula Phase 6).
 - [ ] **Naiintindihan mo** — kaya mong ipaliwanag ang bawat linya
 - [ ] 🔐 Security: nasagot ang "paano ito aabusuhin?" para sa mga risk na itinuro sa lesson
 - [ ] 🧪 QA: may test (simula Phase 6)
+- [ ] 📝 May `.http` file kung may bagong endpoint (o na-update kung nagbago)
+- [ ] 📊 May diagram kung may bago o nagbagong flow — at tugma ito sa code
 - [ ] Naka-commit na may malinaw na mensahe
 - [ ] Na-update ang docs kung may nagbago (hal. roadmap ✅)
 
