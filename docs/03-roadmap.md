@@ -76,9 +76,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** server, port, route, request/response, JSON
 
 ### Day 05 — `.http` files at status codes
-- [ ] Subukan ang `01-health.http` gamit ang REST Client ("Send Request")
-- [ ] Mga status code: 200, 201, 400, 401, 404, 500 — ano ang ibig sabihin ng bawat isa
-- [ ] `node --watch` para kusang mag-restart ang server
+- [x] Subukan ang `01-health.http` gamit ang REST Client ("Send Request")
+- [x] Mga status code: 200, 201, 400, 401, 404, 500 — ano ang ibig sabihin ng bawat isa
+- [x] `node --watch` para kusang mag-restart ang server
 - **Matututunan:** HTTP methods at status codes, manual na pagsubok
 
 ### Day 06 — Pagtanggap ng data
