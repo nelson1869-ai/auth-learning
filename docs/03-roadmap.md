@@ -14,7 +14,7 @@
 > - Sa dulo ng bawat phase: **checkpoint** — isang tag sa Git, at mga tanong na
 >   dapat kaya mo nang sagutin nang hindi tumitingin.
 
-**Tantya:** MVP (Phase 1–8) ≈ **37 Days** — mga 8 linggo kung 5 session bawat linggo.
+**Tantya:** MVP (Phase 1–8) ≈ **38 Days** — mga 8 linggo kung 5 session bawat linggo.
 
 ---
 
@@ -222,7 +222,7 @@ direktang nagtatrabaho sa `main`?*
 
 ---
 
-## Phase 8 — Totoong deploy 🌐 · 🚀 *DevOps* + 🗄️ *Database* · Day 33–37
+## Phase 8 — Totoong deploy 🌐 · 🚀 *DevOps* + 🗄️ *Database* · Day 33–38
 
 ### Day 33 — Domain at Cloudflare
 - [ ] Bumili ng domain (~$10/taon); ilipat ang DNS sa Cloudflare
@@ -242,7 +242,13 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Cookie flags para sa production (`Secure`, `SameSite`) 🔐
 - **Matututunan:** HTTPS, tunnel, production config
 
-### Day 37 — MVP launch 🎉
+### Day 37 — CD: kusang deploy pagka-merge sa `main`
+- [ ] GitHub Actions job na nagde-deploy kapag pumasa ang CI (Phase 6)
+- [ ] Deploy lang mula sa `main`, at lang kapag berde ang lahat ng tests
+- **Matututunan:** CD — at kung bakit **manual muna, tapos automate** (hindi mo
+  magagawang awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
+
+### Day 38 — MVP launch 🎉
 - [ ] Isang kaibigan: register → login → logout mula sa **sarili niyang phone**
 - [ ] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
 - **Matututunan:** ang saya ng "gumagana para sa totoong tao"
