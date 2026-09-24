@@ -97,8 +97,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 3 — Unang database · 🗄️ *Database* + 🚀 *DevOps* · Day 07–11
 
 ### Day 07 — Docker at Postgres
-- [ ] Image vs container; `devops/docker-compose.yml` na may `postgres:17-alpine`
-- [ ] `docker compose up -d`, `docker ps`, `docker compose down`
+- [x] Image vs container; `devops/docker-compose.yml` na may `postgres:17-alpine`
+- [x] `docker compose up -d`, `docker ps`, `docker compose down`
 - **Matututunan:** containers, ports, volumes (bakit hindi nawawala ang data)
 
 ### Day 08 — Unang SQL
