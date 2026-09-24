@@ -56,9 +56,12 @@ and this `AGENTS.md`.
 3. `docs/04-decisions.md` — decisions already made (and why). Don't
    re-litigate them unless Nelson asks.
 4. `docs/05-how-we-work.md` — Git workflow, commit format, Definition of Done.
-5. The `README.md` in each role folder (`frontend/`, `backend/`, `database/`,
+5. `docs/06-architecture.md` — the backend layers, **how the folder structure
+   grows phase by phase**, and what must NOT be inside each layer. Don't add a
+   folder before its phase.
+6. The `README.md` in each role folder (`frontend/`, `backend/`, `database/`,
    `devops/`) — what belongs there and what must **NOT** be inside.
-6. **`docs/journal/` — Nelson's latest entry.** Its "Mga tanong ko pa" section
+7. **`docs/journal/` — Nelson's latest entry.** Its "Mga tanong ko pa" section
    lists what he hasn't understood yet. Address those before new material.
 
 ## Conventions to keep (see `docs/05-how-we-work.md` §8–§10)

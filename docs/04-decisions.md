@@ -117,6 +117,30 @@
 - **Aral:** ganito ang totoong ADR — hindi binubura ang lumang desisyon,
   minamarkahan lang na "pinalitan", para makita ang kasaysayan ng pag-iisip.
 
+## D-010 · `node --env-file` sa halip na `dotenv`
+- **Petsa:** 2026-09-24
+- **Context:** kailangang basahin ang `.env` (Day 10). Sa karamihan ng tutorial,
+  `dotenv` package ang gamit.
+- **Mga opsyon:** `dotenv` · built-in na `node --env-file=.env` (mula Node 20.6)
+- **Pinili:** `node --env-file=.env`
+- **Bakit:** built-in na — isang dependency na hindi na kailangan. Unang halimbawa
+  ng "LUMANG PARAAN → KASALUKUYANG PARAAN".
+- **Consequences:** makikita mo pa rin ang `dotenv` sa mga lumang tutorial at sa
+  reference project — alam mo na ngayon kung bakit iba ang atin.
+
+## D-011 · ESLint sa Phase 6
+- **Petsa:** 2026-09-24
+- **Context:** walang TypeScript hanggang Phase 7, kaya hindi nahuhuli ng editor
+  ang ilang pagkakamali (hal. variable na hindi ginagamit, maling pangalan).
+- **Mga opsyon:** walang linter · ESLint agad sa Day 03 · ESLint sa Phase 6 kasama ng CI
+- **Pinili:** ESLint sa Day 27, kasama ng CI
+- **Bakit:** sa Day 03, dagdag na bagay lang ito na pag-aaralan habang natututo
+  pa ng basics. Sa Phase 6, may tests at CI na — doon may kabuluhan ang
+  "automatic na pagsuri bago i-merge".
+- **Consequences:** sa Phase 2–5, ikaw at ang code review ang humuhuli ng mga
+  ganitong pagkakamali. Hindi ito ginamit ng reference project (TypeScript +
+  knip ang gamit doon) — dagdag natin ito dahil JavaScript muna tayo.
+
 ---
 
 *Template para sa susunod na desisyon:*

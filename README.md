@@ -36,10 +36,11 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 3. [`docs/03-roadmap.md`](docs/03-roadmap.md) — ang mga phase at lesson
 4. [`docs/04-decisions.md`](docs/04-decisions.md) — mga desisyong nagawa na (at bakit)
 5. [`docs/05-how-we-work.md`](docs/05-how-we-work.md) — paano nagtatrabaho ang team (Git, commits, PRs)
-6. [`docs/diagrams/`](docs/diagrams/) — mga diagram ng system. Patakbuhin ang
+6. [`docs/06-architecture.md`](docs/06-architecture.md) — saan nakatira ang bawat code, at paano lalaki ang structure
+7. [`docs/diagrams/`](docs/diagrams/) — mga diagram ng system. Patakbuhin ang
    `node docs/diagrams/build.mjs`, tapos buksan ang `docs/diagrams/index.html`
    sa Chrome — may navigator sa kaliwa
-7. [`docs/journal/`](docs/journal/) — ang learning journal mo, isang file bawat araw
+8. [`docs/journal/`](docs/journal/) — ang learning journal mo, isang file bawat araw
 
 > 🤖 Gumagamit ng AI assistant? Ang [`AGENTS.md`](AGENTS.md) ang instruksyon para sa kanya —
 > lalo na ang pangunahing patakaran: **ikaw ang nagta-type ng code, gabay lang ang AI.**
