@@ -1,0 +1,16 @@
+name: auth-learning          # 🚨 iwas-banggaan sa ibang compose project
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}   # galing sa devops/.env
+      POSTGRES_DB: auth_learning
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
