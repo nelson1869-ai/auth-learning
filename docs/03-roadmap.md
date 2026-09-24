@@ -107,8 +107,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** table, row, column, ang apat na pangunahing SQL command
 
 ### Day 09 — Constraints (mga patakaran ng data)
-- [ ] `PRIMARY KEY`, `NOT NULL`, `UNIQUE`, `DEFAULT`
-- [ ] Subukang mag-insert ng dobleng email — ano ang nangyari, at bakit ito mabuti?
+- [x] `PRIMARY KEY`, `NOT NULL`, `UNIQUE`, `DEFAULT`
+- [x] Subukang mag-insert ng dobleng email — ano ang nangyari, at bakit ito mabuti?
 - **Matututunan:** data integrity — ang database mismo ang huling bantay
 
 ### Day 10 — Backend ↔ database
