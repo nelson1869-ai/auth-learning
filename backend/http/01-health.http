@@ -1,0 +1,42 @@
+### =========================================================================
+### 🎓 HEALTH CHECK — "buhay ba ang server?"
+### 📅 Day 04 · Phase 2 (Unang API) — tingnan ang docs/03-roadmap.md
+### =========================================================================
+### Ang pinakasimpleng endpoint: walang database, walang login. Sumasagot lang
+### ng { "status": "ok" } kapag tumatakbo ang server.
+###
+### Bakit mahalaga: ginagamit ito ng monitoring at deploy tools para malaman
+### kung buhay ang app (sa reference project, may "live" at "ready" pa —
+### darating tayo diyan sa Phase 17).
+###
+### PAANO GAMITIN (REST Client extension):
+###   1. Patakbuhin ang server:  cd backend && node src/index.js
+###   2. I-click ang "Send Request" sa itaas ng bawat request sa ibaba
+###   3. Tingnan ang sagot sa kanang panel — status code, headers, at body
+###
+### Code: backend/src/index.js
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Health check — ang inaasahan:
+###    Status:        200 OK
+###    Content-Type:  application/json
+###    Body:          { "status": "ok" }
+GET http://localhost:3000/api/health
+
+### -------------------------------------------------------------------------
+### 2. Route na WALA — ang inaasahan:
+###    Status:  404 Not Found
+###    Body:    isang HTML page ("Cannot GET /api/wala") — default ng Express
+###
+### 🔍 Pansinin: HTML ang sagot, hindi JSON. Para sa isang API, mas maganda
+### kung JSON din ang 404 — aayusin natin iyan sa Phase 9 (error handling).
+GET http://localhost:3000/api/wala
+
+### -------------------------------------------------------------------------
+### 3. Maling METHOD sa tamang path — ang inaasahan:
+###    Status:  404 Not Found
+###
+### 🔍 Pansinin: ang route ay METHOD + PATH. Walang `app.post('/api/health')`
+### sa code, kaya hindi ito nahahanap — kahit tama ang path.
+POST http://localhost:3000/api/health

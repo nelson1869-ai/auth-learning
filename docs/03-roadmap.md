@@ -71,10 +71,12 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Unang route: `GET /api/health` → `{ "status": "ok" }`
 - [ ] Buksan sa browser at subukan gamit ang `curl`
 - [ ] 🏗️ Isang file muna (`src/index.js`) — tingnan ang `docs/06-architecture.md` §2, Phase 2
+- [ ] 📝 `backend/http/01-health.http` — health, route na wala, maling method
+- [ ] 📊 `docs/diagrams/01-request-lifecycle.md` — paano sinasagot ng server ang request (`TD`)
 - **Matututunan:** server, port, route, request/response, JSON
 
 ### Day 05 — `.http` files at status codes
-- [ ] I-install ang REST Client; 📝 `backend/http/01-health.http`
+- [ ] Subukan ang `01-health.http` gamit ang REST Client ("Send Request")
 - [ ] Mga status code: 200, 201, 400, 401, 404, 500 — ano ang ibig sabihin ng bawat isa
 - [ ] `node --watch` para kusang mag-restart ang server
 - **Matututunan:** HTTP methods at status codes, manual na pagsubok
@@ -83,7 +85,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `express.json()` at isang `POST` route na nagbabalik ng natanggap na body
 - [ ] Hatiin ang routes sa `backend/src/routes/`
 - [ ] 📝 `backend/http/02-echo.http` — subukan ang POST na may body
-- [ ] 📊 `docs/diagrams/01-request-lifecycle.md` — request → route → response (`TD`)
+- [ ] 📊 I-update ang `01-request-lifecycle.md`: idagdag ang POST na may request body
 - [ ] 🏗️ Unang hati: `src/routes/` — bakit ngayon? (dumarami na ang URLs)
 - **Matututunan:** request body, middleware (unang silip), pag-organisa ng files
 

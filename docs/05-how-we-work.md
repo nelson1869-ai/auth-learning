@@ -91,6 +91,8 @@ Bawat bagong endpoint o feature ay may sariling `.http` file (pareho sa referenc
 - **Pangalan:** may numero, sunod-sunod: `01-health.http`, `02-register.http`, ...
   (tingnan muna ang pinakamataas na numero bago gumawa ng bago — walang dobleng numero)
 - **Laman:** bawat request ay may Taglish na paliwanag kung ano ang inaasahang sagot
+- **Header:** nakasulat ang **Day at Phase** kung kailan ginawa ang file, hal.
+  `### 📅 Day 04 · Phase 2 (Unang API)` — para makita agad ang katugmang lesson sa roadmap
 - **Tool:** VS Code extension na **REST Client** — may lalabas na "Send Request" sa itaas
   ng bawat request. I-install nang isang beses:
   ```bash
