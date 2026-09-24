@@ -46,4 +46,5 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 1 — Project setup.** Tingnan ang [roadmap](docs/03-roadmap.md).
+**Phase 2 — Unang API (Backend).** Tapos na ang Phase 1 ✅ (tag `checkpoint-phase-1`).
+Tingnan ang [roadmap](docs/03-roadmap.md).
