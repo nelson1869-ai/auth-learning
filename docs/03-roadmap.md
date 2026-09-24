@@ -112,10 +112,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** data integrity — ang database mismo ang huling bantay
 
 ### Day 10 — Backend ↔ database
-- [ ] `.env` at `.env.example` (ano ang secret, bakit hindi sa Git)
-- [ ] Drizzle: koneksyon mula sa backend, `users` schema
-- [ ] 🏗️ Bagong folder: `src/db/` — i-update ang `docs/06-architecture.md` kung may nagbago
-- [ ] 🧰 `npm install drizzle-orm pg` at `drizzle-kit`; basahin ang `.env` gamit ang `node --env-file=.env` (hindi na `dotenv` — tingnan ang tech stack)
+- [x] `.env` at `.env.example` (ano ang secret, bakit hindi sa Git)
+- [x] Drizzle: koneksyon mula sa backend, `users` schema
+- [x] 🏗️ Bagong folder: `src/db/` — i-update ang `docs/06-architecture.md` kung may nagbago
+- [x] 🧰 `npm install drizzle-orm pg` at `drizzle-kit`; basahin ang `.env` gamit ang `node --env-file=.env` (hindi na `dotenv` — tingnan ang tech stack)
 - **Matututunan:** environment variables, ORM
 
 ### Day 11 — Migrations

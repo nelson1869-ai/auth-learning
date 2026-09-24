@@ -1,0 +1,44 @@
+### =========================================================================
+### 🎓 USERS COUNT — ang unang endpoint na kumakausap sa DATABASE
+### 📅 Day 10 · Phase 3 (Unang database)
+### =========================================================================
+### Express → Drizzle → pg → Postgres (sa Docker, port 5435) → sagot pabalik.
+### Bilang lang ang ibinabalik, hindi ang listahan — hindi dapat makita ng
+### kahit sino ang email ng lahat ng user.
+###
+### PAANO GAMITIN (REST Client extension):
+###   1. Tumatakbo ang database:  cd devops && docker compose up -d
+###   2. Patakbuhin ang server:   cd backend && npm run dev
+###      ⚠️ Kung tumatakbo na ito BAGO mo idinagdag ang --env-file sa package.json,
+###      i-restart (Ctrl+C → npm run dev) — kung hindi, walang DATABASE_URL → 500
+###   3. I-click ang "Send Request"
+###
+### Code: backend/src/routes/users.js · backend/src/db/index.js · backend/src/db/schema.js
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Bilang ng users. Ang inaasahan:
+###    Status:  200 OK
+###    Body:    { "count": 2 }   ← sina Ana at Big A mula Day 09
+###
+### 🔍 Subukan: mag-INSERT ng bagong user sa psql, tapos i-send ulit ito.
+### Magiging 3 — WALANG restart ng server. Live ang tanong sa database.
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 2. Kapag PATAY ang database. Gawin muna:  cd devops && docker compose stop postgres
+###    Ang inaasahan:
+###    Status:  500 Internal Server Error
+###    Body:    HTML na may "Failed query: select count(*) ..."
+###
+### 🔍 Pansinin:
+###   - Awtomatikong sinalo ng Express 5 ang error mula sa `async` route → 500.
+###     (Sa Express 4, kailangan pa ng try/catch, kung hindi nakabitin ang request.)
+###   - BUHAY pa rin ang server — i-send ang 01-health.http, 200 pa rin.
+###     Dahil iyan sa `pool.on('error')` sa db/index.js; kung wala iyon, nagka-crash
+###     ang buong server nang huminto ang database (nangyari ito sa Day 10).
+###   - 🔐 May SQL at file path ng server sa sagot. Sa Phase 9 (error handler),
+###     papalitan ng simpleng JSON na walang detalye.
+###
+### Pagkatapos:  cd devops && docker compose start postgres  → i-send ulit ang #1: 200 na ulit
+GET http://localhost:3000/api/users/count

@@ -6,22 +6,31 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 07 · Phase 3 · **Code:** `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 10 · Phase 3 · **Code:** `backend/src/`, `devops/docker-compose.yml`
+> **Subukan:** `backend/http/03-users-count.http`
 
 ```mermaid
 flowchart LR
-    Client(["REST Client / curl"]) -->|"HTTP · localhost:3000"| BE["backend/ · Express<br/>GET /api/health<br/>POST /api/echo"]
-    You(["👤 Ikaw (terminal)"]) -->|"docker compose exec ... psql"| PG
+    Client(["REST Client / curl"]) -->|"HTTP · localhost:3000"| Routes
+    subgraph BE["backend/ · Express (npm run dev = node --env-file=.env)"]
+        Routes["routes/<br/>GET /api/health<br/>POST /api/echo<br/>GET /api/users/count"]
+        DB["db/index.js<br/>Drizzle + pg Pool<br/>(DATABASE_URL galing sa .env)"]
+        Schema["db/schema.js<br/>hugis ng users table"]
+        Routes -->|"db.$count(users)"| DB
+        Schema -.-> Routes
+    end
+    You(["👤 Ikaw (psql)"]) -->|"localhost:5435"| PG
+    DB -->|"SQL: select count(*) from users<br/>localhost:5435"| PG
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>database: auth_learning<br/>PC 5435 → container 5432")]
-        Vol[/"volume: auth-learning_pgdata<br/>(dito nakatira ang data)"/]
+        PG[("postgres:17-alpine<br/>database: auth_learning")]
+        Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end
-    BE -. "⏳ Day 10: ikokonekta gamit ang Drizzle" .-> PG
 ```
 
-**Pansinin:** tumatakbo na ang database, pero **hindi pa ito kilala ng backend**.
-Magkahiwalay pa sila hanggang Day 10.
+**Pansinin:** magkakonekta na ang backend at database. Kapag huminto ang
+database, **500** ang sagot pero **buhay pa rin ang server** (`pool.on('error')`),
+at kusang gagaling kapag bumalik ito.
 
 ## Habang nagde-develop (sa sarili mong PC)
 
