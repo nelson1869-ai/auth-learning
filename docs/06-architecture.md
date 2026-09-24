@@ -50,9 +50,15 @@ nang hindi nasisira ang iba.
 ```
 backend/src/
 ├── index.js          ← binubuksan ang server at kinakabit ang routes
-└── routes/
-    └── health.js
+└── routes/           ← Day 06: hinati dahil dumarami na ang URLs
+    ├── health.js     ← GET /api/health
+    └── echo.js       ← POST /api/echo (pang-aral ng request body)
 ```
+
+Sa `index.js`: **middleware muna** (`app.use(express.json())`), **saka ang
+routers** (`app.use('/api', healthRouter)`). Walang alam ang bawat router kung
+saan ito ikakabit: `/health` lang ang nasa loob, at `index.js` ang
+nagdadagdag ng `/api`.
 
 **Phase 4 — may database at auth:**
 ```
