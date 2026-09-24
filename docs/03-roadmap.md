@@ -16,6 +16,8 @@
 >   flow** ay may bago o in-update na diagram (`docs/diagrams/NN-*.md`). Parehong
 >   tuloy-tuloy ang numero — tingnan ang pinakamataas na numero bago gumawa ng bago.
 >   Ang mga review day ay may 🔍 task: suriin na tugma pa ang lahat sa code.
+> - **🏗️ Architecture:** kapag nagbabago ang folder structure, may 🏗️ task —
+>   sundan ang [`06-architecture.md`](06-architecture.md), at i-update ito kapag nagbago.
 > - Sa dulo ng bawat phase: **checkpoint** — isang tag sa Git, at mga tanong na
 >   dapat kaya mo nang sagutin nang hindi tumitingin.
 
@@ -62,6 +64,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `backend/src/index.js`: Express server na nakikinig sa port 3000
 - [ ] Unang route: `GET /api/health` → `{ "status": "ok" }`
 - [ ] Buksan sa browser at subukan gamit ang `curl`
+- [ ] 🏗️ Isang file muna (`src/index.js`) — tingnan ang `docs/06-architecture.md` §2, Phase 2
 - **Matututunan:** server, port, route, request/response, JSON
 
 ### Day 05 — `.http` files at status codes
@@ -75,6 +78,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Hatiin ang routes sa `backend/src/routes/`
 - [ ] 📝 `backend/http/02-echo.http` — subukan ang POST na may body
 - [ ] 📊 `docs/diagrams/01-request-lifecycle.md` — request → route → response (`TD`)
+- [ ] 🏗️ Unang hati: `src/routes/` — bakit ngayon? (dumarami na ang URLs)
 - **Matututunan:** request body, middleware (unang silip), pag-organisa ng files
 
 **✅ Checkpoint (`checkpoint-phase-2`):** `GET /api/health` gumagana, may `.http`.
@@ -102,6 +106,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 10 — Backend ↔ database
 - [ ] `.env` at `.env.example` (ano ang secret, bakit hindi sa Git)
 - [ ] Drizzle: koneksyon mula sa backend, `users` schema
+- [ ] 🏗️ Bagong folder: `src/db/` — i-update ang `docs/06-architecture.md` kung may nagbago
 - **Matututunan:** environment variables, ORM
 
 ### Day 11 — Migrations
@@ -132,6 +137,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Zod schema para sa register (email format, haba ng password) → 400
 - [ ] 📝 Idagdag sa `03-register.http` ang mga maling input (walang `@`, maikling password) → 400
 - [ ] 📊 I-update ang `03-register-flow.md`: idagdag ang validation branch
+- [ ] 🏗️ Bagong folder: `src/validations/`
 - **Matututunan:** "huwag magtiwala sa input ng user" — 🔐
 
 ### Day 15 — Login endpoint
@@ -152,6 +158,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Middleware na sumusuri sa JWT; `GET /api/auth/me`
 - [ ] 📝 `backend/http/05-me.http` — may cookie (200) at walang cookie (401)
 - [ ] 📊 `docs/diagrams/05-auth-middleware.md` — paano sinusuri ng middleware ang JWT
+- [ ] 🏗️ Bagong folder: `src/middleware/` — ano ang pagkakaiba ng middleware sa route?
 - **Matututunan:** middleware, authentication vs authorization
 
 ### Day 18 — Logout at flow diagram
@@ -164,6 +171,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Balikan ang lahat ng code: may hindi ba malinaw? Linisin ang pangalan at files
 - [ ] Sagutin ang lahat ng "Mga tanong ko pa" sa journal hanggang ngayon
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 - **Matututunan:** refactoring — pagpapaganda nang hindi binabago ang behavior
 
 **✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`.
@@ -176,6 +184,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 20 — React + Vite
 - [ ] `npm create vite@latest frontend` (React); patakbuhin
 - [ ] Ano ang component at JSX
+- [ ] 🏗️ Frontend structure: `pages/`, `components/`, `api/` (tingnan ang §4)
 - **Matututunan:** frontend dev server, component
 
 ### Day 21 — State at forms
@@ -210,6 +219,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 26 — API tests
 - [ ] Supertest: test ng `/api/health`, register, at login
 - [ ] Hiwalay na test database
+- [ ] 🏗️ Hatiin ang `index.js` → `app.js` + `index.js` (para ma-import ng tests nang hindi binubuksan ang port)
 - **Matututunan:** integration test — *Reference: item 2*
 
 ### Day 27 — GitHub Actions
@@ -300,6 +310,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 40 — Fail-fast na config
 - [ ] I-validate ang `.env` gamit ang Zod pagka-start — ayaw magsimula kung may kulang
+- [ ] 🏗️ Bagong folder: `src/config/`
 - **Matututunan:** "mas mabuting mag-crash agad kaysa tumakbo nang mali"
 
 ### Day 41 — Sentral na error handling
@@ -338,6 +349,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo)
 - [ ] 📝 `backend/http/09-admin-rbac.http` — user (403), admin (200), walang login (401)
 - [ ] 📊 `docs/diagrams/11-rbac.md` — 401 vs 403 na desisyon
+- [ ] 🏗️ `routes/admin` + `requireRole` middleware — i-update ang `00-architecture.md`
 - **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
 
 ### Day 47 — Listahan ng users (admin) + pagination
@@ -358,6 +370,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 50 — Review day
 - [ ] Balikan ang Phase 9–10; sagutin ang "Mga tanong ko pa" sa journal
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-10`):** *Ano ang pagkakaiba ng 401 at 403?*
 
@@ -402,6 +415,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 57 — Review day + session flow diagram
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-11`):** *Bakit nire-revoke ang BUONG family kapag may reuse?*
 
@@ -430,6 +444,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 62 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-12`):** Nakatanggap ka ng totoong reset email sa sarili mong inbox.
 
@@ -451,6 +466,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 65 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-13`):** *Paano naaabuso ng attacker ang lockout, at paano ito naayos?*
 
@@ -481,6 +497,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 70 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-14`):** *Bakit hindi sapat ang "hanapin muna ang user, tapos i-update"?*
 
@@ -500,6 +517,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 73 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 ---
 
@@ -509,6 +527,7 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express)
 - [ ] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang
 - [ ] 📊 I-update ang LAHAT ng diagram: hiwalay na banggitin ang controller (HTTP) at service (logic)
+- [ ] 🏗️ Ang huling hugis: `controllers/` + `services/` — i-update ang `docs/06-architecture.md` at LAHAT ng diagram
 - **Matututunan:** separation of concerns, refactoring nang ligtas · *Reference: `service layer`*
 
 ### Day 77 — Mass-assignment guard
@@ -555,6 +574,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 86 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 **✅ Checkpoint (`checkpoint-phase-17`):** Nakatanggap ka ng alert email nang sadyang patayin ang app.
 
@@ -592,6 +612,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 93 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 
 ---
 
