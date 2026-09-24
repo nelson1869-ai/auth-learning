@@ -1,6 +1,6 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) — ia-update sa Day 06 (POST at request body)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`) — ia-update sa Day 06 (POST at request body)
 >
 > **Code:** `backend/src/index.js` · **Subukan:** `backend/http/01-health.http`
 
@@ -10,8 +10,8 @@
 flowchart TD
     Start(["Client: browser, curl, o REST Client"]) -->|"HTTP request<br/>hal. GET /api/health"| Listen["app.listen(3000)<br/>backend/src/index.js<br/>(naghihintay sa port 3000)"]
     Listen --> Match{"May route ba na tugma sa<br/>METHOD + PATH?"}
-    Match -->|"oo: GET /api/health"| Handler["Ang route function<br/>(req, res) => res.json({ status: 'ok' })"]
-    Handler --> OK["200 OK<br/>Content-Type: application/json<br/>{ status: 'ok' }"]
+    Match -->|"oo: GET /api/health"| Handler["Ang route function<br/>(req, res) => res.json({ status, time })"]
+    Handler --> OK["200 OK<br/>Content-Type: application/json<br/>{ status: 'ok', time: '2026-...Z' }"]
     Match -->|"wala<br/>(hal. GET /api/wala, o POST /api/health)"| NotFound["404 Not Found<br/>HTML na 'Cannot GET ...'<br/>(default ng Express)"]
     OK --> Done(["Client: natanggap ang sagot"])
     NotFound --> Done

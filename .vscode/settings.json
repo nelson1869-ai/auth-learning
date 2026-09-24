@@ -13,6 +13,10 @@
 
   // Kusang inaayos ang indentation at spacing tuwing magse-save (Ctrl+S)
   "editor.formatOnSave": true,
+  // 2 space ang indentation (karaniwan sa JavaScript) — pare-pareho sa lahat ng file
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
 
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"

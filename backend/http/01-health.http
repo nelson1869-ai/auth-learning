@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 HEALTH CHECK — "buhay ba ang server?"
-### 📅 Day 04 · Phase 2 (Unang API) — tingnan ang docs/03-roadmap.md
+### 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (idinagdag ang `time`)
 ### =========================================================================
 ### Ang pinakasimpleng endpoint: walang database, walang login. Sumasagot lang
 ### ng { "status": "ok" } kapag tumatakbo ang server.
@@ -10,7 +10,8 @@
 ### darating tayo diyan sa Phase 17).
 ###
 ### PAANO GAMITIN (REST Client extension):
-###   1. Patakbuhin ang server:  cd backend && node src/index.js
+###   1. Patakbuhin ang server:  cd backend && npm run dev
+###      (kusang nagre-restart kapag nag-save ka — `node --watch`)
 ###   2. I-click ang "Send Request" sa itaas ng bawat request sa ibaba
 ###   3. Tingnan ang sagot sa kanang panel — status code, headers, at body
 ###
@@ -21,7 +22,10 @@
 ### 1. Health check — ang inaasahan:
 ###    Status:        200 OK
 ###    Content-Type:  application/json
-###    Body:          { "status": "ok" }
+###    Body:          { "status": "ok", "time": "2026-...Z" }
+###
+### 🔍 Pindutin nang dalawang beses: nagbabago ang `time` bawat request —
+### patunay na bagong sagot ito, hindi lumang kopya (cache).
 GET http://localhost:3000/api/health
 
 ### -------------------------------------------------------------------------
