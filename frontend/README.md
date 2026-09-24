@@ -5,7 +5,7 @@
 > Ano ang ginagawa ng frontend developer? Isulat mo rito, 1–3 pangungusap.
 > Babalikan natin ito pagkatapos ng Phase 5.
 
-
+Ito ang nakikita at kinikilik ko sa browser: ang login form, mga button, at mga mensahe. Ipinapasa nito ang ginawa ko sa backend.
 
 ---
 

@@ -5,7 +5,7 @@
 > Ano ang ginagawa ng backend developer? Isulat mo rito, 1–3 pangungusap.
 > Babalikan natin ito pagkatapos ng Phase 4 — tingnan kung nagbago ang pagkakaintindi mo.
 
-
+Ito ang "utak" ng app. Tumatanggap ito ng request (hal. login), sinusuri kung tama ang password sa database, at sumasagot kung pasok ka o hindi.
 
 ---
 

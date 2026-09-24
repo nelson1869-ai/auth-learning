@@ -5,7 +5,7 @@
 > Ano ang ginagawa ng DevOps engineer? Isulat mo rito, 1–3 pangungusap.
 > Babalikan natin ito pagkatapos ng Phase 8.
 
-
+Siya ang nagpapatakbo ng app sa labas ng PC ko: Docker, automatic tests, at deploy sa internet, para gumana ito para sa lahat.
 
 ---
 

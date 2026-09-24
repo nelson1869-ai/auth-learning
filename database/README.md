@@ -5,7 +5,7 @@
 > Ano ang ginagawa ng database engineer? Isulat mo rito, 1–3 pangungusap.
 > Babalikan natin ito pagkatapos ng Phase 3.
 
-
+Dito nakatago ang data, gaya ng email at ang na-hash na password ng bawat user. Siya rin ang nag-iingat na hindi mawala o madoble ang data.
 
 ---
 
