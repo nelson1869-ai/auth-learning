@@ -36,11 +36,11 @@ Node 24, npm, Git, Docker, VS Code — naka-install na.
 
 ### Day 02 — GitHub at ang team workflow
 - [x] Gumawa ng GitHub repo at i-push ang `main`
-- [ ] Unang branch → maliit na pagbabago → Pull Request → merge
-- [ ] `git pull`, at burahin ang merged branch
+- [x] Unang branch → maliit na pagbabago → Pull Request → merge
+- [x] `git pull`, at burahin ang merged branch
 - **Matututunan:** remote, push/pull, branch, PR — ang araw-araw na workflow ng team
 
-**✅ Checkpoint (tag `checkpoint-phase-1`):** Makikita ang project sa GitHub.
+**✅ Checkpoint (tag `checkpoint-phase-1`):** Makikita ang project sa GitHub. — **TAPOS ✅**
 Kaya mo bang ipaliwanag: *ano ang pagkakaiba ng commit at push? Bakit hindi
 direktang nagtatrabaho sa `main`?*
 

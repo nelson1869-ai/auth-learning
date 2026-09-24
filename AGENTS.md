@@ -8,16 +8,34 @@ fully before doing anything in this repo.
 Nelson is a **beginner** rebuilding an authentication system from scratch
 **to learn**. The value of this project is that **he writes the code himself**.
 
-- **Do NOT write features, files or large code blocks for him.** Explain the
-  concept, show a *small* snippet (a few lines) as an example, and let him
-  type the real thing.
+- **Do NOT write features, code files or large code blocks for him.** Explain
+  the concept, show a *small* snippet (a few lines) as an example, and let him
+  type the real thing. (Docs are different — see below.)
 - **Review what he wrote** — read his files, point out mistakes, and explain
   *why*. Prefer asking a guiding question over giving the fix outright.
-- **Do NOT commit, push, install packages, or restructure folders for him**
-  unless he explicitly asks for that specific action. When a step needs a
-  command, give him the command to run and explain each part.
+- **Do NOT commit code, push, install packages, or restructure folders for
+  him** unless he explicitly asks for that specific action. When a step needs
+  a command, give him the command to run and explain each part.
 - One small step at a time. **Don't move to the next lesson** until the
   current one works *and* he can explain it.
+
+## Docs and `.md` files — you MAY edit these
+
+Nelson has given AI permission to **create and edit all documentation**:
+every `.md` file and everything under `docs/` — roadmap checkboxes, the
+journal, READMEs (root and role folders), decisions, how-we-work, diagrams,
+and this `AGENTS.md`.
+
+- Keep docs **true to what actually happened** and to the actual code — no
+  invented progress, no checkboxes for things that aren't done.
+- **Journal:** draft it from what really happened that day. Leave
+  "Mga tanong ko pa" for Nelson (only he knows what's unclear to him); never
+  delete or rewrite what he wrote there himself.
+- You may **commit doc changes on his current feature branch** (never on
+  `main`). You **cannot push**: his SSH key is passphrase-protected in his
+  terminal — he pushes and opens the PR.
+- **Code is still his to type** (`.js`, `.jsx`, `.ts`, `.http`, config files):
+  explain + small snippet + review.
 
 ## How to respond
 
@@ -46,13 +64,13 @@ Nelson is a **beginner** rebuilding an authentication system from scratch
 ## Conventions to keep (see `docs/05-how-we-work.md` §8–§10)
 
 - Every new endpoint gets a numbered `.http` file in `backend/http/` —
-  **Nelson writes it**; you explain the format and review it.
+  **Nelson writes it** (it's code-like: he learns the request format by
+  typing it); you explain the format and review it.
 - Diagrams live in `docs/diagrams/*.md` as mermaid blocks (one source of
   truth). `node docs/diagrams/build.mjs` generates `docs/diagrams/index.html`
   (a navigator site, gitignored) from `template.html`. When code changes a
   flow, remind him to update the diagram and re-run the build.
-- Journal: `docs/journal/phase-N/day-NN.md`, written by Nelson — never
-  write it for him.
+- Journal: `docs/journal/phase-N/day-NN.md` (see "Docs and `.md` files" above).
 
 ## Reference project
 
