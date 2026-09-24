@@ -1,9 +1,9 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`) at Day 06 (`express.json()`, `routes/`, POST na may body)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) at Day 10 (database)
 >
-> **Code:** `backend/src/index.js`, `backend/src/routes/health.js`, `backend/src/routes/echo.js`
-> **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`
+> **Code:** `backend/src/index.js`, `backend/src/routes/health.js`, `backend/src/routes/echo.js`, `backend/src/routes/users.js`, `backend/src/db/index.js`
+> **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
 
 ## Paano sinasagot ng server ang isang request
 
@@ -19,6 +19,7 @@ flowchart TD
     Body --> Match{"May route ba na tugma sa<br/>'/api' + METHOD + PATH?"}
     Match -->|"GET /health<br/>routes/health.js"| Health["res.json({ status, time })"]
     Match -->|"POST /echo<br/>routes/echo.js"| Echo["res.json({ received: req.body })"]
+    Match -->|"GET /users/count<br/>routes/users.js"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
     Match -->|"wala (hal. GET /api/echo)"| NotFound["404 Not Found<br/>HTML na 'Cannot GET ...'"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK
@@ -43,3 +44,33 @@ flowchart TD
 - **Kailangang SUMAGOT ang bawat route function.** Kapag walang `res.json()`
   o `res.send()`, hindi 404 ang mangyayari. **Nakabitin** ang request hanggang
   mag-timeout ang client. Nangyari ito noong Day 06.
+
+## Kapag kailangan ang database: `GET /api/users/count`
+
+> 📅 Day 10 · Phase 3 (Unang database) · **Code:** `backend/src/routes/users.js`,
+> `backend/src/db/index.js` · **Subukan:** `backend/http/03-users-count.http`
+
+```mermaid
+flowchart TD
+    Req(["GET /api/users/count"]) --> Route["routes/users.js<br/>async (req, res) =>"]
+    Route --> Await["await db.$count(users)<br/>Drizzle → SQL: select count(*) from users"]
+    Await --> Pool["db/index.js · pg Pool<br/>kumokonekta sa DATABASE_URL (.env)<br/>localhost:5435"]
+    Pool --> Up{"Buhay ba ang Postgres?"}
+    Up -->|"oo"| Rows["Postgres: { count: 2 }"]
+    Rows --> OK["200 OK<br/>{ count: 2 }"]
+    Up -->|"hindi (docker compose stop)"| Fail["Error: Failed query ..."]
+    Fail --> Catch["Express 5: kusang sinasalo<br/>ang error ng async route"]
+    Catch --> E500["500 Internal Server Error<br/>HTML na may SQL + stack trace<br/>(🔐 aayusin sa Phase 9)"]
+    Pool -.->|"naputol ang idle na koneksyon"| PoolErr["pool.on('error') → log lang<br/>BUHAY pa rin ang server<br/>(kung wala ito: crash ang buong server)"]
+    OK --> Done(["Client"])
+    E500 --> Done
+```
+
+- **`await`**: naghihintay ang route sa database bago sumagot. Habang naghihintay,
+  puwedeng sumagot ang server sa ibang request.
+- **Dalawang magkaibang error:** ang *query na nabigo* ay nagiging 500 (sinasalo
+  ng Express 5). Ang *koneksyon na naputol habang idle* ay walang request na
+  kasama, kaya `pool.on('error')` ang sumasalo. Kung wala iyon, namamatay ang
+  buong server (nangyari ito sa Day 10).
+- **Live ang sagot:** kapag nag-INSERT ka sa psql, magbabago ang bilang nang
+  walang restart ng server.
