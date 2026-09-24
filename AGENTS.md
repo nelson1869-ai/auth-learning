@@ -34,8 +34,15 @@ and this `AGENTS.md`.
 - You may **commit doc changes on his current feature branch** (never on
   `main`). You **cannot push**: his SSH key is passphrase-protected in his
   terminal — he pushes and opens the PR.
-- **Code is still his to type** (`.js`, `.jsx`, `.ts`, `.http`, config files):
+- **Code is still his to type** (`.js`, `.jsx`, `.ts`, config files):
   explain + small snippet + review.
+- **`.http` files: YOU create them — always, unprompted.** Whenever there is
+  something new to check (a new endpoint, a new status code, a changed
+  behaviour), add or update a numbered `.http` file in `backend/http/`. Follow
+  `backend/http/01-health.http`: `📅 Day · Phase` in the header, and every
+  request narrated in Taglish with its **expected** status, headers and body.
+  Before handing it over, **run each request against the real server** and
+  confirm the actual response matches what the file says.
 
 ## How to respond
 
@@ -67,9 +74,12 @@ and this `AGENTS.md`.
 ## Conventions to keep (see `docs/05-how-we-work.md` §8–§10)
 
 - Every new endpoint gets a numbered `.http` file in `backend/http/` —
-  **Nelson writes it** (it's code-like: he learns the request format by
-  typing it); you explain the format and review it.
-- Diagrams live in `docs/diagrams/*.md` as mermaid blocks (one source of
+  created by you (see "Docs and `.md` files" above). Check the highest
+  existing number first; never reuse a number.
+- **Diagrams: YOU create/update them — always, unprompted**, whenever a flow
+  is new or changes (same rule as `.http`). `📅 Day · Phase` at the top, name
+  the code file and the `.http` file, render-check it, and re-run the build.
+  Diagrams live in `docs/diagrams/*.md` as mermaid blocks (one source of
   truth). `node docs/diagrams/build.mjs` generates `docs/diagrams/index.html`
   (a navigator site, gitignored) from `template.html`. When code changes a
   flow, remind him to update the diagram and re-run the build.
