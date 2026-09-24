@@ -1,0 +1,46 @@
+# Frontend
+
+## ✍️ Sa sarili kong salita (ikaw ang susulat nito)
+
+> Ano ang ginagawa ng frontend developer? Isulat mo rito, 1–3 pangungusap.
+> Babalikan natin ito pagkatapos ng Phase 5.
+
+
+
+---
+
+## Ang role
+
+Ang **frontend** ang lahat ng nakikita at hinahawakan ng user sa browser:
+pages, forms, buttons, mga mensahe ng error. Kapag nag-click ang user ng
+"Login", ang frontend ang nagpapadala ng request sa backend at nagpapakita
+ng resulta.
+
+## Mga responsibilidad
+- Pages at forms — register, login, profile
+- Pagtawag sa backend API at pagpapakita ng sagot
+- Malinaw na mensahe sa user (hal. "Mali ang password")
+- Magandang karanasan sa user (UX) — at sa lahat ng screen size
+
+## Tools
+React · Vite · JavaScript (→ TypeScript) · fetch — tingnan ang [tech stack](../docs/02-tech-stack.md).
+
+## Ano ang lalaman ng folder na ito (plano)
+```
+frontend/
+├── src/
+│   ├── App.jsx         ← ang pangunahing component
+│   ├── pages/          ← Login, Register, Profile
+│   └── ...
+├── index.html
+└── package.json
+```
+
+## ❌ Hindi dapat nasa loob ng frontend
+- **Secrets o API keys** — lahat ng nasa frontend ay nakikita ng kahit sino (View Source)
+- **Mga patakarang pang-security bilang tanging depensa** (hal. "itago ang admin button") — dapat ding suriin sa backend, dahil kayang lampasan ang frontend
+- **Direktang koneksyon sa database** — laging dumaan sa backend API
+- **Token sa `localStorage`** — mababasa ito ng masamang script (XSS); gagamit tayo ng httpOnly cookie
+
+## Unang gawain
+**Phase 5** — pagkatapos gumana ang backend API. Tingnan ang [roadmap](../docs/03-roadmap.md).

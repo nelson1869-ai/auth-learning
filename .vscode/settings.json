@@ -1,0 +1,35 @@
+{
+  // =========================================================================
+  // 🎓 VS CODE SETTINGS PARA SA PROJECT NA ITO
+  // Naka-commit ito para iisa ang editor settings ng buong team.
+  // =========================================================================
+
+  // Naka-off ang spell checker at markdown linter (maingay sa Taglish na docs)
+  "cSpell.enabled": false,
+  "markdownlint.config": {
+    "default": false
+  },
+  "markdown.validate.enabled": false,
+
+  // Kusang inaayos ang indentation at spacing tuwing magse-save (Ctrl+S)
+  "editor.formatOnSave": true,
+
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
+}

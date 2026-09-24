@@ -1,0 +1,23 @@
+# .gitignore — mga file na HINDI dapat i-save sa Git
+
+# Dependencies (nire-reinstall gamit ang `npm install`, napakalaki)
+node_modules/
+
+# Secrets — HINDI kailanman sa Git (tingnan ang docs/05-how-we-work.md)
+.env
+.env.*
+!.env.example
+
+# Build output (ginagawa ulit mula sa source code)
+dist/
+build/
+
+# Mga file ng OS at editor
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generated ng docs/diagrams/build.mjs mula sa *.md (ang .md ang source)
+docs/diagrams/index.html

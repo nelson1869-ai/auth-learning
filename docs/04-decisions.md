@@ -1,0 +1,132 @@
+# 04 — Decisions Log
+
+> Sa totoong team, isinusulat ang bawat mahalagang desisyon: **ano** ang pinili,
+> **anong mga opsyon** ang tinimbang, at **bakit**. Makalipas ang ilang buwan,
+> ito ang sagot sa tanong na "bakit ganito natin ito ginawa?"
+> (Sa industriya, tinatawag itong **ADR — Architecture Decision Record**.)
+>
+> **Consequences** = ang kapalit ng desisyon. Walang desisyong libre: bawat
+> pinili ay may nakukuha AT may isinusuko. Kapag isinulat mo ito, hindi ka
+> magugulat mamaya.
+
+## D-001 · Hiwalay na repo mula sa reference project
+- **Petsa:** 2026-09-24
+- **Mga opsyon:** bagong hiwalay na repo · bagong folder sa loob ng reference project
+- **Pinili:** bagong hiwalay na repo
+- **Bakit:** malinis ang simula at sariling Git history, at hindi magagalaw ang reference.
+- **Consequences:** kailangang magpalipat-lipat ng folder/window para tumingin sa
+  reference. Kapalit nito, hindi kailanman masisira ng eksperimento mo ang reference.
+
+## D-002 · JavaScript muna, TypeScript mamaya
+- **Petsa:** 2026-09-24
+- **Mga opsyon:** JavaScript muna · TypeScript agad
+- **Pinili:** JavaScript muna; TypeScript sa Phase 7
+- **Bakit:** isang bagay lang ang pag-aaralan sa simula (kung paano gumagana ang
+  backend). Sa Phase 7, makikita mismo kung anong mga pagkakamali ang nahuhuli
+  ng TypeScript.
+- **Consequences:** sa Phase 2–6, hindi mahuhuli ng editor ang ilang pagkakamali
+  (hal. maling pangalan ng field) — lalabas lang ito kapag pinatakbo ang code.
+  Kailangan ng isang "migration" phase (Phase 7). Iba ang itsura ng code natin
+  kaysa sa reference (TypeScript) hanggang doon.
+
+## D-003 · React + Vite para sa frontend
+- **Petsa:** 2026-09-24
+- **Mga opsyon:** React + Vite · plain HTML/JS · Next.js
+- **Pinili:** React + Vite
+- **Bakit:** pinakaginagamit sa trabaho, at malinaw ang hiwalay na frontend at
+  backend (sa Next.js, puwedeng maghalo ang dalawa at malito kung alin ang alin).
+- **Consequences:** dalawang hiwalay na server habang nagde-develop (frontend at
+  backend), kaya kailangang ayusin ang **CORS** (Phase 5) — isang bagong konsepto
+  na itinatago ng Next.js. Mabuti ito para matuto, pero dagdag na hakbang.
+
+## D-004 · Folder ayon sa role
+- **Petsa:** 2026-09-24
+- **Pinili:** `frontend/`, `backend/`, `database/`, `devops/`
+- **Bakit:** para matutunan ang trabaho ng bawat posisyon.
+- **Tapat na paalala:** sa totoong trabaho, hindi laging hiwalay ang mga ito
+  (hal. madalas nasa loob ng backend ang database schema). Para sa pag-aaral
+  ang hatiang ito.
+- **Consequences:** kailangang ituro ng backend kung nasaan ang mga migration sa
+  `database/` — dagdag na configuration na wala sa karaniwang project.
+
+## D-005 · Paraan ng pag-aaral
+- **Petsa:** 2026-09-24
+- **Pinili:** ipinapaliwanag ng guide (Claude) ang konsepto at nagpapakita ng
+  maliit na code; **ikaw ang nagta-type**; saka nire-review.
+- **Bakit:** ang code na tinype at inintindi mo mismo ang tunay na natututunan.
+- **Consequences:** mas mabagal kaysa kung ang guide ang gagawa ng lahat. Mas
+  kaunting features bawat linggo — pero bawat isa ay talagang naiintindihan mo.
+
+## D-006 · Pinagsama ang ilang bahagi ng "team workflow" prompt (mula sa ChatGPT)
+- **Petsa:** 2026-09-24
+- **Context:** may detalyadong prompt na nagmumungkahi ng 8 roles, `apps/` +
+  `packages/` na structure, 9-section na sagot sa bawat hakbang, at 16-item
+  security checklist sa bawat feature.
+- **Mga opsyon:** gamitin ito nang buo · huwag gamitin · kunin lang ang
+  mga bahaging bagay sa beginner
+- **Pinili:** kunin lang ang bahaging bagay:
+  1. Security Engineer, QA Engineer at Architect bilang "sombrero" (walang folder)
+  2. "Consequences" sa bawat desisyon (itong seksyon mismo)
+  3. "Hindi dapat nasa loob" sa bawat role folder
+  4. Maikling format ng bawat lesson (tingnan ang [how we work](05-how-we-work.md))
+- **Bakit hindi buo:** ang `apps/` + `packages/` ay pang-monorepo (maraming app,
+  malaking team) — over-engineering para sa isang app. Ang 9-section na sagot at
+  16-item checklist sa bawat maliit na hakbang ay makakalunod sa isang beginner.
+- **Consequences:** ang security ay tuturuan nang **paunti-unti** (ligtas na
+  basics sa MVP, tapos isa-isang upgrade sa Phase 9+), hindi lahat mula sa
+  unang araw. Kaya sa MVP, may mga kilalang kahinaan na sinasadya muna — at
+  nakalista ang mga ito sa roadmap para hindi makalimutan.
+
+## D-007 · Diagrams: iisang source (`.md`) + isang viewer — ⚠️ *PINALITAN ng D-009*
+- **Petsa:** 2026-09-24
+- **Context:** gustong mabuksan ang mga diagram sa Chrome, parang HTML.
+- **Mga opsyon:** tig-iisang `.html` file bawat diagram · mermaid sa `.md` +
+  isang `viewer.html` na nagre-render ng kahit anong `.md`
+- **Pinili:** `.md` + isang `viewer.html`
+- **Bakit:** kung may `.md` AT `.html` ang bawat diagram, dalawang kopya ang
+  kailangang i-update — at kalaunan, magkakaiba sila. Isang source lang = laging tugma.
+  Nire-render din ng GitHub ang `.md` nang kusa.
+- **Consequences:** kailangan ng internet ang viewer (kinukuha ang mermaid
+  library mula sa CDN). Kailangang pumili ng file sa viewer sa halip na
+  diretsong i-double-click ang diagram.
+
+## D-008 · Learning journal ayon sa phase at araw
+- **Petsa:** 2026-09-24
+- **Pinili:** `docs/journal/phase-N/day-NN.md` — isinusulat ni Nelson, isang file bawat araw
+- **Bakit:** ang pagsusulat sa sariling salita ang nagpapatibay ng natutunan, at
+  ang "Mga tanong ko pa" ang nagsasabi sa guide kung ano ang ipapaliwanag ulit.
+- **Consequences:** dagdag na ~5 minuto bawat araw. Walang space sa pangalan
+  (`day-01`, hindi `day 1`) para gumana sa terminal at para tama ang pagkakasunod.
+
+## D-009 · Diagrams: generated na site na may navigator (pinalitan ang D-007)
+- **Petsa:** 2026-09-24
+- **Context:** sa D-007, kailangang pumili ng file sa bawat pagbukas ng viewer —
+  mabagal at nakakainis. Gusto ng navigator: i-click, lalabas agad ang diagram.
+  Pero kapag binuksan ang `.html` bilang file, hindi pinapayagan ng browser na
+  basahin ang ibang file sa folder (security).
+- **Mga opsyon:** maliit na local web server (kailangang patakbuhin tuwing titingin) ·
+  script na isinasama ang lahat ng diagram sa loob ng isang `index.html`
+- **Pinili:** `docs/diagrams/build.mjs` → gumagawa ng `index.html` mula sa lahat
+  ng `*.md` at sa `template.html`
+- **Bakit:** i-double-click lang ang `index.html` — walang server. Ang `.md` pa rin
+  ang tanging source; ang `index.html` ay generated kaya naka-`.gitignore`.
+- **Consequences:** kailangang patakbuhin ulit ang build pagkatapos magbago ng
+  diagram (kung hindi, luma ang makikita sa `index.html`). Pagkatapos ng
+  `git clone`, wala pang `index.html` hangga't hindi pinapatakbo ang build.
+  Kailangan pa rin ng internet (mermaid mula sa CDN).
+- **Aral:** ganito ang totoong ADR — hindi binubura ang lumang desisyon,
+  minamarkahan lang na "pinalitan", para makita ang kasaysayan ng pag-iisip.
+
+---
+
+*Template para sa susunod na desisyon:*
+
+```markdown
+## D-00X · <maikling pamagat>
+- **Petsa:**
+- **Context:**      (bakit kailangang magdesisyon?)
+- **Mga opsyon:**
+- **Pinili:**
+- **Bakit:**
+- **Consequences:** (ano ang nakukuha, ano ang isinusuko?)
+```
