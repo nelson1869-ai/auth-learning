@@ -38,6 +38,29 @@ devops/
 > Ang GitHub Actions workflows ay nasa `/.github/workflows/` sa root —
 > requirement iyon ng GitHub, hindi puwedeng ilipat dito.
 
+## Paano patakbuhin ang database (Day 07)
+
+```bash
+cd devops                   # 🚨 dito lang — ang down ay para sa project ng folder mo
+cp .env.example .env        # unang beses lang; lagyan ng sariling password
+docker compose up -d        # simulan (tumatakbo sa likod)
+docker compose ps           # tumatakbo ba?
+docker compose logs postgres | tail    # hanapin: "ready to accept connections"
+docker compose down         # ihinto — buhay pa rin ang data sa volume
+```
+
+| Setting | Value |
+|---|---|
+| Host / port sa PC mo | `localhost:5435` (5432 at 5434 ay gamit na ng iba) |
+| Database / user | `auth_learning` / `auth` |
+| Password | nasa `devops/.env` (hindi naka-commit) |
+| Volume | `auth-learning_pgdata` |
+
+> ⚠️ **Sa UNANG pagbuo lang ng volume binabasa ang `POSTGRES_USER`,
+> `POSTGRES_PASSWORD` at `POSTGRES_DB`.** Kapag binago mo sila pagkatapos, walang
+> mangyayari ("Skipping initialization" sa logs). Para magsimula ulit mula sa
+> wala: `docker compose down -v` — **binubura nito ang lahat ng data.**
+
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit
 - **Manual na hakbang na walang dokumentasyon** — kung ikaw lang ang nakakaalam, hindi ito maulit
