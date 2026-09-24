@@ -67,12 +67,12 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** Node vs browser JavaScript, npm, package.json
 
 ### Day 04 — Hello World server
-- [ ] `backend/src/index.js`: Express server na nakikinig sa port 3000
-- [ ] Unang route: `GET /api/health` → `{ "status": "ok" }`
-- [ ] Buksan sa browser at subukan gamit ang `curl`
-- [ ] 🏗️ Isang file muna (`src/index.js`) — tingnan ang `docs/06-architecture.md` §2, Phase 2
-- [ ] 📝 `backend/http/01-health.http` — health, route na wala, maling method
-- [ ] 📊 `docs/diagrams/01-request-lifecycle.md` — paano sinasagot ng server ang request (`TD`)
+- [x] `backend/src/index.js`: Express server na nakikinig sa port 3000
+- [x] Unang route: `GET /api/health` → `{ "status": "ok" }`
+- [x] Buksan sa browser at subukan gamit ang `curl`
+- [x] 🏗️ Isang file muna (`src/index.js`) — tingnan ang `docs/06-architecture.md` §2, Phase 2
+- [x] 📝 `backend/http/01-health.http` — health, route na wala, maling method
+- [x] 📊 `docs/diagrams/01-request-lifecycle.md` — paano sinasagot ng server ang request (`TD`)
 - **Matututunan:** server, port, route, request/response, JSON
 
 ### Day 05 — `.http` files at status codes

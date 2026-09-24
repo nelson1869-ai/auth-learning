@@ -142,3 +142,17 @@ ay para mahuli ng computer ang mga sira nang kusa.
   ## Susunod
   ```
 - Ang **"Mga tanong ko pa"** ang pinakamahalaga — dito magsisimula ang susunod na lesson.
+
+## 11. Comments sa code — Taglish, maikli, at "BAKIT"
+
+**Code = English** (pangalan ng variable, function, file). **Comments = Taglish.**
+
+| | Halimbawa | |
+|---|---|---|
+| ✅ Paliwanag | `// Health check — para malaman ng monitoring kung buhay ang server` | Tumutulong umintindi |
+| ❌ Naka-comment na code | `// res.json({ status: 'ok' });` | Patay na code — nasa Git na ang history |
+| ❌ Inuulit ang code | `// tawagin ang res.json` | Walang dagdag na impormasyon |
+
+- **Ipaliwanag ang BAKIT, hindi ang ANO** — nakikita na sa code kung ano ang ginagawa.
+- **Maikli:** 1–2 linya. Para lang sa mahalaga, hindi sa bawat linya.
+- **I-update kapag nagbago ang code** — ang maling comment ay mas masama pa kaysa wala.
