@@ -4,6 +4,25 @@
 > Tingnan sa Chrome: `node docs/diagrams/build.mjs`, tapos buksan ang `index.html`.
 > Kusa rin itong nire-render sa GitHub at sa VS Code Markdown Preview.
 
+## Ngayon: ano na ang totoong mayroon
+
+> 📅 in-update sa Day 07 · Phase 3 · **Code:** `backend/src/`, `devops/docker-compose.yml`
+
+```mermaid
+flowchart LR
+    Client(["REST Client / curl"]) -->|"HTTP · localhost:3000"| BE["backend/ · Express<br/>GET /api/health<br/>POST /api/echo"]
+    You(["👤 Ikaw (terminal)"]) -->|"docker compose exec ... psql"| PG
+    subgraph Docker["Docker · project: auth-learning"]
+        PG[("postgres:17-alpine<br/>database: auth_learning<br/>PC 5435 → container 5432")]
+        Vol[/"volume: auth-learning_pgdata<br/>(dito nakatira ang data)"/]
+        PG --- Vol
+    end
+    BE -. "⏳ Day 10: ikokonekta gamit ang Drizzle" .-> PG
+```
+
+**Pansinin:** tumatakbo na ang database, pero **hindi pa ito kilala ng backend**.
+Magkahiwalay pa sila hanggang Day 10.
+
 ## Habang nagde-develop (sa sarili mong PC)
 
 ```mermaid
