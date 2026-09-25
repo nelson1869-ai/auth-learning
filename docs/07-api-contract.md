@@ -1,6 +1,6 @@
 # 07 — API Contract (ang kasunduan ng frontend at backend)
 
-> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) Day 15 (login) at Day 16 (JWT cookie) · **I-update tuwing may bago o nagbagong endpoint.**
+> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) Day 15 (login), Day 16 (JWT cookie) at Day 17 (me) · **I-update tuwing may bago o nagbagong endpoint.**
 >
 > **API contract** = ang listahan ng bawat endpoint: ano ang ipapadala, ano ang
 > babalik, at anong status code. Sa totoong team, ito ang binabasa ng frontend
@@ -19,6 +19,7 @@
 | GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` |
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
+| GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
 
 ---
 
@@ -79,3 +80,12 @@ Bilang lang — hindi kailanman ang listahan ng users.
 **Cookie (sa 200 lang):** `token=<JWT>; Max-Age=3600; Path=/; HttpOnly; SameSite=Lax`
 (+ `Secure` kapag `NODE_ENV=production`). Payload ng JWT: `{ "sub": "<user id>", "iat", "exp" }`,
 HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapadala ng browser.
+
+## `GET /api/auth/me`
+**Auth:** kailangan ang cookie na `token` (mula sa login). Walang body.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
+| **401** | Walang cookie, binago/sira/expired ang token, o nabura na ang user — **iisang sagot** | `{ "error": "Not authenticated" }` |
+
