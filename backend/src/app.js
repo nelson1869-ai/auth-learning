@@ -2,9 +2,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import healthRouter from './routes/health.ts';
-import echoRouter from './routes/echo.js';
-import usersRouter from './routes/users.js';
-import authRouter from './routes/auth.js';
+import echoRouter from './routes/echo.ts';
+import usersRouter from './routes/users.ts';
+import authRouter from './routes/auth.ts';
 
 // Binubuo lang ang app dito — walang listen. Kaya ma-i-import ito ng tests nang hindi binubuksan ang port
 const app = express();
