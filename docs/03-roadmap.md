@@ -151,10 +151,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** "huwag magtiwala sa input ng user" — 🔐
 
 ### Day 15 — Login endpoint
-- [ ] `POST /api/auth/login` — i-verify ang password
-- [ ] Iisang mensahe para sa maling email AT maling password — bakit? 🔐
-- [ ] 📝 `backend/http/05-login.http` — tamang password, maling password, walang account
-- [ ] 📊 `docs/diagrams/04-login-flow.md` (`TD`)
+- [x] `POST /api/auth/login` — i-verify ang password
+- [x] Iisang mensahe para sa maling email AT maling password — bakit? 🔐
+- [x] 📝 `backend/http/05-login.http` — tamang password, maling password, walang account
+- [x] 📊 `docs/diagrams/04-login-flow.md` (`TD`)
 - **Matututunan:** authentication, user enumeration (unang silip) — *Reference: item 28*
 
 ### Day 16 — JWT at cookies

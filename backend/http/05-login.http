@@ -1,0 +1,95 @@
+### =========================================================================
+### 🎓 LOGIN — patunayan kung sino ka (authentication)
+### 📅 Day 15 · Phase 4 (Register at login)
+### =========================================================================
+### POST /api/auth/login  { email, password }
+###   → Zod (lowercase ang email) → hanapin ang user → argon2.verify → 200 o 401
+###
+### 🔐 Iisang sagot para sa maling password AT walang account — at PAREHO ANG
+### TAGAL (DUMMY_HASH). Hindi malalaman ng attacker kung sino ang may account.
+###
+### PAANO GAMITIN (REST Client extension):
+###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
+###   2. I-send ang #0 (gagawa ng account), tapos ang iba mula taas pababa
+###
+### Code: backend/src/routes/auth.js · backend/src/validations/auth.js
+### Diagram: docs/diagrams/04-login-flow.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Gumawa muna ng account na gagamitin sa ibaba.
+###    201 sa unang send; 409 sa susunod (may account na — ayos lang, tuloy lang)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123",
+  "name": "Login Demo"
+}
+
+### -------------------------------------------------------------------------
+### 1. Tamang email at password. Ang inaasahan:
+###    Status:  200 OK
+###    Body:    { "user": { "id": ..., "email": "login-demo@example.com", "name": "Login Demo" } }
+###
+### 🔍 Walang password_hash sa sagot. At PANSININ: wala pang "naaalala" ang server
+### na naka-login ka — sa susunod na request, hindi ka na nito kilala. Iyan ang
+### aayusin ng JWT + cookie sa Day 16.
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Tamang email, MALING password. Ang inaasahan:
+###    Status:  401 Unauthorized
+###    Body:    { "error": "Invalid email or password" }
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "mali-na-password"
+}
+
+### -------------------------------------------------------------------------
+### 3. Email na WALANG account. Ang inaasahan:
+###    Status:  401 — EKSAKTONG parehong body ng #2
+###
+### 🔐 Tingnan ang oras sa kanang itaas ng response panel ng REST Client
+### (hal. "Response(52ms)"). Halos pareho ang #2 at #3 — dahil sa DUMMY_HASH.
+### Sinukat (Day 15, 20× bawat isa): maling password median 52.3ms,
+### walang account median 52.3ms. Kung walang DUMMY_HASH: ~1–2ms lang ang #3.
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "walang-ganitong-account@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 4. Malaking titik at espasyo sa email. Ang inaasahan:
+###    Status:  200 — nilinis ni Zod: "  LOGIN-Demo@Example.com " → "login-demo@example.com"
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "  LOGIN-Demo@Example.com ",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 5. Walang password. Ang inaasahan:
+###    Status:  400 — "fields": { "password": ["Invalid input: expected string, received undefined"] }
+###    (~1ms lang — hindi umaabot sa database o sa argon2)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com"
+}

@@ -1,6 +1,6 @@
 # 07 — API Contract (ang kasunduan ng frontend at backend)
 
-> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) · **I-update tuwing may bago o nagbagong endpoint.**
+> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) at Day 15 (login) · **I-update tuwing may bago o nagbagong endpoint.**
 >
 > **API contract** = ang listahan ng bawat endpoint: ano ang ipapadala, ano ang
 > babalik, at anong status code. Sa totoong team, ito ang binabasa ng frontend
@@ -18,6 +18,7 @@
 | POST | `/api/echo` | Pang-aral: ibinabalik ang body | — | `02-echo.http` |
 | GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` |
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
+| POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 
 ---
 
@@ -56,3 +57,23 @@ Bilang lang — hindi kailanman ang listahan ng users.
 | **409** | May account na ang email (kahit ibang titik: `Ana@` = `ana@`) | `{ "error": "Email already registered" }` |
 
 **Hindi kailanman ibinabalik:** `password`, `password_hash`.
+
+## `POST /api/auth/login`
+**Request**
+```json
+{ "email": "ana@example.com", "password": "password123" }
+```
+| Field | Required | Patakaran (Zod — `loginSchema`) |
+|---|---|---|
+| `email` | ✅ | string, tamang email · tina-trim at ginagawang lowercase |
+| `password` | ✅ | string, 1–128 characters (hindi 8 — para makapag-login pa rin ang lumang account kapag binago ang patakaran) |
+
+**Responses**
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Tama ang email at password | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
+| **400** | Mali ang hugis ng input | `{ "error": "Invalid input", "fields": { ... } }` |
+| **401** | Maling password **o** walang account — **iisang sagot, parehong tagal** | `{ "error": "Invalid email or password" }` |
+
+⏳ Wala pang cookie o token — idadagdag sa Day 16.
