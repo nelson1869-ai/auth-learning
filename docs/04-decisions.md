@@ -278,3 +278,24 @@
   - Rekomendasyon (hindi pa nagagawa): palitan ang Postgres password sa
     `devops/.env` — kapareho ng isa pang password ni Nelson (hindi ito nasa Git).
 
+---
+
+## D-017 · Public pa rin — at noreply email para sa mga bagong commit
+
+- **Petsa:** 2026-09-26 (pagkatapos ng Day 28)
+- **Context:** pagkatapos ng D-016, nakita na ang Gmail ni Nelson ay nasa lahat ng
+  110 commit at nakikita habang public ang repo. Sandaling ginawang **private**,
+  kaya bumalik ang babalang "won't be enforced" sa ruleset.
+- **Mga opsyon:** private (walang enforcement, hindi nakikita ng AI ang CI) ·
+  public (enforced, nakikita ang email sa lumang commits) · isulat ulit ang buong
+  history para palitan ang email (delikado — force push, hindi inirerekomenda)
+- **Pinili:** **public ulit** — pinili ni Nelson ("oo na public ko na"). Tanggap ang
+  email sa lumang commits (karaniwang panganib: spam; walang secret na nalantad).
+- **Consequences:**
+  - Ipinapatupad ulit ang `main-protection` — nakumpirma ng AI sa API: `active`.
+  - Nakikita ulit ng AI ang CI at PRs sa GitHub API.
+  - **Rekomendasyon:** GitHub → Settings → Emails → "Keep my email addresses
+    private", at `git config --global user.email "<noreply email>"` — para hindi na
+    lumabas ang Gmail sa mga BAGONG commit.
+  - **Aral:** hindi nakatatago ng email ang SSH key — authentication iyon (sino ang
+    puwedeng mag-push). Ang email ay nakasulat sa loob ng bawat commit.

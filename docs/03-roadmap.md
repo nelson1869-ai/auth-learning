@@ -309,7 +309,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 37 — CD: kusang deploy pagka-merge sa `main`
 - [ ] GitHub Actions job na nagde-deploy kapag pumasa ang CI (Phase 6)
 - [ ] Deploy lang mula sa `main`, at lang kapag berde ang lahat ng tests
-- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016)
+- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017)
 - [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → deploy; i-update ang `00-architecture.md`
 - **Matututunan:** CD — at kung bakit **manual muna, tapos automate** (hindi mo
   magagawang awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
