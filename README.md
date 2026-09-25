@@ -48,6 +48,7 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 4 — Register at login (Backend + Security).** Tapos na ang Phase 1–3 ✅
-(tags `checkpoint-phase-1`, `checkpoint-phase-2`, `checkpoint-phase-3`).
+**Phase 5 — Login page (Frontend, React + Vite).** Tapos na ang Phase 1–4 ✅
+(tags `checkpoint-phase-1` hanggang `checkpoint-phase-4`) — kumpleto na ang backend auth:
+register, login, JWT sa httpOnly cookie, `/me`, logout.
 Tingnan ang [roadmap](docs/03-roadmap.md).
