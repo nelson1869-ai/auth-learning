@@ -9,6 +9,10 @@
 >
 > Base URL (dev): `http://localhost:3000` · Lahat ng body ay JSON
 > (`Content-Type: application/json`).
+>
+> **CORS (Day 22):** pinapayagan lang ang `CLIENT_URL` (dev: `http://localhost:5173`),
+> may `credentials: true`. Sa frontend: `fetch(..., { credentials: 'include' })` —
+> kung wala ito, hindi maipapadala o maitatago ang cookie na `token`.
 
 ## Buod
 

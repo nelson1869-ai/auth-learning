@@ -214,10 +214,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** state, re-render, controlled inputs, events
 
 ### Day 22 — Pagtawag sa backend
-- [ ] `src/api/auth.js`: `fetch` sa `/api/auth/login` na may `credentials: 'include'`
-- [ ] **CORS** — makita muna ang error sa DevTools, tapos ayusin sa backend (`cors`, `origin`, `credentials: true`) 🔐
-- [ ] 📊 I-update ang `docs/diagrams/07-frontend-backend.md` (sinimulan sa Day 21) — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
-- [ ] 📋 Sundan ang `docs/07-api-contract.md` — ang "kasunduan" ng frontend at backend
+- [x] `src/api/auth.js`: `fetch` sa `/api/auth/login` na may `credentials: 'include'`
+- [x] **CORS** — makita muna ang error sa DevTools, tapos ayusin sa backend (`cors`, `origin`, `credentials: true`) 🔐
+- [x] 📊 I-update ang `docs/diagrams/07-frontend-backend.md` (sinimulan sa Day 21) — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
+- [x] 📋 Sundan ang `docs/07-api-contract.md` — ang "kasunduan" ng frontend at backend
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`, cookie sa DevTools
 
 ### Day 23 — Register gamit ang React 19 (modern)

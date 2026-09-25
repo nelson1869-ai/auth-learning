@@ -6,19 +6,19 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 20 · Phase 5 (may frontend na) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 22 · Phase 5 (nag-uusap na ang frontend at backend) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`07`
 
 ```mermaid
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
     subgraph FEG["frontend/ · Vite 8 + React 19 (npm run dev)"]
-        FE["src/main.jsx → App.jsx<br/>pages/ · components/ · api/<br/>(walang laman pa)"]
+        FE["pages/LoginPage.jsx<br/>api/auth.js — fetch, credentials: 'include'"]
     end
-    FE -. "⏳ Day 22: fetch + CORS" .-> MW
+    FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
     subgraph BE["backend/ · Express (npm run dev)"]
-        MW["express.json()<br/>cookieParser()"]
+        MW["cors({ origin: CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
         Routes["routes/<br/>auth.js: register · login · me · logout<br/>users.js: count · health.js · echo.js"]
         Val["validations/auth.js<br/>Zod: registerSchema · loginSchema"]
         Auth["middleware/requireAuth.js<br/>jwt.verify (JWT_SECRET)"]
@@ -38,9 +38,9 @@ flowchart LR
     end
 ```
 
-**Pansinin:** dalawang server na — frontend sa **:5173** (Vite), backend sa **:3000**
-(Express). Hindi pa sila nag-uusap: sa Day 22, tatawag ang frontend gamit ang `fetch`,
-at haharangin ito ng browser (CORS) hangga't hindi pinapayagan ng backend.
+**Pansinin:** dalawang server — frontend sa **:5173** (Vite), backend sa **:3000**
+(Express). Nag-uusap na sila (Day 22): pinapayagan ng `cors()` ang `CLIENT_URL` lang,
+at ang cookie na `token` ay itinatago ng browser para sa `localhost:3000`.
 
 ## Habang nagde-develop (sa sarili mong PC)
 

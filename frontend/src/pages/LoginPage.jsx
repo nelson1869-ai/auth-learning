@@ -1,14 +1,23 @@
 import { useState } from 'react';
+import { login } from '../api/auth.js';
 
 export default function LoginPage() {
   // State: naaalala ng component; kapag binago (setX), nire-render ulit ng React ang UI
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [submitted, setSubmitted] = useState(null);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault(); // pigilan ang default na page reload ng browser — JavaScript ang hahawak
-    setSubmitted({ email }); // Day 22: dito tatawag sa backend
+    setError('');
+    try {
+      const data = await login(email, password);
+      setUser(data.user);
+    } catch (err) {
+      // 401 mula sa backend, o network/CORS error (hal. "Failed to fetch")
+      setError(err.message);
+    }
   }
 
   return (
@@ -30,9 +39,8 @@ export default function LoginPage() {
       </label>
       <button type="submit">Login</button>
 
-      {/* Email lang ang ipinapakita — hindi kailanman ang password */}
-      <p>Tina-type mo: {email}</p>
-      {submitted && <p>Na-submit: {submitted.email}</p>}
+      {user && <p>✅ Naka-login: {user.email}</p>}
+      {error && <p>❌ {error}</p>}
     </form>
   );
 }
