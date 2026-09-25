@@ -41,7 +41,7 @@ I-install lang kapag kailangan na (`code --install-extension <id>`):
 |---|---|---|---|
 | **REST Client** | `humao.rest-client` | Pagpapatakbo ng `.http` files | Day 05 |
 | **Markdown Preview Mermaid Support** | `bierner.markdown-mermaid` | Makita ang diagrams sa Markdown Preview | Day 06 |
-| **ESLint** | `dbaeumer.vscode-eslint` | Makita agad sa editor ang mga pagkakamaling nahuhuli ng ESLint | Day 27 |
+| **Oxc** | `oxc.oxc-vscode` | Makita agad sa editor ang mga babala ng Oxlint (D-015) | Day 20 / 27 |
 | **Docker** | `ms-azuretools.vscode-docker` | Makita ang containers sa VS Code (optional) | Day 07 |
 
 ### AI assistants (Claude Code, ChatGPT, …)
@@ -85,7 +85,7 @@ bagay na gusto nating makita muna.
 | **cookie-parser** | Pagbasa ng cookies mula sa request (dito nakatira ang JWT) | Day 16 |
 | **cors** | Pinapayagan ang frontend (ibang port/domain) na tumawag sa backend | Day 22 |
 | **Vitest** + **Supertest** | Automated tests | Day 25 |
-| **ESLint** | Nahuhuli ang mga karaniwang pagkakamali bago pa tumakbo ang code | Day 27 |
+| **Oxlint** | Nahuhuli ang mga karaniwang pagkakamali bago pa tumakbo ang code (D-015, dati ESLint) | Day 27 |
 | **TypeScript** + **tsx** | Types, at pagpapatakbo ng `.ts` nang direkta | Day 29 |
 
 > **`dotenv` → `--env-file`:** Sa maraming tutorial, `require('dotenv').config()`
@@ -107,7 +107,7 @@ bagay na gusto nating makita muna.
 | Tool | Para saan | Unang gamit |
 |---|---|---|
 | **Docker Compose** | Postgres ngayon; ang buong system mamaya | Day 07 |
-| **GitHub Actions** | CI (tests sa bawat push) at CD (kusang deploy) | Day 27 / 37 |
+| **GitHub Actions** | CI (`.github/workflows/ci.yml`: tests, lint, build sa bawat PR) at CD (kusang deploy) | Day 27 / 37 |
 | **Dockerfile** | Pagbuo ng image ng backend para sa deploy | Day 34 |
 | **Sariling domain** (~$10/taon) | Stable na address, hal. `auth.<pangalan-mo>.com` | Day 33 |
 | **Cloudflare** (DNS + named Tunnel) | HTTPS at pag-expose ng app sa internet nang libre | Day 33 / 36 |
