@@ -58,6 +58,9 @@ jobs:
       - name: Lint (Oxlint)
         run: npm run lint
 
+      - name: Type-check (TypeScript — hindi gumagawa ng JavaScript, sumusuri lang)
+        run: npm run typecheck
+
       - name: Migrate the test database
         run: npx drizzle-kit migrate
 
