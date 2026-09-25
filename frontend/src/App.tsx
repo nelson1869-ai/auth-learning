@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router';
-import LoginPage from './pages/LoginPage.jsx';
-import RegisterPage from './pages/RegisterPage.jsx';
-import ProfilePage from './pages/ProfilePage.jsx';
+import LoginPage from './pages/LoginPage.tsx';
+import RegisterPage from './pages/RegisterPage.tsx';
+import ProfilePage from './pages/ProfilePage.tsx';
 
 function App() {
   return (

@@ -2,7 +2,7 @@
 
 > 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) at Day 24 (React Router, protektadong page)
 >
-> **Code:** `frontend/src/App.jsx` (routes) · `frontend/src/pages/*.jsx` · `frontend/src/api/auth.js` · `backend/src/index.ts` (cors)
+> **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
 
 ## Paano gumagana ang login form (state → re-render)
@@ -18,7 +18,7 @@ flowchart TD
     Submit(["🖱️ Pindot Login / Enter"]) --> Req{"required: may laman<br/>ang email at password?"}
     Req -->|"wala"| Block["Browser ang humarang<br/>'Please fill out this field.'"]
     Req -->|"mayroon"| Handle["handleSubmit(e)<br/>e.preventDefault() — walang page reload"]
-    Handle --> Fetch["api/auth.js: login(email, password)<br/>→ tingnan ang sequence sa ibaba (Day 22)"]
+    Handle --> Fetch["api/auth.ts: login(email, password)<br/>→ tingnan ang sequence sa ibaba (Day 22)"]
 ```
 
 ## Mga dapat pansinin
@@ -39,7 +39,7 @@ sequenceDiagram
     participant B as 🌐 Browser<br/>(page mula sa localhost:5173)
     participant S as ⚙️ Backend<br/>localhost:3000
 
-    Note over B: login() sa api/auth.js<br/>fetch(POST, JSON, credentials: 'include')
+    Note over B: login() sa api/auth.ts<br/>fetch(POST, JSON, credentials: 'include')
     Note over B: Ibang origin (port 3000 ≠ 5173) + JSON<br/>→ magtanong muna (preflight)
     B->>S: OPTIONS /api/auth/login<br/>Origin: http://localhost:5173
     S-->>B: 204 · Allow-Origin: http://localhost:5173 · Allow-Credentials: true
@@ -76,7 +76,7 @@ sequenceDiagram
 flowchart TD
     Sub(["🖱️ Pindot Register<br/>&lt;form action={formAction}&gt;"]) --> Pend["React: isPending = true<br/>button disabled · 'Nagre-register…'"]
     Pend --> Act["registerAction(prevState, formData)<br/>formData.get('email') · ('password') · ('name') || undefined"]
-    Act --> Api["api/auth.js: register() → fetch POST /api/auth/register"]
+    Act --> Api["api/auth.ts: register() → fetch POST /api/auth/register"]
     Api --> Res{"Sagot ng backend"}
     Res -->|"201"| Ok["return { user }"]
     Res -->|"409"| E409["throw → return { error: 'Email already registered',<br/>email, name }"]
@@ -102,7 +102,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    URL(["URL sa browser"]) --> R{"React Router<br/>App.jsx — &lt;Routes&gt;"}
+    URL(["URL sa browser"]) --> R{"React Router<br/>App.tsx — &lt;Routes&gt;"}
     R -->|"/login"| L["LoginPage"]
     R -->|"/register"| G["RegisterPage"]
     R -->|"/profile"| P["ProfilePage<br/>'Loading…'"]

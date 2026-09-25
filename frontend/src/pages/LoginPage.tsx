@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { login } from '../api/auth.js';
+import { login, errorMessage } from '../api/auth.ts';
 
 export default function LoginPage() {
   // State: naaalala ng component; kapag binago (setX), nire-render ulit ng React ang UI
@@ -9,7 +10,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); // pigilan ang default na page reload ng browser — JavaScript ang hahawak
     setError('');
     try {
@@ -17,7 +18,7 @@ export default function LoginPage() {
       navigate('/profile');
     } catch (err) {
       // 401 mula sa backend, o network/CORS error (hal. "Failed to fetch")
-      setError(err.message);
+      setError(errorMessage(err)); // `unknown` ang err — hindi laging may .message
     }
   }
 

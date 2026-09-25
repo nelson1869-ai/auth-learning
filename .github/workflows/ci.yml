@@ -89,5 +89,8 @@ jobs:
       - name: Lint (Oxlint)
         run: npm run lint
 
+      - name: Type-check (TypeScript)
+        run: npm run typecheck
+
       - name: Build
         run: npm run build

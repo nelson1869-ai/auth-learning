@@ -1,0 +1,5 @@
+{
+  // Dalawang bahagi: ang app (src/, tumatakbo sa browser) at ang config ng Vite (tumatakbo sa Node)
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+}

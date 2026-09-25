@@ -62,7 +62,7 @@ i-edit ang docs kapag hiniling mo. Tingnan ang [`AGENTS.md`](../AGENTS.md).
 | **React 19** | Paggawa ng UI mula sa maliliit na piraso (components) | Day 20 |
 | **Vite 8** | Mabilis na development server at build tool para sa React | Day 20 |
 | **Oxlint** | Linter na kasama na sa template ng Vite (mabilis, gawa sa Rust) | Day 20 (kasama), Day 27 (CI) |
-| **JavaScript** → **TypeScript** | Ang language (TypeScript sa Phase 7) | Day 20 / 29 |
+| **JavaScript** → **TypeScript 7** | Ang language — `.tsx`/`.ts` mula Day 32b; `tsc -b` = type-check lang, si Vite ang gumagawa ng JS (D-019) | Day 20 / 32b |
 | **`useState`** → **`useActionState`** (React 19) | State ng form: una ang pundasyon, tapos ang modernong paraan | Day 21 / 23 |
 | **fetch** (built-in sa browser) | Pagtawag sa backend, may `credentials: 'include'` para sa cookie | Day 22 |
 | **React Router 8** | Mga page: `/login`, `/register`, `/profile` | Day 24 |
