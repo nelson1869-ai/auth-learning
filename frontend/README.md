@@ -49,7 +49,8 @@ frontend/
 - **Token sa `localStorage`** — mababasa ito ng masamang script (XSS); gagamit tayo ng httpOnly cookie
 
 ## Unang gawain
-**Phase 5** — Day 20 ✅ (Vite + React). Susunod: Day 21 (login form).
+**Phase 5** ✅ — Login, Register at protektadong Profile page, kausap ang backend
+(Day 20–24). Susunod para sa frontend: Phase 10 (admin page).
 Tingnan ang [roadmap](../docs/03-roadmap.md).
 
 **Mga command** (sa `frontend/`): `npm run dev` (http://localhost:5173) ·
