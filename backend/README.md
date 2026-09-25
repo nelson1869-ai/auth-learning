@@ -37,7 +37,9 @@ Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 ·
 ```
 backend/
 ├── src/
-│   ├── index.js          ← binubuksan ang server, middleware, kinakabit ang routers
+│   ├── app.js            ← binubuo ang app: middleware + routers (ini-import ng tests)
+│   ├── index.js          ← app.listen(3000) lang
+│   ├── test/setup.js     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
 │   ├── routes/           ← auth.js (register/login/me/logout), users.js, health.js, echo.js
 │   ├── middleware/       ← requireAuth.js — "naka-login ka ba?"
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
@@ -45,15 +47,30 @@ backend/
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
 ├── http/                 ← 01–07 .http files para subukan ang API
 ├── playground/           ← mga practice script
-├── .env                  ← DATABASE_URL, JWT_SECRET (SECRET — hindi sa Git)
+├── .env                  ← DATABASE_URL, JWT_SECRET, CLIENT_URL (SECRET — hindi sa Git)
+├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
 ├── .env.example          ← kopya na walang totoong secret
 └── package.json          ← dependencies + scripts (dev, start, db:*)
 ```
 
-**Mga command:** `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest) · `npm run db:generate` ·
+**Mga command:** `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
+`npm run db:migrate:test` · `npm run db:generate` ·
 `npm run db:migrate` · `npm run db:studio`
 
 Tingnan ang [architecture](../docs/06-architecture.md) at ang [API contract](../docs/07-api-contract.md).
+
+## Tests: unang setup (isang beses lang)
+```bash
+# 1. test database (sa psql, o:)
+cd devops && docker compose exec postgres psql -U auth -d auth_learning -c "CREATE DATABASE auth_learning_test;"
+# 2. backend/.env.test = kopya ng .env, pero /auth_learning_test sa dulo ng DATABASE_URL
+# 3. tables sa test database
+cd backend && npm run db:migrate:test
+# 4.
+npm test
+```
+⚠️ **Binubura ng tests ang `users`** bago ang bawat test — kaya hiwalay na database,
+at tumatanggi ang `src/test/setup.js` kapag hindi `*_test` ang `DATABASE_URL`.
 
 ## ❌ Hindi dapat nasa loob ng backend
 - **Plain text na password** — laging hashed (argon2) bago i-save

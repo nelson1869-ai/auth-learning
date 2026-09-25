@@ -248,9 +248,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** arrange / act / assert, bakit may tests
 
 ### Day 26 — API tests
-- [ ] Supertest: test ng `/api/health`, register, at login
-- [ ] Hiwalay na test database
-- [ ] 🏗️ Hatiin ang `index.js` → `app.js` + `index.js` (para ma-import ng tests nang hindi binubuksan ang port)
+- [x] Supertest: test ng `/api/health`, register, at login
+- [x] Hiwalay na test database
+- [x] 🏗️ Hatiin ang `index.js` → `app.js` + `index.js` (para ma-import ng tests nang hindi binubuksan ang port)
 - **Matututunan:** integration test — *Reference: item 2*
 
 ### Day 27 — GitHub Actions
