@@ -1,0 +1,7 @@
+/* Simpleng layout: makitid na column sa gitna, madaling basahin */
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 16px;
+}

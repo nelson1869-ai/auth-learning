@@ -49,6 +49,8 @@ frontend/
 - **Token sa `localStorage`** — mababasa ito ng masamang script (XSS); gagamit tayo ng httpOnly cookie
 
 ## Unang gawain
-**Phase 5, Day 20** — Vite + React. ⚠️ Bago ang `npm create vite`, ilipat muna palabas
-ang README na ito (binubura ng Vite ang laman ng folder), tapos ibalik.
+**Phase 5** — Day 20 ✅ (Vite + React). Susunod: Day 21 (login form).
 Tingnan ang [roadmap](../docs/03-roadmap.md).
+
+**Mga command** (sa `frontend/`): `npm run dev` (http://localhost:5173) ·
+`npm run lint` (Oxlint) · `npm run build`

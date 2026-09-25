@@ -201,11 +201,11 @@ direktang nagtatrabaho sa `main`?*
 > Walang frontend ang reference project — dito tayo mismo ang nagpapasya.
 
 ### Day 20 — React + Vite
-- [ ] Ilipat muna palabas ang `frontend/README.md` (binubura ng Vite ang laman ng folder), tapos
+- [x] Ilipat muna palabas ang `frontend/README.md` (binubura ng Vite ang laman ng folder), tapos
       `npm create vite@latest frontend -- --template react`, ibalik ang README, `npm install`, `npm run dev`
-- [ ] Ano ang component at JSX; linisin ang template (alisin ang demo)
-- [ ] 🏗️ Frontend structure: `pages/`, `components/`, `api/` (tingnan ang §4)
-- [ ] 🧰 Buksan ang **Chrome DevTools** (F12) → Network tab — dito mo makikita ang bawat request
+- [x] Ano ang component at JSX; linisin ang template (alisin ang demo)
+- [x] 🏗️ Frontend structure: `pages/`, `components/`, `api/` (tingnan ang §4)
+- [x] 🧰 Buksan ang **Chrome DevTools** (F12) → Network tab — dito mo makikita ang bawat request
 - **Matututunan:** frontend dev server, component, JSX, StrictMode
 
 ### Day 21 — State at forms (pundasyon)
