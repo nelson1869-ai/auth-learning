@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getMe, logout } from '../api/auth.js';
+import { getMe, logout } from '../api/auth.ts';
+import type { User } from '../api/auth.ts';
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
+  // <User | null>: kung wala ito, `never` ang akala ni TypeScript — hindi alam ang hugis ng user
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
   // Pagkatapos mag-render: tanungin ang backend kung sino ako (dalawang beses sa dev dahil sa StrictMode)

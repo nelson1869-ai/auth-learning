@@ -31,8 +31,8 @@ React 19 · Vite 8 · React Router 8 · fetch · plain CSS · JavaScript (→ Ty
 ```
 frontend/
 ├── src/
-│   ├── main.jsx        ← simula ng app (StrictMode)
-│   ├── App.jsx         ← aling page ang ipapakita (React Router)
+│   ├── main.tsx        ← simula ng app (StrictMode)
+│   ├── App.tsx         ← aling page ang ipapakita (React Router)
 │   ├── pages/          ← Login, Register, Profile
 │   ├── components/     ← maliliit na pirasong ginagamit ng marami
 │   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar
