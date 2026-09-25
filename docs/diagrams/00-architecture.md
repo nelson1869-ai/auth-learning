@@ -6,20 +6,21 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 24 · Phase 5 (buong auth mula sa browser) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`07`
 
 ```mermaid
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
-    subgraph FEG["frontend/ · Vite 8 + React 19 (npm run dev)"]
-        FE["App.jsx — React Router 8<br/>pages/ Login · Register · Profile<br/>api/auth.js — fetch, credentials: 'include'"]
+    subgraph FEG["frontend/ · Vite 8 + React 19 + TypeScript"]
+        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile<br/>api/auth.ts — fetch, credentials: 'include'"]
     end
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
-    subgraph BE["backend/ · Express (npm run dev)"]
-        MW["cors({ origin: CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
-        Routes["routes/<br/>auth.js: register · login · me · logout<br/>users.js: count · health.js · echo.js"]
+    subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
+        MW["cors({ origin: env.CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
+        Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
+        Routes["routes/<br/>auth.ts: register · login · me · logout<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
         Auth["middleware/requireAuth.ts<br/>jwt.verify (JWT_SECRET)"]
         Hash["argon2<br/>hash · verify"]

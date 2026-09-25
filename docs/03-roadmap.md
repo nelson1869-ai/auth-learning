@@ -282,6 +282,11 @@ direktang nagtatrabaho sa `main`?*
 - [x] Pansinin: anong mga pagkakamali ang nahuli ng TypeScript?
 - **Matututunan:** unti-unting migration nang hindi sinisira ang gumagana
 
+### Day 32b — Frontend sa TypeScript (idinagdag — napansin ni Nelson)
+- [x] `.jsx` → `.tsx`, `auth.js` → `auth.ts`; `User`/`ApiError` types; `npm run typecheck` sa CI
+- [x] Pansinin: 17 error nang pinalitan lang ang pangalan; `User` ay kopya ng sagot ng backend (D-019)
+- **Matututunan:** types sa React (`useState<User | null>`, `FormEvent`, `useActionState<State, FormData>`)
+
 **✅ Checkpoint (`checkpoint-phase-7`):** `npx tsc --noEmit` malinis, at pumapasa pa rin ang tests.
 
 ---

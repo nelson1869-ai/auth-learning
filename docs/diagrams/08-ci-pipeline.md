@@ -1,6 +1,6 @@
 # 08 — CI pipeline (GitHub Actions)
 
-> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection)
+> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection) at Phase 7 (type-check)
 >
 > **Code:** `.github/workflows/ci.yml` · `backend/src/test/setup.ts` · `backend/vitest.config.ts`
 > **Subukan:** gumawa ng PR → tingnan ang "Checks" sa PR, o ang tab na **Actions** sa GitHub
@@ -13,13 +13,13 @@ flowchart LR
     subgraph BE["job: backend (ubuntu, BAGONG makina)"]
         direction TB
         PG[("service: postgres:17-alpine<br/>auth_learning_test")]
-        B1["npm ci"] --> B2["npm audit --omit=dev"] --> B3["npm run lint (Oxlint)"] --> B4["drizzle-kit migrate"] --> B5["npm test<br/>(10 tests)"]
+        B1["npm ci"] --> B2["npm audit --omit=dev"] --> B3["npm run lint (Oxlint)"] --> B3b["npm run typecheck (tsc)"] --> B4["drizzle-kit migrate"] --> B5["npm test<br/>(10 tests)"]
         B4 -.-> PG
         B5 -.-> PG
     end
     subgraph FE["job: frontend (sabay na tumatakbo)"]
         direction TB
-        F1["npm ci"] --> F2["npm run lint (Oxlint)"] --> F3["npm run build"]
+        F1["npm ci"] --> F2["npm run lint (Oxlint)"] --> F2b["npm run typecheck (tsc -b)"] --> F3["npm run build"]
     end
     BE --> R{"Lahat pumasa?"}
     FE --> R

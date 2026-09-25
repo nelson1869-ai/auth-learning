@@ -111,8 +111,8 @@ backend/src/
 
 ```
 frontend/src/
-├── main.jsx          ← simula ng app
-├── App.jsx           ← aling page ang ipapakita
+├── main.tsx          ← simula ng app
+├── App.tsx           ← aling page ang ipapakita
 ├── pages/            ← Login, Register, Profile (isang screen bawat isa)
 ├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button)
 └── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar

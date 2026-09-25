@@ -328,3 +328,27 @@
   - Iba sa reference — kapag kinokopya ang pattern mula roon, `.ts` ang extension
     ng import, hindi `.js`.
 
+---
+
+## D-019 · Frontend TypeScript: ang `User` type ay KOPYA ng sagot ng backend
+
+- **Petsa:** 2026-09-26 (Day 32b)
+- **Context:** sinabi ng tech stack na TypeScript din ang frontend sa Phase 7, pero
+  backend lang ang nasa gawain ng roadmap — napansin ni Nelson na `.js` pa ang
+  `frontend/src/api/auth.js`. Kapag pinalitan lang ang pangalan ng 6 na file →
+  **17 error** (hal. `user.name` sa type na `never`, `document.getElementById`
+  na puwedeng `null`, `err` na `unknown`, `FormData.get()` na `string | File | null`).
+- **Pinili:**
+  - TypeScript **7** (pareho sa backend) + ang tsconfig ng Vite template
+    (`tsconfig.app.json` para sa browser, `tsconfig.node.json` para sa
+    `vite.config.ts`); `npm run typecheck` = `tsc -b`, idinagdag sa CI
+  - Si Vite ang gumagawa ng JavaScript; `tsc` = type-check lang (tugma sa D-018)
+  - **`User`, `FieldErrors`, `ApiError` ay isinulat sa `frontend/src/api/auth.ts`**
+- **Consequences:**
+  - ⚠️ **Kopya** ang `User` type — kapag binago ng backend ang hugis ng sagot,
+    walang error sa frontend; lalabas lang ang mali sa browser. Ang tunay na ayos
+    ay iisang source ng types (shared package o OpenAPI → generated types) —
+    Phase 16 (OpenAPI). Hanggang doon: kapag binago ang sagot ng backend, i-update
+    ang `docs/07-api-contract.md` AT ang `User` type nang sabay.
+  - Isang language na ang buong project.
+
