@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 LOGIN — patunayan kung sino ka (authentication)
-### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie)
+### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie) at Day 22 (CORS)
 ### =========================================================================
 ### POST /api/auth/login  { email, password }
 ###   → Zod (lowercase ang email) → hanapin ang user → argon2.verify → 200 o 401
@@ -103,3 +103,35 @@ Content-Type: application/json
 {
   "email": "login-demo@example.com"
 }
+
+### =========================================================================
+### 🌐 CORS (Day 22) — ang tanong ng browser bago ang login mula sa frontend
+### =========================================================================
+### Sa browser, bago ang POST na may JSON, nagpapadala muna ito ng PREFLIGHT
+### (OPTIONS) para itanong kung papayagan. Hindi ito kailangan ng REST Client/curl —
+### ginagaya lang natin dito ang ginagawa ng Chrome para makita ang sagot.
+
+### -------------------------------------------------------------------------
+### 6. Preflight mula sa FRONTEND natin. Ang inaasahan:
+###    Status:   204 No Content
+###    Headers:  Access-Control-Allow-Origin: http://localhost:5173
+###              Access-Control-Allow-Credentials: true   ← kaya naipapadala ang cookie
+###              Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+OPTIONS http://localhost:3000/api/auth/login
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: content-type
+
+### -------------------------------------------------------------------------
+### 7. Preflight mula sa PEKENG site. Ang inaasahan:
+###    Status:   204 — pero Access-Control-Allow-Origin: http://localhost:5173 pa rin
+###
+### 🔍 Hindi "evil.example" ang pinayagan. Ikinukumpara ng BROWSER: "ako ay
+### evil.example, pero localhost:5173 lang ang pinapayagan" → HINAHARANG.
+### Sinubukan sa totoong browser (Day 22): "Failed to fetch", hindi nabasa ang sagot.
+### 🔐 Ang CORS ay proteksyon ng USER sa browser — hindi ng server. Kaya pa rin ng
+### curl/REST Client na tumawag (gaya ng #1). Ang server ay may sariling depensa
+### (validation, rate limiting — Phase 9).
+OPTIONS http://localhost:3000/api/auth/login
+Origin: https://evil.example
+Access-Control-Request-Method: POST
