@@ -1,9 +1,9 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.js` → `npm run db:generate` →
-> `backend/drizzle/0000_*.sql` → `npm run db:migrate`
+> `backend/drizzle/000N_*.sql` → `npm run db:migrate`
 > **Subukan:** `backend/http/03-users-count.http` · `npm run db:studio`
 
 **ER diagram** (Entity-Relationship) = mapa ng mga table, ng mga column nila, at
@@ -16,6 +16,7 @@ erDiagram
         serial id PK "kusang numero, natatangi"
         text email UK "NOT NULL · UNIQUE (users_email_unique)"
         text name "optional"
+        text password_hash "NOT NULL · argon2id hash, hindi kailanman ibinabalik sa API"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
 ```

@@ -1,0 +1,114 @@
+### =========================================================================
+### 🎓 REGISTER — gumawa ng bagong account
+### 📅 Day 13 · Phase 4 (Register at login)
+### =========================================================================
+### POST /api/auth/register  { email, password, name? }
+###   → i-hash ang password (argon2) → INSERT → 201 + ang user (walang hash!)
+###   → dobleng email → UNIQUE ng database → 23505 → 409
+###
+### PAANO GAMITIN (REST Client extension):
+###   1. cd devops && docker compose up -d      (database)
+###   2. cd backend && npm run dev              (server)
+###   3. I-send ang mga request mula taas pababa — ginagamit ng #2 ang sagot ng #1
+###
+### Code: backend/src/routes/auth.js · Migration: backend/drizzle/0001_*.sql
+### Diagram: docs/diagrams/03-register-flow.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Bagong account. Ang inaasahan:
+###    Status:  201 Created
+###    Body:    { "user": { "id": 1, "email": "demo-...@example.com", "name": "Demo" } }
+###
+### 🔍 Pansinin:
+###   - WALANG password o password_hash sa sagot — `.returning()` ng piling column lang
+###   - `{{$timestamp}}` = kasalukuyang oras → bagong email bawat send, kaya laging 201
+###   - Tingnan sa psql:  SELECT email, password_hash FROM users;  → $argon2id$...
+# @name register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "demo-{{$timestamp}}@example.com",
+  "password": "password123",
+  "name": "Demo"
+}
+
+### -------------------------------------------------------------------------
+### 2. PAREHONG email ulit (kinuha mula sa sagot ng #1). Ang inaasahan:
+###    Status:  409 Conflict
+###    Body:    { "error": "Email already registered" }
+###
+### 🔍 Walang "SELECT muna" sa code — INSERT agad, at ang UNIQUE ng database ang
+### tumatanggi. Kaya tama pa rin kahit sabay ang maraming request (sinubukan:
+### 5 sabay → isang 201, apat na 409).
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{register.response.body.$.user.email}}",
+  "password": "iba-namang-password"
+}
+
+### -------------------------------------------------------------------------
+### 3. Walang `name` (optional). Ang inaasahan:
+###    Status:  201 Created
+###    Body:    { "user": { ..., "name": null } }
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "walang-name-{{$timestamp}}@example.com",
+  "password": "password123"
+}
+
+### =========================================================================
+### ⚠️ MGA BUTAS PA (aayusin sa Day 14 — Validation). Subukan para makita:
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 4. Walang password. Ang KASALUKUYANG sagot (mali):
+###    Status:  500 — HTML na may "TypeError ... Received undefined" (galing sa argon2)
+###    Dapat:   400 Bad Request — "password is required"
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "walang-password@example.com"
+}
+
+### -------------------------------------------------------------------------
+### 5. Walang email. Ang KASALUKUYANG sagot (mali):
+###    Status:  500 — HTML na may "Failed query: insert into users ..."
+###    🔐 Tingnan ang `params:` sa sagot — LUMALABAS ANG PASSWORD HASH. Kaya
+###    kailangan ng validation (Day 14) at ng error handler na walang detalye (Phase 9).
+###    Dapat:   400 Bad Request — "email is required"
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 6. Malaking titik — parehong tao, "ibang" email. Ang KASALUKUYANG sagot (mali):
+###    Status:  201 — PANGALAWANG account para sa iisang tao
+###    Dapat:   gawing lowercase bago i-save → 409 kung may `demo@...` na
+###    (I-send muna ang 6a, tapos 6b. Sa pangalawang pagsubok, 409 na ang 6a.)
+# 6a — maliit na titik
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "case-test@example.com",
+  "password": "password123"
+}
+
+### 6b — parehong email, malaking titik
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "Case-Test@example.com",
+  "password": "password123"
+}

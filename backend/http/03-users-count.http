@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 USERS COUNT — ang unang endpoint na kumakausap sa DATABASE
-### 📅 Day 10 · Phase 3 (Unang database) · in-update sa Day 11 (table mula sa migration)
+### 📅 Day 10 · Phase 3 (Unang database) · in-update sa Day 11 (table mula sa migration) at Day 13 (register)
 ### =========================================================================
 ### Express → Drizzle → pg → Postgres (sa Docker, port 5435) → sagot pabalik.
 ### Bilang lang ang ibinabalik, hindi ang listahan — hindi dapat makita ng
@@ -19,11 +19,11 @@
 ### -------------------------------------------------------------------------
 ### 1. Bilang ng users. Ang inaasahan:
 ###    Status:  200 OK
-###    Body:    { "count": 0 }   ← bagong table mula sa migration (Day 11)
-###             (bago ang Day 11: 2 — sina Ana at Big A, table na ginawa ng kamay)
+###    Body:    { "count": N }   ← ilang user ang nasa database ngayon
+###             (0 sa bagong table ng Day 11)
 ###
-### 🔍 Subukan: magdagdag ng user sa psql o sa Drizzle Studio (npm run db:studio),
-### tapos i-send ulit ito. Tataas ang bilang — WALANG restart ng server.
+### 🔍 Subukan: mag-register gamit ang 04-register.http, tapos i-send ulit ito.
+### Tataas ang bilang — WALANG restart ng server.
 GET http://localhost:3000/api/users/count
 
 ### -------------------------------------------------------------------------
