@@ -37,7 +37,7 @@ nang hindi nasisira ang iba.
 | Phase | Idadagdag | Anong problema ang nilulutas |
 |---|---|---|
 | **2** | `src/index.js`, `src/routes/` | Isang file muna; hinahati sa `routes/` kapag dumami na ang URLs |
-| **3** | `src/db/` (koneksyon + schema) | Iisang lugar para sa lahat ng may kinalaman sa database |
+| **3** | `src/db/` (koneksyon + schema), `drizzle/` (migrations, labas ng `src/`) | Iisang lugar para sa lahat ng may kinalaman sa database; ang migrations ang gumagawa ng tables, hindi ang kamay |
 | **4** | `src/middleware/`, `src/validations/` | Paulit-ulit na "naka-login ka ba?" at "tama ba ang input?" sa bawat route |
 | **6** | Hatiin ang `index.js` → `app.js` + `index.js` | Kailangang i-import ng tests ang app **nang hindi binubuksan ang port** |
 | **9** | `src/config/` | Iisang lugar para sa lahat ng `.env`, na sinusuri pagka-start |
