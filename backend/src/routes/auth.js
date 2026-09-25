@@ -3,8 +3,8 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { db } from '../db/index.ts';
+import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 

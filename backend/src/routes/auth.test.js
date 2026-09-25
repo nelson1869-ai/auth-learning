@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../app.js';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
+import { db } from '../db/index.ts';
+import { users } from '../db/schema.ts';
 
 // Integration test: route → Zod → argon2 → database → sagot, gamit ang TEST database
 beforeEach(async () => {
