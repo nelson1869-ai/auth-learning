@@ -137,10 +137,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** hashing, salt — *Reference: item 4*
 
 ### Day 13 — Register endpoint
-- [ ] `POST /api/auth/register` — hashed password, 201
-- [ ] Dobleng email → 409; 📝 `backend/http/03-register.http`
-- [ ] 📊 `docs/diagrams/03-register-flow.md` — flow ng register, kasama ang 409 branch
-- [ ] 📋 Simulan ang `docs/07-api-contract.md`: table ng bawat endpoint (method, path, request body, response, status codes) — i-update tuwing may bagong endpoint
+- [x] `POST /api/auth/register` — hashed password, 201
+- [x] Dobleng email → 409; 📝 `backend/http/04-register.http` (03 na ang users-count)
+- [x] 📊 `docs/diagrams/03-register-flow.md` — flow ng register, kasama ang 409 branch
+- [x] 📋 Simulan ang `docs/07-api-contract.md`: table ng bawat endpoint (method, path, request body, response, status codes) — i-update tuwing may bagong endpoint
 - **Matututunan:** paglikha ng resource, error cases
 
 ### Day 14 — Validation
