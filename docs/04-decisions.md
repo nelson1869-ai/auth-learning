@@ -352,3 +352,27 @@
     ang `docs/07-api-contract.md` AT ang `User` type nang sabay.
   - Isang language na ang buong project.
 
+---
+
+## D-020 · Deploy: hybrid — Pages (frontend), PC + Tunnel (backend), Neon (DB)
+
+- **Petsa:** 2026-09-26 (roadmap review bago ang Phase 8)
+- **Context:** sa roadmap, ang Day 36 ay backend sa PC ni Nelson (Cloudflare Tunnel,
+  gaya ng reference), pero ang Day 37 ay "walang self-hosted runner" (D-016: public
+  ang repo). Ang self-hosted runner ang ginamit ng reference para mag-deploy sa PC —
+  kaya salungat ang dalawa. Hindi rin nakasulat kung saan ang frontend.
+- **Mga opsyon:** hybrid · lahat sa PC · lahat sa cloud (PaaS)
+- **Pinili:** **hybrid** — pinili ni Nelson.
+  - **Frontend → Cloudflare Pages:** static, libre, kusang deploy sa bawat merge — walang runner
+  - **Backend → PC ni Nelson** sa Docker, sa likod ng **named Cloudflare Tunnel** (`api.<domain>`)
+  - **Database → Neon** (managed, may backup)
+  - **CD ng backend → pull-based:** GitHub-hosted Actions → Docker image → GHCR; ang
+    PC ang kumukuha. Manual na `deploy.sh` muna.
+- **Bakit:** walang code ng ibang tao na tatakbo sa PC (ligtas kahit public ang repo);
+  matututunan pa rin ang Docker, tunnel, at CD; libre.
+- **Consequences:**
+  - **Kailangang bukas ang PC** para gumana ang API (ang frontend ay laging bukas).
+  - `api.<domain>` at `<domain>` ay **same-site** → gumagana ang `SameSite=Lax` cookie;
+    kailangan ang `Secure` (HTTPS) at `CLIENT_URL=https://<domain>` para sa CORS.
+  - Kailangan ang `VITE_API_URL` sa frontend (build-time).
+
