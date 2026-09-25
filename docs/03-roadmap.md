@@ -260,12 +260,15 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** CI — *Reference: item 9*
 
 ### Day 28 — Protektahan ang `main`
-- [ ] Branch protection: hindi puwedeng mag-merge kung pula ang CI
+- [x] Branch protection: hindi puwedeng mag-merge kung pula ang CI
 - **Matututunan:** "never break main"
 
 **✅ Checkpoint (`checkpoint-phase-6`):** Berdeng ✅ sa bawat PR.
 *Ano ang nahuhuli ng test na hindi mahuhuli ng `.http` file?*
 
+> ✅ **Tapos: 2026-09-26.** **Buhay na plano:** ginawang public ang repo (D-016) dahil
+> hindi ipinapatupad ng GitHub Free ang ruleset sa private repo. Patunay: PR #33 na
+> may sadyang bagsak na test → ❌ `backend` sa CI, hindi na-merge.
 ---
 
 ## Phase 7 — TypeScript · ⚙️ *Backend* · Day 29–32
