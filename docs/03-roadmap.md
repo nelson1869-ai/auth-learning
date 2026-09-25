@@ -119,9 +119,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** environment variables, ORM
 
 ### Day 11 — Migrations
-- [ ] `drizzle-kit generate` at `migrate` — ang unang migration
-- [ ] Tingnan ang table sa Drizzle Studio
-- [ ] 📊 `docs/diagrams/02-er-diagram.md` — ER diagram ng database (`erDiagram`); ia-update tuwing may bagong table
+- [x] `drizzle-kit generate` at `migrate` — ang unang migration
+- [x] Tingnan ang table sa Drizzle Studio
+- [x] 📊 `docs/diagrams/02-er-diagram.md` — ER diagram ng database (`erDiagram`); ia-update tuwing may bagong table
 - **Matututunan:** bakit dumadaan sa migration ang pagbabago ng table
 
 **✅ Checkpoint (`checkpoint-phase-3`):** May `users` table na ginawa ng migration.

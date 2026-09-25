@@ -47,6 +47,6 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 3 — Unang database (Database + DevOps).** Tapos na ang Phase 1 at 2 ✅
-(tags `checkpoint-phase-1`, `checkpoint-phase-2`).
+**Phase 4 — Register at login (Backend + Security).** Tapos na ang Phase 1–3 ✅
+(tags `checkpoint-phase-1`, `checkpoint-phase-2`, `checkpoint-phase-3`).
 Tingnan ang [roadmap](docs/03-roadmap.md).
