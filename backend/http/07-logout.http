@@ -10,7 +10,7 @@
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
 ###   2. I-send mula taas pababa (#0 → #5)
 ###
-### Code: backend/src/routes/auth.js (COOKIE_OPTIONS, /auth/logout)
+### Code: backend/src/routes/auth.ts (COOKIE_OPTIONS, /auth/logout)
 ### Diagram: docs/diagrams/06-auth-sequence.md
 ### =========================================================================
 

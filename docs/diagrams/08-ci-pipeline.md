@@ -2,7 +2,7 @@
 
 > 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection)
 >
-> **Code:** `.github/workflows/ci.yml` · `backend/src/test/setup.js` · `backend/vitest.config.js`
+> **Code:** `.github/workflows/ci.yml` · `backend/src/test/setup.ts` · `backend/vitest.config.ts`
 > **Subukan:** gumawa ng PR → tingnan ang "Checks" sa PR, o ang tab na **Actions** sa GitHub
 
 ```mermaid

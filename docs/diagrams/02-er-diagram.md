@@ -2,7 +2,7 @@
 
 > 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) · ia-update tuwing may bagong table o column
 >
-> **Source of truth:** `backend/src/db/schema.js` → `npm run db:generate` →
+> **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
 > **Subukan:** `backend/http/03-users-count.http` · `npm run db:studio`
 
@@ -33,7 +33,7 @@ erDiagram
 
 ```mermaid
 flowchart LR
-    Schema["1. Baguhin ang<br/>src/db/schema.js"] --> Gen["2. npm run db:generate<br/>→ drizzle/000N_*.sql<br/>(naka-commit sa Git)"]
+    Schema["1. Baguhin ang<br/>src/db/schema.ts"] --> Gen["2. npm run db:generate<br/>→ drizzle/000N_*.sql<br/>(naka-commit sa Git)"]
     Gen --> Review["3. Basahin ang SQL<br/>(tama ba?)"]
     Review --> Mig["4. npm run db:migrate<br/>pinapatakbo lang ang HINDI pa<br/>napapatakbo"]
     Mig --> Journal[("drizzle.__drizzle_migrations<br/>listahan ng napatakbo na")]

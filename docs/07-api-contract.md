@@ -47,7 +47,7 @@ Bilang lang — hindi kailanman ang listahan ng users.
 ```json
 { "email": "ana@example.com", "password": "password123", "name": "Ana" }
 ```
-| Field | Required | Patakaran (Zod — `validations/auth.js`) |
+| Field | Required | Patakaran (Zod — `validations/auth.ts`) |
 |---|---|---|
 | `email` | ✅ | string, tamang email · **tina-trim at ginagawang lowercase** bago i-save · natatangi (UNIQUE) |
 | `password` | ✅ | string, 8–128 characters · hindi sine-save — hash lang (argon2id) |

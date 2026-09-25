@@ -2,7 +2,7 @@
 
 > 📅 Day 18 · Phase 4 (Register at login)
 >
-> **Code:** `backend/src/routes/auth.js` · `backend/src/middleware/requireAuth.js`
+> **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
 
 **Sequence diagram** = sino ang nakikipag-usap kanino, at sa anong pagkakasunod —
@@ -14,7 +14,7 @@ sequenceDiagram
     autonumber
     actor U as 👤 User
     participant B as 🌐 Browser / REST Client<br/>(may cookie jar)
-    participant S as ⚙️ Express<br/>routes/auth.js
+    participant S as ⚙️ Express<br/>routes/auth.ts
     participant D as 🗄️ Postgres<br/>users
 
     rect rgba(128,128,128,0.08)

@@ -20,10 +20,10 @@ flowchart LR
     subgraph BE["backend/ · Express (npm run dev)"]
         MW["cors({ origin: CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
         Routes["routes/<br/>auth.js: register · login · me · logout<br/>users.js: count · health.js · echo.js"]
-        Val["validations/auth.js<br/>Zod: registerSchema · loginSchema"]
-        Auth["middleware/requireAuth.js<br/>jwt.verify (JWT_SECRET)"]
+        Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
+        Auth["middleware/requireAuth.ts<br/>jwt.verify (JWT_SECRET)"]
         Hash["argon2<br/>hash · verify"]
-        DB["db/index.js<br/>Drizzle + pg Pool"]
+        DB["db/index.ts<br/>Drizzle + pg Pool"]
         MW --> Routes
         Routes --> Val
         Routes -->|"/me"| Auth

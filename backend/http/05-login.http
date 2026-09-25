@@ -13,7 +13,7 @@
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
 ###   2. I-send ang #0 (gagawa ng account), tapos ang iba mula taas pababa
 ###
-### Code: backend/src/routes/auth.js · backend/src/validations/auth.js
+### Code: backend/src/routes/auth.ts · backend/src/validations/auth.ts
 ### Diagram: docs/diagrams/04-login-flow.md
 ### =========================================================================
 

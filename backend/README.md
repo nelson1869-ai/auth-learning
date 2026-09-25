@@ -37,11 +37,13 @@ Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 ·
 ```
 backend/
 ├── src/
-│   ├── app.js            ← binubuo ang app: middleware + routers (ini-import ng tests)
-│   ├── index.js          ← app.listen(3000) lang
-│   ├── test/setup.js     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
+│   ├── app.ts            ← binubuo ang app: middleware + routers (ini-import ng tests)
+│   ├── index.ts          ← app.listen(3000) lang
+│   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
+│   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
+│   ├── types/            ← dagdag na types (hal. req.userId sa Express)
 │   ├── routes/           ← auth.js (register/login/me/logout), users.js, health.js, echo.js
-│   ├── middleware/       ← requireAuth.js — "naka-login ka ba?"
+│   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?"
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
@@ -53,7 +55,7 @@ backend/
 └── package.json          ← dependencies + scripts (dev, start, db:*)
 ```
 
-**Mga command:** `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
+**Mga command:** `npm run typecheck` (TypeScript) · `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
 `npm run db:migrate:test` · `npm run db:generate` ·
 `npm run db:migrate` · `npm run db:studio`
 
@@ -70,7 +72,7 @@ cd backend && npm run db:migrate:test
 npm test
 ```
 ⚠️ **Binubura ng tests ang `users`** bago ang bawat test — kaya hiwalay na database,
-at tumatanggi ang `src/test/setup.js` kapag hindi `*_test` ang `DATABASE_URL`.
+at tumatanggi ang `src/test/setup.ts` kapag hindi `*_test` ang `DATABASE_URL`.
 
 ## ❌ Hindi dapat nasa loob ng backend
 - **Plain text na password** — laging hashed (argon2) bago i-save

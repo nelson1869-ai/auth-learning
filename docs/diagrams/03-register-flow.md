@@ -2,7 +2,7 @@
 
 > 📅 Day 12 · Phase 4 (Register at login) · in-update sa Day 13 (`POST /api/auth/register`) at Day 14 (validation)
 >
-> **Code:** `backend/src/routes/auth.js` · `backend/src/validations/auth.js` · `backend/playground/01-hash.js` (practice)
+> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/playground/01-hash.js` (practice)
 > **Subukan:** `backend/http/04-register.http` · **Library:** `argon2` (Argon2id)
 
 ## `POST /api/auth/register`
@@ -10,7 +10,7 @@
 ```mermaid
 flowchart TD
     Req(["POST /api/auth/register<br/>{ email, password, name? }"]) --> JSON["express.json()<br/>→ req.body"]
-    JSON --> Zod{"Zod: registerSchema.safeParse(req.body)<br/>validations/auth.js"}
+    JSON --> Zod{"Zod: registerSchema.safeParse(req.body)<br/>validations/auth.ts"}
     Zod -->|"mali ang input<br/>(walang field, hindi email,<br/>password &lt;8 o &gt;128)"| C400["400 Bad Request<br/>{ error: 'Invalid input',<br/>fields: { email: [...], password: [...] } }"]
     Zod -->|"tama → result.data<br/>email: trim + lowercase<br/>ibang field (hal. role): tinanggal"| Hash["argon2.hash(password)<br/>~50ms"]
     Hash --> Insert["db.insert(users).values({ email, name, passwordHash })<br/>.returning({ id, email, name })<br/>INSERT agad — walang SELECT muna"]
