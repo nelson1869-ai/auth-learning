@@ -1,12 +1,23 @@
 import { Router } from 'express';
 import argon2 from 'argon2';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
+import { registerSchema } from '../validations/auth.js';
 
 const router = Router();
 
 router.post('/auth/register', async (req, res) => {
-  const { email, password, name } = req.body;
+  // Suriin at linisin ang input BAGO gamitin — maling input = 400, hindi 500
+  const result = registerSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({
+      error: 'Invalid input',
+      fields: z.flattenError(result.error).fieldErrors,
+    });
+  }
+  const { email, password, name } = result.data; // ang NALINIS na data, hindi req.body
+
   // Hash BAGO i-save — hindi kailanman plain text sa database
   const passwordHash = await argon2.hash(password);
 

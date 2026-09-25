@@ -1,6 +1,6 @@
 # 07 — API Contract (ang kasunduan ng frontend at backend)
 
-> 📅 Sinimulan sa Day 13 · Phase 4 · **I-update tuwing may bago o nagbagong endpoint.**
+> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) · **I-update tuwing may bago o nagbagong endpoint.**
 >
 > **API contract** = ang listahan ng bawat endpoint: ano ang ipapadala, ano ang
 > babalik, at anong status code. Sa totoong team, ito ang binabasa ng frontend
@@ -40,18 +40,19 @@ Bilang lang — hindi kailanman ang listahan ng users.
 ```json
 { "email": "ana@example.com", "password": "password123", "name": "Ana" }
 ```
-| Field | Required | Tala |
+| Field | Required | Patakaran (Zod — `validations/auth.js`) |
 |---|---|---|
-| `email` | ✅ | Natatangi (UNIQUE sa database) |
-| `password` | ✅ | Hindi sine-save — hash lang (argon2id) |
-| `name` | — | `null` kung wala |
+| `email` | ✅ | string, tamang email · **tina-trim at ginagawang lowercase** bago i-save · natatangi (UNIQUE) |
+| `password` | ✅ | string, 8–128 characters · hindi sine-save — hash lang (argon2id) |
+| `name` | — | string, 1–100 characters pagkatapos i-trim · `null` kung wala |
+| *(iba pa)* | — | **binabalewala** (hal. `role`) |
 
 **Responses**
 
 | Status | Kailan | Body |
 |---|---|---|
 | **201** | Nagawa ang account | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
-| **409** | May account na ang email | `{ "error": "Email already registered" }` |
-| **500** ⚠️ | Walang `email` o `password` (kasalukuyang butas) | HTML na error — **magiging 400 sa Day 14** |
+| **400** | Mali ang input (lahat ng mali, sabay) | `{ "error": "Invalid input", "fields": { "email": ["Invalid email address"], "password": ["Too small: expected string to have >=8 characters"] } }` |
+| **409** | May account na ang email (kahit ibang titik: `Ana@` = `ana@`) | `{ "error": "Email already registered" }` |
 
 **Hindi kailanman ibinabalik:** `password`, `password_hash`.
