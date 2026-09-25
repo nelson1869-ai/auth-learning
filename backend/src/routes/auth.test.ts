@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '../app.js';
+import app from '../app.ts';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 
@@ -43,7 +43,7 @@ describe('POST /api/auth/login', () => {
       .post('/api/auth/login')
       .send({ email: 'ana@example.com', password: 'password123' });
     expect(res.status).toBe(200);
-    const cookie = res.headers['set-cookie'][0];
+    const cookie = res.get('Set-Cookie')?.[0]; // puwedeng walang Set-Cookie — nahuli ng TypeScript
     expect(cookie).toMatch(/^token=/);
     expect(cookie).toContain('HttpOnly');
   });
