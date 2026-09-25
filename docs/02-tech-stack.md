@@ -24,7 +24,7 @@ Hindi ito bahagi ng app — ito ang "gamit sa workshop" mo.
 | **SSH key + `keychain`** | Ligtas na koneksyon sa GitHub; passphrase isang beses lang bawat araw | Day 02 |
 | **VS Code** | Code editor | Day 01 |
 | **npm / npx** | Pag-install at pagpapatakbo ng mga package (kasama ng Node) | Day 03 |
-| **`node --watch`** | Kusang nire-restart ang server kapag nag-save ka | Day 05 |
+| **`node --watch`** → **`nodemon`** | Kusang nire-restart ang server kapag nag-save ka (nodemon mula Day 23 — matibay kahit may `git checkout`, D-014) | Day 05 / 23 |
 | **`curl`** | Pagpapadala ng request mula sa terminal | Day 04 |
 | **Docker** + **Docker Compose** | Pagpapatakbo ng Postgres (at mamaya, ng buong app) sa container | Day 07 |
 | **`psql`** | Direktang pakikipag-usap sa Postgres gamit ang SQL | Day 08 |

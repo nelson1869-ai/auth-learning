@@ -1,8 +1,8 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) at Day 23 (React 19 `useActionState`)
 >
-> **Code:** `frontend/src/pages/LoginPage.jsx` · `frontend/src/api/auth.js` · `backend/src/index.js` (cors)
+> **Code:** `frontend/src/pages/LoginPage.jsx` · `frontend/src/pages/RegisterPage.jsx` · `frontend/src/api/auth.js` · `backend/src/index.js` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
 
 ## Paano gumagana ang login form (state → re-render)
@@ -69,3 +69,31 @@ sequenceDiagram
 - Sinubukan (Day 22): bago ang cors → "Failed to fetch"; pagkatapos → 200 +
   cookie `token` (HttpOnly, Lax); maling password → "Invalid email or password";
   pekeng site (127.0.0.1:5199) → hinarang.
+
+## Register gamit ang React 19 `useActionState` (Day 23)
+
+```mermaid
+flowchart TD
+    Sub(["🖱️ Pindot Register<br/>&lt;form action={formAction}&gt;"]) --> Pend["React: isPending = true<br/>button disabled · 'Nagre-register…'"]
+    Pend --> Act["registerAction(prevState, formData)<br/>formData.get('email') · ('password') · ('name') || undefined"]
+    Act --> Api["api/auth.js: register() → fetch POST /api/auth/register"]
+    Api --> Res{"Sagot ng backend"}
+    Res -->|"201"| Ok["return { user }"]
+    Res -->|"409"| E409["throw → return { error: 'Email already registered',<br/>email, name }"]
+    Res -->|"400 (Zod)"| E400["throw → return { error: 'Invalid input',<br/>fields: { password: [...] }, email, name }"]
+    Ok --> New["BAGONG state = ang ibinalik<br/>isPending = false · re-render"]
+    E409 --> New
+    E400 --> New
+    New --> Reset["React 19: binubura ang form (kahit may error!)"]
+    Reset --> DV["defaultValue={state.email} / {state.name}<br/>→ bumabalik ang tinype · password: sinadyang walang laman"]
+```
+
+- **Ikumpara sa login (Day 21–22):** 4 na `useState`, `onChange` sa bawat input,
+  `preventDefault`, at sariling error state → **1 `useActionState`**, walang
+  `onChange`, walang `preventDefault`, at kusang `isPending`.
+- **⚠️ Binubura ng React 19 ang form pagkatapos ng submit, kahit may error**
+  (sinubukan) — kaya ibinabalik ang `email`/`name` sa state at `defaultValue`.
+- **`formData.get('name') || undefined`** — ang walang laman na input ay `""`,
+  na tatanggihan ni Zod (`min(1)`).
+- Sinubukan sa browser (Day 23): 201 ✅ · 409 na nandoon pa ang email ✅ ·
+  400 na may mensahe sa ilalim ng password ✅ · "Nagre-register…" + disabled ✅.
