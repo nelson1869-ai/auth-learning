@@ -299,3 +299,32 @@
     lumabas ang Gmail sa mga BAGONG commit.
   - **Aral:** hindi nakatatago ng email ang SSH key — authentication iyon (sino ang
     puwedeng mag-push). Ang email ay nakasulat sa loob ng bawat commit.
+
+---
+
+## D-018 · TypeScript nang walang build step (Node 24 type stripping)
+
+- **Petsa:** 2026-09-26 (Day 29)
+- **Context:** TypeScript sa Phase 7 (D-002). Ang reference ay `tsx watch` sa dev,
+  `tsc` → `dist/` sa build, at `import './x.js'` kahit `.ts` ang file.
+  Sinubukan (scratch): TypeScript **7.0.2**; `node src/index.ts` sa **Node 24** —
+  tumakbo nang direkta; `tsc` nakahuli ng maling type; `enum` → hinarang ng `tsc`
+  (`erasableSyntaxOnly`) at ng Node (`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`); Vitest
+  gumagana sa `.ts`.
+- **Pinili:**
+  - **Node mismo ang nagpapatakbo ng `.ts`** — walang `tsx`, walang `dist/`
+  - **`tsc` = type-check lang** (`noEmit`) — `npm run typecheck`, at sa CI
+  - `import './app.ts'` (`allowImportingTsExtensions`) — tugma sa totoong pangalan
+  - `erasableSyntaxOnly` + `verbatimModuleSyntax` — mga syntax lang na kayang
+    tanggalin ng Node; `import type` para sa mga type
+  - Unti-unting paglipat: `allowJs` (magkasama ang `.js` at `.ts`), `checkJs: false`
+- **Bakit:** **LUMANG PARAAN → KASALUKUYAN:** `ts-node`/`tsx`/`tsc → dist` → built-in
+  sa Node. Mas kaunting tool; mas simple ang deploy (Phase 8: `node src/index.ts`).
+- **Consequences:**
+  - Bawal ang `enum`, `namespace`, at parameter properties — gumamit ng
+    `type`/union (hal. `'ok' | 'error'`) at plain objects.
+  - Hindi sinusuri ng Node ang types habang tumatakbo — **`npm run typecheck`
+    (at CI) ang nagsusuri**. Kung laktawan iyon, tatakbo pa rin ang code kahit mali.
+  - Iba sa reference — kapag kinokopya ang pattern mula roon, `.ts` ang extension
+    ng import, hindi `.js`.
+

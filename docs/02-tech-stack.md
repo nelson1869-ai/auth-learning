@@ -87,7 +87,7 @@ bagay na gusto nating makita muna.
 | **cors** | Pinapayagan ang frontend (ibang port/domain) na tumawag sa backend | Day 22 |
 | **Vitest** + **Supertest** | Automated tests | Day 25 |
 | **Oxlint** | Nahuhuli ang mga karaniwang pagkakamali bago pa tumakbo ang code (D-015, dati ESLint) | Day 27 |
-| **TypeScript** + **tsx** | Types, at pagpapatakbo ng `.ts` nang direkta | Day 29 |
+| **TypeScript 7** (`tsc` = type-check lang) | Types — nahuhuli ang mali bago tumakbo. Si **Node 24** ang nagpapatakbo ng `.ts` (walang `tsx`, D-018) | Day 29 |
 
 > **`dotenv` → `--env-file`:** Sa maraming tutorial, `require('dotenv').config()`
 > ang makikita mo. **Luma na iyan** — mula Node 20.6, built-in na ang

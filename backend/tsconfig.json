@@ -1,0 +1,19 @@
+{
+  // 🎓 TypeScript para sa TYPE-CHECK lang — si Node 24 mismo ang nagpapatakbo ng .ts (D-018)
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "strict": true, // lahat ng mahigpit na pagsusuri — kaya nga tayo nag-TypeScript
+    "noEmit": true, // walang dist/ — hindi gumagawa ng JavaScript si tsc
+    "allowImportingTsExtensions": true, // import './app.ts' — tugma sa totoong pangalan ng file
+    "erasableSyntaxOnly": true, // bawal ang enum/namespace — hindi kaya ng Node na tanggalin ang mga iyon
+    "verbatimModuleSyntax": true, // `import type` para sa mga type lang — malinaw kung alin ang natatanggal
+    "allowJs": true, // habang naglilipat: puwedeng magkasama ang .js at .ts
+    "checkJs": false, // ang .ts lang ang sinusuri; ang .js ay susuriin kapag nailipat na
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

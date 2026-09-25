@@ -56,6 +56,8 @@ helper), open PRs and read CI. Rules:
   `.env` or `.env.test`.
 - **After pushing:** `gh pr create`, then `gh pr checks --watch`. **Report the real
   CI result** — never claim green without seeing it.
+- **Review:** Nelson reads the diff in VS Code (his git extension) — say which
+  files changed and why, so he knows what to look at.
 - **Merging:** only when CI is ✅ **and** Nelson has said to merge (or said
   "done"/"go" for that PR). Use `gh pr merge --merge --delete-branch`, then
   `git checkout main && git pull`. Before merging, confirm the PR contains every
