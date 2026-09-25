@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.js';
@@ -61,6 +62,17 @@ router.post('/auth/login', async (req, res) => {
     // Iisang mensahe para sa maling email AT maling password — hindi sinasabi kung may account
     return res.status(401).json({ error: 'Invalid email or password' });
   }
+
+  // Id lang (sub) ang laman — nababasa ng KAHIT SINO ang payload ng JWT (base64 lang, hindi encrypted)
+  const token = jwt.sign({ sub: String(user.id) }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  // httpOnly: hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
+  res.cookie('token', token, {
+    httpOnly: true,
+    sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
+    secure: process.env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
+    maxAge: 60 * 60 * 1000, // 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
+  });
 
   // Piling field lang — hindi kasama ang passwordHash
   res.json({ user: { id: user.id, email: user.email, name: user.name } });

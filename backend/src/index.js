@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import healthRouter from './routes/health.js';
 import echoRouter from './routes/echo.js';
 import usersRouter from './routes/users.js';
@@ -9,6 +10,7 @@ const PORT = 3000;
 
 // Una ito — kailangang mabasa ang JSON body BAGO umabot sa mga route
 app.use(express.json());
+app.use(cookieParser()); // binabasa ang cookies → req.cookies (kailangan ng auth sa Day 17)
 
 // '/api' + '/health' = /api/health
 app.use('/api', healthRouter);
