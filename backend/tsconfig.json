@@ -10,10 +10,10 @@
     "allowImportingTsExtensions": true, // import './app.ts' — tugma sa totoong pangalan ng file
     "erasableSyntaxOnly": true, // bawal ang enum/namespace — hindi kaya ng Node na tanggalin ang mga iyon
     "verbatimModuleSyntax": true, // `import type` para sa mga type lang — malinaw kung alin ang natatanggal
-    "allowJs": true, // habang naglilipat: puwedeng magkasama ang .js at .ts
-    "checkJs": false, // ang .ts lang ang sinusuri; ang .js ay susuriin kapag nailipat na
+    "noUnusedLocals": true, // variable na hindi ginagamit = kalat o bug
+    "noUnusedParameters": true, // parameter na hindi ginagamit — lagyan ng _ (hal. _req) kung sinadya
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src", "drizzle.config.ts", "vitest.config.ts"]
 }

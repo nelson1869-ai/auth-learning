@@ -15,7 +15,7 @@
 ###   2. I-click ang "Send Request" sa itaas ng bawat request sa ibaba
 ###   3. Tingnan ang sagot sa kanang panel — status code, headers, at body
 ###
-### Code: backend/src/routes/health.js (kinakabit sa backend/src/index.js)
+### Code: backend/src/routes/health.ts (kinakabit sa backend/src/index.ts)
 ### =========================================================================
 
 ### -------------------------------------------------------------------------

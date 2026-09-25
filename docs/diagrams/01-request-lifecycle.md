@@ -2,14 +2,14 @@
 
 > 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database) at Day 19 (auth routes)
 >
-> **Code:** `backend/src/index.js`, `backend/src/routes/health.js`, `backend/src/routes/echo.js`, `backend/src/routes/users.js`, `backend/src/db/index.js`
+> **Code:** `backend/src/index.ts`, `backend/src/routes/health.ts`, `backend/src/routes/echo.ts`, `backend/src/routes/users.ts`, `backend/src/db/index.ts`
 > **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
 
 ## Paano sinasagot ng server ang isang request
 
 ```mermaid
 flowchart TD
-    Start(["Client: browser, curl, o REST Client"]) -->|"HTTP request<br/>hal. POST /api/echo + JSON body"| Listen["app.listen(3000)<br/>backend/src/index.js"]
+    Start(["Client: browser, curl, o REST Client"]) -->|"HTTP request<br/>hal. POST /api/echo + JSON body"| Listen["app.listen(3000)<br/>backend/src/index.ts"]
     Listen --> Json{"MIDDLEWARE: express.json()<br/>Content-Type ba ay application/json?"}
     Json -->|"hindi (o GET na walang body)"| Skip["Hindi ginagalaw<br/>req.body = undefined"]
     Json -->|"oo"| Parse{"Tama ba ang JSON?"}
@@ -17,10 +17,10 @@ flowchart TD
     Parse -->|"sira, hal. { name:"| Bad["400 Bad Request<br/>HTML na may SyntaxError<br/>(hindi na umaabot sa route)"]
     Skip --> Match
     Body --> Match{"May route ba na tugma sa<br/>'/api' + METHOD + PATH?"}
-    Match -->|"GET /health<br/>routes/health.js"| Health["res.json({ status, time })"]
-    Match -->|"POST /echo<br/>routes/echo.js"| Echo["res.json({ received: req.body })"]
-    Match -->|"GET /users/count<br/>routes/users.js"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
-    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.js"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
+    Match -->|"GET /health<br/>routes/health.ts"| Health["res.json({ status, time })"]
+    Match -->|"POST /echo<br/>routes/echo.ts"| Echo["res.json({ received: req.body })"]
+    Match -->|"GET /users/count<br/>routes/users.ts"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
+    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
     Match -->|"wala (hal. GET /api/echo)"| NotFound["404 Not Found<br/>HTML na 'Cannot GET ...'"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK
@@ -48,14 +48,14 @@ flowchart TD
 
 ## Kapag kailangan ang database: `GET /api/users/count`
 
-> 📅 Day 10 · Phase 3 (Unang database) · **Code:** `backend/src/routes/users.js`,
-> `backend/src/db/index.js` · **Subukan:** `backend/http/03-users-count.http`
+> 📅 Day 10 · Phase 3 (Unang database) · **Code:** `backend/src/routes/users.ts`,
+> `backend/src/db/index.ts` · **Subukan:** `backend/http/03-users-count.http`
 
 ```mermaid
 flowchart TD
-    Req(["GET /api/users/count"]) --> Route["routes/users.js<br/>async (req, res) =>"]
+    Req(["GET /api/users/count"]) --> Route["routes/users.ts<br/>async (req, res) =>"]
     Route --> Await["await db.$count(users)<br/>Drizzle → SQL: select count(*) from users"]
-    Await --> Pool["db/index.js · pg Pool<br/>kumokonekta sa DATABASE_URL (.env)<br/>localhost:5435"]
+    Await --> Pool["db/index.ts · pg Pool<br/>kumokonekta sa DATABASE_URL (.env)<br/>localhost:5435"]
     Pool --> Up{"Buhay ba ang Postgres?"}
     Up -->|"oo"| Rows["Postgres: { count: 2 }"]
     Rows --> OK["200 OK<br/>{ count: 2 }"]

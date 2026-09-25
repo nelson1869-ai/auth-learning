@@ -12,7 +12,7 @@
 ###   2. cd backend && npm run dev              (server)
 ###   3. I-send ang mga request mula taas pababa — ginagamit ng #2 ang sagot ng #1
 ###
-### Code: backend/src/routes/auth.js · backend/src/validations/auth.js · Migration: backend/drizzle/0001_*.sql
+### Code: backend/src/routes/auth.ts · backend/src/validations/auth.ts · Migration: backend/drizzle/0001_*.sql
 ### Diagram: docs/diagrams/03-register-flow.md
 ### =========================================================================
 

@@ -13,7 +13,7 @@
 ###      i-restart (Ctrl+C → npm run dev) — kung hindi, walang DATABASE_URL → 500
 ###   3. I-click ang "Send Request"
 ###
-### Code: backend/src/routes/users.js · backend/src/db/index.js · backend/src/db/schema.js
+### Code: backend/src/routes/users.ts · backend/src/db/index.ts · backend/src/db/schema.ts
 ### =========================================================================
 
 ### -------------------------------------------------------------------------
@@ -36,7 +36,7 @@ GET http://localhost:3000/api/users/count
 ###   - Awtomatikong sinalo ng Express 5 ang error mula sa `async` route → 500.
 ###     (Sa Express 4, kailangan pa ng try/catch, kung hindi nakabitin ang request.)
 ###   - BUHAY pa rin ang server — i-send ang 01-health.http, 200 pa rin.
-###     Dahil iyan sa `pool.on('error')` sa db/index.js; kung wala iyon, nagka-crash
+###     Dahil iyan sa `pool.on('error')` sa db/index.ts; kung wala iyon, nagka-crash
 ###     ang buong server nang huminto ang database (nangyari ito sa Day 10).
 ###   - 🔐 May SQL at file path ng server sa sagot. Sa Phase 9 (error handler),
 ###     papalitan ng simpleng JSON na walang detalye.

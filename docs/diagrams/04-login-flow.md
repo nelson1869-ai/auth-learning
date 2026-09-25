@@ -2,7 +2,7 @@
 
 > 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie)
 >
-> **Code:** `backend/src/routes/auth.js` · `backend/src/validations/auth.js`
+> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
 > **Subukan:** `backend/http/05-login.http`
 
 ## `POST /api/auth/login`

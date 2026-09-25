@@ -14,7 +14,7 @@
 ### ⚠️ Sa REST Client: kailangan ng BLANGKONG LINYA sa pagitan ng headers at
 ### body. Kapag wala, iisipin nitong header pa ang body.
 ###
-### Code: backend/src/routes/echo.js · middleware: backend/src/index.js
+### Code: backend/src/routes/echo.ts · middleware: backend/src/index.ts
 ### =========================================================================
 
 ### -------------------------------------------------------------------------

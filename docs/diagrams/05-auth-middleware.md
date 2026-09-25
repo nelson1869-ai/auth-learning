@@ -2,7 +2,7 @@
 
 > 📅 Day 17 · Phase 4 (Register at login)
 >
-> **Code:** `backend/src/middleware/requireAuth.js` · `backend/src/routes/auth.js` (`GET /api/auth/me`)
+> **Code:** `backend/src/middleware/requireAuth.ts` · `backend/src/routes/auth.ts` (`GET /api/auth/me`)
 > **Subukan:** `backend/http/06-me.http`
 
 ## Paano sinusuri ang bawat protektadong request

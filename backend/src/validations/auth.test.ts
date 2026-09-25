@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { registerSchema } from './auth.js';
+import { registerSchema } from './auth.ts';
 
 // Unit test: sinusubok ang schema nang mag-isa — walang server, walang database
 describe('registerSchema', () => {
   it('lowercases and trims the email', () => {
-    // Arrange + Act
-    const result = registerSchema.safeParse({ email: '  Ana@Example.COM ', password: 'password123' });
-    // Assert — kung mawala ang lowercase, dalawang account ang "Ana@" at "ana@" (Day 14)
-    expect(result.success).toBe(true);
-    expect(result.data.email).toBe('ana@example.com');
+    // parse (hindi safeParse): nagtatapon kapag mali — kaya alam ng TypeScript na may data dito
+    const data = registerSchema.parse({ email: '  Ana@Example.COM ', password: 'password123' });
+    // kung mawala ang lowercase, dalawang account ang "Ana@" at "ana@" (Day 14)
+    expect(data.email).toBe('ana@example.com');
   });
 
   it('rejects a short password', () => {
@@ -17,12 +16,11 @@ describe('registerSchema', () => {
   });
 
   it('drops unknown fields like role (mass assignment)', () => {
-    const result = registerSchema.safeParse({
+    const data = registerSchema.parse({
       email: 'ana@example.com',
       password: 'password123',
       role: 'admin',
     });
-    expect(result.success).toBe(true);
-    expect(result.data).not.toHaveProperty('role');
+    expect(data).not.toHaveProperty('role');
   });
 });

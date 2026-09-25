@@ -278,8 +278,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit may types (tingnan ang D-002)
 
 ### Day 30–32 — Paglipat, isang file bawat hakbang
-- [ ] Ilipat ang backend sa TypeScript; `z.infer` para sa types ng Zod schemas
-- [ ] Pansinin: anong mga pagkakamali ang nahuli ng TypeScript?
+- [x] Ilipat ang backend sa TypeScript; `z.infer` para sa types ng Zod schemas
+- [x] Pansinin: anong mga pagkakamali ang nahuli ng TypeScript?
 - **Matututunan:** unti-unting migration nang hindi sinisira ang gumagana
 
 **✅ Checkpoint (`checkpoint-phase-7`):** `npx tsc --noEmit` malinis, at pumapasa pa rin ang tests.

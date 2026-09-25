@@ -36,12 +36,12 @@ nang hindi nasisira ang iba.
 
 | Phase | Idadagdag | Anong problema ang nilulutas |
 |---|---|---|
-| **2** | `src/index.js`, `src/routes/` | Isang file muna; hinahati sa `routes/` kapag dumami na ang URLs |
+| **2** | `src/index.ts`, `src/routes/` | Isang file muna; hinahati sa `routes/` kapag dumami na ang URLs |
 | **3** | `src/db/` (koneksyon + schema), `drizzle/` (migrations, labas ng `src/`) | Iisang lugar para sa lahat ng may kinalaman sa database; ang migrations ang gumagawa ng tables, hindi ang kamay |
 | **4** | `playground/` (labas ng `src/`) | Mga practice script (hal. `01-hash.js`) — hindi bahagi ng app, hindi ini-import ng `src/` |
 | **4** | `src/middleware/`, `src/validations/` | Paulit-ulit na "naka-login ka ba?" at "tama ba ang input?" sa bawat route |
 | **6** | Hatiin ang `index.js` → `app.js` + `index.js` | Kailangang i-import ng tests ang app **nang hindi binubuksan ang port** |
-| **9** | `src/config/` | Iisang lugar para sa lahat ng `.env`, na sinusuri pagka-start |
+| **7** | Lahat → `.ts`; `src/config/env.ts`, `src/types/` | TypeScript: ipinakita na puwedeng `undefined` ang bawat `process.env` → iisang lugar na sumusuri (mas maaga sa plano, dati Phase 9) |
 | **10** | `routes/admin` | Hiwalay na grupo ng URL na may sariling patakaran (admin lang) |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
@@ -61,17 +61,19 @@ routers** (`app.use('/api', healthRouter)`). Walang alam ang bawat router kung
 saan ito ikakabit: `/health` lang ang nasa loob, at `index.js` ang
 nagdadagdag ng `/api`.
 
-**Phase 4 — may database at auth** (tugma sa code, sinuri Day 19):
+**Phase 4 — may database at auth** (sinuri Day 19; `.ts` na mula Phase 7):
 ```
 backend/
 ├── src/
-│   ├── app.js            ← (Day 26) cors + express.json + cookieParser, kinakabit ang routers
-│   ├── index.js          ← (Day 26) app.listen lang
-│   ├── routes/           ← auth.js (register/login/me/logout), users.js (count),
-│   │                        health.js, echo.js (pang-aral)
-│   ├── middleware/       ← requireAuth.js (cookie → jwt.verify → req.userId)
-│   ├── validations/      ← auth.js (registerSchema, loginSchema — Zod)
-│   └── db/               ← index.js (pg Pool + Drizzle), schema.js (users)
+│   ├── app.ts            ← (Day 26) cors + express.json + cookieParser, kinakabit ang routers
+│   ├── index.ts          ← (Day 26) app.listen lang
+│   ├── config/env.ts     ← (Phase 7) sinusuri ang env pagka-start
+│   ├── types/            ← (Phase 7) hal. req.userId
+│   ├── routes/           ← auth.ts (register/login/me/logout), users.ts (count),
+│   │                        health.ts, echo.ts (pang-aral)
+│   ├── middleware/       ← requireAuth.ts (cookie → jwt.verify → req.userId)
+│   ├── validations/      ← auth.ts (registerSchema, loginSchema — Zod, + z.infer types)
+│   └── db/               ← index.ts (pg Pool + Drizzle), schema.ts (users + User type)
 ├── drizzle/              ← migrations 0000 (users), 0001 (password_hash)
 ├── http/                 ← 01–07 .http walkthroughs
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)

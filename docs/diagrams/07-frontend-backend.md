@@ -2,7 +2,7 @@
 
 > 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) at Day 24 (React Router, protektadong page)
 >
-> **Code:** `frontend/src/App.jsx` (routes) · `frontend/src/pages/*.jsx` · `frontend/src/api/auth.js` · `backend/src/index.js` (cors)
+> **Code:** `frontend/src/App.jsx` (routes) · `frontend/src/pages/*.jsx` · `frontend/src/api/auth.js` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
 
 ## Paano gumagana ang login form (state → re-render)

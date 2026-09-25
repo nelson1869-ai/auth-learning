@@ -1,21 +1,34 @@
 import { Router } from 'express';
+import type { CookieOptions } from 'express';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
-import { registerSchema, loginSchema } from '../validations/auth.js';
-import { requireAuth } from '../middleware/requireAuth.js';
+import { db } from '../db/index.ts';
+import { users } from '../db/schema.ts';
+import { registerSchema, loginSchema } from '../validations/auth.ts';
+import { requireAuth } from '../middleware/requireAuth.ts';
+import { env } from '../config/env.ts';
 
 const router = Router();
 
+// Sa catch, `unknown` ang error — suriin muna ang hugis bago basahin (nahuli ng TypeScript)
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    err instanceof Error &&
+    typeof err.cause === 'object' &&
+    err.cause !== null &&
+    'code' in err.cause &&
+    err.cause.code === '23505'
+  );
+}
+
 // Iisang settings para sa pag-set (login) AT pag-clear (logout) ng cookie — dapat magkapareho,
 // kung hindi, may mga browser na hindi magbubura ng cookie
-const COOKIE_OPTIONS = {
+const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true, // hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
   sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
-  secure: process.env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
+  secure: env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
 };
 
 router.post('/auth/register', async (req, res) => {
@@ -42,7 +55,7 @@ router.post('/auth/register', async (req, res) => {
     res.status(201).json({ user });
   } catch (err) {
     // 23505 = unique violation ng Postgres. Nasa err.cause, hindi err.code (binabalot ni Drizzle)
-    if (err.cause?.code === '23505') {
+    if (isUniqueViolation(err)) {
       return res.status(409).json({ error: 'Email already registered' });
     }
     throw err; // ibang error → hayaan si Express (500)
@@ -73,7 +86,7 @@ router.post('/auth/login', async (req, res) => {
   }
 
   // Id lang (sub) ang laman — nababasa ng KAHIT SINO ang payload ng JWT (base64 lang, hindi encrypted)
-  const token = jwt.sign({ sub: String(user.id) }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  const token = jwt.sign({ sub: String(user.id) }, env.JWT_SECRET, { expiresIn: '1h' });
 
   // maxAge: 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
   res.cookie('token', token, { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 1000 });
@@ -84,10 +97,15 @@ router.post('/auth/login', async (req, res) => {
 
 // requireAuth muna: kung walang tamang token, hindi na aabot dito (401)
 router.get('/auth/me', requireAuth, async (req, res) => {
+  // Nilagay ng requireAuth — pero `number | undefined` ang type, kaya suriin (walang `!` na hula)
+  const userId = req.userId;
+  if (userId === undefined) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
   const [user] = await db
     .select({ id: users.id, email: users.email, name: users.name })
     .from(users)
-    .where(eq(users.id, req.userId));
+    .where(eq(users.id, userId));
 
   if (!user) {
     // tama ang token, pero nabura na ang user
@@ -99,7 +117,7 @@ router.get('/auth/me', requireAuth, async (req, res) => {
 
 // Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.
 // ⚠️ Sa browser lang nabubura — kung may nakakopya ng token, valid pa ito hanggang mag-expire (D-012)
-router.post('/auth/logout', (req, res) => {
+router.post('/auth/logout', (_req, res) => {
   res.clearCookie('token', COOKIE_OPTIONS);
   res.status(204).end(); // 204 = nagawa, walang body
 });

@@ -4,8 +4,8 @@
   "description": "Backend API ng auth-learning (Express)",
   "scripts": {
     "test": "vitest run",
-    "dev": "nodemon --watch src --watch .env --ext js,ts,json,env --exec \"node --env-file=.env src/index.js\"",
-    "start": "node --env-file=.env src/index.js",
+    "dev": "nodemon --watch src --watch .env --ext ts,json,env --exec \"node --env-file=.env src/index.ts\"",
+    "start": "node --env-file=.env src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
