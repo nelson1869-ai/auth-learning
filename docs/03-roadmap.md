@@ -233,6 +233,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** routing, protektadong page, paggamit ng cookie session mula sa browser
 
 **✅ Checkpoint (`checkpoint-phase-5`):** Buong auth mula sa browser.
+> ✅ **Tapos: 2026-09-25**, tag sa `2c424d6`. **Buhay na plano:** isang araw para sa Day 20–24.
+> Mga natuklasan: binubura ng React 19 ang form kahit may error; namamatay ang
+> `node --watch` sa `git checkout` → nodemon (D-014); ang tanong ng checkpoint
+> (CORS) ay hindi pa nasasagot ni Nelson — balikan sa Phase 9 (CSRF).
 *Ano ang CORS at bakit ito umiiral?*
 
 ---
@@ -240,7 +244,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 6 — Tests at CI · 🧪 *QA* + 🚀 *DevOps* · Day 25–28
 
 ### Day 25 — Unang unit test
-- [ ] Vitest; test ng isang simpleng function
+- [x] Vitest; test ng isang simpleng function
 - **Matututunan:** arrange / act / assert, bakit may tests
 
 ### Day 26 — API tests

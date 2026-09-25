@@ -50,7 +50,7 @@ backend/
 └── package.json          ← dependencies + scripts (dev, start, db:*)
 ```
 
-**Mga command:** `npm run dev` (server, kusang nagre-restart) · `npm run db:generate` ·
+**Mga command:** `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest) · `npm run db:generate` ·
 `npm run db:migrate` · `npm run db:studio`
 
 Tingnan ang [architecture](../docs/06-architecture.md) at ang [API contract](../docs/07-api-contract.md).
