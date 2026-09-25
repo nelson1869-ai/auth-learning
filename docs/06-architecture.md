@@ -65,7 +65,8 @@ nagdadagdag ng `/api`.
 ```
 backend/
 ├── src/
-│   ├── index.js          ← express.json + cookieParser, kinakabit ang routers, listen
+│   ├── app.js            ← (Day 26) cors + express.json + cookieParser, kinakabit ang routers
+│   ├── index.js          ← (Day 26) app.listen lang
 │   ├── routes/           ← auth.js (register/login/me/logout), users.js (count),
 │   │                        health.js, echo.js (pang-aral)
 │   ├── middleware/       ← requireAuth.js (cookie → jwt.verify → req.userId)
