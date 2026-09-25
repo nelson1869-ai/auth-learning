@@ -132,8 +132,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 4 — Register at login · ⚙️ *Backend* + 🔐 *Security* · Day 12–19
 
 ### Day 12 — Password hashing
-- [ ] Bakit HINDI kailanman plain text; hash vs encryption
-- [ ] Maliit na script: `argon2.hash()` at `argon2.verify()`
+- [x] Bakit HINDI kailanman plain text; hash vs encryption
+- [x] Maliit na script: `argon2.hash()` at `argon2.verify()`
 - **Matututunan:** hashing, salt — *Reference: item 4*
 
 ### Day 13 — Register endpoint
