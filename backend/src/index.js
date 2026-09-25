@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import healthRouter from './routes/health.js';
 import echoRouter from './routes/echo.js';
 import usersRouter from './routes/users.js';
@@ -7,6 +8,10 @@ import authRouter from './routes/auth.js';
 
 const app = express();
 const PORT = 3000;
+
+// CORS: payagan ang frontend (ibang origin/port) na tumawag dito, kasama ang cookie.
+// Una sa lahat — para masagot din ang preflight (OPTIONS) bago umabot sa mga route
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Una ito — kailangang mabasa ang JSON body BAGO umabot sa mga route
 app.use(express.json());
