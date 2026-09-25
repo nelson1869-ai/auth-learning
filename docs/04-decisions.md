@@ -176,3 +176,40 @@
     lang ang cookie sa browser) — lulutasin ng refresh tokens sa database (Phase 11, Day 51–52).
   - Lilipat sa RS256 + `iss`/`aud` sa Phase 11 (Day 56), gaya ng reference project.
 
+---
+
+## D-013 · Frontend: "basics muna, modern pagkatapos"
+
+- **Petsa:** 2026-09-25 (bago ang Phase 5)
+- **Context:** walang frontend ang reference project — dito tayo mismo ang
+  magpapasya. Versions noong araw na iyon: React 19.3, Vite 8.3, React Router 8.4,
+  TanStack Query 5, Tailwind 4.
+- **Desisyon (bawat bahagi):**
+
+  | Bahagi | Pinili | Hindi muna (at kailan puwede) |
+  |---|---|---|
+  | Framework | React 19 + Vite 8 (D-003) | Next.js — itinatago ang CORS |
+  | Language | JavaScript | TypeScript → Phase 7 |
+  | Forms | `useState` + `onSubmit` (Day 21) → React 19 `useActionState` (Day 23) | react-hook-form — hindi kailangan sa 2 form |
+  | API | `fetch` sa `src/api/`, `credentials: 'include'` | TanStack Query → pagkatapos ng MVP |
+  | Pages | React Router 8 (simpleng mode) | — |
+  | Styling | Plain CSS | Tailwind → Phase 10+ kung gusto |
+  | Dev ↔ backend | CORS sa backend (`cors`, `credentials: true`) | Vite proxy — babanggitin, hindi gagamitin |
+  | Linter | Oxlint (kasama na sa template ng Vite) | ESLint — pag-uusapan ulit sa Day 27 (D-011) |
+
+- **Bakit:** sa bawat konsepto, pundasyon muna (na makikita sa bawat trabaho at
+  tutorial), saka ang modernong paraan — para alam kung anong problema ang
+  nilulutas nito. Ang TanStack Query at Tailwind ay mahusay, pero itinatago nila
+  ang mismong gusto nating makita (ang request, ang cookie, ang CSS).
+- **Consequences:**
+  - Mas maraming code sa kamay (loading/error state sa bawat form) — sinadya, para
+    makita kung bakit may `useActionState` at TanStack Query.
+  - CORS muna, hindi proxy: makikita ang totoong CORS error sa DevTools, at iyon
+    ang kailangan kapag magkaibang domain ang frontend at backend. Sa Phase 8,
+    pag-iisipan ulit kung iisang domain (walang CORS).
+  - **StrictMode:** sa development, dalawang beses tinatawag ang ilang code —
+    makikita ang 2 request sa `/me`. Hindi bug.
+  - **LUMANG PARAAN → KASALUKUYAN:** ang `create-vite` ngayon ay may Oxlint na
+    (dati ESLint), at `--overwrite` ay BINUBURA ang laman ng folder — kaya
+    ililipat muna palabas ang `frontend/README.md` sa Day 20.
+

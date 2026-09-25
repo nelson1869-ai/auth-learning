@@ -23,16 +23,22 @@ ng resulta.
 - Magandang karanasan sa user (UX) — at sa lahat ng screen size
 
 ## Tools
-React · Vite · JavaScript (→ TypeScript) · fetch — tingnan ang [tech stack](../docs/02-tech-stack.md).
+React 19 · Vite 8 · React Router 8 · fetch · plain CSS · JavaScript (→ TypeScript sa Phase 7)
+— tingnan ang [tech stack](../docs/02-tech-stack.md) at ang [D-013](../docs/04-decisions.md)
+("basics muna, modern pagkatapos").
 
 ## Ano ang lalaman ng folder na ito (plano)
 ```
 frontend/
 ├── src/
-│   ├── App.jsx         ← ang pangunahing component
+│   ├── main.jsx        ← simula ng app (StrictMode)
+│   ├── App.jsx         ← aling page ang ipapakita (React Router)
 │   ├── pages/          ← Login, Register, Profile
-│   └── ...
+│   ├── components/     ← maliliit na pirasong ginagamit ng marami
+│   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar
+│   └── index.css       ← plain CSS
 ├── index.html
+├── vite.config.js
 └── package.json
 ```
 
@@ -43,4 +49,6 @@ frontend/
 - **Token sa `localStorage`** — mababasa ito ng masamang script (XSS); gagamit tayo ng httpOnly cookie
 
 ## Unang gawain
-**Phase 5** — pagkatapos gumana ang backend API. Tingnan ang [roadmap](../docs/03-roadmap.md).
+**Phase 5, Day 20** — Vite + React. ⚠️ Bago ang `npm create vite`, ilipat muna palabas
+ang README na ito (binubura ng Vite ang laman ng folder), tapos ibalik.
+Tingnan ang [roadmap](../docs/03-roadmap.md).
