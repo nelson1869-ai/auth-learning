@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · dadagdagan sa Day 16 (JWT + cookie)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie)
 >
 > **Code:** `backend/src/routes/auth.js` · `backend/src/validations/auth.js`
 > **Subukan:** `backend/http/05-login.http`
@@ -16,8 +16,10 @@ flowchart TD
     Has -->|"oo"| VReal["argon2.verify(user.passwordHash, password)<br/>~50ms"]
     Has -->|"wala"| VDummy["argon2.verify(DUMMY_HASH, password)<br/>~50ms — laging false<br/>para PAREHO ang tagal"]
     VReal --> Ok{"Tugma ba?"}
-    Ok -->|"oo"| C200["✅ 200 OK<br/>{ user: { id, email, name } }<br/>walang passwordHash"]
-    Ok -->|"hindi"| C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }"]
+    Ok -->|"oo"| Sign["jwt.sign({ sub: String(user.id) },<br/>JWT_SECRET, { expiresIn: '1h' })<br/>id lang — nababasa ng kahit sino ang payload"]
+    Sign --> Cookie["res.cookie('token', token, {<br/>httpOnly, sameSite: 'lax',<br/>secure (production), maxAge: 1h })"]
+    Cookie --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ...; HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
+    Ok -->|"hindi"| C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }<br/>walang cookie"]
     VDummy --> C401
 ```
 
@@ -40,5 +42,20 @@ flowchart TD
   kung may account ang email. Sa reference project, sinadya itong iwan (ang tanging
   tunay na ayos ay "email-first signup" na nagbabago ng UX), at nililimitahan na lang
   ng rate limiter (Phase 9).
-- **Wala pang "session".** Ang 200 ay sagot lang — sa susunod na request, hindi ka
-  na kilala ng server. Sa Day 16: JWT sa httpOnly cookie.
+## Ang JWT (Day 16)
+
+```
+eyJhbGciOiJIUzI1NiIs...  .  eyJzdWIiOiIzMiIsImlhdCI6...  .  Xk3f9aB...
+ header                      payload                        signature
+ {"alg":"HS256"}             {"sub":"32","iat":…,"exp":…}   pirma gamit ang JWT_SECRET
+```
+
+- **Nababasa ng kahit sino** ang header at payload (base64 lang). Kaya `sub` (id)
+  lang — walang email, password o hash.
+- **Hindi mapepeke:** sinubukan (Day 16) palitan ang `sub` ng `"999"` → `invalid
+  signature`. Kailangan ang `JWT_SECRET` para makagawa ng tamang pirma — kaya kapag
+  nanakaw ang secret, kaya nang gumawa ng token para sa kahit sinong user.
+- **`httpOnly` cookie, hindi `localStorage`:** hindi ito mababasa ng JavaScript sa
+  browser, kaya hindi manakaw ng XSS; kusa rin itong ipinapadala ng browser.
+- ⏳ **Day 17:** babasahin ng middleware ang cookie at `jwt.verify` para sa
+  `GET /api/auth/me`.

@@ -158,11 +158,11 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** authentication, user enumeration (unang silip) — *Reference: item 28*
 
 ### Day 16 — JWT at cookies
-- [ ] Ano ang JWT (at ano ang HINDI dapat nasa loob nito)
-- [ ] I-set ito sa `httpOnly` cookie — bakit hindi `localStorage`? 🔐
-- [ ] 📝 Sa `05-login.http`, tingnan ang `Set-Cookie` header sa response
-- [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang JWT + cookie
-- [ ] 🧰 `cookie-parser` para mabasa ang cookie; i-decode ang JWT sa **jwt.io** para makita ang laman nito
+- [x] Ano ang JWT (at ano ang HINDI dapat nasa loob nito)
+- [x] I-set ito sa `httpOnly` cookie — bakit hindi `localStorage`? 🔐
+- [x] 📝 Sa `05-login.http`, tingnan ang `Set-Cookie` header sa response
+- [x] 📊 I-update ang `04-login-flow.md`: idagdag ang JWT + cookie
+- [x] 🧰 `cookie-parser` para mabasa ang cookie; i-decode ang JWT sa **jwt.io** para makita ang laman nito
 - **Matututunan:** stateless na session, cookie flags — *Reference: item 5*
 
 ### Day 17 — Protektadong route
