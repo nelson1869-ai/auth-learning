@@ -1,9 +1,10 @@
+import LoginPage from './pages/LoginPage.jsx';
+
 function App() {
-  const name = 'Nelson';
   return (
     <main>
       <h1>auth-learning</h1>
-      <p>Hello, {name}!</p>
+      <LoginPage />
     </main>
   );
 }
