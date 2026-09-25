@@ -271,7 +271,7 @@ direktang nagtatrabaho sa `main`?*
 > may sadyang bagsak na test → ❌ `backend` sa CI, hindi na-merge.
 ---
 
-## Phase 7 — TypeScript · ⚙️ *Backend* · Day 29–32
+## Phase 7 — TypeScript · ⚙️ *Backend* + 🎨 *Frontend* · Day 29–32b
 
 ### Day 29 — TypeScript basics
 - [x] Types, `tsconfig.json` — at si Node 24 ang nagpapatakbo ng `.ts` (hindi `tsx`, D-018)
@@ -287,37 +287,51 @@ direktang nagtatrabaho sa `main`?*
 - [x] Pansinin: 17 error nang pinalitan lang ang pangalan; `User` ay kopya ng sagot ng backend (D-019)
 - **Matututunan:** types sa React (`useState<User | null>`, `FormEvent`, `useActionState<State, FormData>`)
 
-**✅ Checkpoint (`checkpoint-phase-7`):** `npx tsc --noEmit` malinis, at pumapasa pa rin ang tests.
+**✅ Checkpoint (`checkpoint-phase-7`):** `npm run typecheck` malinis sa backend AT frontend (at sa CI), at pumapasa pa rin ang tests.
 
 ---
 
 ## Phase 8 — Totoong deploy 🌐 · 🚀 *DevOps* + 🗄️ *Database* · Day 33–38
 
+> 📐 **Hybrid (D-020):** frontend sa **Cloudflare Pages** · backend sa **PC mo (Docker)**
+> sa likod ng **named Cloudflare Tunnel** · database sa **Neon** · CD ng backend na
+> **pull-based** (walang self-hosted runner — public ang repo).
+
 ### Day 33 — Domain at Cloudflare
 - [ ] Bumili ng domain (~$10/taon); ilipat ang DNS sa Cloudflare
-- **Matututunan:** DNS, domain, nameservers
+- [ ] Planuhin ang mga address: `https://<domain-mo>` (frontend) at `https://api.<domain-mo>` (backend)
+- **Matututunan:** DNS, domain, nameservers; bakit **same-site** ang `api.` at ang main domain (para sa cookie)
 
-### Day 34 — Dockerfile
-- [ ] Dockerfile para sa backend; patakbuhin sa container
-- **Matututunan:** image build — *Reference: item 21*
+### Day 34 — Dockerfile ng backend
+- [ ] Dockerfile: `npm ci --omit=dev` + `node src/index.ts` — **walang build step** (D-018); non-root user
+- [ ] Patakbuhin sa container gamit ang `devops/` compose — ⚠️ may sariling `name:` (iwas-banggaan, Day 07)
+- **Matututunan:** image, layers, `.dockerignore`, bakit hindi root — *Reference: item 21*
 
-### Day 35 — Managed database na may backup
-- [ ] Neon o Supabase; patakbuhin ang migrations doon
+### Day 35 — Managed database na may backup (Neon)
+- [ ] Neon project; `DATABASE_URL` ng production; `npm run db:migrate` doon
 - [ ] **Backup at restore:** subukan talagang mag-restore
 - **Matututunan:** managed DB, "ang backup na hindi pa nasusubukang i-restore ay hindi backup"
 
-### Day 36 — HTTPS gamit ang named Cloudflare Tunnel
-- [ ] `https://api.<domain-mo>` at `https://<domain-mo>`
-- [ ] Cookie flags para sa production (`Secure`, `SameSite`) 🔐
-- **Matututunan:** HTTPS, tunnel, production config
+### Day 36 — Backend sa internet: named Cloudflare Tunnel
+- [ ] `cloudflared` → `https://api.<domain-mo>` → ang container sa PC mo (walang bukas na port sa router)
+- [ ] Production env sa `config/env.ts`: `NODE_ENV=production`, `CLIENT_URL=https://<domain-mo>` → `Secure` cookie 🔐
+- [ ] 📝 `.http` para sa production (health lang — huwag gumawa ng test users sa prod)
+- **Matututunan:** HTTPS, tunnel, production config — *Reference: item 22 (tunnel)*
 
-### Day 37 — CD: kusang deploy pagka-merge sa `main`
-- [ ] GitHub Actions job na nagde-deploy kapag pumasa ang CI (Phase 6)
-- [ ] Deploy lang mula sa `main`, at lang kapag berde ang lahat ng tests
-- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017)
-- [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → deploy; i-update ang `00-architecture.md`
-- **Matututunan:** CD — at kung bakit **manual muna, tapos automate** (hindi mo
-  magagawang awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
+### Day 36b — Frontend sa Cloudflare Pages
+- [ ] `VITE_API_URL` sa halip na naka-hardcode na `localhost:3000` sa `frontend/src/api/auth.ts`
+- [ ] Cloudflare Pages: kusang build + deploy sa bawat merge sa `main` (walang runner); custom domain
+- [ ] SPA fallback para sa React Router (`/profile` kapag ni-refresh → hindi 404)
+- **Matututunan:** static hosting, build-time env variables, bakit kailangan ng fallback ang SPA
+
+### Day 37 — CD ng backend: manual muna, tapos automate
+- [ ] **Manual muna:** isang `deploy.sh` sa PC — pull → migrate → restart; isulat ang bawat hakbang
+- [ ] **Tapos automate:** GitHub Actions (GitHub-hosted) → gumagawa ng Docker image → GHCR; ang PC ang **kumukuha** (pull) ng bagong image
+- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017, D-020)
+- [ ] Deploy lang ang eksaktong commit na pumasa sa CI
+- [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → image → pull → restart; i-update ang `00-architecture.md`
+- **Matututunan:** CD, push vs pull deploy, bakit **manual muna** (hindi mo magagawang
+  awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
 
 ### Day 38 — MVP launch 🎉
 - [ ] Isang kaibigan: register → login → logout mula sa **sarili niyang phone**
@@ -350,8 +364,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** clickjacking, XSS, MIME sniffing
 
 ### Day 40 — Fail-fast na config
-- [ ] I-validate ang `.env` gamit ang Zod pagka-start — ayaw magsimula kung may kulang
-- [ ] 🏗️ Bagong folder: `src/config/`
+- [x] I-validate ang `.env` gamit ang Zod pagka-start — ayaw magsimula kung may kulang *(nagawa na sa Phase 7: `config/env.ts` — ipinakita ng TypeScript na kailangan)*
+- [x] 🏗️ Bagong folder: `src/config/` *(Phase 7)*
+- [ ] Balikan: may bagong env ba mula sa Phase 8 (hal. production values) na dapat idagdag sa schema?
 - **Matututunan:** "mas mabuting mag-crash agad kaysa tumakbo nang mali"
 
 ### Day 41 — Sentral na error handling
@@ -577,11 +592,12 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 78 — API documentation
 - [ ] OpenAPI + Swagger UI mula sa parehong Zod schemas
+- [ ] **Gumawa ng types ng frontend mula sa OpenAPI spec** — para hindi na kopya ang `User` type sa `frontend/src/api/auth.ts` (D-019)
 - [ ] 📝 `backend/http/21-openapi.http` — kunin ang spec
 - **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
 
 ### Day 79 — Walang naiwang unused code
-- [ ] `noUnusedLocals` + knip sa CI
+- [ ] knip sa CI (unused files, exports, dependencies) — *naka-on na ang `noUnusedLocals` mula Phase 7*
 - **Matututunan:** bakit nakakalito ang patay na code · *Reference: `remove unused code`*
 
 **✅ Checkpoint (`checkpoint-phase-16`):** *Ano ang dapat at HINDI dapat nasa loob ng isang controller?*
