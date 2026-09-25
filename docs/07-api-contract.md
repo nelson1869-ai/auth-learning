@@ -1,6 +1,6 @@
 # 07 — API Contract (ang kasunduan ng frontend at backend)
 
-> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) at Day 15 (login) · **I-update tuwing may bago o nagbagong endpoint.**
+> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) Day 15 (login) at Day 16 (JWT cookie) · **I-update tuwing may bago o nagbagong endpoint.**
 >
 > **API contract** = ang listahan ng bawat endpoint: ano ang ipapadala, ano ang
 > babalik, at anong status code. Sa totoong team, ito ang binabasa ng frontend
@@ -72,8 +72,10 @@ Bilang lang — hindi kailanman ang listahan ng users.
 
 | Status | Kailan | Body |
 |---|---|---|
-| **200** | Tama ang email at password | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
+| **200** | Tama ang email at password — **may `Set-Cookie: token`** | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
 | **400** | Mali ang hugis ng input | `{ "error": "Invalid input", "fields": { ... } }` |
 | **401** | Maling password **o** walang account — **iisang sagot, parehong tagal** | `{ "error": "Invalid email or password" }` |
 
-⏳ Wala pang cookie o token — idadagdag sa Day 16.
+**Cookie (sa 200 lang):** `token=<JWT>; Max-Age=3600; Path=/; HttpOnly; SameSite=Lax`
+(+ `Secure` kapag `NODE_ENV=production`). Payload ng JWT: `{ "sub": "<user id>", "iat", "exp" }`,
+HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapadala ng browser.

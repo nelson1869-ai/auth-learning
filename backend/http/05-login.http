@@ -1,9 +1,10 @@
 ### =========================================================================
 ### 🎓 LOGIN — patunayan kung sino ka (authentication)
-### 📅 Day 15 · Phase 4 (Register at login)
+### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie)
 ### =========================================================================
 ### POST /api/auth/login  { email, password }
 ###   → Zod (lowercase ang email) → hanapin ang user → argon2.verify → 200 o 401
+###   → kapag 200: JWT (id lang) sa httpOnly cookie na `token` (1 oras)
 ###
 ### 🔐 Iisang sagot para sa maling password AT walang account — at PAREHO ANG
 ### TAGAL (DUMMY_HASH). Hindi malalaman ng attacker kung sino ang may account.
@@ -30,24 +31,25 @@ Content-Type: application/json
 
 ### -------------------------------------------------------------------------
 ### 1. Tamang email at password. Ang inaasahan:
-###    Status:  200 OK
-###    Body:    { "user": { "id": ..., "email": "login-demo@example.com", "name": "Login Demo" } }
+###    Status:   200 OK
+###    Headers:  Set-Cookie: token=eyJ...; Max-Age=3600; Path=/; Expires=...; HttpOnly; SameSite=Lax
+###    Body:     { "user": { "id": ..., "email": "login-demo@example.com", "name": "Login Demo" } }
 ###
-### 🔍 Walang password_hash sa sagot. At PANSININ: wala pang "naaalala" ang server
-### na naka-login ka — sa susunod na request, hindi ka na nito kilala. Iyan ang
-### aayusin ng JWT + cookie sa Day 16.
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "login-demo@example.com",
-  "password": "password123"
-}
-
+### 🔍 Gawin:
+###   - Tingnan ang HEADERS sa response panel (hindi lang ang body) — nandoon ang Set-Cookie.
+###   - Kopyahin ang token (sa pagitan ng "token=" at ";") → i-paste sa https://jwt.io
+###     → payload: { "sub": "<id mo>", "iat": ..., "exp": ... }   (exp − iat = 3600 = 1 oras)
+###   - 🔐 Nabasa mo ang laman KAHIT WALA sa iyo ang JWT_SECRET — base64 lang ito,
+###     hindi encrypted. Kaya id lang ang inilalagay: walang email, password, o hash.
+###   - Ang pirma (3rd na bahagi) ang nagpoprotekta: kapag binago ang "sub", hindi na
+###     tutugma ang pirma → tatanggihan ng server ("invalid signature" — Day 17).
+###   - Tinatandaan ng REST Client ang cookie at kusang ipapadala sa susunod na request
+###     sa localhost:3000 — gaya ng browser. Magagamit ito sa Day 17 (/api/auth/me).
 ### -------------------------------------------------------------------------
 ### 2. Tamang email, MALING password. Ang inaasahan:
 ###    Status:  401 Unauthorized
 ###    Body:    { "error": "Invalid email or password" }
+###    🔍 WALANG Set-Cookie — token lang kapag napatunayan kung sino ka
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 

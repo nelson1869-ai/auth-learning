@@ -154,3 +154,25 @@
 - **Bakit:**
 - **Consequences:** (ano ang nakukuha, ano ang isinusuko?)
 ```
+
+---
+
+## D-012 · JWT: HS256 (isang secret) muna, RS256 mamaya
+
+- **Petsa:** 2026-09-25 (Day 16)
+- **Context:** kailangan ng pirma ang JWT. Dalawang paraan: **HS256** — iisang
+  `JWT_SECRET` ang pumipirma at sumusuri; **RS256** — private key ang pumipirma,
+  public key ang sumusuri (ang ginagamit ng reference project, item 5).
+- **Desisyon:** HS256 muna, gamit ang random na 48-byte na `JWT_SECRET` sa `.env`,
+  na may `expiresIn: '1h'`, sa `httpOnly` + `SameSite=Lax` cookie.
+- **Bakit:** iisang backend lang ang gumagawa AT sumusuri ng token — walang ibang
+  serbisyong kailangang mag-verify, kaya walang pakinabang pa ang public key.
+  Isang konsepto sa isang araw.
+- **Consequences:**
+  - Ang sinumang may `JWT_SECRET` ay makakagawa ng token para sa kahit sinong
+    user — kaya hindi ito kailanman naka-commit, at iba ang secret sa production.
+  - Wala pang refresh token: pagkalipas ng 1 oras, login ulit (Phase 11, Day 51).
+  - Walang paraan pang bawiin ang isang token bago mag-expire (logout = burahin
+    lang ang cookie sa browser) — lulutasin ng refresh tokens sa database (Phase 11, Day 51–52).
+  - Lilipat sa RS256 + `iss`/`aud` sa Phase 11 (Day 56), gaya ng reference project.
+
