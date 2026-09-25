@@ -22,6 +22,7 @@ Hindi ito bahagi ng app — ito ang "gamit sa workshop" mo.
 | **Git** | Nagtatanda ng bawat pagbabago (version control) | Day 01 |
 | **GitHub** (website) | Kopya ng repo sa internet, Pull Requests, CI | Day 02 |
 | **SSH key + `keychain`** | Ligtas na koneksyon sa GitHub; passphrase isang beses lang bawat araw | Day 02 |
+| **GitHub CLI (`gh`)** | PR, CI status at merge mula sa terminal (`gh pr create`, `gh pr checks --watch`, `gh pr merge`) | Day 28 |
 | **VS Code** | Code editor | Day 01 |
 | **npm / npx** | Pag-install at pagpapatakbo ng mga package (kasama ng Node) | Day 03 |
 | **`node --watch`** → **`nodemon`** | Kusang nire-restart ang server kapag nag-save ka (nodemon mula Day 23 — matibay kahit may `git checkout`, D-014) | Day 05 / 23 |

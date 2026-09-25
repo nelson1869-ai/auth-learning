@@ -34,11 +34,42 @@ chore: add .gitignore
 **Isang commit = isang lohikal na pagbabago.** Kapag kailangan mo ng "at" para
 ipaliwanag ito ("nagdagdag ng login AT inayos ang typo"), dalawang commit dapat iyan.
 
-## 3. Pull Requests (PR)
+## 3. Pull Requests (PR) — at ang buong daloy
 
-Bago i-merge sa `main`, gumawa ng PR sa GitHub — kahit ikaw lang ang team.
-Doon mo makikita ang lahat ng binago nang sabay, at doon tatakbo ang automated
-tests (simula Phase 6).
+Bago i-merge sa `main`, gumawa ng PR — kahit ikaw lang ang team. Doon makikita ang
+lahat ng binago nang sabay, at doon tumatakbo ang CI (`backend` + `frontend`).
+**Hindi puwedeng i-merge kapag ❌** — ipinapatupad ito ng ruleset `main-protection`
+(public ang repo — D-016, D-017).
+
+**Ang buong daloy (gamit ang GitHub CLI `gh`):**
+```bash
+git checkout -b feature/something        # 1. bagong branch mula sa main
+# ... magtrabaho, mag-commit ...
+git status                                # 2. walang .env / .env.test sa listahan!
+git push -u origin feature/something      # 3. ipadala sa GitHub
+gh pr create --fill --title "feat: ..."   # 4. gumawa ng PR
+gh pr checks --watch                      # 5. hintayin ang CI hanggang ✅ (❌ → ayusin, push ulit)
+gh pr merge --merge --delete-branch       # 6. i-merge (tatanggi kung ❌) at burahin ang branch sa GitHub
+git checkout main && git pull             # 7. kunin ang merge
+git branch -d feature/something           # 8. burahin ang lokal na branch
+```
+
+**Mga aral mula sa totoong nangyari:**
+- **I-push muna LAHAT, saka i-merge.** Dalawang beses (Day 08, Day 27) na-merge ang
+  PR bago dumating ang huling push — kaya hindi nakasama ang commit. Tingnan ang
+  bilang ng commits sa PR bago i-merge. Kung may nawala:
+  `git branch -a --contains <sha>` → `git cherry-pick <sha>` sa bagong branch.
+- **Email sa commits = noreply** (`255520658+nelson1869-ai@users.noreply.github.com`).
+  Naka-on ang "Keep my email addresses private" at ang pag-block ng push na may
+  Gmail — kapag lumabas ang `GH007: Your push would publish a private email address`,
+  tingnan ang `git config user.email`, at ayusin ang mga commit na hindi pa na-push:
+  `git rebase main --exec 'git commit --amend --no-edit --reset-author'`.
+- **`git branch -d`** (ligtas — tumatanggi kung hindi naka-merge) vs **`-D`** (pilit —
+  para lang sa sinadyang itapon, hal. ang pansubok na PR #33).
+- **Huwag gumamit ng `git stash` para mag-eksperimento** — kopyahin muna ang file o
+  mag-commit (tahimik na pumapalya ang `git stash -- <path>`; aral mula sa reference).
+- **`npm run dev` pagkatapos ng checkout/pull** — nodemon na (D-014), kusang
+  nagre-restart; hindi na kailangang tandaan.
 
 ## 4. "Definition of Done" — kailan masasabing TAPOS ang isang bagay
 
