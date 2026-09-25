@@ -252,3 +252,50 @@
 - **Consequences:** mas kaunti pa ang plugins kaysa sa ESLint. VS Code extension:
   `oxc.oxc-vscode` (hindi `dbaeumer.vscode-eslint`).
 
+---
+
+## D-016 · Gawing public ang repo (para gumana ang branch protection)
+
+- **Petsa:** 2026-09-26 (Day 28)
+- **Context:** sa GitHub Free, **hindi ipinapatupad** ang ruleset sa private repo
+  ("won't be enforced on this private repository until you move to GitHub Team").
+  Kung private, babala lang ang CI — puwede pa ring i-merge ang pula.
+- **Mga opsyon:** public (libre, enforced) · private na walang enforcement ·
+  magbayad (Pro/Team)
+- **Pinili:** public — pinili ni Nelson.
+- **Bago ginawang public — sinuri ang BUONG git history (105 commit):**
+  gitleaks → 1 finding, maling alarma (`argon2.verify` sa journal ng Day 14);
+  walang `.env`/`.env.test` na na-commit kailanman; `JWT_SECRET` → 0; Postgres
+  password → 0 tunay na pagkakalantad (ang mga tugma ay galing sa `nelson1869`).
+- **Consequences:**
+  - Portfolio: makikita ng kahit sino ang code, commits, PRs, CI at docs.
+  - **Lahat ng susunod na commit ay public** — laging `.env` sa `.gitignore`,
+    `.env.example` na placeholder lang, at tingnan ang `git status` bago mag-commit.
+  - 🔐 **Walang self-hosted runner sa public repo** (Day 37, CD): kahit sino ay
+    puwedeng magbukas ng PR, at tatakbo ang workflow sa makina mo. Sa reference
+    project, ginawang PRIVATE muna ang repo bago mag-self-hosted runner. Dito:
+    GitHub-hosted runner lang, o deploy mula sa sariling makina nang manual/pull.
+  - Rekomendasyon (hindi pa nagagawa): palitan ang Postgres password sa
+    `devops/.env` — kapareho ng isa pang password ni Nelson (hindi ito nasa Git).
+
+---
+
+## D-017 · Public pa rin — at noreply email para sa mga bagong commit
+
+- **Petsa:** 2026-09-26 (pagkatapos ng Day 28)
+- **Context:** pagkatapos ng D-016, nakita na ang Gmail ni Nelson ay nasa lahat ng
+  110 commit at nakikita habang public ang repo. Sandaling ginawang **private**,
+  kaya bumalik ang babalang "won't be enforced" sa ruleset.
+- **Mga opsyon:** private (walang enforcement, hindi nakikita ng AI ang CI) ·
+  public (enforced, nakikita ang email sa lumang commits) · isulat ulit ang buong
+  history para palitan ang email (delikado — force push, hindi inirerekomenda)
+- **Pinili:** **public ulit** — pinili ni Nelson ("oo na public ko na"). Tanggap ang
+  email sa lumang commits (karaniwang panganib: spam; walang secret na nalantad).
+- **Consequences:**
+  - Ipinapatupad ulit ang `main-protection` — nakumpirma ng AI sa API: `active`.
+  - Nakikita ulit ng AI ang CI at PRs sa GitHub API.
+  - **Rekomendasyon:** GitHub → Settings → Emails → "Keep my email addresses
+    private", at `git config --global user.email "<noreply email>"` — para hindi na
+    lumabas ang Gmail sa mga BAGONG commit.
+  - **Aral:** hindi nakatatago ng email ang SSH key — authentication iyon (sino ang
+    puwedeng mag-push). Ang email ay nakasulat sa loob ng bawat commit.
