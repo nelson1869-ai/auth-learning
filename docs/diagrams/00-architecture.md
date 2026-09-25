@@ -6,11 +6,16 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 19 · Phase 4 (checkpoint) · **Code:** `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 20 · Phase 5 (may frontend na) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`07`
 
 ```mermaid
 flowchart LR
+    Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
+    subgraph FEG["frontend/ · Vite 8 + React 19 (npm run dev)"]
+        FE["src/main.jsx → App.jsx<br/>pages/ · components/ · api/<br/>(walang laman pa)"]
+    end
+    FE -. "⏳ Day 22: fetch + CORS" .-> MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
     subgraph BE["backend/ · Express (npm run dev)"]
         MW["express.json()<br/>cookieParser()"]
@@ -33,8 +38,9 @@ flowchart LR
     end
 ```
 
-**Pansinin:** wala pang frontend (Phase 5) — REST Client ang "browser" natin.
-Ang cookie na `token` ang nagpapakilala sa iyo pagkatapos ng login.
+**Pansinin:** dalawang server na — frontend sa **:5173** (Vite), backend sa **:3000**
+(Express). Hindi pa sila nag-uusap: sa Day 22, tatawag ang frontend gamit ang `fetch`,
+at haharangin ito ng browser (CORS) hangga't hindi pinapayagan ng backend.
 
 ## Habang nagde-develop (sa sarili mong PC)
 
