@@ -209,14 +209,14 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** frontend dev server, component, JSX, StrictMode
 
 ### Day 21 — State at forms (pundasyon)
-- [ ] Login form gamit ang `useState` (controlled inputs) at `onSubmit`
-- [ ] Ipakita ang tinype sa ilalim ng form (para makita kung paano nagre-render)
+- [x] Login form gamit ang `useState` (controlled inputs) at `onSubmit`
+- [x] Ipakita ang tinype sa ilalim ng form (para makita kung paano nagre-render)
 - **Matututunan:** state, re-render, controlled inputs, events
 
 ### Day 22 — Pagtawag sa backend
 - [ ] `src/api/auth.js`: `fetch` sa `/api/auth/login` na may `credentials: 'include'`
 - [ ] **CORS** — makita muna ang error sa DevTools, tapos ayusin sa backend (`cors`, `origin`, `credentials: true`) 🔐
-- [ ] 📊 `docs/diagrams/07-frontend-backend.md` — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
+- [ ] 📊 I-update ang `docs/diagrams/07-frontend-backend.md` (sinimulan sa Day 21) — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
 - [ ] 📋 Sundan ang `docs/07-api-contract.md` — ang "kasunduan" ng frontend at backend
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`, cookie sa DevTools
 
