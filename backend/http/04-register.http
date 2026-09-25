@@ -1,8 +1,9 @@
 ### =========================================================================
 ### 🎓 REGISTER — gumawa ng bagong account
-### 📅 Day 13 · Phase 4 (Register at login)
+### 📅 Day 13 · Phase 4 (Register at login) · in-update sa Day 14 (validation → 400, lowercase email)
 ### =========================================================================
 ### POST /api/auth/register  { email, password, name? }
+###   → Zod: suriin at linisin (trim + lowercase ang email) → maling input = 400
 ###   → i-hash ang password (argon2) → INSERT → 201 + ang user (walang hash!)
 ###   → dobleng email → UNIQUE ng database → 23505 → 409
 ###
@@ -11,7 +12,7 @@
 ###   2. cd backend && npm run dev              (server)
 ###   3. I-send ang mga request mula taas pababa — ginagamit ng #2 ang sagot ng #1
 ###
-### Code: backend/src/routes/auth.js · Migration: backend/drizzle/0001_*.sql
+### Code: backend/src/routes/auth.js · backend/src/validations/auth.js · Migration: backend/drizzle/0001_*.sql
 ### Diagram: docs/diagrams/03-register-flow.md
 ### =========================================================================
 
@@ -63,13 +64,18 @@ Content-Type: application/json
 }
 
 ### =========================================================================
-### ⚠️ MGA BUTAS PA (aayusin sa Day 14 — Validation). Subukan para makita:
+### 🔒 VALIDATION (Day 14) — dating mga butas ng Day 13, ngayon 400 na
 ### =========================================================================
+### Ang hugis ng 400:
+###   { "error": "Invalid input", "fields": { "<field>": ["<paliwanag>"] } }
+### Lahat ng mali ay sabay na iniuulat — hindi isa-isa.
 
 ### -------------------------------------------------------------------------
-### 4. Walang password. Ang KASALUKUYANG sagot (mali):
-###    Status:  500 — HTML na may "TypeError ... Received undefined" (galing sa argon2)
-###    Dapat:   400 Bad Request — "password is required"
+### 4. Walang password. Ang inaasahan:
+###    Status:  400 Bad Request
+###    Body:    { "error": "Invalid input",
+###               "fields": { "password": ["Invalid input: expected string, received undefined"] } }
+###    (Day 13: 500 — TypeError mula sa argon2)
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
@@ -78,11 +84,9 @@ Content-Type: application/json
 }
 
 ### -------------------------------------------------------------------------
-### 5. Walang email. Ang KASALUKUYANG sagot (mali):
-###    Status:  500 — HTML na may "Failed query: insert into users ..."
-###    🔐 Tingnan ang `params:` sa sagot — LUMALABAS ANG PASSWORD HASH. Kaya
-###    kailangan ng validation (Day 14) at ng error handler na walang detalye (Phase 9).
-###    Dapat:   400 Bad Request — "email is required"
+### 5. Walang email. Ang inaasahan:
+###    Status:  400 — "fields": { "email": ["Invalid input: expected string, received undefined"] }
+###    (Day 13: 500, at 🔐 lumalabas pa ang password hash sa error — hindi na umaabot sa database ngayon)
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
@@ -91,11 +95,25 @@ Content-Type: application/json
 }
 
 ### -------------------------------------------------------------------------
-### 6. Malaking titik — parehong tao, "ibang" email. Ang KASALUKUYANG sagot (mali):
-###    Status:  201 — PANGALAWANG account para sa iisang tao
-###    Dapat:   gawing lowercase bago i-save → 409 kung may `demo@...` na
-###    (I-send muna ang 6a, tapos 6b. Sa pangalawang pagsubok, 409 na ang 6a.)
-# 6a — maliit na titik
+### 6. Maraming mali nang sabay. Ang inaasahan:
+###    Status:  400
+###    Body:    "fields": { "email": ["Invalid email address"],
+###                         "password": ["Too small: expected string to have >=8 characters"] }
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "hindi-email",
+  "password": "short"
+}
+
+### -------------------------------------------------------------------------
+### 7. Malaking titik at espasyo — iisang tao na. I-send ang 7a, tapos 7b.
+###    7a → 201, at ang naka-save ay "case-test@example.com" (lowercase, walang espasyo)
+###         (sa pangalawang pagsubok, 409 na ang 7a)
+###    7b → 409 Conflict — iisang email na sila pagkatapos linisin ni Zod
+###    (Day 13: 201 — dalawang account para sa iisang tao)
+# 7a
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
@@ -104,11 +122,40 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### 6b — parehong email, malaking titik
+### 7b — parehong email, malaking titik at may espasyo
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "Case-Test@example.com",
+  "email": "  Case-Test@Example.COM ",
   "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 8. Dagdag na field na wala sa schema (hal. pagtatangkang maging admin). Ang inaasahan:
+###    Status:  201 — at BINALEWALA ang "role"
+###
+### 🔐 Tinatanggal ni Zod ang mga field na wala sa schema, at `result.data` (hindi
+### req.body) ang ginagamit ng code. Ito ang depensa laban sa "mass assignment".
+### (Wala pang role column ngayon — pero kapag mayroon na sa Phase 10, protektado na.)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "gusto-maging-admin-{{$timestamp}}@example.com",
+  "password": "password123",
+  "role": "admin"
+}
+
+### -------------------------------------------------------------------------
+### 9. Masyadong mahabang password (>128). Ang inaasahan:
+###    Status:  400 — "Too big: expected string to have <=128 characters"
+###    🔐 Kung walang limit, puwedeng magpadala ng napakahabang password para
+###    pahirapan ang argon2 at pabagalin ang server.
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "mahaba@example.com",
+  "password": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
