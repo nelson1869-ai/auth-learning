@@ -7,6 +7,12 @@
 
 Ito ang "utak" ng app. Tumatanggap ito ng request (hal. login), sinusuri kung tama ang password sa database, at sumasagot kung pasok ka o hindi.
 
+**Pagkatapos ng Phase 4** *(draft ng AI — palitan ng sarili mong salita kung iba ang pagkakaintindi mo)*:
+Hindi lang "sinusuri ang password" — ang backend ang huling bantay. Hindi ito nagtitiwala
+sa input (Zod), hindi nagtatago ng password (hash lang), hindi nagbubunyag kung sino ang
+may account, at pagkatapos ng login, isang pirmadong token sa cookie ang nagpapakilala
+sa user sa bawat request.
+
 ---
 
 ## Ang role
@@ -27,16 +33,27 @@ Hindi ito nakikita ng user — pero dito nangyayari ang karamihan ng security.
 Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 · jsonwebtoken · Vitest
 — tingnan ang [tech stack](../docs/02-tech-stack.md).
 
-## Ano ang lalaman ng folder na ito (plano)
+## Ano ang laman ng folder na ito (Phase 4 — totoo na, hindi na plano)
 ```
 backend/
 ├── src/
-│   ├── index.js        ← pinapatakbo ang server
-│   ├── routes/         ← mga URL: /api/auth/login, atbp.
-│   └── ...             ← madadagdagan habang natututo
-├── http/               ← .http files para subukan ang API
-└── package.json        ← listahan ng tools (dependencies)
+│   ├── index.js          ← binubuksan ang server, middleware, kinakabit ang routers
+│   ├── routes/           ← auth.js (register/login/me/logout), users.js, health.js, echo.js
+│   ├── middleware/       ← requireAuth.js — "naka-login ka ba?"
+│   ├── validations/      ← Zod schemas — "tama ba ang input?"
+│   └── db/               ← koneksyon + schema ng tables
+├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
+├── http/                 ← 01–07 .http files para subukan ang API
+├── playground/           ← mga practice script
+├── .env                  ← DATABASE_URL, JWT_SECRET (SECRET — hindi sa Git)
+├── .env.example          ← kopya na walang totoong secret
+└── package.json          ← dependencies + scripts (dev, start, db:*)
 ```
+
+**Mga command:** `npm run dev` (server, kusang nagre-restart) · `npm run db:generate` ·
+`npm run db:migrate` · `npm run db:studio`
+
+Tingnan ang [architecture](../docs/06-architecture.md) at ang [API contract](../docs/07-api-contract.md).
 
 ## ❌ Hindi dapat nasa loob ng backend
 - **Plain text na password** — laging hashed (argon2) bago i-save
@@ -45,5 +62,8 @@ backend/
 - **Tiwala sa data mula sa user** — laging i-validate (Zod) bago gamitin
 - **Mensahe ng error na nagbubunyag ng loob** (hal. "column users.email does not exist") — generic na mensahe lang sa user
 
-## Unang gawain
-**Phase 2** — "Hello World" API. Tingnan ang [roadmap](../docs/03-roadmap.md).
+## Mga natapos
+- **Phase 2** — unang API (health, echo, routes/) ✅
+- **Phase 4** — register, login, JWT sa httpOnly cookie, `/me`, logout ✅
+- **Susunod para sa backend:** Phase 6 (tests), Phase 7 (TypeScript), Phase 9 (hardening).
+  Tingnan ang [roadmap](../docs/03-roadmap.md).

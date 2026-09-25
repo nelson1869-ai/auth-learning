@@ -21,12 +21,31 @@
 ## Mga tanong ko pa / hindi pa malinaw
 - (Nelson: isulat dito — at sagutin ang mga tanong ng checkpoint sa ibaba.)
 
-## Checkpoint Phase 4 — sagutin sa sariling salita
-1. Bakit hash at hindi encryption ang password?
-2. Bakit iisang mensahe at parehong oras ang 401 ng maling password at walang account?
-3. Bakit nasa httpOnly cookie ang JWT at hindi sa localStorage?
-4. Ano ang ginagawa ng `requireAuth` at ng `next()`?
-5. Ano ang HINDI kaya ng logout natin ngayon, at kailan ito aayusin?
+## Checkpoint Phase 4 — answer key (isinulat ng AI sa kahilingan ko)
+
+> ⚠️ Hindi ito ang sarili kong sagot — ito ang "tamang sagot" na isinulat ng AI.
+> Basahin, at kung may hindi malinaw, isulat sa "Mga tanong ko pa" sa itaas.
+
+1. **Bakit hash at hindi encryption?** Ang encryption ay maibabalik kung may key —
+   kapag ninakaw ang database AT ang key, makikita ang lahat ng password. Ang hash
+   ay one-way: kahit tayo, hindi na maibabalik. Sa login, hina-hash ulit ang tinype
+   at ikinukumpara (`argon2.verify`). (Day 12)
+2. **Bakit iisang mensahe at parehong oras ang 401?** Para hindi malaman ng attacker
+   kung may account ang isang email (user enumeration). Pareho ang mensahe, at dahil
+   sa `DUMMY_HASH`, pareho rin ang tagal (sinukat: 52.3ms vs 52.3ms). Kung wala ito,
+   ~1ms ang sagot kapag walang account — kita agad. (Day 15)
+3. **Bakit httpOnly cookie at hindi localStorage?** Ang localStorage ay nababasa ng
+   JavaScript — kapag may XSS (injected na script), mananakaw ang token. Ang
+   httpOnly cookie ay hindi nababasa ng JavaScript, at kusang ipinapadala ng
+   browser. (Day 16)
+4. **Ano ang `requireAuth` at `next()`?** Middleware na dinadaanan bago ang route:
+   binabasa ang cookie, `jwt.verify` (pirma + expiry, HS256 lang), at inilalagay ang
+   `req.userId`. `next()` = pasado, tuloy sa route; kung walang `next()`, 401 na
+   ang sagot at hindi na aabot sa route. (Day 17)
+5. **Ano ang HINDI kaya ng logout?** Sa browser lang nabubura ang cookie. Ang token
+   na nakopya bago mag-logout ay valid pa hanggang mag-expire (1 oras) — sinubukan:
+   200. Hindi ito alam ng server dahil stateless ang JWT. Aayusin sa Phase 11
+   (Day 51–52): refresh tokens sa database na nare-revoke. (Day 18, D-012)
 
 ## Susunod
 - ✅ Tag `checkpoint-phase-4` → Phase 5: Login page (Frontend, React + Vite)

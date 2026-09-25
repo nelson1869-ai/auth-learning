@@ -179,13 +179,18 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** buong auth flow mula simula hanggang dulo
 
 ### Day 19 — Review day
-- [ ] Balikan ang lahat ng code: may hindi ba malinaw? Linisin ang pangalan at files
-- [ ] Sagutin ang lahat ng "Mga tanong ko pa" sa journal hanggang ngayon
+- [x] Balikan ang lahat ng code: may hindi ba malinaw? Linisin ang pangalan at files
+- [x] Sagutin ang lahat ng "Mga tanong ko pa" sa journal hanggang ngayon
 - [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 - [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 - **Matututunan:** refactoring — pagpapaganda nang hindi binabago ang behavior
 
 **✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`.
+> ✅ **Tapos: 2026-09-25**, tag sa `3c09ea0`. **Buhay na plano — pagsusuri:** natapos ang
+> Day 12–19 sa loob ng isang araw. Ang madalas na nakakaligtaan: imports, mga
+> placeholder na naiwan sa code, at ang merge bago magsimula ng bagong araw. Ang
+> mga checkpoint na tanong ay sinagot ng AI bilang answer key (`day-19.md`) —
+> **balikan bago ang Phase 11** (refresh tokens), dahil doon nakasandal ang #5.
 *Bakit hashed ang password? Bakit httpOnly ang cookie? Bakit iisa ang error message sa login?*
 
 ---
