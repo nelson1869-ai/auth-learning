@@ -14,3 +14,19 @@ export async function login(email, password) {
   if (!res.ok) throw new Error(data.error ?? 'Request failed');
   return data;
 }
+
+export async function register(email, password, name) {
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password, name }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    const err = new Error(data.error ?? 'Request failed');
+    err.fields = data.fields; // mga error bawat field mula sa Zod (400) — ipapakita sa tabi ng input
+    throw err;
+  }
+  return data;
+}

@@ -213,3 +213,26 @@
     (dati ESLint), at `--overwrite` ay BINUBURA ang laman ng folder — kaya
     ililipat muna palabas ang `frontend/README.md` sa Day 20.
 
+---
+
+## D-014 · `nodemon` para sa `npm run dev` (hindi na `node --watch`)
+
+- **Petsa:** 2026-09-25 (Day 23)
+- **Context:** paulit-ulit (Day 06, 14, 16, 17, 23) na lumang code ang tumatakbo
+  pagkatapos ng `git checkout` / `git pull`. Sa Day 18, pinalitan ng
+  `--watch-path=./src` — **kalahati lang ang naayos**: nahuhuli ang save at ang
+  `.env`, pero sa Day 23, namatay pa rin ang watcher pagkatapos ng checkout (walang
+  `cors()` ang tumatakbong code → CORS error sa register).
+- **Sinubukan (scratch git repo, 4 na checkout + 1 edit):**
+  `node --watch-path` → `main feat` (namatay pagkatapos ng unang checkout);
+  `nodemon` → `main feat main feat main edit` (buhay sa lahat).
+- **Pinili:** `nodemon` (devDependency) —
+  `nodemon --watch src --watch .env --ext js,json,env --exec "node --env-file=.env src/index.js"`
+- **Bakit:** matibay ang pagbabantay nito kahit pinapalitan ng git ang mga file.
+  Ang `--env-file` ay built-in pa rin (D-010) — ang nodemon lang ang nagre-restart.
+- **Consequences:** isang dagdag na dev dependency (hindi kasama sa production).
+  Sinubukan sa backend: edit → restart; `CLIENT_URL` sa `.env` binago → restart
+  at nabasa ang bago; `git checkout main` at pabalik → restart, tama ang code.
+  **Aral:** ang "ayos" na hindi sinubukan sa totoong sitwasyon (git checkout) ay
+  hindi pa ayos — ang Day 18 test ay pinalitan lang ang file (`mv`), hindi checkout.
+

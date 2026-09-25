@@ -4,7 +4,7 @@
   "description": "Backend API ng auth-learning (Express)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --env-file=.env --watch-path=./src --watch-path=./.env src/index.js",
+    "dev": "nodemon --watch src --watch .env --ext js,json,env --exec \"node --env-file=.env src/index.js\"",
     "start": "node --env-file=.env src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -26,6 +26,7 @@
   },
   "private": true,
   "devDependencies": {
-    "drizzle-kit": "^0.31.11"
+    "drizzle-kit": "^0.31.11",
+    "nodemon": "^3.1.14"
   }
 }

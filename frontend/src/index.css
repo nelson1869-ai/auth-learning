@@ -18,3 +18,10 @@ input {
   margin-top: 4px;
   box-sizing: border-box;
 }
+
+/* Mensahe ng error sa ilalim ng input (galing sa 400 ng backend) */
+small {
+  display: block;
+  color: #b00020;
+  margin: -8px 0 12px;
+}

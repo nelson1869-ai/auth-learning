@@ -221,9 +221,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`, cookie sa DevTools
 
 ### Day 23 — Register gamit ang React 19 (modern)
-- [ ] Register form gamit ang `useActionState` — kusang may loading at error state
-- [ ] Ikumpara sa login form ng Day 21: ano ang nabawas na code?
-- [ ] Ipakita ang `fields` mula sa 400 (Zod) sa tabi ng bawat input, at ang 409
+- [x] Register form gamit ang `useActionState` — kusang may loading at error state
+- [x] Ikumpara sa login form ng Day 21: ano ang nabawas na code?
+- [x] Ipakita ang `fields` mula sa 400 (Zod) sa tabi ng bawat input, at ang 409
 - **Matututunan:** React 19 form actions, pending state, mga error mula sa backend
 
 ### Day 24 — Mga page at logout
