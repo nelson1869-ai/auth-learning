@@ -45,6 +45,14 @@ Content-Type: application/json
 ###     tutugma ang pirma → tatanggihan ng server ("invalid signature" — Day 17).
 ###   - Tinatandaan ng REST Client ang cookie at kusang ipapadala sa susunod na request
 ###     sa localhost:3000 — gaya ng browser. Magagamit ito sa Day 17 (/api/auth/me).
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123"
+}
+
 ### -------------------------------------------------------------------------
 ### 2. Tamang email, MALING password. Ang inaasahan:
 ###    Status:  401 Unauthorized
