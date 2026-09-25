@@ -1,4 +1,5 @@
 import { useActionState } from 'react';
+import { Link } from 'react-router';
 import { register } from '../api/auth.js';
 
 // Ang "action": tinatawag ng React kapag nag-submit. Ang ibinabalik nito ang magiging bagong state
@@ -46,7 +47,11 @@ export default function RegisterPage() {
         {isPending ? 'Nagre-register…' : 'Register'}
       </button>
       {state.error && <p>❌ {state.error}</p>}
-      {state.user && <p>✅ Nagawa ang account: {state.user.email}</p>}
+      {state.user && (
+        <p>
+          ✅ Nagawa ang account: {state.user.email} — <Link to="/login">Mag-login na</Link>
+        </p>
+      )}
     </form>
   );
 }
