@@ -1,6 +1,6 @@
 # 08 — CI pipeline (GitHub Actions)
 
-> 📅 Day 27 · Phase 6 (Tests at CI)
+> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection)
 >
 > **Code:** `.github/workflows/ci.yml` · `backend/src/test/setup.js` · `backend/vitest.config.js`
 > **Subukan:** gumawa ng PR → tingnan ang "Checks" sa PR, o ang tab na **Actions** sa GitHub
@@ -24,7 +24,7 @@ flowchart LR
     BE --> R{"Lahat pumasa?"}
     FE --> R
     R -->|"oo"| OK["✅ berde sa PR — puwedeng i-merge"]
-    R -->|"hindi"| NO["❌ pula — ayusin muna<br/>(Day 28: hindi na puwedeng i-merge)"]
+    R -->|"hindi"| NO["❌ pula — BAWAL i-merge<br/>ruleset main-protection (Day 28)"]
 ```
 
 ## Mga dapat pansinin
@@ -41,3 +41,14 @@ flowchart LR
 - Sinubukan bago i-push (Day 27): `actionlint` walang error; at isang malinis na
   kopya ng repo (walang `.env`/`node_modules`) + bagong database → lahat ng hakbang
   ng dalawang job ay pumasa.
+
+## Branch protection (Day 28)
+
+Ruleset **`main-protection`** (active, target: default branch, walang bypass):
+restrict deletions · block force pushes · **PR required** (0 approvals) ·
+**required checks: `backend`, `frontend`**.
+
+- Gumagana lang sa GitHub Free kapag **public** ang repo (D-016).
+- Patunay: PR #33 na may `expect(1 + 1).toBe(3)` → CI: `1 failed | 10 passed` →
+  ❌ `backend` → hindi puwedeng i-merge. Isinara nang hindi mine-merge.
+- **Walang bypass** — kasama si Nelson. Iyan ang punto: "never break main".
