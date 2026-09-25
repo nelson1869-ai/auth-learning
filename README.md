@@ -48,7 +48,7 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 5 — Login page (Frontend, React + Vite).** Tapos na ang Phase 1–4 ✅
-(tags `checkpoint-phase-1` hanggang `checkpoint-phase-4`) — kumpleto na ang backend auth:
-register, login, JWT sa httpOnly cookie, `/me`, logout.
+**Phase 6 — Tests at CI (QA + DevOps).** Tapos na ang Phase 1–5 ✅
+(tags `checkpoint-phase-1` hanggang `checkpoint-phase-5`) — buong auth app mula sa
+browser: React 19 frontend, Express backend, Postgres.
 Tingnan ang [roadmap](docs/03-roadmap.md).
