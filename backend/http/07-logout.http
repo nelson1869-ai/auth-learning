@@ -1,0 +1,72 @@
+### =========================================================================
+### 🎓 LOGOUT — burahin ang cookie
+### 📅 Day 18 · Phase 4 (Register at login)
+### =========================================================================
+### POST /api/auth/logout
+###   → res.clearCookie('token', COOKIE_OPTIONS) → 204 No Content
+###   Walang requireAuth: laging gumagana, kahit walang cookie o expired na.
+###
+### PAANO GAMITIN (REST Client — tinatandaan nito ang cookie, gaya ng browser):
+###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
+###   2. I-send mula taas pababa (#0 → #5)
+###
+### Code: backend/src/routes/auth.js (COOKIE_OPTIONS, /auth/logout)
+### Diagram: docs/diagrams/06-auth-sequence.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Gumawa ng account (201 sa una; 409 sa susunod — ayos lang, tuloy lang)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "logout-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. Login → 200 + Set-Cookie: token=eyJ...
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "logout-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Me → 200 (naka-login pa)
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 3. Logout. Ang inaasahan:
+###    Status:   204 No Content (walang body)
+###    Headers:  Set-Cookie: token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax
+###
+### 🔍 Ang petsa sa NAKARAAN (1970) = "burahin ang cookie na ito". Pareho ang
+###    HttpOnly at SameSite sa login — dahil iisang COOKIE_OPTIONS ang gamit.
+POST http://localhost:3000/api/auth/logout
+
+### -------------------------------------------------------------------------
+### 4. Me pagkatapos ng logout. Ang inaasahan:
+###    Status:  401 — { "error": "Not authenticated" } (wala nang cookie)
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 5. Logout ulit, kahit wala nang cookie. Ang inaasahan:
+###    Status:  204 — laging gumagana (idempotent: pareho ang resulta kahit ulit-ulitin)
+POST http://localhost:3000/api/auth/logout
+
+### =========================================================================
+### 🔐 ANG LIMITASYON (subukan para makita)
+### =========================================================================
+### Sa browser LANG nabubura ang cookie. Hindi alam ng server na nag-logout ka —
+### kaya ang token na nakopya BAGO mag-logout ay valid pa hanggang mag-expire (1 oras).
+### Sinubukan (Day 18): kinopyang token pagkatapos ng logout → /me → 200.
+###
+### Gawin: sa #1, kopyahin ang token mula sa Set-Cookie (sa pagitan ng "token=" at ";"),
+### i-paste sa ibaba kapalit ng PASTE-DITO, at i-send PAGKATAPOS ng #3 (logout).
+### Ang inaasahan: 200 — gumagana pa rin. Aayusin sa Phase 11 (refresh tokens sa DB).
+# @no-cookie-jar
+GET http://localhost:3000/api/auth/me
+Cookie: token=PASTE-DITO

@@ -10,6 +10,14 @@ import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
+// Iisang settings para sa pag-set (login) AT pag-clear (logout) ng cookie — dapat magkapareho,
+// kung hindi, may mga browser na hindi magbubura ng cookie
+const COOKIE_OPTIONS = {
+  httpOnly: true, // hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
+  sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
+  secure: process.env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
+};
+
 router.post('/auth/register', async (req, res) => {
   // Suriin at linisin ang input BAGO gamitin — maling input = 400, hindi 500
   const result = registerSchema.safeParse(req.body);
@@ -67,13 +75,8 @@ router.post('/auth/login', async (req, res) => {
   // Id lang (sub) ang laman — nababasa ng KAHIT SINO ang payload ng JWT (base64 lang, hindi encrypted)
   const token = jwt.sign({ sub: String(user.id) }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-  // httpOnly: hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
-  res.cookie('token', token, {
-    httpOnly: true,
-    sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
-    secure: process.env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
-    maxAge: 60 * 60 * 1000, // 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
-  });
+  // maxAge: 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
+  res.cookie('token', token, { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 1000 });
 
   // Piling field lang — hindi kasama ang passwordHash
   res.json({ user: { id: user.id, email: user.email, name: user.name } });
@@ -92,6 +95,13 @@ router.get('/auth/me', requireAuth, async (req, res) => {
   }
   // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name)
   res.json({ user });
+});
+
+// Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.
+// ⚠️ Sa browser lang nabubura — kung may nakakopya ng token, valid pa ito hanggang mag-expire (D-012)
+router.post('/auth/logout', (req, res) => {
+  res.clearCookie('token', COOKIE_OPTIONS);
+  res.status(204).end(); // 204 = nagawa, walang body
 });
 
 export default router;
