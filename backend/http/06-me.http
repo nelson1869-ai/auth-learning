@@ -1,0 +1,68 @@
+### =========================================================================
+### 🎓 ME — ang unang PROTEKTADONG route ("sino ako?")
+### 📅 Day 17 · Phase 4 (Register at login)
+### =========================================================================
+### GET /api/auth/me
+###   → requireAuth (middleware): may cookie ba? tama ba ang pirma? hindi pa expired?
+###       → oo: req.userId → hanapin sa database → 200 { user }
+###       → hindi: 401 { "error": "Not authenticated" } — iisang sagot sa lahat ng dahilan
+###
+### Tinatandaan ng REST Client ang cookie mula sa login at kusang ipinapadala —
+### gaya ng browser. Ang `# @no-cookie-jar` ay nagpapadala NANG WALANG cookie.
+###
+### PAANO GAMITIN:
+###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
+###   2. I-send mula taas pababa (#0 → #1 → #2 ...)
+###
+### Code: backend/src/middleware/requireAuth.js · backend/src/routes/auth.js
+### Diagram: docs/diagrams/05-auth-middleware.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Gumawa ng account (201 sa una; 409 sa susunod — ayos lang, tuloy lang)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "me-demo@example.com",
+  "password": "password123",
+  "name": "Me Demo"
+}
+
+### -------------------------------------------------------------------------
+### 1. Login → 200 + Set-Cookie: token=... (itatago ng REST Client)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "me-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Me — MAY cookie (kusang ipinadala ng REST Client). Ang inaasahan:
+###    Status:  200 OK
+###    Body:    { "user": { "id": ..., "email": "me-demo@example.com", "name": "Me Demo" } }
+###
+### 🔍 Walang email o password sa request na ito — ang cookie lang ang nagpakilala sa iyo.
+### 🔍 Galing sa DATABASE ang sagot, hindi sa token: kapag pinalitan ang name sa
+###    Drizzle Studio, lalabas agad ang bago dito (walang login ulit).
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 3. Me — WALANG cookie. Ang inaasahan:
+###    Status:  401 Unauthorized
+###    Body:    { "error": "Not authenticated" }
+# @no-cookie-jar
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 4. Me — PEKENG token. Ang inaasahan:
+###    Status:  401 — parehong body ng #3
+###
+### 🔐 Sinubukan din (Day 17), lahat ay 401: binagong `sub` sa payload, expired na
+###    token, `alg: none` (walang pirma), at token na pinirmahan ng ibang secret.
+###    Ang `algorithms: ['HS256']` sa jwt.verify ang humaharang sa pagpalit ng alg.
+# @no-cookie-jar
+GET http://localhost:3000/api/auth/me
+Cookie: token=hindi-ito-totoong-jwt

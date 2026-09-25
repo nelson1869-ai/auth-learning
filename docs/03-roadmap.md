@@ -166,10 +166,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** stateless na session, cookie flags — *Reference: item 5*
 
 ### Day 17 — Protektadong route
-- [ ] Middleware na sumusuri sa JWT; `GET /api/auth/me`
-- [ ] 📝 `backend/http/06-me.http` — may cookie (200) at walang cookie (401)
-- [ ] 📊 `docs/diagrams/05-auth-middleware.md` — paano sinusuri ng middleware ang JWT
-- [ ] 🏗️ Bagong folder: `src/middleware/` — ano ang pagkakaiba ng middleware sa route?
+- [x] Middleware na sumusuri sa JWT; `GET /api/auth/me`
+- [x] 📝 `backend/http/06-me.http` — may cookie (200) at walang cookie (401)
+- [x] 📊 `docs/diagrams/05-auth-middleware.md` — paano sinusuri ng middleware ang JWT
+- [x] 🏗️ Bagong folder: `src/middleware/` — ano ang pagkakaiba ng middleware sa route?
 - **Matututunan:** middleware, authentication vs authorization
 
 ### Day 18 — Logout at flow diagram

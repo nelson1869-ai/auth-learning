@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { registerSchema, loginSchema } from '../validations/auth.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
@@ -76,6 +77,21 @@ router.post('/auth/login', async (req, res) => {
 
   // Piling field lang — hindi kasama ang passwordHash
   res.json({ user: { id: user.id, email: user.email, name: user.name } });
+});
+
+// requireAuth muna: kung walang tamang token, hindi na aabot dito (401)
+router.get('/auth/me', requireAuth, async (req, res) => {
+  const [user] = await db
+    .select({ id: users.id, email: users.email, name: users.name })
+    .from(users)
+    .where(eq(users.id, req.userId));
+
+  if (!user) {
+    // tama ang token, pero nabura na ang user
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name)
+  res.json({ user });
 });
 
 export default router;
