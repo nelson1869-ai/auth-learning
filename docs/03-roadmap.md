@@ -274,7 +274,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 7 — TypeScript · ⚙️ *Backend* · Day 29–32
 
 ### Day 29 — TypeScript basics
-- [ ] Types, `tsconfig.json`, `tsx`
+- [x] Types, `tsconfig.json` — at si Node 24 ang nagpapatakbo ng `.ts` (hindi `tsx`, D-018)
 - **Matututunan:** bakit may types (tingnan ang D-002)
 
 ### Day 30–32 — Paglipat, isang file bawat hakbang
