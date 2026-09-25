@@ -128,7 +128,7 @@
 - **Consequences:** makikita mo pa rin ang `dotenv` sa mga lumang tutorial at sa
   reference project — alam mo na ngayon kung bakit iba ang atin.
 
-## D-011 · ESLint sa Phase 6
+## D-011 · ESLint sa Phase 6 — ⚠️ *BINAGO sa Day 27: Oxlint na (tingnan sa ibaba)*
 - **Petsa:** 2026-09-24
 - **Context:** walang TypeScript hanggang Phase 7, kaya hindi nahuhuli ng editor
   ang ilang pagkakamali (hal. variable na hindi ginagamit, maling pangalan).
@@ -235,4 +235,20 @@
   at nabasa ang bago; `git checkout main` at pabalik → restart, tama ang code.
   **Aral:** ang "ayos" na hindi sinubukan sa totoong sitwasyon (git checkout) ay
   hindi pa ayos — ang Day 18 test ay pinalitan lang ang file (`mv`), hindi checkout.
+
+---
+
+## D-015 · Oxlint sa buong project (pinalitan ang ESLint ng D-011)
+
+- **Petsa:** 2026-09-26 (Day 27)
+- **Context:** sa D-011, ESLint ang plano sa Day 27. Pero sa Day 20, Oxlint na ang
+  kasama ng template ng Vite (D-013), at sinubukan: nahuhuli nito ang mga
+  mahalagang React bug (hooks sa loob ng `if`, kulang na dependency).
+- **Pinili:** Oxlint sa `frontend/` (mula sa template) AT sa `backend/`
+  (`npm run lint` = `oxlint src`), parehong tumatakbo sa CI.
+- **Bakit:** iisang linter sa buong project; walang config na kailangang aralin;
+  50–100× mas mabilis. Pareho ang pangalan ng mga rule sa ESLint, kaya madaling
+  lumipat kung kailangan balang araw.
+- **Consequences:** mas kaunti pa ang plugins kaysa sa ESLint. VS Code extension:
+  `oxc.oxc-vscode` (hindi `dbaeumer.vscode-eslint`).
 

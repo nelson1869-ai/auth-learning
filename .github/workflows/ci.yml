@@ -1,0 +1,90 @@
+name: CI
+
+# 🎓 Continuous Integration: sa bawat push sa main at bawat PR, kusang sinusuri ng
+# GitHub ang code sa isang BAGONG malinis na makina — walang .env, walang lumang
+# node_modules. Kung pula, huwag i-merge.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    # Postgres na buhay lang habang tumatakbo ang job — totoong database para sa tests
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: auth
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: auth_learning_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U auth"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    # Walang .env.test sa CI (gitignored) — dito nanggagaling ang mga variable.
+    # Hindi totoong secret ang mga ito: pang-CI lang, hindi ginagamit kahit saan pa.
+    env:
+      DATABASE_URL: postgres://auth:ci-only-password@localhost:5432/auth_learning_test
+      JWT_SECRET: ci-only-jwt-secret-not-for-production
+      CLIENT_URL: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install (eksaktong versions mula sa package-lock.json)
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint (Oxlint)
+        run: npm run lint
+
+      - name: Migrate the test database
+        run: npx drizzle-kit migrate
+
+      - name: Test (Vitest + Supertest)
+        run: npm test
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint (Oxlint)
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
