@@ -1,6 +1,6 @@
 # 07 — API Contract (ang kasunduan ng frontend at backend)
 
-> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) Day 15 (login), Day 16 (JWT cookie) at Day 17 (me) · **I-update tuwing may bago o nagbagong endpoint.**
+> 📅 Sinimulan sa Day 13 · Phase 4 · in-update sa Day 14 (validation) Day 15 (login), Day 16 (JWT cookie), Day 17 (me) at Day 18 (logout) · **I-update tuwing may bago o nagbagong endpoint.**
 >
 > **API contract** = ang listahan ng bawat endpoint: ano ang ipapadala, ano ang
 > babalik, at anong status code. Sa totoong team, ito ang binabasa ng frontend
@@ -20,6 +20,7 @@
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
+| POST | `/api/auth/logout` | Burahin ang cookie | — | `07-logout.http` |
 
 ---
 
@@ -88,4 +89,14 @@ HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapada
 |---|---|---|
 | **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
 | **401** | Walang cookie, binago/sira/expired ang token, o nabura na ang user — **iisang sagot** | `{ "error": "Not authenticated" }` |
+
+## `POST /api/auth/logout`
+**Auth:** hindi kailangan (laging gumagana). Walang body.
+
+| Status | Kailan | Body / Headers |
+|---|---|---|
+| **204** | Palagi — may cookie man o wala | walang body · `Set-Cookie: token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax` |
+
+⚠️ Sa browser lang nabubura ang cookie — ang token na nakopya bago mag-logout ay
+valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
 

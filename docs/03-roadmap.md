@@ -173,9 +173,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** middleware, authentication vs authorization
 
 ### Day 18 — Logout at flow diagram
-- [ ] `POST /api/auth/logout` — i-clear ang cookie
-- [ ] 📝 `backend/http/07-logout.http`
-- [ ] 📊 `docs/diagrams/06-auth-sequence.md` — `sequenceDiagram` ng buong auth: register → login → me → logout
+- [x] `POST /api/auth/logout` — i-clear ang cookie
+- [x] 📝 `backend/http/07-logout.http`
+- [x] 📊 `docs/diagrams/06-auth-sequence.md` — `sequenceDiagram` ng buong auth: register → login → me → logout
 - **Matututunan:** buong auth flow mula simula hanggang dulo
 
 ### Day 19 — Review day
