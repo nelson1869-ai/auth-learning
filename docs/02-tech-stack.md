@@ -54,12 +54,23 @@ i-edit ang docs kapag hiniling mo. Tingnan ang [`AGENTS.md`](../AGENTS.md).
 
 ## 2. Frontend Developer
 
+> "Basics muna, modern pagkatapos" — tingnan ang [D-013](04-decisions.md).
+
 | Tool | Para saan | Unang gamit |
 |---|---|---|
-| **React** | Paggawa ng UI mula sa maliliit na piraso (components) | Day 20 |
-| **Vite** | Mabilis na development server at build tool para sa React | Day 20 |
+| **React 19** | Paggawa ng UI mula sa maliliit na piraso (components) | Day 20 |
+| **Vite 8** | Mabilis na development server at build tool para sa React | Day 20 |
+| **Oxlint** | Linter na kasama na sa template ng Vite (mabilis, gawa sa Rust) | Day 20 (kasama), Day 27 (CI) |
 | **JavaScript** → **TypeScript** | Ang language (TypeScript sa Phase 7) | Day 20 / 29 |
-| **fetch** (built-in sa browser) | Pagtawag sa backend API — walang dagdag na library | Day 22 |
+| **`useState`** → **`useActionState`** (React 19) | State ng form: una ang pundasyon, tapos ang modernong paraan | Day 21 / 23 |
+| **fetch** (built-in sa browser) | Pagtawag sa backend, may `credentials: 'include'` para sa cookie | Day 22 |
+| **React Router 8** | Mga page: `/login`, `/register`, `/profile` | Day 24 |
+| **Plain CSS** | Styling — ang pundasyon bago ang kahit anong CSS tool | Day 20 |
+| **Chrome DevTools** | Network tab: request, cookie, CORS error | Day 20 |
+
+**Hindi muna (pagkatapos ng MVP):** TanStack Query (data fetching), Tailwind
+(styling), react-hook-form. Magagaling na tool — pero itinatago nila ang mga
+bagay na gusto nating makita muna.
 
 ## 3. Backend Developer
 

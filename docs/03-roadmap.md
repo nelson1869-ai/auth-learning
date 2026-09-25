@@ -197,32 +197,40 @@ direktang nagtatrabaho sa `main`?*
 
 ## Phase 5 — Login page · 🎨 *Frontend* · Day 20–24
 
+> 📐 Plano ayon sa [D-013](04-decisions.md): basics muna, modern pagkatapos.
+> Walang frontend ang reference project — dito tayo mismo ang nagpapasya.
+
 ### Day 20 — React + Vite
-- [ ] `npm create vite@latest frontend` (React); patakbuhin
-- [ ] Ano ang component at JSX
+- [ ] Ilipat muna palabas ang `frontend/README.md` (binubura ng Vite ang laman ng folder), tapos
+      `npm create vite@latest frontend -- --template react`, ibalik ang README, `npm install`, `npm run dev`
+- [ ] Ano ang component at JSX; linisin ang template (alisin ang demo)
 - [ ] 🏗️ Frontend structure: `pages/`, `components/`, `api/` (tingnan ang §4)
 - [ ] 🧰 Buksan ang **Chrome DevTools** (F12) → Network tab — dito mo makikita ang bawat request
-- **Matututunan:** frontend dev server, component
+- **Matututunan:** frontend dev server, component, JSX, StrictMode
 
-### Day 21 — State at forms
-- [ ] `useState`; register form
-- **Matututunan:** state, controlled inputs, events
+### Day 21 — State at forms (pundasyon)
+- [ ] Login form gamit ang `useState` (controlled inputs) at `onSubmit`
+- [ ] Ipakita ang tinype sa ilalim ng form (para makita kung paano nagre-render)
+- **Matututunan:** state, re-render, controlled inputs, events
 
 ### Day 22 — Pagtawag sa backend
-- [ ] `fetch` sa `/api/auth/register`, ipakita ang tagumpay o error
-- [ ] **CORS** — bakit hinaharangan ng browser, at paano ito ayusin nang ligtas 🔐
+- [ ] `src/api/auth.js`: `fetch` sa `/api/auth/login` na may `credentials: 'include'`
+- [ ] **CORS** — makita muna ang error sa DevTools, tapos ayusin sa backend (`cors`, `origin`, `credentials: true`) 🔐
 - [ ] 📊 `docs/diagrams/07-frontend-backend.md` — `sequenceDiagram`: browser → backend, kasama ang CORS preflight
-- [ ] 🧰 `cors` package sa backend; tingnan ang CORS error sa DevTools **bago** ito ayusin
-- [ ] 📋 Sundan ang `docs/07-api-contract.md` sa pagtawag sa backend — ito ang "kasunduan" ng frontend at backend
-- **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`
+- [ ] 📋 Sundan ang `docs/07-api-contract.md` — ang "kasunduan" ng frontend at backend
+- **Matututunan:** frontend ↔ backend, CORS, `credentials: 'include'`, cookie sa DevTools
 
-### Day 23 — Login at profile
-- [ ] Login form; "Hello, <pangalan>" gamit ang `/me`; logout button
-- **Matututunan:** paggamit ng cookie session mula sa browser
+### Day 23 — Register gamit ang React 19 (modern)
+- [ ] Register form gamit ang `useActionState` — kusang may loading at error state
+- [ ] Ikumpara sa login form ng Day 21: ano ang nabawas na code?
+- [ ] Ipakita ang `fields` mula sa 400 (Zod) sa tabi ng bawat input, at ang 409
+- **Matututunan:** React 19 form actions, pending state, mga error mula sa backend
 
-### Day 24 — Maayos na karanasan
-- [ ] Loading state, malinaw na error messages, simpleng layout
-- **Matututunan:** UX basics
+### Day 24 — Mga page at logout
+- [ ] React Router 8: `/login`, `/register`, `/profile`
+- [ ] `/profile`: "Hello, <pangalan>" gamit ang `/me`; kung 401 → balik sa `/login`
+- [ ] Logout button → `/api/auth/logout` → `/login`
+- **Matututunan:** routing, protektadong page, paggamit ng cookie session mula sa browser
 
 **✅ Checkpoint (`checkpoint-phase-5`):** Buong auth mula sa browser.
 *Ano ang CORS at bakit ito umiiral?*
