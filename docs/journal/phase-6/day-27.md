@@ -14,8 +14,8 @@
 - **Walang `.env` sa CI** — galing sa `env:` ng workflow (pang-CI lang, hindi totoong secret).
 - **Nahuli bago pa mag-push:** kung walang `.env.test`, `ENOENT` → lahat ng test ay papalya sa CI.
 
-## ⏳ Hinihintay
-- Ang unang tunay na run sa GitHub (✅ o ❌) — hindi pa nakikita. Isusulat dito pagkatapos.
+## ✅ Resulta sa GitHub
+- Unang tunay na run sa PR ng `feature/day-27-ci`: **berde** ang `backend` at `frontend` (nakita ni Nelson sa Checks ng PR).
 
 ## Mga tanong ko pa / hindi pa malinaw
 - (Idagdag dito ang anumang hindi pa malinaw.)

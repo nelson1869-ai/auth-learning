@@ -254,9 +254,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** integration test — *Reference: item 2*
 
 ### Day 27 — GitHub Actions
-- [ ] `.github/workflows/ci.yml`: kusang pinapatakbo ang tests sa bawat push/PR
-- [ ] 📊 `docs/diagrams/08-ci-pipeline.md` — push → CI jobs → ✅/❌
-- [ ] 🧰 **ESLint** — idagdag sa CI kasama ng tests; i-install ang ESLint extension sa VS Code
+- [x] `.github/workflows/ci.yml`: kusang pinapatakbo ang tests sa bawat push/PR
+- [x] 📊 `docs/diagrams/08-ci-pipeline.md` — push → CI jobs → ✅/❌
+- [x] 🧰 **Oxlint** (D-015, hindi na ESLint) — sa CI kasama ng tests; VS Code extension `oxc.oxc-vscode`
 - **Matututunan:** CI — *Reference: item 9*
 
 ### Day 28 — Protektahan ang `main`
@@ -309,6 +309,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 37 — CD: kusang deploy pagka-merge sa `main`
 - [ ] GitHub Actions job na nagde-deploy kapag pumasa ang CI (Phase 6)
 - [ ] Deploy lang mula sa `main`, at lang kapag berde ang lahat ng tests
+- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016)
 - [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → deploy; i-update ang `00-architecture.md`
 - **Matututunan:** CD — at kung bakit **manual muna, tapos automate** (hindi mo
   magagawang awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
