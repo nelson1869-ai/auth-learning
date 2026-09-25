@@ -61,14 +61,19 @@ routers** (`app.use('/api', healthRouter)`). Walang alam ang bawat router kung
 saan ito ikakabit: `/health` lang ang nasa loob, at `index.js` ang
 nagdadagdag ng `/api`.
 
-**Phase 4 — may database at auth:**
+**Phase 4 — may database at auth** (tugma sa code, sinuri Day 19):
 ```
-backend/src/
-├── index.js
-├── routes/           ← auth.js, health.js
-├── middleware/       ← requireAuth.js
-├── validations/      ← auth.js (Zod schemas)
-└── db/               ← index.js (koneksyon), schema.js (tables)
+backend/
+├── src/
+│   ├── index.js          ← express.json + cookieParser, kinakabit ang routers, listen
+│   ├── routes/           ← auth.js (register/login/me/logout), users.js (count),
+│   │                        health.js, echo.js (pang-aral)
+│   ├── middleware/       ← requireAuth.js (cookie → jwt.verify → req.userId)
+│   ├── validations/      ← auth.js (registerSchema, loginSchema — Zod)
+│   └── db/               ← index.js (pg Pool + Drizzle), schema.js (users)
+├── drizzle/              ← migrations 0000 (users), 0001 (password_hash)
+├── http/                 ← 01–07 .http walkthroughs
+└── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
 **Phase 16 — ang huling hugis (katulad ng reference):**

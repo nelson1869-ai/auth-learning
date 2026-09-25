@@ -181,8 +181,8 @@ direktang nagtatrabaho sa `main`?*
 ### Day 19 — Review day
 - [ ] Balikan ang lahat ng code: may hindi ba malinaw? Linisin ang pangalan at files
 - [ ] Sagutin ang lahat ng "Mga tanong ko pa" sa journal hanggang ngayon
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 - **Matututunan:** refactoring — pagpapaganda nang hindi binabago ang behavior
 
 **✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`.

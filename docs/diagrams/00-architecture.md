@@ -6,31 +6,35 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 10 · Phase 3 · **Code:** `backend/src/`, `devops/docker-compose.yml`
-> **Subukan:** `backend/http/03-users-count.http`
+> 📅 in-update sa Day 19 · Phase 4 (checkpoint) · **Code:** `backend/src/`, `devops/docker-compose.yml`
+> **Subukan:** `backend/http/01`–`07`
 
 ```mermaid
 flowchart LR
-    Client(["REST Client / curl"]) -->|"HTTP · localhost:3000"| Routes
-    subgraph BE["backend/ · Express (npm run dev = node --env-file=.env)"]
-        Routes["routes/<br/>GET /api/health<br/>POST /api/echo<br/>GET /api/users/count"]
-        DB["db/index.js<br/>Drizzle + pg Pool<br/>(DATABASE_URL galing sa .env)"]
-        Schema["db/schema.js<br/>hugis ng users table"]
-        Routes -->|"db.$count(users)"| DB
-        Schema -.-> Routes
+    Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
+    subgraph BE["backend/ · Express (npm run dev)"]
+        MW["express.json()<br/>cookieParser()"]
+        Routes["routes/<br/>auth.js: register · login · me · logout<br/>users.js: count · health.js · echo.js"]
+        Val["validations/auth.js<br/>Zod: registerSchema · loginSchema"]
+        Auth["middleware/requireAuth.js<br/>jwt.verify (JWT_SECRET)"]
+        Hash["argon2<br/>hash · verify"]
+        DB["db/index.js<br/>Drizzle + pg Pool"]
+        MW --> Routes
+        Routes --> Val
+        Routes -->|"/me"| Auth
+        Routes --> Hash
+        Routes --> DB
     end
-    You(["👤 Ikaw (psql)"]) -->|"localhost:5435"| PG
-    DB -->|"SQL: select count(*) from users<br/>localhost:5435"| PG
+    DB -->|"SQL · localhost:5435"| PG
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>database: auth_learning")]
+        PG[("postgres:17-alpine<br/>users (migrations 0000, 0001)")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end
 ```
 
-**Pansinin:** magkakonekta na ang backend at database. Kapag huminto ang
-database, **500** ang sagot pero **buhay pa rin ang server** (`pool.on('error')`),
-at kusang gagaling kapag bumalik ito.
+**Pansinin:** wala pang frontend (Phase 5) — REST Client ang "browser" natin.
+Ang cookie na `token` ang nagpapakilala sa iyo pagkatapos ng login.
 
 ## Habang nagde-develop (sa sarili mong PC)
 

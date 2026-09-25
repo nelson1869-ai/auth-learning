@@ -1,6 +1,6 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) at Day 10 (database)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database) at Day 19 (auth routes)
 >
 > **Code:** `backend/src/index.js`, `backend/src/routes/health.js`, `backend/src/routes/echo.js`, `backend/src/routes/users.js`, `backend/src/db/index.js`
 > **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
@@ -20,6 +20,7 @@ flowchart TD
     Match -->|"GET /health<br/>routes/health.js"| Health["res.json({ status, time })"]
     Match -->|"POST /echo<br/>routes/echo.js"| Echo["res.json({ received: req.body })"]
     Match -->|"GET /users/count<br/>routes/users.js"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
+    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.js"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
     Match -->|"wala (hal. GET /api/echo)"| NotFound["404 Not Found<br/>HTML na 'Cannot GET ...'"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK
