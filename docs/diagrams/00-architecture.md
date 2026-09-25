@@ -6,14 +6,14 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 22 · Phase 5 (nag-uusap na ang frontend at backend) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 24 · Phase 5 (buong auth mula sa browser) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`07`
 
 ```mermaid
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
     subgraph FEG["frontend/ · Vite 8 + React 19 (npm run dev)"]
-        FE["pages/LoginPage.jsx<br/>api/auth.js — fetch, credentials: 'include'"]
+        FE["App.jsx — React Router 8<br/>pages/ Login · Register · Profile<br/>api/auth.js — fetch, credentials: 'include'"]
     end
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW

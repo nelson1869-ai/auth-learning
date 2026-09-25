@@ -1,8 +1,8 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) at Day 23 (React 19 `useActionState`)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) at Day 24 (React Router, protektadong page)
 >
-> **Code:** `frontend/src/pages/LoginPage.jsx` · `frontend/src/pages/RegisterPage.jsx` · `frontend/src/api/auth.js` · `backend/src/index.js` (cors)
+> **Code:** `frontend/src/App.jsx` (routes) · `frontend/src/pages/*.jsx` · `frontend/src/api/auth.js` · `backend/src/index.js` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
 
 ## Paano gumagana ang login form (state → re-render)
@@ -97,3 +97,33 @@ flowchart TD
   na tatanggihan ni Zod (`min(1)`).
 - Sinubukan sa browser (Day 23): 201 ✅ · 409 na nandoon pa ang email ✅ ·
   400 na may mensahe sa ilalim ng password ✅ · "Nagre-register…" + disabled ✅.
+
+## Mga page at protektadong `/profile` (Day 24)
+
+```mermaid
+flowchart TD
+    URL(["URL sa browser"]) --> R{"React Router<br/>App.jsx — &lt;Routes&gt;"}
+    R -->|"/login"| L["LoginPage"]
+    R -->|"/register"| G["RegisterPage"]
+    R -->|"/profile"| P["ProfilePage<br/>'Loading…'"]
+    R -->|"kahit ano (* )"| N["&lt;Navigate to='/profile' /&gt;"] --> P
+    L -->|"login OK → navigate('/profile')"| P
+    G -->|"'Mag-login na' → &lt;Link to='/login'&gt;"| L
+    P --> Eff["useEffect → getMe()<br/>GET /api/auth/me + cookie<br/>(×2 sa dev — StrictMode)"]
+    Eff -->|"200 { user }"| Show["'Hello, &lt;name&gt;!' + Logout button"]
+    Eff -->|"401 → null"| Back["navigate('/login', { replace: true })"] --> L
+    Show -->|"Logout → POST /api/auth/logout<br/>(binubura ang cookie)"| L
+```
+
+- **SPA:** iisang page — pinapalitan ng React Router ang component nang walang
+  reload. `<Link>`, hindi `<a href>` (nire-reload ng `<a>` ang lahat).
+- **`react-router`, hindi `react-router-dom`** — pinagsama na mula v7 (8.4 ang gamit).
+- **🔐 UX lang ang redirect sa frontend.** Ang tunay na proteksyon ay ang
+  `requireAuth` ng backend — kahit alisin ang redirect, 401 pa rin ang `/me`, kaya
+  walang data na maipapakita.
+- **Refresh ng `/profile`:** naka-login pa rin — nasa cookie ang session, hindi sa
+  React state.
+- Sinubukan (Day 24, totoong browser): /profile nang hindi naka-login → /login ·
+  register → "Mag-login na" → login → /profile "Hello, Flow Test!" · refresh →
+  naka-login pa rin · logout → /login, wala nang cookie · /profile at /abc → /login ·
+  3 full page load lang sa buong flow (goto, reload, goto).

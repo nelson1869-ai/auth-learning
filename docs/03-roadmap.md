@@ -227,9 +227,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** React 19 form actions, pending state, mga error mula sa backend
 
 ### Day 24 — Mga page at logout
-- [ ] React Router 8: `/login`, `/register`, `/profile`
-- [ ] `/profile`: "Hello, <pangalan>" gamit ang `/me`; kung 401 → balik sa `/login`
-- [ ] Logout button → `/api/auth/logout` → `/login`
+- [x] React Router 8: `/login`, `/register`, `/profile`
+- [x] `/profile`: "Hello, <pangalan>" gamit ang `/me`; kung 401 → balik sa `/login`
+- [x] Logout button → `/api/auth/logout` → `/login`
 - **Matututunan:** routing, protektadong page, paggamit ng cookie session mula sa browser
 
 **✅ Checkpoint (`checkpoint-phase-5`):** Buong auth mula sa browser.
