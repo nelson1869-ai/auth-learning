@@ -26,6 +26,8 @@
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
 | POST | `/api/auth/logout` | Burahin ang mga cookie | — | `07-logout.http` |
 | POST | `/api/auth/refresh` | Bagong access token (Day 51) | 🍪 cookie `refresh_token` | `16-refresh-tokens.http` |
+| GET | `/api/auth/sessions` | Mga naka-login kong device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
+| DELETE | `/api/auth/sessions/:id` | I-logout ang isang device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 | GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
@@ -123,6 +125,23 @@ Hindi ito itinuturing na nakaw (walang `refresh_reuse`). Ang "sino" sa audit ay 
 | **401** | Walang cookie, pekeng token, binawi, expired, o nabura ang user | `{ "error": "Not authenticated" }` + binubura ang dalawang cookie |
 | **401** | **Ginamit ulit ang lumang token** (lampas 10s) — posibleng nakaw | pareho, **at binabawi ang buong family** (pati ang bagong token) + audit `refresh_reuse` |
 
+## `GET /api/auth/sessions` (Day 54)
+**Auth:** cookie `token`. Walang body.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Naka-login | `{ "sessions": [ { "id": "<uuid ng family>", "userAgent": "…", "ip": "…", "since": "…", "lastUsedAt": "…", "current": true } ] }` — pinakabagong gamit muna · walang token o hash |
+| **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
+
+## `DELETE /api/auth/sessions/:id` (Day 54)
+**Auth:** cookie `token`. Walang body. 🔐 Naka-scope sa naka-login na user (IDOR).
+
+| Status | Kailan | Body |
+|---|---|---|
+| **204** | Session ko, at aktibo | walang body · binubura rin ang cookies kung ito ang device na nagtatanong · audit `session_revoked` |
+| **404** | Walang ganito, **session ng ibang user**, o hindi UUID ang `:id` — **iisang sagot** | `{ "error": "Not found" }` |
+| **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
+
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
 kaya agad tumatalab ang pagbabago ng role. Walang body.
@@ -158,6 +177,7 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `POST /api/auth/logout` | `logout` | mula sa token kung valid pa, kung hindi `null` |
 | `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
 | `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |
+| `DELETE /api/auth/sessions/:id` (Day 54) | `session_revoked` | ang user · siya rin · `{ session }` |
 
 Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
 

@@ -470,10 +470,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** stateful vs stateless na logout
 
 ### Day 54 — Mga device ko (sessions page)
-- [ ] `GET /api/auth/sessions` at `DELETE /api/auth/sessions/:id` (naka-scope sa sariling user — IDOR 🔐)
-- [ ] Frontend: listahan ng naka-login na devices, may "Logout" bawat isa
-- [ ] 📝 `backend/http/NN-sessions.http` — listahan, pag-revoke, at pag-revoke ng session ng IBANG user (404)
-- [ ] 📊 `docs/diagrams/NN-sessions.md`
+- [x] `GET /api/auth/sessions` at `DELETE /api/auth/sessions/:id` (naka-scope sa sariling user — IDOR 🔐) *(+ device at IP bawat session, migration 0006)*
+- [x] Frontend: listahan ng naka-login na devices, may "Logout" bawat isa *(`/sessions`)*
+- [x] 📝 `backend/http/17-sessions.http` — listahan, pag-revoke, at pag-revoke ng session ng IBANG user (404)
+- [x] 📊 `docs/diagrams/15-sessions.md`
 - **Matututunan:** IDOR · *Reference: `session management`*
 
 ### Day 55 — Change password

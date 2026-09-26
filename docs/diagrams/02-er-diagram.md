@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -38,6 +38,8 @@ erDiagram
         timestamptz expires_at "NOT NULL · 7 araw"
         timestamptz revoked_at "NULL = aktibo · may oras = binawi"
         text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout"
+        text user_agent "ang device (Day 54) — ina-update bawat rotation"
+        text ip "totoong IP ng huling gamit"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
     users |o--o{ audit_logs : "gumawa (actor_id)"

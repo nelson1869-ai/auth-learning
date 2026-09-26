@@ -95,8 +95,8 @@ backend/
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51)
 │   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
-├── drizzle/              ← migrations 0000–0005
-└── http/                 ← 01–16 .http walkthroughs
+├── drizzle/              ← migrations 0000–0006
+└── http/                 ← 01–17 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**
@@ -141,7 +141,7 @@ backend/src/
 frontend/src/
 ├── main.tsx          ← simula ng app
 ├── App.tsx           ← aling page ang ipapakita
-├── pages/            ← Login, Register, Profile, Admin (isang screen bawat isa)
+├── pages/            ← Login, Register, Profile, Admin, Sessions (isang screen bawat isa)
 ├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button) — wala pang laman (Day 50)
 └── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar: auth.ts, admin.ts
 ```

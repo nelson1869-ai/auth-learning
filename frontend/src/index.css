@@ -51,3 +51,21 @@ small.note {
   margin: 0;
 }
 
+/* Mga device ko (Day 54) */
+.sessions {
+  list-style: none;
+  padding: 0;
+}
+.sessions li {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+.badge {
+  background: #e6f4ea;
+  color: #1e6b34;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 8px;
+  padding: 1px 6px;
+}
+
