@@ -1,6 +1,6 @@
 # 03 — Register flow (at password hashing)
 
-> 📅 Day 12 · Phase 4 (Register at login) · in-update sa Day 13 (`POST /api/auth/register`) at Day 14 (validation)
+> 📅 Day 12 · Phase 4 (Register at login) · in-update sa Day 13 (`POST /api/auth/register`) Day 14 (validation) at Day 48 (audit log)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/playground/01-hash.js` (practice)
 > **Subukan:** `backend/http/04-register.http` · **Library:** `argon2` (Argon2id)
@@ -15,7 +15,8 @@ flowchart TD
     Zod -->|"tama → result.data<br/>email: trim + lowercase<br/>ibang field (hal. role): tinanggal"| Hash["argon2.hash(password)<br/>~50ms"]
     Hash --> Insert["db.insert(users).values({ email, name, passwordHash })<br/>.returning({ id, email, name })<br/>INSERT agad — walang SELECT muna"]
     Insert --> DB{"Postgres: UNIQUE email?"}
-    DB -->|"oo"| C201["✅ 201 Created<br/>{ user: { id, email, name } }<br/>walang password_hash"]
+    DB -->|"oo"| Aud["audit(req, register)<br/>→ audit_logs: actor = bagong id · IP · device<br/>lib/audit.ts (Day 48)"]
+    Aud --> C201["✅ 201 Created<br/>{ user: { id, email, name } }<br/>walang password_hash"]
     DB -->|"doble<br/>err.cause.code = '23505'"| C409["409 Conflict<br/>{ error: 'Email already registered' }"]
 ```
 

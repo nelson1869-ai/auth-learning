@@ -130,6 +130,19 @@ kaya agad tumatalab ang pagbabago ng role. Walang body.
 **Mga `action`:** `register` · `login` · `login_failed` · `logout` · `access_denied` (403 sa admin) · `admin_list_users` · `admin_list_audit_logs`.
 Itinatala rin ang pagtingin mismo sa audit log. 🔐 Walang password, token o cookie sa kahit anong row.
 
+## Audit log ng mga auth endpoint (Day 48)
+Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang bawat isa:
+
+| Endpoint | `action` | Sino (`actorId`) · kanino (`targetId`) · `metadata` |
+|---|---|---|
+| `POST /api/auth/register` (201) | `register` | ang bagong user · siya rin |
+| `POST /api/auth/login` (200) | `login` | ang user · siya rin |
+| `POST /api/auth/login` (401) | `login_failed` | `null` · ang account kung mayroon · `{ email }` — **hindi** ang password |
+| `POST /api/auth/logout` | `logout` | mula sa token kung valid pa, kung hindi `null` |
+| `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
+
+Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
+
 ## Caching (Day 36b)
 Lahat ng `/api/auth/*` ay may **`Cache-Control: no-store`** — hindi kailanman itatago ng
 browser o ng CDN (sa production: `cf-cache-status: DYNAMIC`).

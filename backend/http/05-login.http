@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 LOGIN — patunayan kung sino ka (authentication)
-### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie) at Day 22 (CORS)
+### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie) Day 22 (CORS) at Day 48 (audit)
 ### =========================================================================
 ### POST /api/auth/login  { email, password }
 ###   → Zod (lowercase ang email) → hanapin ang user → argon2.verify → 200 o 401
@@ -8,6 +8,9 @@
 ###
 ### 🔐 Iisang sagot para sa maling password AT walang account — at PAREHO ANG
 ### TAGAL (DUMMY_HASH). Hindi malalaman ng attacker kung sino ang may account.
+###
+### Day 48: bawat login ay may row sa audit_logs — `login` (200) o `login_failed` (401, kasama ang
+### email na tinype, HINDI ang password). Pareho pa rin ang tagal (sinukat: 85ms vs 81ms).
 ###
 ### PAANO GAMITIN (REST Client extension):
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev

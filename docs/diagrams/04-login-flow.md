@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) at Day 43 (rate limiting)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting) at Day 48 (audit log)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
 > **Subukan:** `backend/http/05-login.http`
@@ -20,9 +20,11 @@ flowchart TD
     VReal --> Ok{"Tugma ba?"}
     Ok -->|"oo"| Sign["jwt.sign({ sub: String(user.id) },<br/>JWT_SECRET, { expiresIn: '1h' })<br/>id lang — nababasa ng kahit sino ang payload"]
     Sign --> Cookie["res.cookie('token', token, {<br/>httpOnly, sameSite: 'lax',<br/>secure (production), maxAge: 1h })"]
-    Cookie --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ...; HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
-    Ok -->|"hindi"| C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }<br/>walang cookie"]
-    VDummy --> C401
+    Cookie --> AudOk["audit(req, login)<br/>→ audit_logs (Day 48)"]
+    AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ...; HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
+    Ok -->|"hindi"| AudFail["audit(req, login_failed)<br/>target = ang account (kung mayroon) · metadata: email<br/>HINDI ang password · sa DALAWANG kaso → pareho pa rin ang tagal"]
+    VDummy --> AudFail
+    AudFail --> C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }<br/>walang cookie"]
 ```
 
 ## Mga dapat pansinin
