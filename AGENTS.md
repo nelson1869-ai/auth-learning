@@ -56,10 +56,13 @@ helper), open PRs and read CI. Rules:
   `.env` or `.env.test`.
 - **After pushing:** `gh pr create`, then `gh pr checks --watch`. **Report the real
   CI result** — never claim green without seeing it.
-- **Review:** Nelson reads the diff in VS Code (his git extension) — say which
-  files changed and why, so he knows what to look at.
-- **Merging:** only when CI is ✅ **and** Nelson has said to merge (or said
-  "done"/"go" for that PR). Use `gh pr merge --merge --delete-branch`, then
+- **Review:** Nelson reads the diff in VS Code (his git extension) — always say
+  which files changed and why.
+- **`gh` token has no `workflow` scope** — pushing changes under
+  `.github/workflows/` fails until he runs `gh auth refresh -h github.com -s workflow`.
+- **Merging:** only when CI is ✅. Since 2026-09-26 Nelson delegated ALL git ("can
+  you do it all about on git") — merge green PRs and create checkpoint tags
+  yourself, then tell him what changed. Use `gh pr merge --merge --delete-branch`, then
   `git checkout main && git pull`. Before merging, confirm the PR contains every
   commit you pushed (it happened twice that a PR was merged before the last push).
 - **Never** force-push `main`, delete tags, bypass the ruleset, or rewrite pushed

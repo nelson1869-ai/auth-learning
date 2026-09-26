@@ -363,6 +363,8 @@
   kaya salungat ang dalawa. Hindi rin nakasulat kung saan ang frontend.
 - **Mga opsyon:** hybrid · lahat sa PC · lahat sa cloud (PaaS)
 - **Pinili:** **hybrid** — pinili ni Nelson.
+  - **Domain (Day 33):** `nelson1869.com` — Cloudflare Registrar, $10.46/taon (pareho sa
+    renewal). `https://nelson1869.com` (frontend) at `https://api.nelson1869.com` (backend).
   - **Frontend → Cloudflare Pages:** static, libre, kusang deploy sa bawat merge — walang runner
   - **Backend → PC ni Nelson** sa Docker, sa likod ng **named Cloudflare Tunnel** (`api.<domain>`)
   - **Database → Neon** (managed, may backup)

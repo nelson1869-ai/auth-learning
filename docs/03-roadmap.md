@@ -298,13 +298,13 @@ direktang nagtatrabaho sa `main`?*
 > **pull-based** (walang self-hosted runner — public ang repo).
 
 ### Day 33 — Domain at Cloudflare
-- [ ] Bumili ng domain (~$10/taon); ilipat ang DNS sa Cloudflare
-- [ ] Planuhin ang mga address: `https://<domain-mo>` (frontend) at `https://api.<domain-mo>` (backend)
+- [x] Bumili ng domain (~$10/taon); ilipat ang DNS sa Cloudflare — **`nelson1869.com`** (Cloudflare Registrar, $10.46/taon)
+- [x] Planuhin ang mga address: `https://nelson1869.com` (frontend) at `https://api.nelson1869.com` (backend)
 - **Matututunan:** DNS, domain, nameservers; bakit **same-site** ang `api.` at ang main domain (para sa cookie)
 
 ### Day 34 — Dockerfile ng backend
-- [ ] Dockerfile: `npm ci --omit=dev` + `node src/index.ts` — **walang build step** (D-018); non-root user
-- [ ] Patakbuhin sa container gamit ang `devops/` compose — ⚠️ may sariling `name:` (iwas-banggaan, Day 07)
+- [x] Dockerfile: `npm ci --omit=dev` + `node src/index.ts` — **walang build step** (D-018); non-root user
+- [x] Patakbuhin sa container (`docker run` laban sa test DB) — ang compose ng production ay sa Day 36 (may sariling `name:`, iwas-banggaan)
 - **Matututunan:** image, layers, `.dockerignore`, bakit hindi root — *Reference: item 21*
 
 ### Day 35 — Managed database na may backup (Neon)

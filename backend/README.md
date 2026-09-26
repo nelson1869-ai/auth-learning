@@ -74,6 +74,21 @@ npm test
 ⚠️ **Binubura ng tests ang `users`** bago ang bawat test — kaya hiwalay na database,
 at tumatanggi ang `src/test/setup.ts` kapag hindi `*_test` ang `DATABASE_URL`.
 
+## Docker (Day 34)
+```bash
+cd backend
+docker build -t auth-learning-backend:dev .
+# pansubok laban sa test DB — sa loob ng container, ang PC mo ay `host.docker.internal`
+sed 's#@localhost:5435/#@host.docker.internal:5435/#' .env.test > /tmp/container.env
+docker run --rm --env-file /tmp/container.env --add-host=host.docker.internal:host-gateway \
+  -p 127.0.0.1:3099:3000 auth-learning-backend:dev
+curl localhost:3099/api/health
+```
+- **Isang stage, walang build** — `node src/index.ts` (D-018); `node` user, hindi root; walang `npm` sa image
+- **Walang secret sa image** — ibinibigay sa `--env-file` (o compose `env_file`) sa pagpapatakbo
+- `.dockerignore`: walang `.env*`, tests, `http/`, `playground/`, migrations sa image
+- `NODE_ENV=production` sa image → `Secure` cookie (HTTPS lang) at walang detalye sa 500
+
 ## ❌ Hindi dapat nasa loob ng backend
 - **Plain text na password** — laging hashed (argon2) bago i-save
 - **Secrets sa code** (hal. `const JWT_SECRET = "abc123"`) — sa `.env` lang
