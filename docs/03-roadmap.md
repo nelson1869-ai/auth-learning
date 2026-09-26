@@ -439,7 +439,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** forensic trail · *Reference: `audit logging`*
 
 ### Day 49 — Admin page (frontend)
-- [ ] Listahan ng users at audit logs; itago ang admin menu sa hindi admin
+- [x] Listahan ng users at audit logs; itago ang admin menu sa hindi admin *(`/admin` page na may Prev/Next; `/me` + role; ang hindi admin na nag-type ng `/admin` → 403 mula sa backend)*
 - **Matututunan:** bakit **hindi sapat** na itago lang sa frontend (dapat din sa backend) 🔐
 
 ### Day 50 — Review day

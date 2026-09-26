@@ -1,6 +1,6 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) at Day 44 (CSRF: Origin check)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check) at Day 49 (admin page)
 >
 > **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
@@ -133,3 +133,30 @@ flowchart TD
   register → "Mag-login na" → login → /profile "Hello, Flow Test!" · refresh →
   naka-login pa rin · logout → /login, wala nang cookie · /profile at /abc → /login ·
   3 full page load lang sa buong flow (goto, reload, goto).
+
+## Admin page — itinatago ang link, pero ang BACKEND ang bantay (Day 49)
+
+> 📅 Day 49 · Phase 10 · **Code:** `frontend/src/pages/AdminPage.tsx` · `frontend/src/api/admin.ts` ·
+> `ProfilePage.tsx` (link) · backend: `routes/admin.ts`, `middleware/requireRole.ts`
+
+```mermaid
+flowchart TD
+    Me["ProfilePage · getMe() → { user: { …, role } }"] -->|"role = admin"| Link["🛠️ Admin page link"]
+    Me -->|"role = user"| NoLink["walang link (UX lang)"]
+    Link --> Admin["/admin → AdminPage"]
+    NoLink -.->|"pero puwedeng i-type ang /admin"| Admin
+    Admin --> Fetch["GET /api/admin/users?page= · /api/admin/audit-logs?page=<br/>+ cookie"]
+    Fetch -->|"200"| Tables["dalawang table + Prev / Next"]
+    Fetch -->|"401"| Login["navigate('/login')"]
+    Fetch -->|"403 — requireRole"| Denied["⛔ 403 — admin lang<br/>walang data na nakuha"]
+```
+
+- **Ang pagtago ng link ay UX, hindi security.** Kayang i-type ng kahit sino ang `/admin`, o baguhin ang
+  JavaScript sa DevTools. Walang data na lalabas, dahil 403 ang sagot ng API (`requireRole`, Day 46).
+- **Walang "admin check" sa AdminPage mismo.** Ang sagot ng backend (200/401/403) ang nagpapasya kung ano ang ipapakita.
+- **`ignore` sa `useEffect`:** kapag mabilis na pinindot ang Next, ang lumang sagot na huling dumating ay hindi papalit sa bago.
+- **Malapad na table sa phone:** `.table-wrap { overflow-x: auto }`. Ang table ang nag-i-scroll, hindi ang buong page.
+- Sinubukan (Day 49, totoong browser, 390px):
+  - admin → may link, 2 table, Next → "Page 2 of 6", 0 JS error;
+  - user → walang link, `/admin` → "⛔ 403";
+  - walang login → `/login`.

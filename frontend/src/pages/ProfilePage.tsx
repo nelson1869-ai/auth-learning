@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { getMe, logout } from '../api/auth.ts';
 import type { User } from '../api/auth.ts';
 
@@ -27,6 +27,12 @@ export default function ProfilePage() {
     <section>
       <h2>Profile</h2>
       <p>Hello, {user.name ?? user.email}!</p>
+      {/* Admin lang ang makakakita ng link (Day 49). UX lang ito — kahit i-type ang /admin, 403 ang backend */}
+      {user.role === 'admin' && (
+        <p>
+          <Link to="/admin">🛠️ Admin page</Link>
+        </p>
+      )}
       <button onClick={handleLogout}>Logout</button>
     </section>
   );
