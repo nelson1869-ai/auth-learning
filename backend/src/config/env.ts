@@ -7,6 +7,12 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32), // maikling secret = madaling hulaan → tanggihan
   CLIENT_URL: z.url(), // ang frontend na pinapayagan ng CORS
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // true LANG kapag nasa likod ng Cloudflare Tunnel (production) at walang bukas na port ang backend:
+  // doon lang mapagkakatiwalaan ang CF-Connecting-IP (ang totoong IP ng user) — kung hindi, kaya itong pekein
+  TRUST_CLOUDFLARE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const result = envSchema.safeParse(process.env);

@@ -1,0 +1,50 @@
+### =========================================================================
+### 🎓 RATE LIMITING — pananggalang laban sa panghuhula ng password
+### 📅 Day 43 (inagahan — bago ang MVP launch) · Phase 9 (Pangunahing hardening)
+### =========================================================================
+### Login:    10 PALPAK na subok bawat 15 minuto bawat IP (hindi binibilang ang tamang login)
+### Register: 10 subok bawat 15 minuto bawat IP (lahat binibilang)
+### Sa ika-11 → 429 Too Many Requests.
+###
+### Sa likod ng Cloudflare Tunnel (production): ang bilang ay bawat TOTOONG IP
+### (CF-Connecting-IP), hindi ang IP ng cloudflared container — kung hindi,
+### iisang bilang ang lahat ng user, at kayang i-block ng isang attacker ang lahat.
+###
+### ⚠️ Pagkatapos subukan, naka-block ang IP mo nang 15 minuto sa login.
+###    Para mag-reset sa dev: i-save ang kahit anong file sa src/ (nodemon restart).
+###
+### Code: backend/src/middleware/rateLimiter.ts · test: rateLimiter.test.ts
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Maling password. I-SEND NANG 11 BESES. Ang inaasahan:
+###    1–10:  401 { "error": "Invalid email or password" }
+###    11:    429 { "error": "Too many attempts. Please try again later." }
+###
+### 🔍 Tingnan ang headers (sinubukan, Day 43 inagahan):
+###    RateLimit: "10-in-15min"; r=<natitira>; t=<segundo bago mag-reset>
+###    RateLimit-Policy: "10-in-15min"; q=10; w=900   (10 bawat 900 segundo = 15 minuto)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "wala-ganitong-account@example.com",
+  "password": "hula-hula"
+}
+
+### -------------------------------------------------------------------------
+### 2. Kahit TAMA na ang password — habang naka-block (pagkatapos ng #1). Ang inaasahan:
+###    429 — hindi na pinoproseso ang login hanggang matapos ang 15 minuto
+###    (kaya hindi na kayang ipagpatuloy ng attacker ang panghuhula)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 3. Hindi apektado ang ibang endpoint. Ang inaasahan:
+###    200 — ang login at register lang ang may limit (hindi /health, /me, logout)
+GET http://localhost:3000/api/health
