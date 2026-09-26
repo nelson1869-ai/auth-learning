@@ -416,8 +416,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 10 — Roles at admin · ⚙️ *Backend* + 🎨 *Frontend* + 🗄️ *Database* · Day 45–50
 
 ### Day 45 — Roles sa database
-- [ ] `role` column (`user` / `admin`) gamit ang migration; seed script para sa unang admin
-- [ ] 📊 I-update ang `02-er-diagram.md` (`role` column)
+- [x] `role` column (`user` / `admin`) gamit ang migration; ~~seed script para sa unang admin~~ → **`set-role.ts`**: ginagawang admin ang account na naka-register na (D-023 — walang password sa code)
+- [x] 📊 I-update ang `02-er-diagram.md` (`role` column)
 - **Matututunan:** enum, seed data · *Reference: `user_role enum`, `seed script`*
 
 ### Day 46 — Authorization middleware

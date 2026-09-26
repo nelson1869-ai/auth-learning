@@ -423,3 +423,19 @@
   - `Origin: null` o `Sec-Fetch-Site: cross-site` → 403.
 - **Kapalit:** kapag nagdagdag ng ibang frontend (hal. mobile web sa ibang domain), idagdag ito sa listahan.
   Kapag tumanggap ang API ng form (hindi JSON), balikan ang desisyong ito.
+
+## D-023 · Ang unang admin: i-promote ang naka-register na account, hindi seed na may password
+
+- **Petsa:** 2026-09-27 (Day 45)
+- **Context:** ang seed ng reference ay gumagawa ng `admin@example.com` / `adminpassword123`, at nakasulat ito
+  mismo sa code. **Public ang repo natin**, kaya kapag napatakbo ito sa production, may admin na alam ng
+  lahat ang password.
+- **Pinili:** `backend/src/db/set-role.ts <email> <user|admin>`. Ginagawa nitong admin ang account na
+  **naka-register na**. Ang may-ari ang pumili ng password noong nag-register. Script lang ito, hindi endpoint,
+  kaya kailangan ng access sa server o sa `.env.production` para patakbuhin.
+- **Detalye:**
+  - Walang ginagawang account ang script.
+  - Ligtas itong ulitin (idempotent), at puwedeng ibalik sa `user`.
+  - Hindi mahalaga ang laki ng titik ng email (lowercase ang naka-save).
+- **Kapalit:** kailangang mag-register muna bago maging admin. Sa production, tatakbo ito sa pamamagitan ng
+  `docker run`, gamit ang parehong image ng app.

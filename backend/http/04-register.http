@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 REGISTER — gumawa ng bagong account
-### 📅 Day 13 · Phase 4 (Register at login) · in-update sa Day 14 (validation → 400, lowercase email)
+### 📅 Day 13 · Phase 4 (Register at login) · in-update sa Day 14 (validation → 400, lowercase email) at Day 45 (role)
 ### =========================================================================
 ### POST /api/auth/register  { email, password, name? }
 ###   → Zod: suriin at linisin (trim + lowercase ang email) → maling input = 400
@@ -137,7 +137,9 @@ Content-Type: application/json
 ###
 ### 🔐 Tinatanggal ni Zod ang mga field na wala sa schema, at `result.data` (hindi
 ### req.body) ang ginagamit ng code. Ito ang depensa laban sa "mass assignment".
-### (Wala pang role column ngayon — pero kapag mayroon na sa Phase 10, protektado na.)
+### ✅ Day 45: MAYROON NANG role column — at protektado nga (sinubukan, may test: set-role.test.ts).
+###    Tingnan sa database: npm run db:studio → users → ang account na ito ay role = user
+###    Ang tanging paraan para maging admin: npm run db:set-role -- <email> admin (script, hindi request)
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
