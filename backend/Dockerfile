@@ -3,6 +3,8 @@
 # nagpapatakbo ng .ts (D-018). Ikumpara sa reference: 2 stages (tsc → dist/).
 # =============================================================================
 FROM node:24-alpine
+# Iniuugnay ang image sa repo sa GitHub (GHCR) — makikita kung saang code ito galing
+LABEL org.opencontainers.image.source=https://github.com/nelson1869-ai/auth-learning
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -19,6 +21,8 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack 
 
 # Ang code lang — ang .dockerignore ang nag-aalis ng tests, .env at iba pa
 COPY src ./src
+# Ang mga migration (SQL) — pinapatakbo ng `node src/db/migrate.ts` bago i-restart ang app (Day 37)
+COPY drizzle ./drizzle
 
 # Huwag tumakbo bilang root: kung may butas ang app, limitado ang magagawa ng attacker
 USER node

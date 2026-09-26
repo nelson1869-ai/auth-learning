@@ -78,7 +78,7 @@ flowchart LR
 
 ## Kapag naka-deploy na (Phase 8 — hybrid, D-020)
 
-> 📅 in-update sa Day 36b · ✅ domain, Dockerfile, Neon, Tunnel, **Pages (live — https://nelson1869.com)** · ⏳ CD (Day 37)
+> 📅 in-update sa Day 36b · ✅ domain, Dockerfile, Neon, Tunnel, **Pages (live — https://nelson1869.com)** · **CD (Day 37, manual pull)**
 > **Subukan:** `backend/http/prod/01-production.http`
 
 ```mermaid
@@ -90,7 +90,7 @@ flowchart LR
         CFD["cloudflared container<br/>devops/docker-compose.prod.yml"] -->|"http://backend:3000<br/>(Docker network lang)"| BE["backend container<br/>node src/index.ts ✅ Day 34"]
     end
     BE -->|"TLS · sslmode=verify-full"| Neon[("Neon · Singapore<br/>Postgres 17 · point-in-time restore<br/>✅ Day 35")]
-    GH["GitHub<br/>CI ✅ · CD ⏳ Day 37"] -.->|"merge → image → PC ang kumukuha (pull)"| BE
+    GH["GitHub<br/>CI ✅ · image → GHCR ✅ Day 37"] -.->|"./devops/deploy.sh:<br/>pull ng image ng berdeng SHA"| BE
     GH -.->|"kusang build + deploy"| Pages
 ```
 
