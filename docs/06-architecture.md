@@ -43,7 +43,7 @@ nang hindi nasisira ang iba.
 | **6** | Hatiin ang `index.js` → `app.js` + `index.js` | Kailangang i-import ng tests ang app **nang hindi binubuksan ang port** |
 | **7** | Lahat → `.ts`; `src/config/env.ts`, `src/types/` | TypeScript: ipinakita na puwedeng `undefined` ang bawat `process.env` → iisang lugar na sumusuri (mas maaga sa plano, dati Phase 9) |
 | **9** | `helmet()` sa `app.ts`, `middleware/rateLimiter.ts`, `frontend/public/_headers` (CSP), `lib/` (logger, clientIp) + `middleware/requestLogger.ts`, `middleware/errorHandler.ts`, `middleware/csrf.ts` | Hardening bago buksan sa lahat: security headers (Day 39), sentral na error handling (Day 41), CSRF (Day 44), logs na may request ID (Day 42), limit sa panghuhula ng password (Day 43) |
-| **10** | `routes/admin.ts` + `middleware/requireRole.ts` (Day 46), `db/set-role.ts` (Day 45) | Hiwalay na grupo ng URL na may sariling patakaran (admin lang) |
+| **10** | `routes/admin.ts` + `middleware/requireRole.ts` (Day 46), `db/set-role.ts` (Day 45), `lib/audit.ts` + `audit_logs` table (Day 48) | Hiwalay na grupo ng URL na may sariling patakaran (admin lang) |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto

@@ -26,6 +26,7 @@
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
 | POST | `/api/auth/logout` | Burahin ang cookie | — | `07-logout.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
+| GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
 ---
 
@@ -117,6 +118,17 @@ kaya agad tumatalab ang pagbabago ng role. Walang body.
 | **400** | Maling `page`/`limit` (hal. `limit=101`, `page=abc`) | `{ "error": "Invalid input", "fields": { "limit": ["Too big: …"] } }` |
 | **401** | Walang login, sirang token, o nabura ang account — kahit sa `/api/admin/<kahit-ano>` | `{ "error": "Not authenticated" }` |
 | **403** | Naka-login pero hindi admin | `{ "error": "Forbidden" }` — hindi sinasabi kung anong role ang kailangan |
+
+## `GET /api/admin/audit-logs`
+**Auth:** cookie `token` **at** role `admin` (Day 48). **Query:** `page`, `limit` — pareho ng `/api/admin/users`.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Admin | `{ "logs": [ { "id": 45, "action": "login_failed", "actorId": null, "actorEmail": null, "targetId": 7, "ip": "…", "userAgent": "…", "metadata": { "email": "…" }, "createdAt": "…" } ], "page": 1, "limit": 20, "total": 45, "totalPages": 3 }` |
+| **400 · 401 · 403** | Pareho ng `/api/admin/users` | |
+
+**Mga `action`:** `register` · `login` · `login_failed` · `logout` · `access_denied` (403 sa admin) · `admin_list_users` · `admin_list_audit_logs`.
+Itinatala rin ang pagtingin mismo sa audit log. 🔐 Walang password, token o cookie sa kahit anong row.
 
 ## Caching (Day 36b)
 Lahat ng `/api/auth/*` ay may **`Cache-Control: no-store`** — hindi kailanman itatago ng

@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) at Day 45 (`role`, migration 0002) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -20,6 +20,17 @@ erDiagram
         user_role role "NOT NULL · DEFAULT 'user' · enum: user | admin"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
+    audit_logs {
+        serial id PK
+        integer actor_id FK "sino ang gumawa · NULL = hindi kilala o nabura (ON DELETE SET NULL)"
+        text action "NOT NULL · register, login, login_failed, logout, access_denied, admin_…"
+        integer target_id "ang naapektuhan · walang FK (nananatili kahit mabura)"
+        text ip "totoong IP (CF-Connecting-IP sa production)"
+        text user_agent "pinutol sa 300 characters"
+        jsonb metadata "hal. email na tinype, page/limit · walang password o token"
+        timestamptz created_at "NOT NULL · DEFAULT now() · may index"
+    }
+    users |o--o{ audit_logs : "gumawa (actor_id)"
 ```
 
 ## Paano basahin
@@ -29,6 +40,9 @@ erDiagram
 | **PK** | Primary key — ang "ID card" ng row: natatangi at hindi puwedeng walang laman |
 | **UK** | Unique key — bawal ang doble |
 | `serial` / `text` / `timestamptz` | ang type ng column |
+| **FK** | Foreign key — tumuturo sa `id` ng ibang table (Day 48: `audit_logs.actor_id` → `users.id`) |
+| `\|o--o{` | "zero o isa" sa "zero o marami": ang user ay puwedeng may maraming audit row; ang row ay puwedeng walang user (hindi kilala o nabura) |
+| `jsonb` | JSON na naka-save bilang binary sa Postgres — puwedeng hanapin (hal. `metadata->>'email'`) |
 | `user_role` | **enum** (Day 45) — sariling type sa Postgres; `user` o `admin` lang ang tinatanggap. Sinubukan: ang `'superadmin'` ay tinanggihan ng **database** mismo |
 
 **Paano nagiging admin (Day 45):** hindi kailanman mula sa request. Ang register ay laging `user`,

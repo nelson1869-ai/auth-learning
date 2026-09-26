@@ -1,0 +1,68 @@
+### =========================================================================
+### 🎓 AUDIT LOG — sino, ano, kanino, saan, kailan
+### 📅 Day 48 · Phase 10 (Roles at admin)
+### =========================================================================
+### Itinatala sa table na audit_logs (hindi sa Pino logs — iyon ay para sa debugging):
+###   register · login · login_failed · logout · access_denied (403) · admin_list_users · admin_list_audit_logs
+###
+### Bawat row: action · actorId (sino ang gumawa) · targetId (ang naapektuhan) · ip (totoong IP) ·
+###            userAgent · metadata · createdAt
+### 🔐 Kailanman: walang password, token, o cookie sa audit log.
+###
+### Kailangan: dev admin (palitan ang password sa #3) — tingnan ang 13-admin-rbac.http
+### Code: backend/src/lib/audit.ts · backend/src/routes/admin.ts (listAuditLogs)
+### Test: backend/src/lib/audit.test.ts · Diagram: docs/diagrams/02-er-diagram.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Maling password sa sarili mong admin account. Ang inaasahan:
+###    401 — at isang row: login_failed · actorId: null (hindi pa kilala) · targetId: <id mo> ·
+###    metadata: { "email": "..." } — ang tinype na email, HINDI ang password
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nelson_dev@1869.com",
+  "password": "mali-muna-ito"
+}
+
+### -------------------------------------------------------------------------
+### 2. Email na walang account. Ang inaasahan: 401 — row: login_failed · targetId: null
+###    🔍 Pareho ang oras ng #1 at #2 (sinukat Day 48: median 85ms vs 81ms) — itinatala ang dalawa
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "walang-ganito@example.com",
+  "password": "mali-muna-ito"
+}
+
+### -------------------------------------------------------------------------
+### 3. Tamang login bilang admin. Ang inaasahan: 200 — row: login · actorId: <id mo>
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nelson_dev@1869.com",
+  "password": "PALITAN-NG-PASSWORD-MO"
+}
+
+### -------------------------------------------------------------------------
+### 4. Tingnan ang audit log (pinakabago muna). Ang inaasahan:
+###    200 { "logs": [ { "id", "action", "actorId", "actorEmail", "targetId", "ip", "userAgent",
+###                      "metadata", "createdAt" }, ... ], "page": 1, "limit": 10, "total", "totalPages" }
+###    Ang pinakabago: admin_list_audit_logs — pati ang pagtingin mo ay itinatala
+###    Susunod: login (#3), login_failed (#2), login_failed (#1)
+GET http://localhost:3000/api/admin/audit-logs?limit=10
+
+### -------------------------------------------------------------------------
+### 5. Page 2 (pareho ng pagination ng Day 47)
+### 🔍 Pansinin (sinubukan, Day 48): ang UNANG row ng page 2 ay kapareho ng HULING row ng page 1!
+###    Ang pagtingin mo sa page 2 ay gumawa ng bagong row (admin_list_audit_logs), kaya umusog ang lahat
+###    nang isa. Ito ang kahinaan ng offset pagination (Day 47) — ayos: cursor pagination (?before=<id>)
+GET http://localhost:3000/api/admin/audit-logs?page=2&limit=10
+
+### -------------------------------------------------------------------------
+### 6. Mag-logout. Ang inaasahan: 204 — row: logout · actorId: <id mo>
+###    (Kahit walang valid na token, gumagana ang logout — actorId: null lang sa row)
+POST http://localhost:3000/api/auth/logout

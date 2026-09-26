@@ -433,9 +433,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit laging may limit ang listahan · *Reference: `pagination`*
 
 ### Day 48 — Audit log
-- [ ] `audit_logs` table: sino, ano, kailan, saan (IP) — para sa login, logout, admin actions
-- [ ] 📝 `backend/http/NN-audit-logs.http`
-- [ ] 📊 I-update ang `02-er-diagram.md` (`audit_logs` table)
+- [x] `audit_logs` table: sino, ano, kailan, saan (IP) — para sa login, logout, admin actions *(+ login_failed, access_denied; totoong IP; `GET /api/admin/audit-logs`)*
+- [x] 📝 `backend/http/15-audit-logs.http`
+- [x] 📊 I-update ang `02-er-diagram.md` (`audit_logs` table)
 - **Matututunan:** forensic trail · *Reference: `audit logging`*
 
 ### Day 49 — Admin page (frontend)
