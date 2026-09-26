@@ -1,6 +1,6 @@
 # 14 — Refresh token rotation at reuse detection
 
-> 📅 Day 52 · Phase 11 (Mas ligtas na sessions)
+> 📅 Day 52 · Phase 11 (Mas ligtas na sessions) · in-update sa Day 53 (logout)
 > **Code:** `backend/src/lib/session.ts` (`rotateRefreshToken`) · `backend/src/routes/auth.ts` (`/auth/refresh`)
 > **Subukan:** `backend/http/16-refresh-tokens.http` · test: `backend/src/routes/rotation.test.ts`
 
@@ -46,7 +46,7 @@ flowchart TD
     Req(["POST /api/auth/refresh<br/>Cookie: refresh_token"]) --> Claim{"I-claim sa transaction:<br/>hindi binawi AT hindi expired?"}
     Claim -->|"oo (nanalo)"| Rot["rotated → 204<br/>bagong access token + BAGONG refresh token"]
     Claim -->|"hindi"| Row{"Ano ang row?"}
-    Row -->|"wala · expired · binawi dahil sa logout o nakaw"| Inv["401 · binubura ang mga cookie"]
+    Row -->|"wala · expired · binawi dahil sa logout (Day 53) o nakaw"| Inv["401 · binubura ang mga cookie<br/>(hindi itinuturing na nakaw)"]
     Row -->|"rotated KANINA LANG (< 10s)<br/>at buhay pa ang family"| Grace["grace → 204<br/>access token LANG<br/>(sabay na refresh, hal. 2 tab)"]
     Row -->|"rotated lampas 10s"| Reuse["reused → bawiin ang BUONG family<br/>401 + WARN + audit: refresh_reuse"]
 ```

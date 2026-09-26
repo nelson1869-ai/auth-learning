@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 LOGOUT — burahin ang cookie
-### 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit)
+### 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit) at Day 53 (totoong logout)
 ### =========================================================================
 ### POST /api/auth/logout
 ###   → res.clearCookie('token', COOKIE_OPTIONS) → 204 No Content
@@ -59,16 +59,28 @@ GET http://localhost:3000/api/auth/me
 POST http://localhost:3000/api/auth/logout
 
 ### =========================================================================
-### 🔐 ANG LIMITASYON (subukan para makita)
+### 🔐 ANG NATITIRANG LIMITASYON — ang ACCESS token (subukan para makita)
 ### =========================================================================
-### Sa browser LANG nabubura ang cookie. Hindi alam ng server na nag-logout ka —
-### kaya ang token na nakopya BAGO mag-logout ay valid pa hanggang mag-expire (15 minuto mula Day 51; dati 1 oras).
-### Day 51: binubura na rin ang refresh_token cookie — pero aktibo pa ito sa DATABASE hanggang Day 53 (totoong logout).
+### Day 53: binabawi ng logout ang REFRESH token sa database (tingnan ang #6 sa ibaba — 401).
+### Pero ang ACCESS token (JWT) ay hindi naka-save, kaya hindi ito mababawi: ang nakopya BAGO
+### mag-logout ay valid pa hanggang mag-expire — hanggang 15 minuto lang (Day 51; dati 1 oras).
+### Kaya maikli ang access token: iyan ang kapalit ng pagiging mabilis (walang database sa bawat request).
 ### Sinubukan (Day 18): kinopyang token pagkatapos ng logout → /me → 200.
 ###
 ### Gawin: sa #1, kopyahin ang token mula sa Set-Cookie (sa pagitan ng "token=" at ";"),
 ### i-paste sa ibaba kapalit ng PASTE-DITO, at i-send PAGKATAPOS ng #3 (logout).
-### Ang inaasahan: 200 — gumagana pa rin. Aayusin sa Phase 11 (refresh tokens sa DB).
+### Ang inaasahan: 200 — gumagana pa rin, hanggang 15 minuto.
 # @no-cookie-jar
 GET http://localhost:3000/api/auth/me
 Cookie: token=PASTE-DITO
+
+### -------------------------------------------------------------------------
+### 6. TOTOONG LOGOUT (Day 53): ang REFRESH token na kinopya bago mag-logout. Ang inaasahan:
+###    401 { "error": "Not authenticated" } — binawi sa database (revoke_reason = 'logout')
+###    (Day 51–52: 204 pa rin — gagana pa ang kinopyang refresh token nang hanggang 7 araw!)
+###
+### Gawin: sa #1, kopyahin ang refresh_token mula sa Set-Cookie, i-paste kapalit ng PASTE-DITO,
+### at i-send PAGKATAPOS ng #3 (logout).
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/refresh
+Cookie: refresh_token=PASTE-DITO
