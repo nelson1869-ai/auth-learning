@@ -47,7 +47,7 @@ backend/
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
-│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare)
+│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)

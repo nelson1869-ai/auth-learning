@@ -7,7 +7,8 @@ import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.ts';
-import { requireAuth } from '../middleware/requireAuth.ts';
+import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
+import { audit } from '../lib/audit.ts';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
 import { env } from '../config/env.ts';
 
@@ -63,6 +64,7 @@ router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
       .values({ email, name, passwordHash })
       // Piling column lang — hindi dapat lumabas ang password_hash kahit hash pa
       .returning({ id: users.id, email: users.email, name: users.name });
+    await audit(req, { action: 'register', actorId: user.id, targetId: user.id });
     res.status(201).json({ user });
   } catch (err) {
     // 23505 = unique violation ng Postgres. Nasa err.cause, hindi err.code (binabalot ni Drizzle)
@@ -92,6 +94,9 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   // Laging may verify — totoong hash kung may user, DUMMY_HASH kung wala
   const ok = await argon2.verify(user ? user.passwordHash : DUMMY_HASH, password);
   if (!user || !ok) {
+    // Audit (Day 48): target = ang account na sinubukang pasukin (kung mayroon), at ang email na tinype.
+    // Itinatala sa DALAWANG kaso (may account o wala) — kaya pareho pa rin ang tagal ng sagot
+    await audit(req, { action: 'login_failed', targetId: user?.id ?? null, metadata: { email } });
     // Iisang mensahe para sa maling email AT maling password — hindi sinasabi kung may account
     return res.status(401).json({ error: 'Invalid email or password' });
   }
@@ -101,6 +106,7 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
 
   // maxAge: 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
   res.cookie('token', token, { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 1000 });
+  await audit(req, { action: 'login', actorId: user.id, targetId: user.id });
 
   // Piling field lang — hindi kasama ang passwordHash
   res.json({ user: { id: user.id, email: user.email, name: user.name } });
@@ -128,7 +134,10 @@ router.get('/auth/me', requireAuth, async (req, res) => {
 
 // Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.
 // ⚠️ Sa browser lang nabubura — kung may nakakopya ng token, valid pa ito hanggang mag-expire (D-012)
-router.post('/auth/logout', (_req, res) => {
+router.post('/auth/logout', async (req, res) => {
+  // Sino ang nag-logout? Mula sa token kung valid pa; kung hindi, hindi kilala (null) — gagana pa rin ang logout
+  const userId = userIdFromToken(req.cookies.token) ?? null;
+  await audit(req, { action: 'logout', actorId: userId, targetId: userId });
   res.clearCookie('token', COOKIE_OPTIONS);
   res.status(204).end(); // 204 = nagawa, walang body
 });
