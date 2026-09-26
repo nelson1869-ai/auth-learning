@@ -1,6 +1,8 @@
 import type { Request } from 'express';
 import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import { env } from '../config/env.ts';
+import { clientIp } from '../lib/clientIp.ts';
+import { logger } from '../lib/logger.ts';
 
 type LimiterOptions = {
   limit: number; // ilang subok
@@ -9,13 +11,9 @@ type LimiterOptions = {
   trustCloudflare?: boolean; // gamitin ang CF-Connecting-IP (tingnan ang config/env.ts)
 };
 
-// Kanino ang "bilang"? Sa likod ng tunnel, IP ng cloudflared container ang req.ip ng LAHAT ng user —
-// kaya ang totoong IP ay nasa CF-Connecting-IP (idinadagdag ng Cloudflare). Kung hindi sa likod ng
-// Cloudflare, huwag pagkatiwalaan ang header na iyon: kayang pekein ng kahit sino
+// Kanino ang "bilang"? Sa totoong IP ng client — tingnan ang lib/clientIp.ts (CF-Connecting-IP)
 export function clientKey(req: Request, trustCloudflare: boolean): string {
-  const cfIp = req.headers['cf-connecting-ip'];
-  const ip = trustCloudflare && typeof cfIp === 'string' ? cfIp : (req.ip ?? 'unknown');
-  return ipKeyGenerator(ip); // IPv6: isang /56 na bloke = isang user (hindi makakaiwas sa bagong address)
+  return ipKeyGenerator(clientIp(req, trustCloudflare)); // IPv6: isang /56 na bloke = isang user (hindi makakaiwas sa bagong address)
 }
 
 // Factory — para masubukan sa test na may maliit na limit (hal. 3), hiwalay sa app
@@ -32,9 +30,10 @@ export function createAuthLimiter({
     standardHeaders: 'draft-8', // RateLimit-* headers: makikita ng client kung ilan pa ang natitira
     legacyHeaders: false,
     keyGenerator: (req) => clientKey(req, trustCloudflare),
-    // Security event: itala kung sino ang na-block (makikita sa `docker compose logs backend`)
+    // Security event: itala kung sino ang na-block (makikita sa `docker compose logs backend`).
+    // req.log = logger na may requestId na (Day 42); wala ito sa maliit na test app, kaya may `?? logger`
     handler: (req, res, _next, options) => {
-      console.warn(JSON.stringify({ event: 'rate_limit', path: req.path, key: clientKey(req, trustCloudflare) }));
+      (req.log ?? logger).warn({ event: 'rate_limit', path: req.path, key: clientKey(req, trustCloudflare) }, 'Rate limit hit');
       res.status(options.statusCode).json({ error: 'Too many attempts. Please try again later.' });
     },
   });

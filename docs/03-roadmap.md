@@ -380,28 +380,29 @@ direktang nagtatrabaho sa `main`?*
 ### Day 40 — Fail-fast na config
 - [x] I-validate ang `.env` gamit ang Zod pagka-start — ayaw magsimula kung may kulang *(nagawa na sa Phase 7: `config/env.ts` — ipinakita ng TypeScript na kailangan)*
 - [x] 🏗️ Bagong folder: `src/config/` *(Phase 7)*
-- [ ] Balikan: may bagong env ba mula sa Phase 8 (hal. production values) na dapat idagdag sa schema?
+- [x] Balikan: may bagong env ba mula sa Phase 8 (hal. production values) na dapat idagdag sa schema? *(oo: `TRUST_CLOUDFLARE`, idinagdag sa Day 43 · sinuri Day 42)*
 - **Matututunan:** "mas mabuting mag-crash agad kaysa tumakbo nang mali"
 
 ### Day 41 — Sentral na error handling
 - [ ] Isang error handler para sa lahat; **generic na mensahe sa 5xx**, detalye sa logs lang
-- [ ] 📊 `docs/diagrams/10-middleware-pipeline.md` — pagkakasunod ng middleware (helmet → parsers → routes → error handler)
+- [ ] 📊 `docs/diagrams/11-middleware-pipeline.md` — pagkakasunod ng middleware (helmet → parsers → routes → error handler)
 - **Matututunan:** bakit mapanganib ipakita ang internal errors · *Reference: `fix(errors)`*
 
 ### Day 42 — Structured logging
-- [ ] Pino + request ID sa bawat request; itago (redact) ang passwords at cookies sa logs
+- [x] Pino + request ID sa bawat request; itago (redact) ang passwords at cookies sa logs *(+ totoong IP ng client sa likod ng tunnel; hindi tinatanggap ang X-Request-Id ng client)*
+- [x] 📝 `backend/http/10-logging.http`
 - **Matututunan:** paano mag-debug sa production · *Reference: `structured logging with Pino`*
 
 ### Day 43 — Rate limiting
 - [x] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!) — **inagahan bago ang MVP launch**; bawat totoong IP sa likod ng tunnel (`CF-Connecting-IP`, sinukat nang live); may sariling test
 - [x] 📝 `backend/http/08-rate-limit.http` — pindutin nang 11 beses → 429
-- [ ] 📊 I-update ang `10-middleware-pipeline.md`
+- [ ] 📊 I-update ang `11-middleware-pipeline.md`
 - **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
 
 ### Day 44 — CSRF protection
 - [ ] Double-submit cookie; i-update ang frontend at lahat ng `.http` files
-- [ ] 📝 `backend/http/09-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
-- [ ] 📊 I-update ang `10-middleware-pipeline.md` at `07-frontend-backend.md`
+- [ ] 📝 `backend/http/11-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
+- [ ] 📊 I-update ang `11-middleware-pipeline.md` at `07-frontend-backend.md`
 - **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
 
 **✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*

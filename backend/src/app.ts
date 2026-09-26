@@ -7,9 +7,14 @@ import echoRouter from './routes/echo.ts';
 import usersRouter from './routes/users.ts';
 import authRouter from './routes/auth.ts';
 import { env } from './config/env.ts';
+import { requestLogger } from './middleware/requestLogger.ts';
 
 // Binubuo lang ang app dito — walang listen. Kaya ma-i-import ito ng tests nang hindi binubuksan ang port
 const app = express();
+
+// Logging (Day 42) — PINAKAUNA: bawat request ay may ID at naitatala, kahit ang hinarang pa ng
+// ibang middleware (hal. CORS, 429). Ang log mismo ay isinusulat kapag tapos na ang sagot
+app.use(requestLogger);
 
 // Secure headers (Day 39) — una sa lahat: nosniff, HSTS, frameguard, CSP para sa API, at tinatanggal
 // ang `X-Powered-By: Express` (hindi dapat malaman ng attacker kung anong server ito)
