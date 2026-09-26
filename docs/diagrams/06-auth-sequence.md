@@ -1,6 +1,6 @@
 # 06 — Buong auth flow (sequence)
 
-> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log) at Day 49 (`role`)
+> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`) at Day 51 (refresh token)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
@@ -33,9 +33,10 @@ sequenceDiagram
     B->>S: POST /api/auth/login { email, password }
     S->>D: SELECT ... WHERE email = ?
     D-->>S: user (o wala → DUMMY_HASH, parehong ~50ms)
-    S->>S: argon2.verify → jwt.sign({ sub: id }, JWT_SECRET, 1h)
+    S->>S: argon2.verify → jwt.sign({ sub: id }, JWT_SECRET, 15m)
+    S->>D: INSERT refresh_tokens (SHA-256 ng random na token, 7 araw) — Day 51
     S->>D: INSERT audit_logs (login · o login_failed kapag mali) — Day 48
-    S-->>B: 200 { user } + Set-Cookie: token=eyJ... · HttpOnly · SameSite=Lax
+    S-->>B: 200 { user } + Set-Cookie: token=eyJ... (15 min) · refresh_token=... (7 araw, Path=/api/auth) · HttpOnly · SameSite=Lax
     B->>B: itinatago ang cookie (hindi mababasa ng JavaScript)
     end
 
@@ -49,10 +50,20 @@ sequenceDiagram
     end
 
     rect rgba(128,128,128,0.08)
+    Note over U,D: REFRESH — Day 51 (kapag expired na ang 15-minutong access token)
+    B->>S: GET /api/... — Cookie: token=<expired>
+    S-->>B: 401
+    B->>S: POST /api/auth/refresh — Cookie: refresh_token=... (isang beses lang kahit sabay ang maraming 401)
+    S->>D: SELECT refresh_tokens WHERE token_hash = sha256(...) AND hindi binawi AND hindi expired
+    S-->>B: 204 + Set-Cookie: token=<bagong JWT, 15 min>
+    B->>S: inuulit ang orihinal na request → 200
+    end
+
+    rect rgba(128,128,128,0.08)
     Note over U,D: LOGOUT — Day 18
     B->>S: POST /api/auth/logout
     S->>D: INSERT audit_logs (logout · sino = mula sa token kung valid pa) — Day 48
-    S-->>B: 204 + Set-Cookie: token= · Expires=1970 (burahin)
+    S-->>B: 204 + Set-Cookie: token= at refresh_token= · Expires=1970 (burahin ang dalawa, Day 51)
     B->>B: binura ang cookie
     B->>S: GET /api/auth/me — walang cookie
     S-->>B: 401 Not authenticated

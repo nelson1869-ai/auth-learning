@@ -1,4 +1,4 @@
-import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Mga role (Day 45) — enum sa Postgres: TUMATANGGI ang database sa ibang value (hal. 'superadmin' o 'Admin'),
 // hindi lang ang app. Tatlong role ang reference; dalawa lang ang kailangan natin ngayon
@@ -53,4 +53,25 @@ export const auditLogs = pgTable(
   },
   // Index: mabilis ang "pinakabago muna" at ang "lahat ng ginawa ng user X"
   (table) => [index('audit_logs_created_at_idx').on(table.createdAt), index('audit_logs_actor_id_idx').on(table.actorId)],
+);
+
+// Refresh tokens (Day 51) — ang "mahabang" session. Ang access token (JWT, 15 min) ay hindi naka-save;
+// ang refresh token (7 araw) ay naka-save, kaya KAYANG bawiin ng server (Day 53: logout, Day 54: devices).
+export const refreshTokens = pgTable(
+  'refresh_tokens',
+  {
+    id: serial('id').primaryKey(),
+    // CASCADE: kapag nabura ang user, burado rin ang mga session niya (walang silbi ang session na walang user)
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // HASH lang (SHA-256), hindi ang token mismo — kapag na-leak ang database, hindi magagamit ang mga token
+    tokenHash: text('token_hash').notNull().unique(),
+    // Isang "family" bawat login — gagamitin sa Day 52 (rotation: iisang family ang bawat bagong token)
+    familyId: uuid('family_id').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }), // null = aktibo pa
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('refresh_tokens_user_id_idx').on(table.userId)],
 );

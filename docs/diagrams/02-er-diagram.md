@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -30,7 +30,17 @@ erDiagram
         jsonb metadata "hal. email na tinype, page/limit · walang password o token"
         timestamptz created_at "NOT NULL · DEFAULT now() · may index"
     }
+    refresh_tokens {
+        serial id PK
+        integer user_id FK "NOT NULL · ON DELETE CASCADE (burado kasama ng user)"
+        text token_hash UK "SHA-256 ng random na token — hindi ang token mismo"
+        uuid family_id "isang family bawat login (rotation: Day 52)"
+        timestamptz expires_at "NOT NULL · 7 araw"
+        timestamptz revoked_at "NULL = aktibo · may oras = binawi"
+        timestamptz created_at "NOT NULL · DEFAULT now()"
+    }
     users |o--o{ audit_logs : "gumawa (actor_id)"
+    users ||--o{ refresh_tokens : "may session (user_id)"
 ```
 
 ## Paano basahin

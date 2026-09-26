@@ -57,9 +57,38 @@ export async function register(email: string, password: string, name?: string): 
   return data.user;
 }
 
+// ---------------------------------------------------------------------------------------------
+// Refresh (Day 51): ang access token ay 15 minuto lang. Kapag 401, subukang kumuha ng bago gamit ang
+// refresh token (cookie), tapos ulitin ang request ISANG beses.
+//
+// Single-flight: kapag sabay-sabay na nag-401 ang maraming request (hal. 2 sa Admin page), ISANG
+// refresh lang ang ipinapadala at hinihintay ng lahat. Kung hindi, sabay silang magre-refresh gamit
+// ang iisang token — at mula Day 52 (reuse detection), ituturing iyon na nakaw at mala-logout ang user.
+let refreshing: Promise<boolean> | null = null;
+
+function refreshSession(): Promise<boolean> {
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' })
+    .then((res) => res.ok)
+    .catch(() => false)
+    .finally(() => {
+      refreshing = null; // tapos na — ang susunod na 401 ay magre-refresh ulit
+    });
+  return refreshing;
+}
+
+// fetch na may cookie, at kusang nagre-refresh kapag expired ang access token
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const send = () => fetch(`${API_URL}${path}`, { ...init, credentials: 'include' });
+  const res = await send();
+  if (res.status !== 401) return res;
+  const refreshed = await refreshSession();
+  return refreshed ? send() : res; // hindi ma-refresh = talagang hindi naka-login → ibigay ang 401
+}
+// ---------------------------------------------------------------------------------------------
+
 // Sino ang naka-login? null kung hindi — ang 401 dito ay normal, hindi error
 export async function getMe(): Promise<User | null> {
-  const res = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
+  const res = await apiFetch('/auth/me');
   if (res.status === 401) return null;
   if (!res.ok) throw new ApiError('Request failed');
   const data = await res.json();

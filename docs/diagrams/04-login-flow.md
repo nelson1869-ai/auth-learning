@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting) at Day 48 (audit log)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log) at Day 51 (refresh token)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
 > **Subukan:** `backend/http/05-login.http`
@@ -18,10 +18,10 @@ flowchart TD
     Has -->|"oo"| VReal["argon2.verify(user.passwordHash, password)<br/>~50ms"]
     Has -->|"wala"| VDummy["argon2.verify(DUMMY_HASH, password)<br/>~50ms — laging false<br/>para PAREHO ang tagal"]
     VReal --> Ok{"Tugma ba?"}
-    Ok -->|"oo"| Sign["jwt.sign({ sub: String(user.id) },<br/>JWT_SECRET, { expiresIn: '1h' })<br/>id lang — nababasa ng kahit sino ang payload"]
-    Sign --> Cookie["res.cookie('token', token, {<br/>httpOnly, sameSite: 'lax',<br/>secure (production), maxAge: 1h })"]
+    Ok -->|"oo"| Sign["access token: jwt.sign({ sub },<br/>JWT_SECRET, { expiresIn: '15m' })<br/>id lang — nababasa ng kahit sino ang payload"]
+    Sign --> Cookie["res.cookie('token', …, 15 min)<br/>+ refresh token: 32 random bytes → SHA-256 sa refresh_tokens<br/>res.cookie('refresh_token', …, 7 araw, Path=/api/auth)<br/>(lib/session.ts, Day 51)"]
     Cookie --> AudOk["audit(req, login)<br/>→ audit_logs (Day 48)"]
-    AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ...; HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
+    AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ... · refresh_token=...<br/>HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
     Ok -->|"hindi"| AudFail["audit(req, login_failed)<br/>target = ang account (kung mayroon) · metadata: email<br/>HINDI ang password · sa DALAWANG kaso → pareho pa rin ang tagal"]
     VDummy --> AudFail
     AudFail --> C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }<br/>walang cookie"]

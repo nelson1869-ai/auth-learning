@@ -454,7 +454,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 11 — Mas ligtas na sessions · ⚙️ *Backend* + 🔐 *Security* · Day 51–57
 
 ### Day 51 — Refresh tokens
-- [ ] Maikling access token (15 min) + mahabang refresh token na naka-hash sa DB
+- [x] Maikling access token (15 min) + mahabang refresh token na naka-hash sa DB *(+ `POST /api/auth/refresh`; frontend: 401 → isang refresh → ulit; `16-refresh-tokens.http`)*
 - **Matututunan:** bakit dalawang token · *Reference: `refresh-token session foundation`*
 
 ### Day 52 — Rotation at reuse detection

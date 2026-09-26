@@ -24,7 +24,8 @@
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
-| POST | `/api/auth/logout` | Burahin ang cookie | — | `07-logout.http` |
+| POST | `/api/auth/logout` | Burahin ang mga cookie | — | `07-logout.http` |
+| POST | `/api/auth/refresh` | Bagong access token (Day 51) | 🍪 cookie `refresh_token` | `16-refresh-tokens.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 | GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
@@ -84,9 +85,11 @@ Bilang lang — hindi kailanman ang listahan ng users.
 | **400** | Mali ang hugis ng input | `{ "error": "Invalid input", "fields": { ... } }` |
 | **401** | Maling password **o** walang account — **iisang sagot, parehong tagal** | `{ "error": "Invalid email or password" }` |
 
-**Cookie (sa 200 lang):** `token=<JWT>; Max-Age=3600; Path=/; HttpOnly; SameSite=Lax`
-(+ `Secure` kapag `NODE_ENV=production`). Payload ng JWT: `{ "sub": "<user id>", "iat", "exp" }`,
-HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapadala ng browser.
+**Mga cookie (sa 200 lang, Day 51):**
+- `token=<JWT>; Max-Age=900; Path=/; HttpOnly; SameSite=Lax` — **access token, 15 minuto**. Payload: `{ "sub": "<user id>", "iat", "exp" }`, HS256.
+- `refresh_token=<random>; Max-Age=604800; Path=/api/auth; HttpOnly; SameSite=Lax` — **refresh token, 7 araw**. SHA-256 hash lang ang nasa database (`refresh_tokens`).
+
+(+ `Secure` kapag `NODE_ENV=production`.) Hindi mababasa ng JavaScript ang dalawa — kusang ipinapadala ng browser.
 
 ## `GET /api/auth/me`
 **Auth:** kailangan ang cookie na `token` (mula sa login). Walang body.
@@ -101,10 +104,18 @@ HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapada
 
 | Status | Kailan | Body / Headers |
 |---|---|---|
-| **204** | Palagi — may cookie man o wala | walang body · `Set-Cookie: token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax` |
+| **204** | Palagi — may cookie man o wala | walang body · binubura ang **dalawang** cookie: `token` (Path=/) at `refresh_token` (Path=/api/auth), `Expires=Thu, 01 Jan 1970` |
 
-⚠️ Sa browser lang nabubura ang cookie — ang token na nakopya bago mag-logout ay
-valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
+⚠️ Sa browser lang nabubura ang mga cookie — ang access token na nakopya bago mag-logout ay valid pa hanggang
+mag-expire (15 minuto), at ang refresh token ay aktibo pa sa database hanggang Day 53 (totoong logout).
+
+## `POST /api/auth/refresh` (Day 51)
+**Auth:** ang cookie na `refresh_token` (Path=/api/auth). Walang body. Tinatawag ng frontend kapag 401 ang isang request.
+
+| Status | Kailan | Body / Headers |
+|---|---|---|
+| **204** | Aktibo ang refresh token (hindi binawi, hindi expired) | walang body · `Set-Cookie: token=<bagong JWT>; Max-Age=900` |
+| **401** | Walang cookie, pekeng token, binawi, expired, o nabura ang user | `{ "error": "Not authenticated" }` + binubura ang dalawang cookie |
 
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,

@@ -1,6 +1,6 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check) at Day 49 (admin page)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check), Day 49 (admin page) at Day 51 (refresh)
 >
 > **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
@@ -156,6 +156,9 @@ flowchart TD
 - **Walang "admin check" sa AdminPage mismo.** Ang sagot ng backend (200/401/403) ang nagpapasya kung ano ang ipapakita.
 - **`ignore` sa `useEffect`:** kapag mabilis na pinindot ang Next, ang lumang sagot na huling dumating ay hindi papalit sa bago.
 - **Malapad na table sa phone:** `.table-wrap { overflow-x: auto }`. Ang table ang nag-i-scroll, hindi ang buong page.
+- **Day 51 — `apiFetch`:** kapag 401 (expired ang 15-minutong access token), isang `POST /api/auth/refresh` →
+  inuulit ang request. **Isang refresh lang** kahit sabay na nag-401 ang dalawang listahan (single-flight).
+  Sinubukan: binura ang `token` cookie → Admin page: 4 na 401 → **1** refresh → 200 lahat.
 - Sinubukan (Day 49, totoong browser, 390px):
   - admin → may link, 2 table, Next → "Page 2 of 6", 0 JS error;
   - user → walang link, `/admin` → "⛔ 403";

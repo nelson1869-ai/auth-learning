@@ -70,7 +70,7 @@ backend/
 │   ├── index.ts          ← (Day 26) app.listen lang
 │   ├── config/env.ts     ← (Phase 7) sinusuri ang env pagka-start
 │   ├── types/            ← (Phase 7) hal. req.userId
-│   ├── routes/           ← auth.ts (register/login/me/logout), users.ts (count),
+│   ├── routes/           ← auth.ts (register/login/me/refresh/logout), users.ts (count),
 │   │                        health.ts, echo.ts (pang-aral)
 │   ├── middleware/       ← requireAuth.ts (cookie → jwt.verify → req.userId)
 │   ├── validations/      ← auth.ts (registerSchema, loginSchema — Zod, + z.infer types)
@@ -92,11 +92,11 @@ backend/
 │   │                        users.ts (count) · health.ts · echo.ts
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
-│   ├── lib/              ← logger.ts · clientIp.ts · audit.ts
-│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs) · migrate.ts · set-role.ts
+│   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51)
+│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
-├── drizzle/              ← migrations 0000–0003
-└── http/                 ← 01–15 .http walkthroughs
+├── drizzle/              ← migrations 0000–0004
+└── http/                 ← 01–16 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**
