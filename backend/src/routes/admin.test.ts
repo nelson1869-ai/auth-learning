@@ -63,6 +63,16 @@ describe('admin routes', () => {
     expect((await agent.get('/api/admin/users')).status).toBe(401);
   });
 
+  // Day 49: kailangan ng frontend ang role para ipakita/itago ang Admin link
+  it('/me includes the current role, straight from the database', async () => {
+    const { agent, email } = await loggedIn('rbac-me');
+    expect((await agent.get('/api/auth/me')).body.user.role).toBe('user');
+    await setRole(db, { email, role: 'admin' });
+    const me = await agent.get('/api/auth/me');
+    expect(me.body.user).toMatchObject({ email, role: 'admin' });
+    expect(Object.keys(me.body.user).sort()).toEqual(['email', 'id', 'name', 'role']); // walang password_hash
+  });
+
   it('401 (not 404) for an unknown admin path without login — does not reveal what exists', async () => {
     const res = await request(app).get('/api/admin/wala-ganito');
     expect(res.status).toBe(401);

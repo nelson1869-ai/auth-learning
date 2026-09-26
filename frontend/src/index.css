@@ -25,3 +25,29 @@ small {
   color: #b00020;
   margin: -8px 0 12px;
 }
+
+/* Admin page (Day 49): malapad ang table — mag-scroll pagilid sa maliit na screen, hindi ang buong page */
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: 100%;
+}
+th,
+td {
+  border-bottom: 1px solid #ddd;
+  padding: 4px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.pager {
+  margin-top: 8px;
+}
+/* Paliwanag (hindi error) — gray, hindi pula */
+small.note {
+  color: #555;
+  margin: 0;
+}
+

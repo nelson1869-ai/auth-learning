@@ -1,6 +1,6 @@
 // Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
 // sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
-const API_URL: string =
+export const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '');
 
 // Sa production build na walang VITE_API_URL: tumanggi agad, huwag tahimik na tumawag sa localhost
@@ -14,17 +14,21 @@ export type User = {
   id: number;
   email: string;
   name: string | null;
+  role: 'user' | 'admin'; // Day 49 — para ipakita/itago ang Admin link (UX lang; ang backend ang bantay)
 };
 
 // Mga error bawat field mula sa Zod ng backend (400), hal. { password: ['Too small ...'] }
 export type FieldErrors = Record<string, string[] | undefined>;
 
-// Error na may kasamang `fields` — para maipakita ang mensahe sa tabi ng bawat input
+// Error na may kasamang `fields` — para maipakita ang mensahe sa tabi ng bawat input.
+// `status` (Day 49): para malaman ng page kung 401 (mag-login) o 403 (bawal) ang nangyari
 export class ApiError extends Error {
   fields: FieldErrors;
-  constructor(message: string, fields: FieldErrors = {}) {
+  status: number;
+  constructor(message: string, fields: FieldErrors = {}, status = 0) {
     super(message);
     this.fields = fields;
+    this.status = status;
   }
 }
 

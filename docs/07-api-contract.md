@@ -93,7 +93,7 @@ HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapada
 
 | Status | Kailan | Body |
 |---|---|---|
-| **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
+| **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana", "role": "user" } }` — `role` mula Day 49, galing sa database (hindi sa token) |
 | **401** | Walang cookie, binago/sira/expired ang token, o nabura na ang user — **iisang sagot** | `{ "error": "Not authenticated" }` |
 
 ## `POST /api/auth/logout`

@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 ME — ang unang PROTEKTADONG route ("sino ako?")
-### 📅 Day 17 · Phase 4 (Register at login)
+### 📅 Day 17 · Phase 4 (Register at login) · in-update sa Day 49 (+ role)
 ### =========================================================================
 ### GET /api/auth/me
 ###   → requireAuth (middleware): may cookie ba? tama ba ang pirma? hindi pa expired?
@@ -42,7 +42,8 @@ Content-Type: application/json
 ### -------------------------------------------------------------------------
 ### 2. Me — MAY cookie (kusang ipinadala ng REST Client). Ang inaasahan:
 ###    Status:  200 OK
-###    Body:    { "user": { "id": ..., "email": "me-demo@example.com", "name": "Me Demo" } }
+###    Body:    { "user": { "id": ..., "email": "me-demo@example.com", "name": "Me Demo", "role": "user" } }
+###    (Day 49: + role — para ipakita ng frontend ang Admin link; "admin" pagkatapos ng db:set-role)
 ###
 ### 🔍 Walang email o password sa request na ito — ang cookie lang ang nagpakilala sa iyo.
 ### 🔍 Galing sa DATABASE ang sagot, hindi sa token: kapag pinalitan ang name sa

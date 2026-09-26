@@ -120,7 +120,9 @@ router.get('/auth/me', requireAuth, async (req, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
   const [user] = await db
-    .select({ id: users.id, email: users.email, name: users.name })
+    // + role (Day 49): para malaman ng frontend kung ipapakita ang Admin link. UX lang iyon —
+    // ang requireRole ng backend pa rin ang tunay na bantay sa /api/admin/*
+    .select({ id: users.id, email: users.email, name: users.name, role: users.role })
     .from(users)
     .where(eq(users.id, userId));
 
