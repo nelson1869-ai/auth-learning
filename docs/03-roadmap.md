@@ -409,7 +409,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 📊 Bagong `12-csrf.md` (ang atake at ang mga depensa) · in-update ang `11-middleware-pipeline.md` at `07-frontend-backend.md`
 - **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
 
-**✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*
+**✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?* — **TAPOS ang code ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-9/day-44.md`
 
 ---
 
