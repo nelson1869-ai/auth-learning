@@ -121,9 +121,9 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 
 | Tool | Para saan | Role | Phase |
 |---|---|---|---|
-| **helmet** | Secure HTTP headers | Backend / Security | 9 |
+| **helmet** | Secure HTTP headers | Backend / Security | 9 · ✅ ginagamit na (Day 39) |
 | **Pino** | Structured logging | Backend / DevOps | 9 |
-| **express-rate-limit** | Limitahan ang dami ng request (brute force) | Security | 9 |
+| **express-rate-limit** | Limitahan ang dami ng request (brute force) | Security | 9 · ✅ ginagamit na (Day 43, inagahan bago ang launch) |
 | **csrf-csrf** | CSRF protection (double-submit cookie) | Security | 9 |
 | **Resend** o **Brevo** | Totoong pagpapadala ng email | Backend | 12 |
 | **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas | Backend | 16 |
