@@ -48,7 +48,8 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 6 — Tests at CI (QA + DevOps).** Tapos na ang Phase 1–5 ✅
-(tags `checkpoint-phase-1` hanggang `checkpoint-phase-5`) — buong auth app mula sa
-browser: React 19 frontend, Express backend, Postgres.
+**Phase 8 — Totoong deploy 🌐.** Tapos na ang Phase 1–7 ✅ (tags `checkpoint-phase-1`
+hanggang `checkpoint-phase-7`). Buong auth app sa TypeScript, may CI at branch protection.
+Phase 8 (D-020): domain **`nelson1869.com`** ✅ · Dockerfile ✅ · Neon database (Singapore) ✅ ·
+susunod: Cloudflare Tunnel (`api.nelson1869.com`), Cloudflare Pages, CD, at ang MVP launch.
 Tingnan ang [roadmap](docs/03-roadmap.md).

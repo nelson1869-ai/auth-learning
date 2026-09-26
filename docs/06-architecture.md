@@ -83,7 +83,7 @@ backend/
 ```
 backend/src/
 ├── index.js          ← pinapatakbo lang ang server
-├── app.js            ← binubuo ang Express app (ini-import ng tests)
+├── app.ts            ← binubuo ang Express app (ini-import ng tests)
 ├── config/           ← env.js — mga setting, sinusuri pagka-start
 ├── routes/           ← aling URL → aling controller
 ├── middleware/       ← requireAuth, requireRole, errorHandler, rateLimiter, csrf

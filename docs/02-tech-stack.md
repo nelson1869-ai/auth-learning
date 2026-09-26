@@ -101,7 +101,7 @@ bagay na gusto nating makita muna.
 | **SQL** | Ang wika ng database | Day 08 |
 | **Drizzle ORM** + **drizzle-kit** | Pag-access sa DB mula sa JavaScript + migrations | Day 10 |
 | **pg** | Ang "driver" — ang aktwal na nakikipag-usap sa Postgres (ginagamit ng Drizzle) | Day 10 |
-| **Neon** o **Supabase** | Managed Postgres sa internet — **may automatic backup** | Day 35 |
+| **Neon** (Singapore, Postgres 17) | Managed Postgres sa internet — **may point-in-time restore** (6 oras sa Free plan) | Day 35 |
 
 ## 5. DevOps Engineer
 

@@ -76,15 +76,21 @@ flowchart LR
 3. Tinatanong ng backend ang **database** kung may ganitong user at tama ang password.
 4. Sumasagot ang backend (JSON), at nagse-set ng **cookie** na nagpapatunay na naka-login ka.
 
-## Kapag naka-deploy na (Phase 8)
+## Kapag naka-deploy na (Phase 8 — hybrid, D-020)
+
+> 📅 in-update pagkatapos ng Day 35 · ✅ domain, Dockerfile, Neon · ⏳ Tunnel (Day 36), Pages (Day 36b), CD (Day 37)
 
 ```mermaid
 flowchart LR
-    User(["👤 User<br/>(kahit saan sa internet)"]) -->|"https://auth.domain-mo.com"| CF["Cloudflare<br/>DNS + HTTPS + Tunnel"]
-    CF --> App["backend + frontend<br/>(Docker)"]
-    App --> Neon[("Managed Postgres<br/>Neon / Supabase<br/>🔁 automatic backup")]
-
-    GH["GitHub<br/>code + Actions (CI)"] -.->|"deploy kapag pumasa ang tests"| App
+    User(["👤 Kaibigan<br/>(phone, kahit saan)"]) -->|"https://nelson1869.com"| Pages["Cloudflare Pages + CDN<br/>frontend (React, static)<br/>⏳ Day 36b"]
+    User -->|"https://api.nelson1869.com<br/>+ Cookie: token"| Edge["Cloudflare<br/>DNS + HTTPS"]
+    Edge -->|"named Tunnel<br/>walang bukas na port sa router<br/>⏳ Day 36"| PC
+    subgraph PC["🖥️ PC ni Nelson"]
+        CFD["cloudflared"] --> BE["backend container<br/>node src/index.ts ✅ Day 34"]
+    end
+    BE -->|"TLS · sslmode=verify-full"| Neon[("Neon · Singapore<br/>Postgres 17 · point-in-time restore<br/>✅ Day 35")]
+    GH["GitHub<br/>CI ✅ · CD ⏳ Day 37"] -.->|"merge → image → PC ang kumukuha (pull)"| BE
+    GH -.->|"kusang build + deploy"| Pages
 ```
 
 > Babalikan at ia-update natin ang mga diagram na ito habang nabubuo ang project —

@@ -32,8 +32,9 @@ and this `AGENTS.md`.
   "Mga tanong ko pa" for Nelson (only he knows what's unclear to him); never
   delete or rewrite what he wrote there himself.
 - Commit doc changes on a feature/docs branch — **never on `main`**.
-- **Code is still his to type** (`.js`, `.jsx`, `.ts`, config files):
-  explain + small snippet + review.
+- **Code:** he often asks AI to write it ("i let you write that" / "ikaw na") —
+  then write it, test it for real, and walk him through what changed and why.
+  When he types it himself: explain + small snippet + review.
 - **`.http` files: YOU create them — always, unprompted.** Whenever there is
   something new to check (a new endpoint, a new status code, a changed
   behaviour), add or update a numbered `.http` file in `backend/http/`. Follow
