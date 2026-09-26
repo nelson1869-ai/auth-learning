@@ -1,0 +1,48 @@
+### =========================================================================
+### 🌐 PRODUCTION — https://api.nelson1869.com (Day 36)
+### 📅 Day 36 · Phase 8 (Totoong deploy)
+### =========================================================================
+### Totoong internet: phone/browser → Cloudflare (HTTPS) → named Tunnel →
+### cloudflared (PC) → backend container → Neon (Singapore).
+###
+### ⚠️ PRODUCTION ITO — basahin lang (health, CORS). HUWAG gumawa ng test users
+### dito: totoong database ito. Ang mga pagsubok na may register/login ay sa
+### ../01–07 (localhost, dev database).
+###
+### Kailangang tumatakbo: cd devops && docker compose -f docker-compose.prod.yml up -d
+### Code: devops/docker-compose.prod.yml · devops/cloudflared/config.yml
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Health mula sa internet. Ang inaasahan:
+###    Status:   200 OK
+###    Headers:  server: cloudflare · cf-ray: ...-SIN (dumaan sa Cloudflare, Singapore)
+###    Body:     { "status": "ok", "time": "..." }
+###
+### 🔍 Walang bukas na port sa router — kumokonekta PALABAS ang cloudflared.
+GET https://api.nelson1869.com/api/health
+
+### -------------------------------------------------------------------------
+### 2. CORS preflight mula sa totoong frontend (Day 36b). Ang inaasahan:
+###    Status:   204
+###    Headers:  access-control-allow-origin: https://nelson1869.com
+###              access-control-allow-credentials: true
+OPTIONS https://api.nelson1869.com/api/auth/login
+Origin: https://nelson1869.com
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: content-type
+
+### -------------------------------------------------------------------------
+### 3. CORS preflight mula sa dev frontend (localhost:5173). Ang inaasahan:
+###    Status:   204, pero allow-origin ay https://nelson1869.com pa rin
+###    → HAHARANGIN ng browser: hindi puwedeng gamitin ang production API mula sa dev
+OPTIONS https://api.nelson1869.com/api/auth/login
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+
+### -------------------------------------------------------------------------
+### 4. http:// (walang S). Ang inaasahan (kapag naka-ON ang "Always Use HTTPS"):
+###    Status:   301 → Location: https://api.nelson1869.com/api/health  (sinubukan: ✅ Day 36)
+###    🔐 Kung 200: dadaan ang password nang hindi naka-encrypt — i-ON sa Cloudflare
+###    (SSL/TLS → Edge Certificates → Always Use HTTPS)
+GET http://api.nelson1869.com/api/health

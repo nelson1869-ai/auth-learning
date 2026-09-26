@@ -31,7 +31,9 @@ Docker · Docker Compose · GitHub Actions · Cloudflare (domain + Tunnel) · Pr
 ## Ano ang lalaman ng folder na ito (plano)
 ```
 devops/
-├── docker-compose.yml  ← pinapatakbo ang database (at mamaya, ang buong system)
+├── docker-compose.yml       ← dev: Postgres (project `auth-learning`)
+├── docker-compose.prod.yml  ← production: backend + cloudflared (project `auth-learning-prod`)
+├── cloudflared/config.yml   ← tunnel → api.nelson1869.com
 ├── deploy/             ← mga script at dokumentasyon ng deploy
 └── monitoring/         ← Prometheus, Grafana (Phase 9+)
 ```
@@ -60,6 +62,25 @@ docker compose down         # ihinto — buhay pa rin ang data sa volume
 > `POSTGRES_PASSWORD` at `POSTGRES_DB`.** Kapag binago mo sila pagkatapos, walang
 > mangyayari ("Skipping initialization" sa logs). Para magsimula ulit mula sa
 > wala: `docker compose down -v` — **binubura nito ang lahat ng data.**
+
+## Production (Day 36) — backend sa internet
+```bash
+cd devops
+docker compose -f docker-compose.prod.yml up -d --build   # simulan / i-update pagkatapos ng bagong code
+docker compose -f docker-compose.prod.yml ps              # backend (healthy) + cloudflared
+docker compose -f docker-compose.prod.yml logs cloudflared | grep Registered   # 4 na koneksyon
+docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
+curl https://api.nelson1869.com/api/health
+```
+- **Named Cloudflare Tunnel** `auth-learning` → `https://api.nelson1869.com` → `http://backend:3000`
+  (`cloudflared/config.yml`). Walang bukas na port sa router o sa PC.
+- **Secrets, wala sa repo:** `backend/.env.production` (Neon, JWT secret) at
+  `~/.cloudflared/<tunnel-id>.json` (credentials ng tunnel) · `~/.cloudflared/cert.pem`
+  (pang-gawa ng tunnel/DNS — huwag i-share)
+- `name: auth-learning-prod` — hiwalay sa dev (`auth-learning`), iwas-banggaan
+- `restart: unless-stopped` — babangon ulit kapag nag-restart ang Docker. ⚠️ Sa WSL, siguraduhing
+  tumatakbo ang Docker pagka-boot ng PC, kung hindi, patay ang API.
+- Cloudflare: **SSL/TLS → Edge Certificates → Always Use HTTPS: ON** (http → 301)
 
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit

@@ -313,9 +313,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** managed DB, "ang backup na hindi pa nasusubukang i-restore ay hindi backup"
 
 ### Day 36 — Backend sa internet: named Cloudflare Tunnel
-- [ ] `cloudflared` → `https://api.<domain-mo>` → ang container sa PC mo (walang bukas na port sa router)
-- [ ] Production env sa `config/env.ts`: `NODE_ENV=production`, `CLIENT_URL=https://<domain-mo>` → `Secure` cookie 🔐
-- [ ] 📝 `.http` para sa production (health lang — huwag gumawa ng test users sa prod)
+- [x] `cloudflared` → `https://api.nelson1869.com` → ang container sa PC mo (walang bukas na port sa router) — named tunnel `auth-learning`, `devops/docker-compose.prod.yml`
+- [x] Production env sa `config/env.ts`: `NODE_ENV=production`, `CLIENT_URL=https://nelson1869.com` → `Secure` cookie 🔐 · **Always Use HTTPS** (http → 301)
+- [x] 📝 `backend/http/prod/01-production.http` (health, CORS, http→https — walang test users sa prod)
 - **Matututunan:** HTTPS, tunnel, production config — *Reference: item 22 (tunnel)*
 
 ### Day 36b — Frontend sa Cloudflare Pages
