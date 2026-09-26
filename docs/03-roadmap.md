@@ -322,7 +322,11 @@ direktang nagtatrabaho sa `main`?*
 - [ ] `VITE_API_URL` sa halip na naka-hardcode na `localhost:3000` sa `frontend/src/api/auth.ts`
 - [ ] Cloudflare Pages: kusang build + deploy sa bawat merge sa `main` (walang runner); custom domain
 - [ ] SPA fallback para sa React Router (`/profile` kapag ni-refresh → hindi 404)
-- **Matututunan:** static hosting, build-time env variables, bakit kailangan ng fallback ang SPA
+- [ ] **CDN + browser cache:** tingnan sa DevTools ang `cf-cache-status: HIT` at `Cache-Control` ng JS/CSS
+      (may hash ang pangalan → puwedeng i-cache nang matagal) vs ang `index.html` (hindi, para makita ang bagong deploy)
+- [ ] 🔐 **`Cache-Control: no-store`** sa mga sagot na may personal na data (`/api/auth/me`, login) — subukan sa `.http`
+- **Matututunan:** static hosting, build-time env variables, bakit kailangan ng fallback ang SPA;
+  **CDN** (kopya malapit sa user) at **HTTP caching** — ano ang puwede at HINDI puwedeng i-cache
 
 ### Day 37 — CD ng backend: manual muna, tapos automate
 - [ ] **Manual muna:** isang `deploy.sh` sa PC — pull → migrate → restart; isulat ang bawat hakbang
@@ -353,7 +357,9 @@ direktang nagtatrabaho sa `main`?*
 > Bawat phase ay may **"Reference"** — ang mga commit sa reference project na
 > gumawa ng parehong bagay. Tingnan gamit ang `git log --oneline --grep "<salita>"` doon.
 
-**Tantya:** Phase 9–19 ≈ **62 Days** — mga 12–13 linggo pagkatapos ng MVP.
+**Tantya:** Phase 9–19 ≈ **64 Days** — mga 12–13 linggo pagkatapos ng MVP.
+> *Buhay na plano (2026-09-26):* idinagdag ang CDN at HTTP caching (Day 36b), load
+> balancing (Day 91b) at Redis cache (Day 92b) — mga tanong ni Nelson.
 
 ---
 
@@ -662,10 +668,26 @@ direktang nagtatrabaho sa `main`?*
 - [ ] Sadyang "sirain" ang staging DB at i-restore mula sa backup; orasan ito
 - **Matututunan:** RPO/RTO — gaano karaming data ang puwedeng mawala, at gaano katagal bago bumalik
 
+### Day 91b — Load balancing (idinagdag — tanong ni Nelson)
+- [ ] 2 backend container + **load balancer** (Caddy) sa harap nila; round-robin
+- [ ] Patayin ang isang container habang may request → tuloy pa rin ba ang serbisyo? (health checks)
+- [ ] **Makita ang problema:** ang in-memory rate limiter ay may sariling bilang sa bawat container
+      → 10 na limit ay nagiging ~20 → dahilan ng Day 92
+- [ ] 📊 I-update ang `00-architecture.md`
+- **Matututunan:** horizontal scaling, stateless na server (bakit JWT sa cookie ay madaling i-scale),
+  health checks. ⚠️ Sa iisang PC — para sa konsepto, hindi para sa tunay na pakinabang
+
 ### Day 92 — Distributed rate limiting
 - [ ] Redis bilang store ng rate limiter (para gumana kahit maraming server)
 - [ ] 📝 I-update ang `08-rate-limit.http`
 - **Matututunan:** bakit nabubutas ang in-memory limit · *Reference: `Redis-backed distributed rate limiting`*
+
+### Day 92b — Server cache gamit ang Redis (idinagdag — tanong ni Nelson)
+- [ ] I-cache ang isang bagay na madalas basahin pero bihirang magbago (hal. `/api/users/count`), may TTL
+- [ ] **Cache invalidation:** burahin ang cache kapag may bagong register — ano ang mangyayari kung hindi?
+- [ ] 🔐 **Huwag i-cache ang personal na data** (`/me`) sa shared cache — at kung kailangan, susi na may user id
+- [ ] Sukatin: gaano kabilis kapag HIT vs MISS?
+- **Matututunan:** cache-aside pattern, TTL, "dalawang mahirap sa computer science: cache invalidation at pagpapangalan"
 
 ### Day 93 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
