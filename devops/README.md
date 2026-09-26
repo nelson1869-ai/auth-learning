@@ -69,6 +69,7 @@ docker compose down         # ihinto — buhay pa rin ang data sa volume
 cd devops
 ./deploy.sh                                               # i-deploy ang huling BERDENG main (Day 37)
 ./deploy.sh <sha>                                         # isang tiyak na commit (rollback)
+export IMAGE_TAG=$(cat .deployed-sha)                    # ⚠️ kailangan ng ps/logs/down/restart (itinatakda lang ng deploy.sh)
 docker compose -f docker-compose.prod.yml ps              # backend (healthy) + cloudflared
 docker compose -f docker-compose.prod.yml logs cloudflared | grep Registered   # 4 na koneksyon
 docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
@@ -85,6 +86,8 @@ curl https://api.nelson1869.com/api/health
 - `restart: unless-stopped` — babangon ulit kapag nag-restart ang Docker. ⚠️ Sa WSL, siguraduhing
   tumatakbo ang Docker pagka-boot ng PC, kung hindi, patay ang API.
 - Cloudflare: **SSL/TLS → Edge Certificates → Always Use HTTPS: ON** (http → 301)
+- `TRUST_CLOUDFLARE=true` sa `backend/.env.production` — rate limit bawat totoong IP (`CF-Connecting-IP`).
+  Ligtas LANG dahil walang bukas na port ang backend. Na-block? `docker compose … restart backend` (memory store)
 
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit

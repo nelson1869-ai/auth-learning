@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) at Day 43 (rate limiting)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
 > **Subukan:** `backend/http/05-login.http`
@@ -9,7 +9,9 @@
 
 ```mermaid
 flowchart TD
-    Req(["POST /api/auth/login<br/>{ email, password }"]) --> Zod{"Zod: loginSchema.safeParse(req.body)<br/>email: trim + lowercase"}
+    Req(["POST /api/auth/login<br/>{ email, password }"]) --> RL{"loginLimiter<br/>≥10 PALPAK sa 15 min<br/>mula sa IP na ito?<br/>(CF-Connecting-IP sa production)"}
+    RL -->|"oo"| C429["429 Too Many Requests<br/>RateLimit: r=0; t=…<br/>+ log: rate_limit"]
+    RL -->|"hindi"| Zod{"Zod: loginSchema.safeParse(req.body)<br/>email: trim + lowercase"}
     Zod -->|"mali ang input"| C400["400 Bad Request<br/>{ error: 'Invalid input', fields }<br/>~1ms"]
     Zod -->|"tama → result.data"| Find["db.select().from(users)<br/>.where(eq(users.email, email))"]
     Find --> Has{"May user ba?"}

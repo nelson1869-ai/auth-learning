@@ -387,8 +387,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** paano mag-debug sa production · *Reference: `structured logging with Pino`*
 
 ### Day 43 — Rate limiting
-- [ ] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!)
-- [ ] 📝 `backend/http/08-rate-limit.http` — pindutin nang 11 beses → 429
+- [x] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!) — **inagahan bago ang MVP launch**; bawat totoong IP sa likod ng tunnel (`CF-Connecting-IP`, sinukat nang live); may sariling test
+- [x] 📝 `backend/http/08-rate-limit.http` — pindutin nang 11 beses → 429
 - [ ] 📊 I-update ang `10-middleware-pipeline.md`
 - **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
 
