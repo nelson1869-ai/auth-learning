@@ -53,14 +53,27 @@ Gumawa ng pekeng site (`127.0.0.1:8081`, "Libreng load! 🎁") at binuksan ito s
 | 43 | rate limiting sa login/register — bago pa ang MVP launch |
 | 44 | CSRF: Origin check |
 
-### ✅ Checkpoint question — sagutin ko sa sarili kong salita
+### ✅ Checkpoint question
 *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*
-1. helmet / CSP: …
-2. fail-fast config: …
-3. error handler: …
-4. logging + redaction: …
-5. rate limiting: …
-6. CSRF Origin check: …
+
+> ✍️ Sinulat ng AI sa hiling ko ("let you answer that act as me"), sa salitang parang ako.
+> Babasahin ko ito, at susubukan kong sagutin ulit nang hindi tumitingin.
+
+1. **helmet / CSP** — **XSS**: kahit may maipasok na `<script>` ang attacker, hindi ito tatakbo (nakita ko ito
+   sa browser noong Day 39). **Clickjacking**: hindi mailalagay ang site ko sa invisible na iframe ng iba
+   (`X-Frame-Options`). **MIME sniffing**: `nosniff`. **Downgrade sa http**: HSTS. Dagdag pa: hindi na alam ng
+   attacker na Express ang gamit ko (walang `X-Powered-By`).
+2. **fail-fast config** — hindi ito atake, **maling setup** ang pinipigilan nito. Kapag kulang o mali ang `.env`
+   (hal. maikling `JWT_SECRET`, madaling hulaan), ayaw mag-start ng server, sa halip na tumakbo nang hindi ligtas.
+3. **error handler** — **information leak**: hindi na nakikita ng attacker ang stack trace, SQL, pangalan ng table,
+   o mga folder ng PC ko. Ang nakikita lang niya ay "Internal server error" at isang `requestId`.
+4. **logging + redaction** — hindi nito pinipigilan ang atake, pero **nakikita** ko ito (hal. ang scanner ng
+   Palo Alto, ang `Rate limit hit`, ang `csrf_blocked`). Ang **redaction** naman ay pumipigil sa **leak ng secrets
+   sa logs**: walang password, cookie o token sa log.
+5. **rate limiting** — **brute force / panghuhula ng password**: 10 maling login bawat 15 minuto bawat totoong IP,
+   pagkatapos ay 429. Sa register: pumipigil sa paggawa ng napakaraming account.
+6. **CSRF Origin check** — **CSRF**: ibang site (o na-hack na subdomain ko) na gumagamit ng browser ko para
+   magpadala ng request na may cookie ko. Ang POST ay tinatanggap lang mula sa `https://nelson1869.com`.
 
 ## Mga tanong ko pa / hindi pa malinaw
 - (Idagdag dito ang anumang hindi pa malinaw.)
