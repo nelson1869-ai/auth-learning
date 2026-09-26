@@ -20,7 +20,14 @@
 - Sa pagitan ng `DROP TABLE` at `migrate`, **500 ang `/api/users/count`** (walang table). Normal habang nasa gitna ng pagbabago — at dahilan kung bakit sa production, migrate MUNA bago i-restart ang app.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Paano kung may mali sa migration na napatakbo na?**
+  S: Huwag baguhin ang lumang migration file. Gumawa ng BAGONG migration na nag-aayos. Ang mga napatakbo na ay nakatala sa `__drizzle_migrations`, kaya hindi na sila tatakbo ulit.
+- **T: Bakit kailangang basahin ang SQL bago `migrate`?**
+  S: Puwedeng magkamali ang tool, halimbawa DROP sa halip na RENAME, na nagbubura ng data. Sa Day 45, binasa ko ang `0002_add_user_role.sql` bago patakbuhin.
+- **T: Ano ang pagkakasunod sa production?**
+  S: Migrate MUNA, saka i-restart ang app. Ganito ang ginagawa ng `deploy.sh` (Day 37): kung mauuna ang bagong code, hahanapin nito ang column na wala pa.
 
 ## Susunod
 - ✅ Checkpoint Phase 3 (`checkpoint-phase-3`)

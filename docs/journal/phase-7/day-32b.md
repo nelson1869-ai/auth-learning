@@ -27,7 +27,14 @@ Napansin ko na `.js` pa rin ang `frontend/src/api/auth.js`. Sinabi ng tech stack
 - **Kopya ang types sa pagitan ng frontend at backend** — kapag binago ang backend, walang babala sa frontend (hanggang Phase 16).
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit `never` ang type ng user nang walang type ang `useState(null)`?**
+  S: Nakita ng TypeScript na `null` lang ang laman, kaya inakala nitong wala nang ibang laman kailanman. Kapag sinabi nating `useState<User | null>(null)`, alam na nitong puwede ring `User`.
+- **T: Ano ang panganib ng kopyang `User` type sa frontend at backend?**
+  S: Kapag binago ang sagot ng backend (hal. idinagdag ang `role`), walang babala ang frontend hanggang tumakbo ito nang mali. Ang ayos sa hinaharap (Phase 16): OpenAPI para iisang source ng types (D-019).
+- **T: Bakit `tsc -b` sa frontend at `tsc` lang sa backend?**
+  S: Dalawa ang tsconfig ng frontend (browser app at `vite.config.ts`, na tumatakbo sa Node). Ang `-b` (build mode) ang sumusuri sa pareho.
 
 ## Susunod
 - ✅ Tag `checkpoint-phase-7` (ako ang gagawa) → Phase 8: Totoong deploy 🌐

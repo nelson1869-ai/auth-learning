@@ -18,7 +18,14 @@
 - Unang tunay na run sa PR ng `feature/day-27-ci`: **berde** ang `backend` at `frontend` (nakita ni Nelson sa Checks ng PR).
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit `npm audit` sa CI?**
+  S: Para mahuli ang mga kilalang butas sa mga package (CVE) bago pa ma-merge. Kapag may high-severity sa production dependencies, pula ang CI.
+- **T: Ano ang mangyayari kapag pumasa sa PC ko pero bumagsak sa CI?**
+  S: Kadalasan: may file sa PC ko na wala sa Git (hal. `.env.test`), o ibang bersyon ng Node. Kaya malinis na makina ang CI: ipinapakita nito kung ano talaga ang nasa repo.
+- **T: Bakit hindi totoong secret ang nasa `env:` ng workflow?**
+  S: Pang-test lang ang mga iyon (lokal na Postgres ng CI, pansamantala). Ang totoong secret (hal. Neon URL) ay hindi kailanman nasa workflow file dahil public ang repo.
 
 ## Susunod
 - Day 28: Branch protection — hindi puwedeng mag-merge kung pula ang CI

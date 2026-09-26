@@ -28,7 +28,14 @@
 - 🔐 I-reset ang Neon password bago ang Day 38 (nasa roadmap).
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit mas ligtas ang tunnel kaysa port forwarding?**
+  S: Walang bukas na port sa router ko at hindi nakikita ang IP ng bahay ko. Ang cloudflared ang kumokonekta palabas, kaya ang tanging daan papasok ay dumadaan sa Cloudflare (HTTPS, proteksyon laban sa DDoS).
+- **T: Ano ang mangyayari kapag patay ang PC ko?**
+  S: Patay ang API (502 mula sa Cloudflare), pero buhay pa rin ang frontend dahil nasa Cloudflare Pages ito. Tanggap na kapalit ito ng libreng hosting (D-020).
+- **T: Bakit kailangan ang `name:` sa compose file ng production?**
+  S: Para hindi magbanggaan ang dev at production sa iisang PC. Nangyari ito sa reference: pinatay ng production compose ang dev Postgres dahil pareho ang project name.
 
 ## Susunod
 - Day 36b: frontend sa Cloudflare Pages (`https://nelson1869.com`), `VITE_API_URL`, CDN at caching

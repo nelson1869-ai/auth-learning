@@ -25,7 +25,14 @@
 - `lsof -ti :3000` — alamin kung anong proseso ang may hawak ng port 3000
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit nakabitin ang request (hindi 404) kapag walang `res.json()`?**
+  S: Nakita ng Express ang route, kaya hindi 404. Pero walang sumagot, kaya naghihintay ang client hanggang mag-timeout. Ang bawat route ay kailangang sumagot sa bawat daan (`res.json`, `res.status(...).json`, o `throw`).
+- **T: Bakit kailangang nasa itaas ang `express.json()`?**
+  S: Pinapatakbo ang middleware ayon sa pagkakasunod. Kapag nasa ibaba ito, dumating na sa route ang request bago pa nabasa ang body, kaya `undefined` ang `req.body`. (Sa Day 41, gumawa tayo ng diagram ng buong pagkakasunod: diagram 11.)
+- **T: Ano ang mangyayari kapag sira ang JSON?**
+  S: 400 bago umabot sa route. Dati HTML na may stack trace; mula Day 41, `{ "error": "Invalid JSON" }`.
 
 ## Susunod
 - Phase 3, Day 07: Docker at Postgres — unang araw bilang Database Engineer

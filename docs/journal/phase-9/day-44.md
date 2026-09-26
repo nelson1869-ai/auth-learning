@@ -76,7 +76,14 @@ Gumawa ng pekeng site (`127.0.0.1:8081`, "Libreng load! 🎁") at binuksan ito s
    magpadala ng request na may cookie ko. Ang POST ay tinatanggap lang mula sa `https://nelson1869.com`.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung may SameSite na, bakit kailangan pa ng Origin check?**
+  S: Para sa SameSite, parehong site ang lahat ng `*.nelson1869.com`. Kapag na-hack ang isang subdomain, maipapadala na ang cookie. Ang Origin check ay tumitingin sa buong origin, kaya ang frontend lang ang papasa.
+- **T: Bakit pinapayagan ang request na walang `Origin`?**
+  S: Hindi browser ang walang Origin (curl, REST Client). Ang CSRF ay atake gamit ang browser ng biktima na may cookie niya. Ang curl ay walang cookie ng ibang tao.
+- **T: Kailan ko kakailanganin ang token (double-submit)?**
+  S: Kapag tumanggap ang API ng HTML form (hindi JSON), o kapag kailangang suportahan ang mga browser na hindi nagpapadala ng Origin. Nakasulat ito sa D-022 bilang dahilan para balikan ang desisyon.
 
 ## Susunod
 - **D-021:** "test accounts lang hanggang matapos ang Phase 9". Tapos na ang Phase 9, kaya kailangan kong pagpasyahan

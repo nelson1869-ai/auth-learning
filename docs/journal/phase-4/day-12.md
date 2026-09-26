@@ -17,7 +17,14 @@
 - Wala. (Ang hakbang 4 — dalawang hash at `console.time` — ay pinatakbo ng AI, hindi ko pa idinagdag sa script.)
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung magkaiba ang hash ng iisang password, paano gumagana ang `verify`?**
+  S: Nasa loob ng hash mismo ang salt at settings (`$argon2id$v=19$m=65536,t=3,p=4$<salt>$<hash>`). Kinukuha ng `verify` ang salt na iyon, hina-hash ulit ang tinype, at ikinukumpara.
+- **T: Bakit sinadyang mabagal ang argon2? Hindi ba mas maganda ang mabilis?**
+  S: Para sa user, 50ms lang ito, isang beses bawat login. Para sa attacker na may ninakaw na database at gustong humula ng bilyon-bilyon, napakabagal nito. Kaya tinatawag na "work factor".
+- **T: Ano ang mangyayari kapag gusto kong palakasin ang settings sa hinaharap?**
+  S: Nasa hash ang settings, kaya gumagana pa rin ang lumang hash. Puwedeng i-rehash sa susunod na login ("rehash on login"), gaya ng ginawa ng reference nang lumipat mula bcrypt papuntang Argon2id.
 
 ## Susunod
 - Day 13: `POST /api/auth/register` — `password_hash` column (bagong migration!), hash bago i-save, 201 / 409

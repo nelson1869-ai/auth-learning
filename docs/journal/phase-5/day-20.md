@@ -18,7 +18,14 @@
 - Hindi nagawa ang paglilinis ng demo at ang mga folder — ginawa ng AI.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit hiwalay na server ang frontend (5173) at backend (3000)?**
+  S: Dalawang magkaibang trabaho. Ang Vite ay nagse-serve ng HTML/JS/CSS (at HMR sa dev); ang Express ay API lang. Sa production, magkaiba rin: Cloudflare Pages (frontend) at PC + Tunnel (backend).
+- **T: Ano ang ginagawa ng `npm run build`?**
+  S: Pinagsasama-sama at pinapaliit ang lahat ng code sa ilang file sa `dist/` (may hash sa pangalan, hal. `index-Dv6fDG3u.js`). Ito ang ina-upload sa Cloudflare Pages. Ang `npm run dev` ay para sa development lang.
+- **T: Bakit `className` at hindi `class`?**
+  S: Ang JSX ay JavaScript, at ang `class` ay reserved word sa JavaScript.
 
 ## Susunod
 - Day 21: Login form gamit ang `useState` at `onSubmit`

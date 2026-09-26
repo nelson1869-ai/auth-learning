@@ -20,7 +20,14 @@
 - **Migrations muna, saka ang code** — kapag pumalya ang migration, hindi nagalaw ang tumatakbong app.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Paano ako babalik sa lumang bersyon kapag may sira?**
+  S: `./deploy.sh <lumang-sha>`. Nasa GHCR pa ang lumang image, naka-tag sa commit nito. Ingat lang: hindi ibinabalik ng rollback ang migrations, kaya ang mga migration ay dapat laging kayang tanggapin ng lumang code (hal. magdagdag ng column, huwag magbura).
+- **T: Bakit hindi kusang nagde-deploy kapag nag-merge?**
+  S: Pull-based ito: ako ang nagpapatakbo ng `deploy.sh`. Ang kusang deploy ay kailangan ng self-hosted runner (panganib sa public repo) o ng timer sa PC. Ang timer ay nasa backlog pagkatapos ng Phase 9.
+- **T: Bakit migrate muna bago ang bagong code?**
+  S: Kung mauuna ang bagong code, hahanapin nito ang column o table na wala pa, kaya error. Kapag pumalya naman ang migration, buhay pa rin ang lumang app at walang nasira.
 
 ## Susunod
 - Ang unang totoong `./devops/deploy.sh` pagkatapos ng merge

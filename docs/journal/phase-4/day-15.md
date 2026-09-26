@@ -18,7 +18,14 @@
 - Nasa branch pa ako ng Day 14 (hindi pa naka-merge ang PR) — ginawa ang Day 15 branch mula roon.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit `min(1)` lang ang password sa login pero `min(8)` sa register?**
+  S: Sa login, sinusuri lang kung may laman. Kapag `min(8)` rin, may lumang account na may maikling password na hindi na makakapag-login, at masasabi pa ng sagot ang patakaran. Sa register natin ipinapatupad ang lakas.
+- **T: Ano ang `DUMMY_HASH` at bakit kailangan?**
+  S: Isang hash ng walang kuwentang password. Kapag walang account, `argon2.verify` pa rin laban dito para pareho ang tagal ng sagot (52.3ms vs 52.3ms). Kung wala ito, malalaman ng attacker sa bilis pa lang kung may account ang email.
+- **T: Kung hindi na sinasabi ng login kung may account, bakit sinasabi pa rin ng register (409)?**
+  S: Tama: butas pa rin ang register. Ang tunay na ayos ay email-first signup (laging "check your email"). Pansamantala, nililimitahan ito ng rate limiting (Day 43): 10 bawat 15 minuto bawat IP.
 
 ## Susunod
 - Day 16: JWT at cookies — para "maalala" ng server na naka-login ka

@@ -35,7 +35,14 @@
 - Walang frontend ang reference — kaya ang `_headers` / CSP ng frontend ay bago sa amin.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit hindi nakita sa preview ang problema ng Cloudflare Web Analytics?**
+  S: Sa custom domain lang isinisingit ng Cloudflare ang beacon, hindi sa `*.pages.dev`. Kaya kailangang subukan din sa totoong production domain.
+- **T: Bakit hindi na lang `'unsafe-inline'` para walang problema?**
+  S: Papayagan nito ang kahit anong inline script, kasama ang naipasok ng attacker (XSS). Mawawala ang pangunahing silbi ng CSP. Eksaktong host lang ang idinagdag natin.
+- **T: Kailangan ba ng CSP ang API kung JSON lang ito?**
+  S: Hindi gaanong mahalaga (walang JavaScript na tumatakbo sa JSON), pero helmet ang nagdadagdag nito kasama ng ibang headers. Ang mahalagang CSP ay nasa frontend.
 
 ## Susunod
 - Day 42 — Logging (Pino, request ID, redaction), ayon sa D-021.

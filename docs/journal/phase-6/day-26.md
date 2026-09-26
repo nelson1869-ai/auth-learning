@@ -25,7 +25,14 @@
 - **Sagot sa checkpoint (draft):** ang test ay kusa, inuulit sa bawat pagbabago, at *sumusuri* ng resulta (hal. "pareho ang 401") — ang `.http` ay kailangang ako mismo ang pumindot at tumingin.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit hiwalay na test database?**
+  S: Binubura ng tests ang data (`db.delete(users)`). Kapag dev database ang ginamit, mabubura ang sarili kong data. May pananggalang pa: tumatanggi ang tests kapag hindi `*_test` ang pangalan ng database.
+- **T: Bakit `request.agent(app)` sa halip na `request(app)`?**
+  S: Tinatandaan ng agent ang cookie mula sa login, parang browser. Kaya gumagana ang `/me` pagkatapos ng login sa iisang test.
+- **T: Kailangan ko pa ba ng `.http` kung may tests na?**
+  S: Oo, magkaiba ang silbi. Ang tests ay kusa at sumusuri sa bawat PR. Ang `.http` ay para ako mismo ang makakita at makaintindi ng bawat request at sagot, habang natututo.
 
 ## Susunod
 - Day 27: GitHub Actions — kusang `npm test` sa bawat PR (kasama ang Postgres sa CI) + linter

@@ -21,7 +21,14 @@ Bago buksan ang app sa kaibigan ko, isinara muna ang pinakamalaking butas: walan
 - **Memory store** — nawawala sa restart, at hindi hati sa maraming server → Redis (Day 92).
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Paano kung pare-pareho ang IP ng maraming user (hal. iisang Wi-Fi)?**
+  S: Iisang bilang sila, kaya puwede silang ma-block nang sabay kapag marami ang mali. Tinanggap na kapalit ito. Kaya binibilang lang ang PALPAK na login, at 10 ang limit, hindi 3.
+- **T: Bakit hindi pinagkakatiwalaan ang `CF-Connecting-IP` kapag hindi sa likod ng Cloudflare?**
+  S: Kayang pekein ito ng kahit sino gamit ang curl. Sa production lang ito tama, dahil walang bukas na port at lahat ay dumadaan sa Cloudflare, na siyang naglalagay ng header.
+- **T: Ano ang mangyayari sa bilang kapag nag-restart ang server?**
+  S: Nabubura, dahil nasa memory lang. Sa hinaharap: Redis (Day 92), para hindi mabura at para hati ang bilang kapag maraming server.
 
 ## Susunod
 - Day 38 🎉 — maikling launch kasama ang kaibigan

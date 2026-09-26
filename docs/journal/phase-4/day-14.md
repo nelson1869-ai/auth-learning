@@ -20,7 +20,14 @@
 - **404 sa register** bago iyon — luma pa ang code ng `npm run dev` pagkatapos ng `git checkout main && git pull` (nangyari na rin noong Day 06). Aral ulit: **i-restart ang server pagkatapos ng checkout/pull.**
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung may `required` na sa HTML form, bakit kailangan pa ng Zod?**
+  S: Ang form ay nasa browser, kaya kayang lampasan (curl, REST Client, DevTools). Ang backend lang ang hindi kayang lampasan. Ang Zod ang tunay na bantay; ang `required` ay para sa magandang karanasan ng user.
+- **T: Bakit `result.data` at hindi `req.body`?**
+  S: Nilinis na ng Zod ang `result.data` (lowercase, trim) at tinanggal ang mga dagdag na field. Kapag `req.body` ang ginamit, kayang magdagdag ng attacker ng `"role": "admin"` (mass assignment). May test na para rito mula Day 45.
+- **T: Bakit 400 at hindi 500 ang maling input?**
+  S: Ang 400 ay "ikaw (client) ang mag-aayos"; ang 500 ay "sira ang server". Kapag 500, iisipin ng lahat na may bug, at puwede pang lumabas ang detalye ng error (ang nakita natin noong Day 13: lumabas ang hash).
 
 ## Susunod
 - Day 15: Login — hanapin ang user, `argon2.verify`, 200 o 401

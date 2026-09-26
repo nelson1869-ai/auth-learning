@@ -21,7 +21,14 @@
 - Nailagay ko ang `DATABASE_URL` sa `devops/.env.example` — sa `backend/` pala iyon (ang backend ang gumagamit). Ibinalik.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit kailangan pa ng Drizzle kung kaya ko namang isulat ang SQL?**
+  S: Tinutulungan ako ng TypeScript na makita ang mali bago tumakbo (hal. maling pangalan ng column), iisang lugar ang hugis ng table (`schema.ts`), at ligtas ito sa SQL injection dahil hiwalay ang values sa query.
+- **T: Ano ang pool?**
+  S: Ilang bukas na koneksyon sa database na paulit-ulit na ginagamit. Mas mabilis kaysa magbukas ng bago sa bawat request. Kaya kailangan ng `pool.on('error')`: kapag naputol ang isang idle na koneksyon, hindi dapat mamatay ang buong server. Sa Day 41, dinagdagan ng `connectionTimeoutMillis` para hindi nakabitin kapag hindi maabot ang DB.
+- **T: Bakit hindi `dotenv`?**
+  S: May sariling `--env-file` na ang Node (v20+), kaya isang dependency ang nabawas.
 
 ## Susunod
 - Day 11: Migrations — `drizzle-kit generate` at `migrate`; ang table ay gagawin ng migration, hindi ng kamay
