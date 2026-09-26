@@ -27,4 +27,4 @@
 
 ## Susunod
 - Day 36: backend sa internet — named Cloudflare Tunnel → `https://api.nelson1869.com`
-- Linisin ang `production_old_…` na branches sa Neon (limitado sa 10 branch ang Free plan)
+- Ang `production_old_…` na branches sa Neon: **hindi mabubura** — naging "magulang" sila ng `production` pagkatapos ng restore ("cannot delete branch that has children"). Walang compute, halos walang storage — hayaan lang.

@@ -23,7 +23,7 @@ mabilis mahanap ang data, at — pinakamahalaga — **paano hindi ito mawawala**
 - Data integrity — hal. walang dalawang user na may parehong email
 
 ## Tools
-PostgreSQL · Docker · SQL · Drizzle ORM · Neon/Supabase (Phase 8) — tingnan ang [tech stack](../docs/02-tech-stack.md).
+PostgreSQL · Docker · SQL · Drizzle ORM · Neon (Phase 8 — Singapore, Postgres 17) — tingnan ang [tech stack](../docs/02-tech-stack.md).
 
 ## Ano ang lalaman ng folder na ito (plano)
 ```
