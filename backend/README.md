@@ -37,7 +37,7 @@ Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 ·
 ```
 backend/
 ├── src/
-│   ├── app.ts            ← binubuo ang app: requestLogger → helmet → cors → json → cookies → routers
+│   ├── app.ts            ← requestLogger → helmet → cors → json → cookies → routers → notFound → errorHandler
 │   ├── index.ts          ← app.listen(3000) lang
 │   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
 │   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
@@ -45,6 +45,7 @@ backend/
 │   ├── routes/           ← auth.ts (register/login/me/logout), users.ts, health.ts, echo.ts
 │   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?" · rateLimiter.ts — "sobra na ang subok?" (Day 43)
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
+│   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)
 │   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
 │   └── db/               ← koneksyon + schema ng tables

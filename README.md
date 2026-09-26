@@ -50,6 +50,6 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 **🎉 MVP tapos (2026-09-26)** — tag `checkpoint-mvp`. Live sa `https://nelson1869.com`
 (Cloudflare Pages) + `https://api.nelson1869.com` (Cloudflare Tunnel → PC → Neon), may CI/CD
-at rate limiting. **Ngayon: Phase 9 — hardening** (✅ Day 39 secure headers · ✅ Day 42 logging · susunod: Day 41 error handler)
+at rate limiting. **Ngayon: Phase 9 — hardening** (✅ Day 39 secure headers · ✅ Day 42 logging · ✅ Day 41 error handler · susunod: Day 44 CSRF)
 bago buksan nang pangmatagalan.
 Tingnan ang [roadmap](docs/03-roadmap.md).

@@ -39,7 +39,7 @@
 (Walang `Content-Type: application/json` → `{}`; sirang JSON → 400.)
 
 ## `GET /api/users/count`
-**Response 200:** `{ "count": 3 }` · **500** kapag hindi maabot ang database.
+**Response 200:** `{ "count": 3 }` · **500** `{ "error": "Internal server error", "requestId": "..." }` kapag hindi maabot ang database (pagkalipas ng 5 segundo).
 Bilang lang — hindi kailanman ang listahan ng users.
 
 ## `POST /api/auth/register`
@@ -118,4 +118,16 @@ browser o ng CDN (sa production: `cf-cache-status: DYNAMIC`).
 **Lahat** ng sagot ay may **`X-Request-Id`** (UUID, bago bawat request). Kapag may problema, ibigay
 ang ID na ito — pareho ito ng `requestId` sa logs. Binabalewala ang `X-Request-Id` na ipinadala ng client.
 Subukan: `backend/http/10-logging.http`.
+
+## Mga error na pareho sa LAHAT ng endpoint (Day 41)
+Laging JSON. Hindi kailanman may stack trace, SQL, o file path sa sagot.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **400** | Sirang JSON sa body | `{ "error": "Invalid JSON" }` |
+| **404** | Walang ganitong route | `{ "error": "Not found" }` |
+| **413** | Body na lampas 100kb | `{ "error": "Payload Too Large" }` |
+| **500** | Bug, o hindi maabot ang database | `{ "error": "Internal server error", "requestId": "..." }` — ibigay ang `requestId` para mahanap ang detalye sa logs |
+
+Subukan: `backend/http/11-errors.http`.
 
