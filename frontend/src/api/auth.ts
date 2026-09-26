@@ -1,6 +1,12 @@
-// Iisang lugar ng lahat ng pagtawag sa backend — kapag nagbago ang URL, dito lang babaguhin
-// (Phase 8: magiging env variable para sa production)
-const API_URL = 'http://localhost:3000/api';
+// Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
+// sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
+const API_URL: string =
+  import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '');
+
+// Sa production build na walang VITE_API_URL: tumanggi agad, huwag tahimik na tumawag sa localhost
+if (!API_URL) {
+  throw new Error('VITE_API_URL is not set — add it to the Cloudflare Pages build settings');
+}
 
 // Ang hugis ng user na ibinabalik ng backend (docs/07-api-contract.md).
 // ⚠️ Kopya ito — kapag binago ng backend ang sagot, HINDI ito malalaman dito (tingnan ang D-019)

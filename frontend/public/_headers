@@ -1,0 +1,11 @@
+# Cloudflare Pages — HTTP caching (Day 36b)
+# May hash ang pangalan ng JS/CSS (hal. index-Dv6fDG3u.js) → bagong pangalan kapag nagbago →
+# ligtas i-cache nang 1 taon sa browser at CDN
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Ang index.html ay laging susuriin ulit — para makita agad ang bagong deploy
+/index.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
