@@ -35,6 +35,17 @@ database/
 > Tapat na paalala: sa totoong trabaho, madalas nasa loob ng `backend/` ang
 > schema at migrations. Hiwalay natin sila rito para matutunan ang role.
 
+## Ngayon: ano na ang totoong mayroon (in-update Day 48)
+| | |
+|---|---|
+| **Tables** | `users` (may `role`: enum `user` \| `admin`, Day 45) · `audit_logs` (Day 48) — tingnan ang [ER diagram](../docs/diagrams/02-er-diagram.md) |
+| **Schema at migrations** | `backend/src/db/schema.ts` → `backend/drizzle/0000`–`0003` (nasa backend, hindi dito — tingnan ang paalala sa itaas) |
+| **Mga database** | dev `auth_learning` at test `auth_learning_test` (Docker, `localhost:5435`) · production: **Neon** (Singapore, `verify-full`) |
+| **Backup** | Neon restore — sinubukan ang drill noong Day 35 (ilagay ang oras nang tahasan; 6 na oras sa Free plan) |
+| **Mga script** | `npm run db:migrate` · `db:migrate:test` · `db:studio` · **`db:set-role -- <email> admin`** (Day 45, D-023) |
+| **Mga patakaran sa database mismo** | `UNIQUE` email · `NOT NULL` · enum ng role · `audit_logs.actor_id ON DELETE SET NULL` (hindi nawawala ang kasaysayan) |
+| **Nasa `sql-practice/`** | `01-crud.sql` (Day 08) · `02-constraints.sql` (Day 09) |
+
 ## ❌ Hindi dapat nasa loob ng database
 - **Plain text na password** — hash lang ang itinatago
 - **Pagbabago ng table nang manual sa production** — laging dumaan sa migration, para maulit at masubaybayan

@@ -1,6 +1,6 @@
 # 06 — Buong auth flow (sequence)
 
-> 📅 Day 18 · Phase 4 (Register at login)
+> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log) at Day 49 (`role`)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
@@ -15,7 +15,7 @@ sequenceDiagram
     actor U as 👤 User
     participant B as 🌐 Browser / REST Client<br/>(may cookie jar)
     participant S as ⚙️ Express<br/>routes/auth.ts
-    participant D as 🗄️ Postgres<br/>users
+    participant D as 🗄️ Postgres<br/>users · audit_logs
 
     rect rgba(128,128,128,0.08)
     Note over U,D: REGISTER — Day 13–14
@@ -24,6 +24,7 @@ sequenceDiagram
     S->>S: Zod (lowercase email) → argon2.hash (~50ms)
     S->>D: INSERT ... RETURNING id, email, name
     D-->>S: bagong row (o 23505 → 409)
+    S->>D: INSERT audit_logs (register) — Day 48
     S-->>B: 201 { user } — walang hash, walang cookie
     end
 
@@ -33,6 +34,7 @@ sequenceDiagram
     S->>D: SELECT ... WHERE email = ?
     D-->>S: user (o wala → DUMMY_HASH, parehong ~50ms)
     S->>S: argon2.verify → jwt.sign({ sub: id }, JWT_SECRET, 1h)
+    S->>D: INSERT audit_logs (login · o login_failed kapag mali) — Day 48
     S-->>B: 200 { user } + Set-Cookie: token=eyJ... · HttpOnly · SameSite=Lax
     B->>B: itinatago ang cookie (hindi mababasa ng JavaScript)
     end
@@ -41,7 +43,7 @@ sequenceDiagram
     Note over U,D: ME — Day 17 (bawat protektadong request)
     B->>S: GET /api/auth/me — Cookie: token=eyJ... (kusang ipinadala)
     S->>S: requireAuth: jwt.verify (pirma + exp, HS256 lang) → req.userId
-    S->>D: SELECT id, email, name WHERE id = ?
+    S->>D: SELECT id, email, name, role WHERE id = ?
     D-->>S: user
     S-->>B: 200 { user } (401 kung walang/mali/expired ang token)
     end
@@ -49,6 +51,7 @@ sequenceDiagram
     rect rgba(128,128,128,0.08)
     Note over U,D: LOGOUT — Day 18
     B->>S: POST /api/auth/logout
+    S->>D: INSERT audit_logs (logout · sino = mula sa token kung valid pa) — Day 48
     S-->>B: 204 + Set-Cookie: token= · Expires=1970 (burahin)
     B->>B: binura ang cookie
     B->>S: GET /api/auth/me — walang cookie

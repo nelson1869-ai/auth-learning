@@ -1,10 +1,11 @@
 ### =========================================================================
 ### 🎓 LOGOUT — burahin ang cookie
-### 📅 Day 18 · Phase 4 (Register at login)
+### 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit)
 ### =========================================================================
 ### POST /api/auth/logout
 ###   → res.clearCookie('token', COOKIE_OPTIONS) → 204 No Content
 ###   Walang requireAuth: laging gumagana, kahit walang cookie o expired na.
+###   Day 48: may row sa audit_logs (logout) — ang "sino" ay mula sa token kung valid pa, kung hindi: null.
 ###
 ### PAANO GAMITIN (REST Client — tinatandaan nito ang cookie, gaya ng browser):
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev

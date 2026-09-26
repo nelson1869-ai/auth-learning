@@ -1,11 +1,12 @@
 ### =========================================================================
 ### 🎓 REGISTER — gumawa ng bagong account
-### 📅 Day 13 · Phase 4 (Register at login) · in-update sa Day 14 (validation → 400, lowercase email) at Day 45 (role)
+### 📅 Day 13 · Phase 4 (Register at login) · in-update sa Day 14 (validation → 400, lowercase email) Day 45 (role) at Day 48 (audit)
 ### =========================================================================
 ### POST /api/auth/register  { email, password, name? }
 ###   → Zod: suriin at linisin (trim + lowercase ang email) → maling input = 400
 ###   → i-hash ang password (argon2) → INSERT → 201 + ang user (walang hash!)
 ###   → dobleng email → UNIQUE ng database → 23505 → 409
+###   → Day 48: bawat 201 ay may row sa audit_logs (action: register) — tingnan ang 15-audit-logs.http
 ###
 ### PAANO GAMITIN (REST Client extension):
 ###   1. cd devops && docker compose up -d      (database)

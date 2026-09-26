@@ -1,6 +1,6 @@
 # 05 — Auth middleware (`requireAuth`)
 
-> 📅 Day 17 · Phase 4 (Register at login)
+> 📅 Day 17 · Phase 4 (Register at login) · in-update sa Day 48 (`userIdFromToken`) at Day 49 (`role` sa `/me`)
 >
 > **Code:** `backend/src/middleware/requireAuth.ts` · `backend/src/routes/auth.ts` (`GET /api/auth/me`)
 > **Subukan:** `backend/http/06-me.http`
@@ -14,11 +14,11 @@ flowchart TD
     MW -->|"wala"| U1["401 Not authenticated"]
     MW -->|"mayroon"| V{"jwt.verify(token, JWT_SECRET,<br/>{ algorithms: ['HS256'] })"}
     V -->|"binago · expired · sira ·<br/>alg=none · ibang secret"| U2["401 Not authenticated<br/>(iisang sagot — hindi sinasabi kung bakit)"]
-    V -->|"tama ang pirma at hindi expired"| Set["req.userId = Number(payload.sub)<br/>next() → tuloy sa route"]
-    Set --> Route["route: SELECT id, email, name<br/>FROM users WHERE id = req.userId"]
+    V -->|"tama ang pirma at hindi expired"| Set["req.userId = Number(payload.sub)<br/>next() → tuloy sa route<br/>(ang pagbasa ng token: userIdFromToken — ginagamit din ng logout, Day 48)"]
+    Set --> Route["route: SELECT id, email, name, role<br/>FROM users WHERE id = req.userId"]
     Route --> Found{"May user pa ba?"}
     Found -->|"wala na (nabura)"| U3["401 Not authenticated"]
-    Found -->|"oo"| OK["✅ 200 { user: { id, email, name } }"]
+    Found -->|"oo"| OK["✅ 200 { user: { id, email, name, role } }<br/>role mula Day 49 (para sa Admin link)"]
 ```
 
 ## Mga dapat pansinin
