@@ -7,10 +7,10 @@
 > developer para hindi na kailangang basahin ang backend code. Kapag hindi tugma
 > ang contract sa code, **mali ang isa sa kanila** — ayusin agad.
 >
-> Base URL (dev): `http://localhost:3000` · Lahat ng body ay JSON
+> Base URL — dev: `http://localhost:3000` · **production: `https://api.nelson1869.com`** · Lahat ng body ay JSON
 > (`Content-Type: application/json`).
 >
-> **CORS (Day 22):** pinapayagan lang ang `CLIENT_URL` (dev: `http://localhost:5173`),
+> **CORS (Day 22):** pinapayagan lang ang `CLIENT_URL` (dev: `http://localhost:5173`, production: `https://nelson1869.com`),
 > may `credentials: true`. Sa frontend: `fetch(..., { credentials: 'include' })` —
 > kung wala ito, hindi maipapadala o maitatago ang cookie na `token`.
 
@@ -103,4 +103,8 @@ HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapada
 
 ⚠️ Sa browser lang nabubura ang cookie — ang token na nakopya bago mag-logout ay
 valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
+
+## Caching (Day 36b)
+Lahat ng `/api/auth/*` ay may **`Cache-Control: no-store`** — hindi kailanman itatago ng
+browser o ng CDN (sa production: `cf-cache-status: DYNAMIC`).
 
