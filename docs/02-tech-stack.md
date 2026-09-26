@@ -111,7 +111,7 @@ bagay na gusto nating makita muna.
 | **GitHub Actions** | CI (`.github/workflows/ci.yml`: tests, lint, build sa bawat PR) at CD (kusang deploy) | Day 27 / 37 |
 | **Dockerfile** | Pagbuo ng image ng backend para sa deploy | Day 34 |
 | **Sariling domain** (~$10/taon) | Stable na address, hal. `auth.<pangalan-mo>.com` | Day 33 |
-| **Cloudflare** (DNS + named Tunnel) | HTTPS at pag-expose ng app sa internet nang libre | Day 33 / 36 |
+| **Cloudflare** (DNS + named Tunnel + Pages/CDN) | HTTPS, pag-expose ng backend, at frontend sa CDN nang libre (D-020) | Day 33 / 36 / 36b |
 
 ---
 
@@ -132,7 +132,8 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **Prometheus** + **Grafana** | Pag-iipon ng metrics at dashboards | DevOps | 17 |
 | **Alertmanager** | Email kapag may sira | DevOps | 17 |
 | **Dependabot**, **gitleaks**, **Grype** | Supply-chain at container security | DevOps / Security | 18 |
-| **Redis** | Shared na store ng rate limiter (maraming server) | DevOps | 18 |
+| **Redis** | Shared na store ng rate limiter (maraming server) + **server cache** (Day 92b) | DevOps | 18 |
+| **Caddy** | **Load balancer** sa harap ng 2 backend container (Day 91b) | DevOps | 18 |
 | **@simplewebauthn** | Passkeys (server + browser) | Security / Frontend | 19 |
 | **Playwright** | End-to-end test sa totoong browser | QA | 19 |
 
