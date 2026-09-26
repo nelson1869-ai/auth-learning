@@ -347,8 +347,8 @@ direktang nagtatrabaho sa `main`?*
 **✅ Checkpoint (`checkpoint-mvp`):** Tapos na ang MVP (tingnan ang [project brief](01-project-brief.md)).
 > ✅ **Tapos: 2026-09-26.** Live: `https://nelson1869.com` + `https://api.nelson1869.com`.
 > **Buhay na plano:** inagahan ang rate limiting (Day 43) bago ang launch; ang automate ng
-> pull sa Day 37 ay pagkatapos ng Phase 9. **Susunod:** patayin ang production backend →
-> Phase 9 (hardening) → saka buksan nang pangmatagalan.
+> pull sa Day 37 ay pagkatapos ng Phase 9. **Susunod:** Phase 9 habang **bukas ang production**
+> (D-021: pinili ni Nelson — mas maraming natututunan; may kill switch).
 
 ---
 
@@ -371,8 +371,10 @@ direktang nagtatrabaho sa `main`?*
 
 ## Phase 9 — Pangunahing hardening · 🔐 *Security* + ⚙️ *Backend* · Day 39–44
 
+> 📐 **Pagkakasunod (D-021):** 39 helmet → 42 logging → 41 error handler → 44 CSRF · tapos na ang 40 (Phase 7) at 43 (bago ang launch)
+
 ### Day 39 — Secure headers
-- [ ] `helmet`: ano ang bawat header (CSP, X-Frame-Options, HSTS) at anong atake ang pinipigilan
+- [x] `helmet` sa API + **CSP at security headers sa frontend** (`public/_headers`) — ano ang bawat header at anong atake ang pinipigilan
 - **Matututunan:** clickjacking, XSS, MIME sniffing
 
 ### Day 40 — Fail-fast na config

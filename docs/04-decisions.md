@@ -378,3 +378,21 @@
     kailangan ang `Secure` (HTTPS) at `CLIENT_URL=https://<domain>` para sa CORS.
   - Kailangan ang `VITE_API_URL` sa frontend (build-time).
 
+---
+
+## D-021 · Bukas ang production habang ginagawa ang Phase 9
+
+- **Petsa:** 2026-09-26 (pagkatapos ng MVP launch)
+- **Context:** ang plano ay patayin ang backend pagkatapos ng Day 38 hanggang matapos ang
+  hardening. Tinanong ni Nelson kung puwedeng iwanang bukas — at kung mabuti ba iyon sa pag-aaral.
+- **Pinili:** **bukas** — pinili ni Nelson.
+- **Bakit (pag-aaral):** totoong trapiko at bots (makikita kapag may logging na), totoong CD sa
+  bawat feature, totoong pag-aayos ng problema sa production.
+- **Mga kondisyon:**
+  - Test accounts lang hanggang matapos ang Phase 9; huwag gamitin ang totoong password ng ibang site
+  - **Kill switch:** `cd devops && docker compose -f docker-compose.prod.yml down`
+  - I-deploy (`./devops/deploy.sh`) ang bawat natapos na Phase 9 feature
+  - **Bagong pagkakasunod ng Phase 9:** helmet (39) → **logging (42)** → error handler (41) → CSRF (44);
+    tapos na ang config (40, sa Phase 7) at rate limiting (43, bago ang launch). Logging muna para
+    makita agad ang nangyayari sa production.
+
