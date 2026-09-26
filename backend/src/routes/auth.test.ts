@@ -81,3 +81,17 @@ describe('GET /api/auth/me', () => {
     expect((await agent.get('/api/auth/me')).status).toBe(401);
   });
 });
+
+describe('caching', () => {
+  it('never lets browsers or CDNs cache auth responses (no-store)', async () => {
+    await registerUser();
+    const agent = request.agent(app);
+    const login = await agent.post('/api/auth/login').send({ email: 'ana@example.com', password: 'password123' });
+    const me = await agent.get('/api/auth/me');
+    const anonymous = await request(app).get('/api/auth/me');
+    for (const res of [login, me, anonymous]) {
+      expect(res.headers['cache-control']).toBe('no-store');
+    }
+  });
+});
+

@@ -12,6 +12,13 @@ import { env } from '../config/env.ts';
 
 const router = Router();
 
+// 🔐 Walang cache sa kahit anong sagot ng auth (user data, login, cookies) — hindi dapat itago
+// ng browser o ng CDN; kung hindi, puwedeng makita ng susunod na gumamit ang data ng iba
+router.use('/auth', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+
 // Sa catch, `unknown` ang error — suriin muna ang hugis bago basahin (nahuli ng TypeScript)
 function isUniqueViolation(err: unknown): boolean {
   return (
