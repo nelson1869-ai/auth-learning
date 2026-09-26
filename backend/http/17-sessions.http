@@ -1,0 +1,62 @@
+### =========================================================================
+### 🎓 MGA DEVICE KO — sessions, at ang IDOR
+### 📅 Day 54 · Phase 11 (Mas ligtas na sessions)
+### =========================================================================
+### GET    /api/auth/sessions      → ang mga naka-login kong device (isang login = isang session)
+### DELETE /api/auth/sessions/:id  → i-logout ang isang device
+###
+### 🔐 IDOR (Insecure Direct Object Reference): ang :id ay galing sa URL — kayang palitan ng kahit sino.
+###    Ang session ng IBANG user → 404 (hindi 403): pareho ng id na wala, kaya hindi nalalaman kung totoo ito.
+###
+### Code: backend/src/lib/session.ts (listSessions, revokeSession) · backend/src/routes/auth.ts
+### Test: backend/src/routes/sessions.test.ts · Diagram: docs/diagrams/15-sessions.md
+### Frontend: /sessions ("📱 Mga device ko" sa Profile)
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Account (isang beses lang — 409 kung mayroon na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "sessions-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. Login (ito ang device na "REST Client")
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sessions-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Ang mga device ko. Ang inaasahan:
+###    200 { "sessions": [ { "id": "<uuid>", "userAgent": "vscode-restclient", "ip": "::1",
+###                          "since": "...", "lastUsedAt": "...", "current": true } ] }
+### 🔍 Mag-login din sa browser (http://localhost:5173) gamit ang parehong account, tapos i-send ulit:
+###    dalawa na — at "current": true lang sa isa (ang REST Client)
+GET http://localhost:3000/api/auth/sessions
+
+### -------------------------------------------------------------------------
+### 3. I-logout ang isang device — palitan ang PASTE-DITO ng "id" mula sa #2 (hal. ang sa browser).
+###    Ang inaasahan: 204 — at sa browser, pagkalipas ng ≤15 min (pag-expire ng access token) → /login
+DELETE http://localhost:3000/api/auth/sessions/PASTE-DITO
+
+### -------------------------------------------------------------------------
+### 4. 🔐 IDOR — session na HINDI akin (o hindi umiiral). Ang inaasahan:
+###    404 { "error": "Not found" } — pareho kahit totoong id ng ibang user
+###    (sinubukan sa test: si Bob sa session ni Alice → 404, at naka-login pa si Alice)
+DELETE http://localhost:3000/api/auth/sessions/00000000-0000-4000-8000-000000000000
+
+### -------------------------------------------------------------------------
+### 5. Hindi UUID. Ang inaasahan: 404 (hindi 500 — hindi na itinatanong sa database)
+DELETE http://localhost:3000/api/auth/sessions/hindi-uuid
+
+### -------------------------------------------------------------------------
+### 6. Walang login. Ang inaasahan: 401
+# @no-cookie-jar
+GET http://localhost:3000/api/auth/sessions

@@ -7,20 +7,20 @@
 ## Ngayon: ano na ang totoong mayroon
 
 > 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
-> **Subukan:** `backend/http/01`–`16`
+> **Subukan:** `backend/http/01`–`17`
 
 ```mermaid
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
     subgraph FEG["frontend/ · Vite 8 + React 19 + TypeScript"]
-        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49)<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
+        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49) · Sessions (Day 54)<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
     end
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
     subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
         MW["requestLogger — log + X-Request-Id<br/>helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>requireSameOrigin — CSRF (Day 44)<br/>express.json() · cookieParser()"]
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
-        Routes["routes/<br/>auth.ts: register · login · me · refresh · logout<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
+        Routes["routes/<br/>auth.ts: register · login · me · refresh · logout · sessions<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
         Auth["middleware/requireAuth.ts<br/>jwt.verify (JWT_SECRET)"]
         Role["middleware/requireRole.ts<br/>role mula sa DB → 403 kung hindi admin"]
@@ -43,7 +43,7 @@ flowchart LR
     end
     DB -->|"SQL · localhost:5435"| PG
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0005")]
+        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0006")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end

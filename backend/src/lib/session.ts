@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { and, eq, gt, inArray, isNull } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull, min } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { refreshTokens } from '../db/schema.ts';
 import { env } from '../config/env.ts';
@@ -28,9 +28,13 @@ export function hashToken(raw: string): string {
 // Ang `db` mismo, o isang transaction (Day 52: ang rotation ay nasa transaction)
 type Writer = Pick<typeof db, 'insert'>;
 
+// Ang device na gumagamit ng session (Day 54). Galing sa request ang laman, pero plain na data lang ito dito
+export type Device = { userAgent: string | null; ip: string | null };
+
 // Bagong refresh token para sa user. Ibinabalik ang RAW na token (para sa cookie) — ang hash lang ang naka-save
 export async function createRefreshToken(
   userId: number,
+  device: Device,
   familyId: string = randomUUID(),
   executor: Writer = db,
 ): Promise<string> {
@@ -39,6 +43,8 @@ export async function createRefreshToken(
     userId,
     tokenHash: hashToken(raw),
     familyId,
+    userAgent: device.userAgent,
+    ip: device.ip,
     expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
   });
   return raw;
@@ -63,7 +69,7 @@ export type RotateResult =
   | { status: 'reused'; userId: number } // NAKAW — binawi ang buong family
   | { status: 'invalid' }; // wala, expired, o binawi dahil sa logout
 
-export async function rotateRefreshToken(raw: string): Promise<RotateResult> {
+export async function rotateRefreshToken(raw: string, device: Device): Promise<RotateResult> {
   const tokenHash = hashToken(raw);
   const now = new Date();
 
@@ -79,7 +85,7 @@ export async function rotateRefreshToken(raw: string): Promise<RotateResult> {
       .where(and(eq(refreshTokens.tokenHash, tokenHash), isNull(refreshTokens.revokedAt), gt(refreshTokens.expiresAt, now)))
       .returning({ userId: refreshTokens.userId, familyId: refreshTokens.familyId });
     if (!claimed) return undefined;
-    const refreshToken = await createRefreshToken(claimed.userId, claimed.familyId, tx); // parehong family
+    const refreshToken = await createRefreshToken(claimed.userId, device, claimed.familyId, tx); // parehong family
     return { userId: claimed.userId, refreshToken };
   });
   if (rotated) return { status: 'rotated', ...rotated };
@@ -130,4 +136,52 @@ export async function revokeFamilyOf(raw: string): Promise<number | undefined> {
     .where(and(inArray(refreshTokens.familyId, familyOfToken), isNull(refreshTokens.revokedAt)))
     .returning({ userId: refreshTokens.userId });
   return revoked[0]?.userId;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Mga device ko (Day 54)
+//
+// Isang "session" = isang family = isang login sa isang device. Ang aktibong token ng family ang pinakabago,
+// kaya ito ang nagsasabi ng huling gamit (oras, browser, IP). Ang `since` = ang unang token (ang login mismo)
+export async function listSessions(userId: number) {
+  const now = new Date();
+  const active = await db
+    .select({
+      id: refreshTokens.familyId,
+      userAgent: refreshTokens.userAgent,
+      ip: refreshTokens.ip,
+      lastUsedAt: refreshTokens.createdAt,
+    })
+    .from(refreshTokens)
+    .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt), gt(refreshTokens.expiresAt, now)))
+    .orderBy(desc(refreshTokens.createdAt));
+  if (active.length === 0) return [];
+
+  const firstTokens = await db
+    .select({ id: refreshTokens.familyId, since: min(refreshTokens.createdAt) })
+    .from(refreshTokens)
+    .where(inArray(refreshTokens.familyId, active.map((session) => session.id)))
+    .groupBy(refreshTokens.familyId);
+  const sinceOf = new Map(firstTokens.map((row) => [row.id, row.since]));
+  return active.map((session) => ({ ...session, since: sinceOf.get(session.id) ?? session.lastUsedAt }));
+}
+
+// Ang family ng refresh token (para malaman kung alin ang "ito ang device ko")
+export async function familyOf(raw: string): Promise<string | undefined> {
+  const [row] = await db
+    .select({ familyId: refreshTokens.familyId })
+    .from(refreshTokens)
+    .where(eq(refreshTokens.tokenHash, hashToken(raw)));
+  return row?.familyId;
+}
+
+// I-logout ang isang device. 🔐 IDOR: ang WHERE ay may `user_id` ng NAKA-LOGIN na user — kaya ang family ng
+// ibang user ay parang wala (false → 404), hindi "bawal" (403, na nagsasabing totoo pala ang id)
+export async function revokeSession(userId: number, familyId: string): Promise<boolean> {
+  const revoked = await db
+    .update(refreshTokens)
+    .set({ revokedAt: new Date(), revokeReason: 'logout' })
+    .where(and(eq(refreshTokens.familyId, familyId), eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)))
+    .returning({ id: refreshTokens.id });
+  return revoked.length > 0;
 }

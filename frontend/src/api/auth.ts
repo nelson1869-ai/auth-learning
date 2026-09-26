@@ -95,6 +95,28 @@ export async function getMe(): Promise<User | null> {
   return data.user;
 }
 
+// Mga device ko (Day 54) — ⚠️ kopya ng hugis ng sagot ng backend (docs/07-api-contract.md)
+export type Session = {
+  id: string;
+  userAgent: string | null;
+  ip: string | null;
+  since: string; // kailan nag-login
+  lastUsedAt: string; // huling refresh
+  current: boolean; // ito ang device na gamit ko ngayon
+};
+
+export async function getSessions(): Promise<Session[]> {
+  const res = await apiFetch('/auth/sessions');
+  const data = await res.json();
+  if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+  return data.sessions;
+}
+
+export async function revokeSession(id: string): Promise<void> {
+  const res = await apiFetch(`/auth/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
+}
+
 export async function logout(): Promise<void> {
   await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
 }

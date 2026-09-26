@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { CookieOptions, RequestHandler, Response } from 'express';
+import type { CookieOptions, Request, RequestHandler, Response } from 'express';
 import argon2 from 'argon2';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -8,13 +8,18 @@ import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.ts';
 import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
 import { audit } from '../lib/audit.ts';
+import { clientIp } from '../lib/clientIp.ts';
 import { logger } from '../lib/logger.ts';
 import {
   ACCESS_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
+  familyOf,
+  listSessions,
   revokeFamilyOf,
+  revokeSession,
   rotateRefreshToken,
+  type Device,
   signAccessToken,
 } from '../lib/session.ts';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
@@ -57,6 +62,11 @@ const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/a
 
 function setAccessCookie(res: Response, accessToken: string) {
   res.cookie('token', accessToken, { ...COOKIE_OPTIONS, maxAge: ACCESS_TOKEN_TTL_MS });
+}
+
+// Ang device ng request (Day 54): anong browser (pinutol — galing sa client) at ang totoong IP
+function deviceOf(req: Request): Device {
+  return { userAgent: req.headers['user-agent']?.slice(0, 300) ?? null, ip: clientIp(req, env.TRUST_CLOUDFLARE) };
 }
 
 function clearSessionCookies(res: Response) {
@@ -124,7 +134,7 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
 
   // Dalawang token (Day 51): maikling access token (JWT, 15 min) + mahabang refresh token (7 araw, nasa DB)
   setAccessCookie(res, signAccessToken(user.id));
-  const refreshToken = await createRefreshToken(user.id);
+  const refreshToken = await createRefreshToken(user.id, deviceOf(req));
   res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
   await audit(req, { action: 'login', actorId: user.id, targetId: user.id });
 
@@ -159,7 +169,7 @@ router.get('/auth/me', requireAuth, async (req, res) => {
 // Day 52: bawat refresh ay may BAGONG refresh token (rotation); ang paggamit ulit ng luma = nakaw
 router.post('/auth/refresh', async (req, res) => {
   const raw: unknown = req.cookies.refresh_token;
-  const result = typeof raw === 'string' ? await rotateRefreshToken(raw) : ({ status: 'invalid' } as const);
+  const result = typeof raw === 'string' ? await rotateRefreshToken(raw, deviceOf(req)) : ({ status: 'invalid' } as const);
 
   if (result.status === 'rotated') {
     setAccessCookie(res, signAccessToken(result.userId));
@@ -193,6 +203,40 @@ router.post('/auth/logout', async (req, res) => {
   await audit(req, { action: 'logout', actorId: userId, targetId: userId });
   clearSessionCookies(res); // pareho ng access at refresh (Day 51)
   res.status(204).end(); // 204 = nagawa, walang body
+});
+
+// ---------------------------------------------------------------------------------------------
+// Mga device ko (Day 54)
+
+// GET /api/auth/sessions — ang mga naka-login kong session. Ang "current" = ang device na nagtatanong
+// (ang refresh_token cookie ay ipinapadala rito dahil /api/auth ang path nito)
+router.get('/auth/sessions', requireAuth, async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
+  const raw: unknown = req.cookies.refresh_token;
+  const current = typeof raw === 'string' ? await familyOf(raw) : undefined;
+  const sessions = await listSessions(userId);
+  res.json({ sessions: sessions.map((session) => ({ ...session, current: session.id === current })) });
+});
+
+// DELETE /api/auth/sessions/:id — i-logout ang isang device.
+// 🔐 IDOR (Insecure Direct Object Reference): ang id ay galing sa URL, kaya kayang palitan ng kahit sino.
+// Kaya: (1) naka-scope sa naka-login na user ang pagbawi (revokeSession), at (2) 404 — hindi 403 — sa session
+// ng ibang user, sa id na wala, at sa id na hindi UUID. Iisang sagot: hindi nalalaman kung totoo ang id
+const sessionId = z.uuid();
+router.delete('/auth/sessions/:id', requireAuth, async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
+  // Hindi UUID → hindi na tinatanong ang database (kung hindi: error ng Postgres sa maling uuid → 500)
+  const parsed = sessionId.safeParse(req.params.id);
+  if (!parsed.success || !(await revokeSession(userId, parsed.data))) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  await audit(req, { action: 'session_revoked', actorId: userId, targetId: userId, metadata: { session: parsed.data } });
+  // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
+  const raw: unknown = req.cookies.refresh_token;
+  if (typeof raw === 'string' && (await familyOf(raw)) === parsed.data) clearSessionCookies(res);
+  res.status(204).end();
 });
 
 export default router;

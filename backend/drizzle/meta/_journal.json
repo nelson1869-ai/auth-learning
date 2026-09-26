@@ -43,6 +43,13 @@
       "when": 1790455560769,
       "tag": "0005_add_revoke_reason",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790458686450,
+      "tag": "0006_add_session_device",
+      "breakpoints": true
     }
   ]
 }
