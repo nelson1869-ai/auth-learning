@@ -1,6 +1,6 @@
 # 11 — Middleware pipeline (ang pagkakasunod sa `app.ts`)
 
-> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit)
+> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit), Day 44 (CSRF)
 > **Code:** `backend/src/app.ts` · `backend/src/middleware/errorHandler.ts` · `backend/src/db/index.ts` (timeout)
 > **Subukan:** `backend/http/11-errors.http` · test: `backend/src/routes/errors.test.ts`
 
@@ -13,7 +13,9 @@ flowchart TD
     Req(["Request"]) --> Log["1 · requestLogger (Day 42)<br/>requestId → X-Request-Id<br/>(log kapag tapos na ang sagot)"]
     Log --> Helmet["2 · helmet() (Day 39)<br/>security headers"]
     Helmet --> Cors["3 · cors() (Day 22)<br/>sagot sa OPTIONS preflight"]
-    Cors --> Json{"4 · express.json()<br/>tama ba ang JSON? ≤ 100kb?"}
+    Cors --> Csrf{"3b · requireSameOrigin (Day 44)<br/>POST/PUT/DELETE: Origin = frontend?"}
+    Csrf -->|"ibang site · ibang subdomain · null"| R403["403 { error: 'Forbidden' }<br/>(hindi na binabasa ang body)"]
+    Csrf -->|"frontend · o hindi browser<br/>(walang Origin) · o GET"| Json{"4 · express.json()<br/>tama ba ang JSON? ≤ 100kb?"}
     Json -->|"sira"| Err
     Json -->|"lampas 100kb"| Err
     Json -->|"ok"| Cookie["5 · cookieParser()<br/>req.cookies"]

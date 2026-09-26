@@ -125,6 +125,7 @@ Laging JSON. Hindi kailanman may stack trace, SQL, o file path sa sagot.
 | Status | Kailan | Body |
 |---|---|---|
 | **400** | Sirang JSON sa body | `{ "error": "Invalid JSON" }` |
+| **403** | POST/PUT/DELETE mula sa browser na **hindi** ang frontend (CSRF, Day 44) | `{ "error": "Forbidden" }` |
 | **404** | Walang ganitong route | `{ "error": "Not found" }` |
 | **413** | Body na lampas 100kb | `{ "error": "Payload Too Large" }` |
 | **500** | Bug, o hindi maabot ang database | `{ "error": "Internal server error", "requestId": "..." }` — ibigay ang `requestId` para mahanap ang detalye sa logs |

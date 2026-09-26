@@ -404,9 +404,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
 
 ### Day 44 — CSRF protection
-- [ ] Double-submit cookie; i-update ang frontend at lahat ng `.http` files
-- [ ] 📝 `backend/http/NN-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
-- [ ] 📊 I-update ang `11-middleware-pipeline.md` at `07-frontend-backend.md`
+- [x] ~~Double-submit cookie~~ → **Origin check** (D-022): sinubukan muna ang totoong atake mula sa pekeng site; ang butas lang ay ibang subdomain ng `nelson1869.com`. Walang binago sa frontend at sa lumang `.http` files
+- [x] 📝 `backend/http/12-csrf.http`
+- [x] 📊 Bagong `12-csrf.md` (ang atake at ang mga depensa) · in-update ang `11-middleware-pipeline.md` at `07-frontend-backend.md`
 - **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
 
 **✅ Checkpoint (`checkpoint-phase-9`):** *Anong atake ang pinipigilan ng bawat isa sa 6 na ito?*

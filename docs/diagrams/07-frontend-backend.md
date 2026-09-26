@@ -1,6 +1,6 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) at Day 24 (React Router, protektadong page)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) at Day 44 (CSRF: Origin check)
 >
 > **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
@@ -69,6 +69,12 @@ sequenceDiagram
 - Sinubukan (Day 22): bago ang cors → "Failed to fetch"; pagkatapos → 200 +
   cookie `token` (HttpOnly, Lax); maling password → "Invalid email or password";
   pekeng site (127.0.0.1:5199) → hinarang.
+- **Hinaharang ng CORS ang pagbasa ng sagot, hindi ang lahat ng pagpapadala.** Ang HTML form o
+  `no-cors` fetch mula sa pekeng site ay **nakakarating** pa rin sa server. Kaya may
+  **Origin check** sa server (Day 44, `middleware/csrf.ts`): ang POST ay dapat may
+  `Origin: http://localhost:5173` (production: `https://nelson1869.com`), kung hindi ay 403.
+  Kusang inilalagay ng browser ang `Origin`, kaya **walang binago sa frontend**.
+  Tingnan ang diagram 12.
 
 ## Register gamit ang React 19 `useActionState` (Day 23)
 
