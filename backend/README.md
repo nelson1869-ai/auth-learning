@@ -89,6 +89,14 @@ curl localhost:3099/api/health
 - `.dockerignore`: walang `.env*`, tests, `http/`, `playground/`, migrations sa image
 - `NODE_ENV=production` sa image → `Secure` cookie (HTTPS lang) at walang detalye sa 500
 
+## Production database (Day 35 — Neon)
+- `backend/.env.production` (gitignored, `600`): `DATABASE_URL` ng Neon (**direct**, walang
+  `-pooler`; `sslmode=verify-full`), ibang `JWT_SECRET` kaysa dev, `CLIENT_URL=https://nelson1869.com`,
+  `NODE_ENV=production`
+- Migrations sa production: `node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate`
+- **Restore:** Neon → Backup & Restore → branch `production` → **ilagay ang oras nang tahasan**
+  (ang default ay "ngayon" — walang maibabalik). 6 na oras lang ang history sa Free plan.
+
 ## ❌ Hindi dapat nasa loob ng backend
 - **Plain text na password** — laging hashed (argon2) bago i-save
 - **Secrets sa code** (hal. `const JWT_SECRET = "abc123"`) — sa `.env` lang
