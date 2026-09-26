@@ -1,0 +1,43 @@
+### =========================================================================
+### 🎓 SECURITY HEADERS — helmet sa API
+### 📅 Day 39 · Phase 9 (Pangunahing hardening)
+### =========================================================================
+### Ang helmet() ay nagdadagdag ng security headers sa BAWAT sagot ng API, at
+### inaalis ang "X-Powered-By: Express".
+###
+### Ang CSP ng FRONTEND (ang mahalaga laban sa XSS) ay nasa
+### frontend/public/_headers — Cloudflare Pages ang nagpapadala nito, kaya
+### makikita lang sa production: ../http/prod/01-production.http (#8).
+###
+### Code: backend/src/app.ts · test: backend/src/routes/security.test.ts
+### Diagram: docs/diagrams/10-security-headers.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Kahit anong request. Tingnan ang HEADERS (hindi ang body). Ang inaasahan:
+###    ❌ WALA na:  X-Powered-By: Express   (dati: nandito — Day 38 at bago)
+###    ✅ Content-Security-Policy: default-src 'self';...
+###    ✅ Strict-Transport-Security: max-age=31536000; includeSubDomains
+###    ✅ X-Content-Type-Options: nosniff
+###    ✅ X-Frame-Options: SAMEORIGIN
+###    ✅ Referrer-Policy: no-referrer
+###    ✅ Cross-Origin-Opener-Policy: same-origin
+###
+### 🔍 Subukan (sinubukan, Day 39): i-comment ang app.use(helmet()) sa app.ts,
+###    i-send ulit → babalik ang X-Powered-By at mawawala ang lahat ng nasa itaas.
+###    (Babagsak din ang npm test — security.test.ts)
+GET http://localhost:3000/api/health
+
+### -------------------------------------------------------------------------
+### 2. Kahit ang 404 ay may headers. Ang inaasahan:
+###    404 · pero kumpleto pa rin ang headers sa #1
+###    🔐 Kaya UNA ang helmet() sa app.ts — dinadaanan ito bago pa hanapin ang route
+### 🔍 Pansinin (sinubukan, Day 39): dito, Content-Security-Policy: default-src 'none'
+###    — ang Express mismo (finalhandler) ang nagpapalit nito para sa "Cannot GET" na
+###    HTML page niya. Mas mahigpit pa: walang kahit anong puwedeng i-load.
+GET http://localhost:3000/api/wala-ganito
+
+### -------------------------------------------------------------------------
+### 3. Kahit ang 401. Ang inaasahan:
+###    401 { "error": ... } · kumpleto pa rin ang headers + cache-control: no-store
+GET http://localhost:3000/api/auth/me

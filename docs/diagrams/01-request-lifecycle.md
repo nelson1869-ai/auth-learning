@@ -1,6 +1,6 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database) at Day 19 (auth routes)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database), Day 19 (auth routes) at Day 39 (`helmet()`)
 >
 > **Code:** `backend/src/index.ts`, `backend/src/routes/health.ts`, `backend/src/routes/echo.ts`, `backend/src/routes/users.ts`, `backend/src/db/index.ts`
 > **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
@@ -10,7 +10,8 @@
 ```mermaid
 flowchart TD
     Start(["Client: browser, curl, o REST Client"]) -->|"HTTP request<br/>hal. POST /api/echo + JSON body"| Listen["app.listen(3000)<br/>backend/src/index.ts"]
-    Listen --> Json{"MIDDLEWARE: express.json()<br/>Content-Type ba ay application/json?"}
+    Listen --> Helmet["MIDDLEWARE: helmet()<br/>security headers sa BAWAT sagot<br/>(tingnan ang diagram 10)"]
+    Helmet --> Json{"MIDDLEWARE: express.json()<br/>Content-Type ba ay application/json?"}
     Json -->|"hindi (o GET na walang body)"| Skip["Hindi ginagalaw<br/>req.body = undefined"]
     Json -->|"oo"| Parse{"Tama ba ang JSON?"}
     Parse -->|"oo"| Body["req.body = { name: 'Nelson' }"]

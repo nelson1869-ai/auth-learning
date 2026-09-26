@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🌐 PRODUCTION — https://api.nelson1869.com (Day 36)
-### 📅 Day 36 · Phase 8 (Totoong deploy) · in-update sa Day 36b (frontend, no-store)
+### 📅 Day 36 · Phase 8 (Totoong deploy) · in-update sa Day 36b (frontend, no-store) at Day 39 (security headers)
 ### =========================================================================
 ### Totoong internet: phone/browser → Cloudflare (HTTPS) → named Tunnel →
 ### cloudflared (PC) → backend container → Neon (Singapore).
@@ -60,3 +60,21 @@ GET https://api.nelson1869.com/api/auth/me
 ###    Sa browser: register → login → Profile "Hello, …!" (sinubukan sa iPhone 13 screen, Day 36b)
 GET https://nelson1869.com/
 
+### -------------------------------------------------------------------------
+### 7. Security headers ng API — helmet (Day 39). Ang inaasahan:
+###    ❌ WALA na: x-powered-by: Express   (bago ang Day 39: nandito)
+###    ✅ strict-transport-security · x-content-type-options: nosniff ·
+###       x-frame-options: SAMEORIGIN · content-security-policy · referrer-policy: no-referrer
+###    (sinubukan: ✅ Day 39)
+GET https://api.nelson1869.com/api/health
+
+### -------------------------------------------------------------------------
+### 8. Security headers ng frontend — frontend/public/_headers (Day 39). Ang inaasahan:
+###    content-security-policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; ...
+###    x-frame-options: DENY · x-content-type-options: nosniff ·
+###    referrer-policy: strict-origin-when-cross-origin · permissions-policy: camera=(), ...
+###
+### 🔍 Sa browser (DevTools → Console), sinubukan Day 39:
+###    register → login → Profile → logout: 0 CSP violation
+###    inline <script> na ipinasok sa page: HINDI tumakbo ("violates ... script-src")
+GET https://nelson1869.com/login
