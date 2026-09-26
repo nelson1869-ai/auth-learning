@@ -1,10 +1,11 @@
 ### =========================================================================
 ### 🎓 LOGIN — patunayan kung sino ka (authentication)
-### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie) Day 22 (CORS) at Day 48 (audit)
+### 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT sa httpOnly cookie) Day 22 (CORS), Day 48 (audit) at Day 51 (refresh token)
 ### =========================================================================
 ### POST /api/auth/login  { email, password }
 ###   → Zod (lowercase ang email) → hanapin ang user → argon2.verify → 200 o 401
-###   → kapag 200: JWT (id lang) sa httpOnly cookie na `token` (1 oras)
+###   → kapag 200: JWT (id lang) sa httpOnly cookie na `token` (15 minuto, Day 51)
+###     + refresh token sa cookie na `refresh_token` (7 araw, Path=/api/auth) — tingnan ang 16-refresh-tokens.http
 ###
 ### 🔐 Iisang sagot para sa maling password AT walang account — at PAREHO ANG
 ### TAGAL (DUMMY_HASH). Hindi malalaman ng attacker kung sino ang may account.
@@ -35,13 +36,14 @@ Content-Type: application/json
 ### -------------------------------------------------------------------------
 ### 1. Tamang email at password. Ang inaasahan:
 ###    Status:   200 OK
-###    Headers:  Set-Cookie: token=eyJ...; Max-Age=3600; Path=/; Expires=...; HttpOnly; SameSite=Lax
+###    Headers:  Set-Cookie: token=eyJ...; Max-Age=900; Path=/; Expires=...; HttpOnly; SameSite=Lax
+###              Set-Cookie: refresh_token=...; Max-Age=604800; Path=/api/auth; ...; HttpOnly; SameSite=Lax
 ###    Body:     { "user": { "id": ..., "email": "login-demo@example.com", "name": "Login Demo" } }
 ###
 ### 🔍 Gawin:
 ###   - Tingnan ang HEADERS sa response panel (hindi lang ang body) — nandoon ang Set-Cookie.
 ###   - Kopyahin ang token (sa pagitan ng "token=" at ";") → i-paste sa https://jwt.io
-###     → payload: { "sub": "<id mo>", "iat": ..., "exp": ... }   (exp − iat = 3600 = 1 oras)
+###     → payload: { "sub": "<id mo>", "iat": ..., "exp": ... }   (exp − iat = 900 = 15 minuto — dati 3600 = 1 oras, bago ang Day 51)
 ###   - 🔐 Nabasa mo ang laman KAHIT WALA sa iyo ang JWT_SECRET — base64 lang ito,
 ###     hindi encrypted. Kaya id lang ang inilalagay: walang email, password, o hash.
 ###   - Ang pirma (3rd na bahagi) ang nagpoprotekta: kapag binago ang "sub", hindi na

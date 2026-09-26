@@ -62,7 +62,8 @@ POST http://localhost:3000/api/auth/logout
 ### 🔐 ANG LIMITASYON (subukan para makita)
 ### =========================================================================
 ### Sa browser LANG nabubura ang cookie. Hindi alam ng server na nag-logout ka —
-### kaya ang token na nakopya BAGO mag-logout ay valid pa hanggang mag-expire (1 oras).
+### kaya ang token na nakopya BAGO mag-logout ay valid pa hanggang mag-expire (15 minuto mula Day 51; dati 1 oras).
+### Day 51: binubura na rin ang refresh_token cookie — pero aktibo pa ito sa DATABASE hanggang Day 53 (totoong logout).
 ### Sinubukan (Day 18): kinopyang token pagkatapos ng logout → /me → 200.
 ###
 ### Gawin: sa #1, kopyahin ang token mula sa Set-Cookie (sa pagitan ng "token=" at ";"),

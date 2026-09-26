@@ -172,6 +172,7 @@
   - Ang sinumang may `JWT_SECRET` ay makakagawa ng token para sa kahit sinong
     user — kaya hindi ito kailanman naka-commit, at iba ang secret sa production.
   - Wala pang refresh token: pagkalipas ng 1 oras, login ulit (Phase 11, Day 51).
+  - **Update (Day 51):** access token = 15 minuto + refresh token (7 araw, naka-hash sa DB); HS256 pa rin (RS256: Day 56).
   - Walang paraan pang bawiin ang isang token bago mag-expire (logout = burahin
     lang ang cookie sa browser) — lulutasin ng refresh tokens sa database (Phase 11, Day 51–52).
   - Lilipat sa RS256 + `iss`/`aud` sa Phase 11 (Day 56), gaya ng reference project.

@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import type { CookieOptions, RequestHandler } from 'express';
+import type { CookieOptions, RequestHandler, Response } from 'express';
 import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
@@ -9,6 +8,13 @@ import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.ts';
 import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
 import { audit } from '../lib/audit.ts';
+import {
+  ACCESS_TOKEN_TTL_MS,
+  REFRESH_TOKEN_TTL_MS,
+  createRefreshToken,
+  findActiveRefreshToken,
+  signAccessToken,
+} from '../lib/session.ts';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
 import { env } from '../config/env.ts';
 
@@ -42,6 +48,19 @@ const COOKIE_OPTIONS: CookieOptions = {
   sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
   secure: env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
 };
+
+// Refresh token (Day 51): ipinapadala LANG sa /api/auth/* (refresh, logout) — hindi sa bawat request.
+// Mas kaunting daan = mas kaunting pagkakataong manakaw
+const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth' };
+
+function setAccessCookie(res: Response, accessToken: string) {
+  res.cookie('token', accessToken, { ...COOKIE_OPTIONS, maxAge: ACCESS_TOKEN_TTL_MS });
+}
+
+function clearSessionCookies(res: Response) {
+  res.clearCookie('token', COOKIE_OPTIONS);
+  res.clearCookie('refresh_token', REFRESH_COOKIE_OPTIONS); // parehong path, kung hindi hindi mabubura
+}
 
 router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
   // Suriin at linisin ang input BAGO gamitin — maling input = 400, hindi 500
@@ -101,11 +120,10 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  // Id lang (sub) ang laman — nababasa ng KAHIT SINO ang payload ng JWT (base64 lang, hindi encrypted)
-  const token = jwt.sign({ sub: String(user.id) }, env.JWT_SECRET, { expiresIn: '1h' });
-
-  // maxAge: 1 oras, sa millisecond — kapareho ng expiresIn ng JWT
-  res.cookie('token', token, { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 1000 });
+  // Dalawang token (Day 51): maikling access token (JWT, 15 min) + mahabang refresh token (7 araw, nasa DB)
+  setAccessCookie(res, signAccessToken(user.id));
+  const refreshToken = await createRefreshToken(user.id);
+  res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
   await audit(req, { action: 'login', actorId: user.id, targetId: user.id });
 
   // Piling field lang — hindi kasama ang passwordHash
@@ -134,13 +152,27 @@ router.get('/auth/me', requireAuth, async (req, res) => {
   res.json({ user });
 });
 
+// Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
+// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala)
+router.post('/auth/refresh', async (req, res) => {
+  const raw: unknown = req.cookies.refresh_token;
+  const session = typeof raw === 'string' ? await findActiveRefreshToken(raw) : undefined;
+  if (!session) {
+    // Wala, binawi, expired, o pekeng token — burahin ang mga cookie para hindi na subukan ulit ng browser
+    clearSessionCookies(res);
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  setAccessCookie(res, signAccessToken(session.userId));
+  res.status(204).end();
+});
+
 // Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.
-// ⚠️ Sa browser lang nabubura — kung may nakakopya ng token, valid pa ito hanggang mag-expire (D-012)
+// ⚠️ Sa browser lang nabubura — ang refresh token sa database ay aktibo pa hanggang Day 53 (totoong logout)
 router.post('/auth/logout', async (req, res) => {
   // Sino ang nag-logout? Mula sa token kung valid pa; kung hindi, hindi kilala (null) — gagana pa rin ang logout
   const userId = userIdFromToken(req.cookies.token) ?? null;
   await audit(req, { action: 'logout', actorId: userId, targetId: userId });
-  res.clearCookie('token', COOKIE_OPTIONS);
+  clearSessionCookies(res); // pareho ng access at refresh (Day 51)
   res.status(204).end(); // 204 = nagawa, walang body
 });
 

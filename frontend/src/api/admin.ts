@@ -1,4 +1,4 @@
-import { API_URL, ApiError } from './auth.ts';
+import { ApiError, apiFetch } from './auth.ts';
 
 // Mga tawag sa /api/admin/* (Day 49). Admin lang ang makakakuha ng data — ang backend (requireRole) ang humaharang.
 // ⚠️ Kopya ng hugis ng sagot ng backend (docs/07-api-contract.md, D-019)
@@ -29,7 +29,7 @@ export type PageInfo = { page: number; limit: number; total: number; totalPages:
 const PAGE_SIZE = 10;
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { credentials: 'include' });
+  const res = await apiFetch(path); // kusang nagre-refresh kapag expired ang access token (Day 51)
   const data = await res.json();
   // Kasama ang status (401/403) — ang page ang magpapasya kung ano ang ipapakita
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);

@@ -1,0 +1,73 @@
+### =========================================================================
+### 🎓 REFRESH TOKENS — dalawang token
+### 📅 Day 51 · Phase 11 (Mas ligtas na sessions)
+### =========================================================================
+### access token  (cookie `token`)         = JWT, 15 MINUTO, hindi naka-save sa database
+### refresh token (cookie `refresh_token`) = random, 7 ARAW, SHA-256 hash lang ang nasa `refresh_tokens`
+###                                           Path=/api/auth → ipinapadala LANG sa /api/auth/*
+###
+### Kapag expired ang access token → 401 → POST /api/auth/refresh → bagong access token → ulitin.
+### (Ginagawa ito ng frontend nang kusa — api/auth.ts, apiFetch.)
+###
+### Code: backend/src/lib/session.ts · backend/src/routes/auth.ts (/auth/refresh)
+### Test: backend/src/routes/refresh.test.ts · Diagram: docs/diagrams/06-auth-sequence.md (REFRESH)
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Account (isang beses lang — 409 kung mayroon na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "refresh-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. Login. Ang inaasahan — DALAWANG Set-Cookie sa headers:
+###    token=eyJ...;         Max-Age=900     (15 minuto)   Path=/
+###    refresh_token=...;    Max-Age=604800  (7 araw)      Path=/api/auth
+### 🔍 Sa database (npm run db:studio → refresh_tokens): ang token_hash ay HINDI kapareho ng
+###    refresh_token sa cookie — hash lang ang naka-save
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "refresh-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Bagong access token. Ang inaasahan:
+###    204 · Set-Cookie: token=<BAGONG JWT>; Max-Age=900
+###    (Ipinapadala ng REST Client ang refresh_token cookie dahil /api/auth ang path)
+POST http://localhost:3000/api/auth/refresh
+
+### -------------------------------------------------------------------------
+### 3. /me gamit ang bagong access token. Ang inaasahan: 200 { "user": { ... } }
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 4. Pekeng refresh token. Ang inaasahan:
+###    401 { "error": "Not authenticated" } — at binubura ang dalawang cookie (Expires=1970)
+POST http://localhost:3000/api/auth/refresh
+Cookie: refresh_token=gawa-gawa-lang
+
+### -------------------------------------------------------------------------
+### 5. Mag-login ulit (binura ng #4 ang cookies), tapos logout. Ang inaasahan: 204 — binura ang DALAWANG cookie
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "refresh-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+POST http://localhost:3000/api/auth/logout
+
+### -------------------------------------------------------------------------
+### 6. Refresh pagkatapos mag-logout. Ang inaasahan: 401 — walang cookie na maipapadala
+### ⚠️ Pero AKTIBO pa ang refresh token sa DATABASE (revoked_at = null) — kung may nakakopya nito,
+###    gagana pa (tingnan sa db:studio). Aayusin sa Day 53 (totoong logout)
+POST http://localhost:3000/api/auth/refresh
