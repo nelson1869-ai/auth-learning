@@ -443,11 +443,11 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit **hindi sapat** na itago lang sa frontend (dapat din sa backend) 🔐
 
 ### Day 50 — Review day
-- [ ] Balikan ang Phase 9–10; sagutin ang "Mga tanong ko pa" sa journal
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] Balikan ang Phase 9–10; sagutin ang "Mga tanong ko pa" sa journal *(lahat ng journal may Q&A; backlog sa `journal/phase-10/day-50.md`)*
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(14 `.http`, bagong server bawat isa · 6 diagram ang inayos, PR #74)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(+ tree na "Ngayon — Phase 10" at review finding)*
 
-**✅ Checkpoint (`checkpoint-phase-10`):** *Ano ang pagkakaiba ng 401 at 403?*
+**✅ Checkpoint (`checkpoint-phase-10`):** *Ano ang pagkakaiba ng 401 at 403?* — **TAPOS ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-10/day-50.md`
 
 ---
 

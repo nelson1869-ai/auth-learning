@@ -80,12 +80,39 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
+**Ngayon — Phase 10** (sinuri Day 50, tugma sa totoong folders):
+```
+backend/
+├── src/
+│   ├── app.ts            ← requestLogger → helmet → cors → csrf → json → cookies → routers → notFound → errorHandler
+│   ├── index.ts          ← app.listen lang
+│   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
+│   ├── types/            ← express.d.ts (req.userId)
+│   ├── routes/           ← auth.ts (register/login/me/logout) · admin.ts (users, audit-logs + listUsers/listAuditLogs)
+│   │                        users.ts (count) · health.ts · echo.ts
+│   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
+│   ├── validations/      ← auth.ts · pagination.ts (Zod)
+│   ├── lib/              ← logger.ts · clientIp.ts · audit.ts
+│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs) · migrate.ts · set-role.ts
+│   └── test/setup.ts     ← .env.test + pananggalang na *_test
+├── drizzle/              ← migrations 0000–0003
+└── http/                 ← 01–15 .http walkthroughs
+```
+
+> 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**
+> - `lib/audit.ts` at `lib/clientIp.ts` ay tumatanggap ng `req`, pero ayon sa table sa ibaba, ang `lib/` ay "walang alam sa HTTP".
+> - Ang `listUsers`/`listAuditLogs` (mga query) ay nasa `routes/admin.ts`, at ang login/register logic ay nasa `routes/auth.ts`.
+>
+> Gumagana at may tests ang lahat, pero habang dumarami ang features, mahirap nang subukan ang logic nang walang Express.
+> **Ayos sa Phase 16:** `controllers/` (HTTP) + `services/` (logic, walang `req`). Ang `audit` ay tatanggap na lang ng plain na
+> `{ ip, userAgent }` (katulad ng `auditFor(req)` ng reference).
+
 **Phase 16 — ang huling hugis (katulad ng reference):**
 ```
 backend/src/
-├── index.js          ← pinapatakbo lang ang server
+├── index.ts          ← pinapatakbo lang ang server
 ├── app.ts            ← binubuo ang Express app (ini-import ng tests)
-├── config/           ← env.js — mga setting, sinusuri pagka-start
+├── config/           ← env.ts — mga setting, sinusuri pagka-start
 ├── routes/           ← aling URL → aling controller
 ├── middleware/       ← requireAuth, requireRole, errorHandler, rateLimiter, csrf
 ├── controllers/      ← HTTP lang: validation → tawagin ang service → status code + cookies
@@ -108,15 +135,15 @@ backend/src/
 | **config/** | Pagbasa at pagsusuri ng `.env` | Mga secret na naka-hardcode |
 | **lib/** | Maliliit na tool na walang alam sa HTTP | Anumang partikular sa isang feature |
 
-## 4. Ang frontend (Phase 5)
+## 4. Ang frontend (Phase 5 · sinuri Day 50)
 
 ```
 frontend/src/
 ├── main.tsx          ← simula ng app
 ├── App.tsx           ← aling page ang ipapakita
-├── pages/            ← Login, Register, Profile (isang screen bawat isa)
-├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button)
-└── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar
+├── pages/            ← Login, Register, Profile, Admin (isang screen bawat isa)
+├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button) — wala pang laman (Day 50)
+└── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar: auth.ts, admin.ts
 ```
 
 **Bakit may sariling `api/`:** kapag nagbago ang URL o nagdagdag ng CSRF token,
