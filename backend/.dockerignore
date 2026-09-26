@@ -1,0 +1,18 @@
+# Hindi pumapasok sa image — mas maliit, at walang secret na maiiwan sa loob
+node_modules
+.env
+.env.*
+!.env.example
+
+# Hindi kailangan sa production
+src/**/*.test.ts
+src/test
+http
+playground
+drizzle
+drizzle.config.ts
+vitest.config.ts
+tsconfig.json
+*.log
+Dockerfile
+.dockerignore
