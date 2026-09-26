@@ -42,6 +42,15 @@ frontend/
 └── package.json
 ```
 
+## Production (Day 36b) — https://nelson1869.com
+- **Cloudflare Pages** project `auth-learning`: root `frontend`, `npm run build`, output `dist`;
+  kusang build + deploy sa **bawat merge sa `main`** (preview deploy sa bawat PR)
+- **Build variables** (Pages → Settings): `VITE_API_URL=https://api.nelson1869.com/api`, `NODE_VERSION=24`.
+  Hindi secret — makikita ng kahit sino sa JS. Kung wala ang `VITE_API_URL`, tumatanggi ang app.
+- **`public/_headers`**: `/assets/*` → 1 taon (`immutable`, may hash ang pangalan);
+  `index.html` → `no-cache` (makikita agad ang bagong deploy)
+- Sa `npm run dev`, `http://localhost:3000/api` pa rin (walang kailangang `.env`)
+
 ## ❌ Hindi dapat nasa loob ng frontend
 - **Secrets o API keys** — lahat ng nasa frontend ay nakikita ng kahit sino (View Source)
 - **Mga patakarang pang-security bilang tanging depensa** (hal. "itago ang admin button") — dapat ding suriin sa backend, dahil kayang lampasan ang frontend

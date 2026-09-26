@@ -319,12 +319,12 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** HTTPS, tunnel, production config — *Reference: item 22 (tunnel)*
 
 ### Day 36b — Frontend sa Cloudflare Pages
-- [ ] `VITE_API_URL` sa halip na naka-hardcode na `localhost:3000` sa `frontend/src/api/auth.ts`
-- [ ] Cloudflare Pages: kusang build + deploy sa bawat merge sa `main` (walang runner); custom domain
-- [ ] SPA fallback para sa React Router (`/profile` kapag ni-refresh → hindi 404)
-- [ ] **CDN + browser cache:** tingnan sa DevTools ang `cf-cache-status: HIT` at `Cache-Control` ng JS/CSS
+- [x] `VITE_API_URL` sa halip na naka-hardcode na `localhost:3000` sa `frontend/src/api/auth.ts` (tumatanggi ang production build kung wala)
+- [x] Cloudflare Pages (`auth-learning`, root `frontend`): kusang build + deploy sa bawat merge sa `main`; custom domain **`https://nelson1869.com`**
+- [x] SPA fallback para sa React Router (`/profile` kapag ni-refresh → 200, hindi 404 — default ng Pages)
+- [x] **CDN + browser cache:** tingnan sa DevTools ang `cf-cache-status: HIT` at `Cache-Control` ng JS/CSS
       (may hash ang pangalan → puwedeng i-cache nang matagal) vs ang `index.html` (hindi, para makita ang bagong deploy)
-- [ ] 🔐 **`Cache-Control: no-store`** sa mga sagot na may personal na data (`/api/auth/me`, login) — subukan sa `.http`
+- [x] 🔐 **`Cache-Control: no-store`** sa mga sagot na may personal na data (`/api/auth/*`) — may test; live: `cf-cache-status: DYNAMIC`
 - **Matututunan:** static hosting, build-time env variables, bakit kailangan ng fallback ang SPA;
   **CDN** (kopya malapit sa user) at **HTTP caching** — ano ang puwede at HINDI puwedeng i-cache
 
@@ -338,7 +338,7 @@ direktang nagtatrabaho sa `main`?*
   awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
 
 ### Day 38 — MVP launch 🎉
-- [ ] 🔐 **BAGO ang lahat: i-reset ang password ng Neon** (`auth_learning_owner`) — lumabas ito sa AI session log noong Day 35; i-update ang `backend/.env.production`
+- [x] 🔐 **BAGO ang lahat: i-reset ang password ng Neon** (`auth_learning_owner`) — ginawa sa Day 36b; patay na ang lumang password (500 hanggang ni-restart, tapos 200)
 - [ ] Isang kaibigan: register → login → logout mula sa **sarili niyang phone**
 - [ ] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
 - **Matututunan:** ang saya ng "gumagana para sa totoong tao"

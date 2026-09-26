@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🌐 PRODUCTION — https://api.nelson1869.com (Day 36)
-### 📅 Day 36 · Phase 8 (Totoong deploy)
+### 📅 Day 36 · Phase 8 (Totoong deploy) · in-update sa Day 36b (frontend, no-store)
 ### =========================================================================
 ### Totoong internet: phone/browser → Cloudflare (HTTPS) → named Tunnel →
 ### cloudflared (PC) → backend container → Neon (Singapore).
@@ -46,3 +46,17 @@ Access-Control-Request-Method: POST
 ###    🔐 Kung 200: dadaan ang password nang hindi naka-encrypt — i-ON sa Cloudflare
 ###    (SSL/TLS → Edge Certificates → Always Use HTTPS)
 GET http://api.nelson1869.com/api/health
+
+### -------------------------------------------------------------------------
+### 5. /me nang walang cookie — at HINDI naka-cache. Ang inaasahan:
+###    Status:   401
+###    Headers:  cache-control: no-store · cf-cache-status: DYNAMIC
+###    🔐 Hindi kailanman itatago ng CDN ang personal na data
+GET https://api.nelson1869.com/api/auth/me
+
+### -------------------------------------------------------------------------
+### 6. Frontend (Cloudflare Pages). Ang inaasahan:
+###    Status:   200 · cache-control: no-cache (index.html)
+###    Sa browser: register → login → Profile "Hello, …!" (sinubukan sa iPhone 13 screen, Day 36b)
+GET https://nelson1869.com/
+

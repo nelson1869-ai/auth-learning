@@ -78,12 +78,12 @@ flowchart LR
 
 ## Kapag naka-deploy na (Phase 8 — hybrid, D-020)
 
-> 📅 in-update sa Day 36 · ✅ domain, Dockerfile, Neon, **Tunnel (live)** · ⏳ Pages (Day 36b), CD (Day 37)
+> 📅 in-update sa Day 36b · ✅ domain, Dockerfile, Neon, Tunnel, **Pages (live — https://nelson1869.com)** · ⏳ CD (Day 37)
 > **Subukan:** `backend/http/prod/01-production.http`
 
 ```mermaid
 flowchart LR
-    User(["👤 Kaibigan<br/>(phone, kahit saan)"]) -->|"https://nelson1869.com"| Pages["Cloudflare Pages + CDN<br/>frontend (React, static)<br/>⏳ Day 36b"]
+    User(["👤 Kaibigan<br/>(phone, kahit saan)"]) -->|"https://nelson1869.com"| Pages["Cloudflare Pages + CDN ✅ Day 36b<br/>frontend (React, static)<br/>assets: max-age 1 taon · cf-cache-status HIT"]
     User -->|"https://api.nelson1869.com<br/>+ Cookie: token"| Edge["Cloudflare<br/>DNS + HTTPS"]
     Edge -->|"named Tunnel auth-learning ✅ Day 36<br/>4 koneksyon (Cebu ×2, Hong Kong ×2)<br/>walang bukas na port sa router"| PC
     subgraph PC["🖥️ PC ni Nelson"]
