@@ -1,0 +1,66 @@
+### =========================================================================
+### 🎓 LOGGING — Pino + request ID
+### 📅 Day 42 · Phase 9 (Pangunahing hardening)
+### =========================================================================
+### Bawat request ay may sariling ID (X-Request-Id sa sagot) at isang linya ng
+### log kapag tapos na: { requestId, clientIp, req, res.statusCode, responseTime }.
+###
+### 👀 Buksan ang terminal ng `npm run dev` habang nagse-send — doon lumalabas ang logs
+###    (may kulay sa dev: pino-pretty · JSON sa production: `docker compose logs backend`).
+###
+### 🔐 HINDI kailanman lalabas sa log: password, cookie (JWT), Authorization, Set-Cookie.
+###
+### Code: backend/src/lib/logger.ts · backend/src/middleware/requestLogger.ts
+### Test: lib/logger.test.ts · middleware/requestLogger.test.ts · routes/requestId.test.ts
+### Diagram: docs/diagrams/01-request-lifecycle.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Kahit anong request. Ang inaasahan:
+###    Header: X-Request-Id: <uuid>   (hal. 6e4305bb-7628-4b02-9a91-7432652b2c0b)
+###    401 kung hindi pa naka-login (200 pagkatapos ng #2)
+###    Terminal: WARN request completed · requestId: <PAREHONG uuid> · statusCode: 401
+###
+### 🔍 Kopyahin ang X-Request-Id → hanapin sa terminal (Ctrl+F) → ang eksaktong log ng request na ito
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 2. Mag-login (ang account mula sa 05-login.http — i-register muna roon kung wala pa). Ang inaasahan:
+###    200 · sa terminal: POST /api/auth/login · statusCode: 200
+###    🔐 WALA ang password sa log, at WALA ang token (sinubukan: 0 match, Day 42)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 3. Maling password. Ang inaasahan:
+###    401 · sa terminal: WARN (dilaw) — 4xx = mali ang client · 5xx = ERROR (pula) = sira ang server
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "mali-ito"
+}
+
+### -------------------------------------------------------------------------
+### 4. Pekeng X-Request-Id mula sa client. Ang inaasahan:
+###    Ang X-Request-Id sa sagot ay BAGONG uuid — HINDI "ako-ang-magpapasya"
+###    🔐 Kapareho ng aral sa CF-Connecting-IP: huwag pagkatiwalaan ang header na kayang pekein
+GET http://localhost:3000/api/auth/me
+X-Request-Id: ako-ang-magpapasya
+
+### -------------------------------------------------------------------------
+### 5. Health check. Ang inaasahan:
+###    200 · pero WALANG log sa terminal — tinatawag ito ng Docker HEALTHCHECK nang
+###    paulit-ulit sa production; kung itatala, matatabunan ang mahahalagang log
+GET http://localhost:3000/api/health
+
+### -------------------------------------------------------------------------
+### 6. Rate limit (tingnan ang 08-rate-limit.http — i-send ang #3 nang 11 beses). Ang inaasahan sa terminal:
+###    WARN Rate limit hit · event: "rate_limit" · requestId: X
+###    WARN request completed · statusCode: 429 · requestId: X   ← PAREHONG ID, kaya magkadugtong

@@ -114,3 +114,8 @@ browser o ng CDN (sa production: `cf-cache-status: DYNAMIC`).
 `Content-Security-Policy`, `Referrer-Policy: no-referrer`, `Cross-Origin-Opener-Policy`.
 **Walang** `X-Powered-By`. Subukan: `backend/http/09-security-headers.http`.
 
+## Request ID (Day 42)
+**Lahat** ng sagot ay may **`X-Request-Id`** (UUID, bago bawat request). Kapag may problema, ibigay
+ang ID na ito — pareho ito ng `requestId` sa logs. Binabalewala ang `X-Request-Id` na ipinadala ng client.
+Subukan: `backend/http/10-logging.http`.
+

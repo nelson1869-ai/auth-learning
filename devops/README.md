@@ -72,6 +72,9 @@ cd devops
 export IMAGE_TAG=$(cat .deployed-sha)                    # ⚠️ kailangan ng ps/logs/down/restart (itinatakda lang ng deploy.sh)
 docker compose -f docker-compose.prod.yml ps              # backend (healthy) + cloudflared
 docker compose -f docker-compose.prod.yml logs cloudflared | grep Registered   # 4 na koneksyon
+docker compose -f docker-compose.prod.yml logs -f backend                      # logs ng API (JSON, Day 42)
+docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | ../backend/node_modules/.bin/pino-pretty   # may kulay
+docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | grep <X-Request-Id>                       # isang request
 docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
 curl https://api.nelson1869.com/api/health
 ```

@@ -6,8 +6,8 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
-> **Subukan:** `backend/http/01`–`09`
+> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> **Subukan:** `backend/http/01`–`10`
 
 ```mermaid
 flowchart LR
@@ -18,7 +18,7 @@ flowchart LR
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
     subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
-        MW["helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
+        MW["requestLogger — log + X-Request-Id<br/>helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
         Routes["routes/<br/>auth.ts: register · login · me · logout<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]

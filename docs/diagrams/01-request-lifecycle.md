@@ -1,6 +1,6 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database), Day 19 (auth routes) at Day 39 (`helmet()`)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database), Day 19 (auth routes), Day 39 (`helmet()`) at Day 42 (logging)
 >
 > **Code:** `backend/src/index.ts`, `backend/src/routes/health.ts`, `backend/src/routes/echo.ts`, `backend/src/routes/users.ts`, `backend/src/db/index.ts`
 > **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
@@ -10,7 +10,8 @@
 ```mermaid
 flowchart TD
     Start(["Client: browser, curl, o REST Client"]) -->|"HTTP request<br/>hal. POST /api/echo + JSON body"| Listen["app.listen(3000)<br/>backend/src/index.ts"]
-    Listen --> Helmet["MIDDLEWARE: helmet()<br/>security headers sa BAWAT sagot<br/>(tingnan ang diagram 10)"]
+    Listen --> Log["MIDDLEWARE: requestLogger<br/>bagong requestId → X-Request-Id header<br/>(ang log ay isinusulat kapag tapos na ang sagot)"]
+    Log --> Helmet["MIDDLEWARE: helmet()<br/>security headers sa BAWAT sagot<br/>(tingnan ang diagram 10)"]
     Helmet --> Json{"MIDDLEWARE: express.json()<br/>Content-Type ba ay application/json?"}
     Json -->|"hindi (o GET na walang body)"| Skip["Hindi ginagalaw<br/>req.body = undefined"]
     Json -->|"oo"| Parse{"Tama ba ang JSON?"}
@@ -76,3 +77,34 @@ flowchart TD
   buong server (nangyari ito sa Day 10).
 - **Live ang sagot:** kapag nag-INSERT ka sa psql, magbabago ang bilang nang
   walang restart ng server.
+
+## Logging at request ID (Day 42)
+
+> 📅 Day 42 · Phase 9 (Pangunahing hardening) · **Code:** `backend/src/lib/logger.ts`,
+> `backend/src/middleware/requestLogger.ts`, `backend/src/lib/clientIp.ts`
+> **Subukan:** `backend/http/10-logging.http`
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant A as API (requestLogger)
+    participant R as Route (hal. login)
+    participant L as Logs (terminal · docker logs)
+    U->>A: POST /api/auth/login (may password sa body)
+    A->>A: requestId = randomUUID() · binabalewala ang X-Request-Id ng client
+    A->>R: tuloy sa helmet → cors → ... → route
+    R-->>A: 401 Invalid email or password
+    A-->>U: 401 + X-Request-Id: 1532bd12-...
+    A->>L: WARN request completed · requestId 1532bd12 · clientIp · POST /api/auth/login · 401 · 55ms
+    Note over L: 🔐 walang password, cookie o token — redact + kaunting field lang
+    U->>U: "hindi ako maka-login" → ibinigay ang X-Request-Id
+    Note over L: hanapin ang 1532bd12 sa logs → ang eksaktong request
+```
+
+- **Isang linya ng JSON bawat request** (sa production): `level` 30 = info, 40 = warn (4xx),
+  50 = error (5xx). Sa dev, pino-pretty ang nagpapaganda (may kulay).
+- **`clientIp`** ay ang totoong IP (`CF-Connecting-IP` sa likod ng tunnel), hindi ang IP ng
+  cloudflared container — pareho ng patakaran ng rate limiter (`lib/clientIp.ts`).
+- **Hindi itinatala ang `/api/health`** — tinatawag ito ng Docker HEALTHCHECK nang paulit-ulit.
+- **Pareho ang `requestId`** ng lahat ng log ng isang request (hal. `Rate limit hit` + ang 429),
+  kaya madaling pagdugtungin.
