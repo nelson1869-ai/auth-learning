@@ -37,13 +37,13 @@ Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 ·
 ```
 backend/
 ├── src/
-│   ├── app.ts            ← binubuo ang app: middleware + routers (ini-import ng tests)
+│   ├── app.ts            ← binubuo ang app: helmet → cors → json → cookies → routers (ini-import ng tests)
 │   ├── index.ts          ← app.listen(3000) lang
 │   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
 │   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
 │   ├── types/            ← dagdag na types (hal. req.userId sa Express)
-│   ├── routes/           ← auth.js (register/login/me/logout), users.js, health.js, echo.js
-│   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?"
+│   ├── routes/           ← auth.ts (register/login/me/logout), users.ts, health.ts, echo.ts
+│   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?" · rateLimiter.ts — "sobra na ang subok?" (Day 43)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)

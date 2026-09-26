@@ -108,3 +108,9 @@ valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
 Lahat ng `/api/auth/*` ay may **`Cache-Control: no-store`** — hindi kailanman itatago ng
 browser o ng CDN (sa production: `cf-cache-status: DYNAMIC`).
 
+## Security headers (Day 39)
+**Lahat** ng sagot ng API (kasama ang 401, 404, 429) ay dumadaan sa `helmet()`:
+`Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
+`Content-Security-Policy`, `Referrer-Policy: no-referrer`, `Cross-Origin-Opener-Policy`.
+**Walang** `X-Powered-By`. Subukan: `backend/http/09-security-headers.http`.
+

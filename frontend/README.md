@@ -49,6 +49,13 @@ frontend/
   Hindi secret — makikita ng kahit sino sa JS. Kung wala ang `VITE_API_URL`, tumatanggi ang app.
 - **`public/_headers`**: `/assets/*` → 1 taon (`immutable`, may hash ang pangalan);
   `index.html` → `no-cache` (makikita agad ang bagong deploy)
+- **Security headers (Day 39)**, nasa `public/_headers` din: **CSP** (`script-src 'self'` —
+  hindi tatakbo ang script na naipasok ng attacker), `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`. Diagram: `docs/diagrams/10-security-headers.md`
+  - ⚠️ **Whitelist ang CSP.** Kapag nagdagdag ng script, font o API mula sa **ibang domain**,
+    idagdag ang **eksaktong host** sa CSP — kung hindi, tahimik itong haharangin
+    (nangyari sa Cloudflare Web Analytics, PR #53). Huwag gumamit ng `'unsafe-inline'`.
+  - Subukan sa preview **at** sa production domain (DevTools → Console: walang "violates")
 - Sa `npm run dev`, `http://localhost:3000/api` pa rin (walang kailangang `.env`)
 
 ## ❌ Hindi dapat nasa loob ng frontend
