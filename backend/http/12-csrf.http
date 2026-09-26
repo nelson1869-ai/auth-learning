@@ -1,0 +1,59 @@
+### =========================================================================
+### 🎓 CSRF — Origin check
+### 📅 Day 44 · Phase 9 (Pangunahing hardening) · Desisyon: D-022
+### =========================================================================
+### Ang POST/PUT/DELETE mula sa BROWSER ay dapat galing sa frontend natin
+### (Origin: http://localhost:5173 sa dev · https://nelson1869.com sa production).
+### Kung hindi → 403, at hindi na binabasa ang body.
+###
+### Sa totoong atake, ang BROWSER ang naglalagay ng Origin, at hindi ito kayang palitan ng
+### attacker. Dito, kamay natin ang naglalagay nito, para makita kung paano sumasagot ang server.
+###
+### Walang binago sa ibang .http files: walang Origin ang REST Client (hindi browser) → pinapayagan.
+###
+### Code: backend/src/middleware/csrf.ts · test: backend/src/middleware/csrf.test.ts
+### Diagram: docs/diagrams/12-csrf.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Mula sa PEKENG site. Ang inaasahan:
+###    403 { "error": "Forbidden" }
+###    Sa terminal ng `npm run dev`: WARN Cross-site request blocked · origin: "https://evil.example"
+###    🔐 Walang account na nagawa — hinarang bago umabot sa route
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+Origin: https://evil.example
+
+{
+  "email": "csrf-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Mula sa ibang SUBDOMAIN (parehong "site" para sa SameSite, kaya isasama ang cookie!). Ang inaasahan:
+###    403 — ito ang butas na isinara ng Day 44
+POST http://localhost:3000/api/auth/logout
+Origin: http://blog.localhost:5173
+
+### -------------------------------------------------------------------------
+### 3. Mula sa FRONTEND natin. Ang inaasahan:
+###    204 — normal na logout
+POST http://localhost:3000/api/auth/logout
+Origin: http://localhost:5173
+
+### -------------------------------------------------------------------------
+### 4. Walang Origin (ganito ang REST Client, curl, at tests). Ang inaasahan:
+###    204 — hindi browser, walang cookie ng biktima → walang CSRF
+POST http://localhost:3000/api/auth/logout
+
+### -------------------------------------------------------------------------
+### 5. GET mula sa pekeng site. Ang inaasahan:
+###    200 — hindi sinusuri ang GET (hindi ito nagbabago ng data)
+GET http://localhost:3000/api/health
+Origin: https://evil.example
+
+### -------------------------------------------------------------------------
+### 🔍 Sa totoong browser (sinubukan, Day 44): isang pekeng page sa 127.0.0.1:8081 ang nagpadala ng
+###    form sa /logout, "JSON" form sa /register, at fetch — habang naka-login ang biktima.
+###    Resulta: 3× "Cross-site request blocked" sa log, naka-login pa rin ang biktima,
+###    at gumagana pa rin ang totoong frontend (register → login → logout).

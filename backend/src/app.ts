@@ -9,6 +9,7 @@ import authRouter from './routes/auth.ts';
 import { env } from './config/env.ts';
 import { requestLogger } from './middleware/requestLogger.ts';
 import { notFound, errorHandler } from './middleware/errorHandler.ts';
+import { requireSameOrigin } from './middleware/csrf.ts';
 
 // Binubuo lang ang app dito — walang listen. Kaya ma-i-import ito ng tests nang hindi binubuksan ang port
 const app = express();
@@ -24,6 +25,10 @@ app.use(helmet());
 // CORS: payagan ang frontend (ibang origin/port) na tumawag dito, kasama ang cookie.
 // Una sa lahat — para masagot din ang preflight (OPTIONS) bago umabot sa mga route
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+
+// CSRF (Day 44): ang POST/PUT/DELETE mula sa browser ay dapat galing sa frontend (Origin check).
+// Pagkatapos ng cors (para masagot ang preflight), BAGO ang express.json (hindi na babasahin ang body)
+app.use(requireSameOrigin);
 
 // Una ito — kailangang mabasa ang JSON body BAGO umabot sa mga route
 app.use(express.json());

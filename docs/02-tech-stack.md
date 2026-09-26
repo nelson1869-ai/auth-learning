@@ -124,7 +124,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **helmet** | Secure HTTP headers | Backend / Security | 9 · ✅ ginagamit na (Day 39) |
 | **Pino** (+ pino-http, pino-pretty sa dev) | Structured logging | Backend / DevOps | 9 · ✅ ginagamit na (Day 42) |
 | **express-rate-limit** | Limitahan ang dami ng request (brute force) | Security | 9 · ✅ ginagamit na (Day 43, inagahan bago ang launch) |
-| **csrf-csrf** | CSRF protection (double-submit cookie) | Security | 9 |
+| ~~**csrf-csrf**~~ | CSRF protection (double-submit cookie) | Security | 9 · ❌ hindi ginamit — Origin check na sariling middleware (D-022) |
 | **Resend** o **Brevo** | Totoong pagpapadala ng email | Backend | 12 |
 | **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas | Backend | 16 |
 | **knip** | Paghahanap ng unused code at dependencies | QA | 16 |

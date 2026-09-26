@@ -396,3 +396,30 @@
     tapos na ang config (40, sa Phase 7) at rate limiting (43, bago ang launch). Logging muna para
     makita agad ang nangyayari sa production.
 
+
+## D-022 · CSRF: Origin check, hindi double-submit token
+
+- **Petsa:** 2026-09-27 (Day 44)
+- **Context:** sinubukan muna ang totoong CSRF attack mula sa pekeng site (`127.0.0.1:8081`) sa
+  naka-login na Chromium. **Nakarating** ang mga request sa server, pero walang epekto:
+  - hindi ipinadala ng browser ang cookie (`SameSite=Lax`);
+  - 400 ang pekeng "JSON" form (`text/plain`, hindi JSON);
+  - hinarang ng CORS ang `fetch` na may JSON.
+
+  **Ang butas:** para sa SameSite, "parehong site" ang lahat ng `*.nelson1869.com`. Kapag na-hack
+  ang isang subdomain, maipapadala na ang cookie, halimbawa sa form na `/logout`.
+- **Mga pagpipilian:**
+  - (A) **Origin check** — tanggihan ang POST/PUT/DELETE kapag ang `Origin` ay hindi `CLIENT_URL`;
+  - (B) double-submit token (`csrf-csrf`, katulad ng reference);
+  - (C) pareho.
+- **Pinili:** **A** — pinili ni Nelson (rekomendasyon).
+- **Bakit:**
+  - Sinasara nito ang butas, dahil ang `blog.nelson1869.com` ay ibang **origin** kahit parehong **site**.
+  - Hindi ito kayang pekein ng JavaScript sa browser.
+  - Walang babaguhin sa frontend at sa `.http` files.
+  - Ang B ay halos walang dagdag na proteksyon sa JSON API na may SameSite + CORS, pero mas maraming bahagi: token endpoint, bagong secret, at frontend.
+- **Detalye:**
+  - Walang `Origin` at walang `Sec-Fetch-Site` → hindi browser (curl, REST Client) → pinapayagan, dahil walang biktimang may cookie.
+  - `Origin: null` o `Sec-Fetch-Site: cross-site` → 403.
+- **Kapalit:** kapag nagdagdag ng ibang frontend (hal. mobile web sa ibang domain), idagdag ito sa listahan.
+  Kapag tumanggap ang API ng form (hindi JSON), balikan ang desisyong ito.
