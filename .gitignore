@@ -21,3 +21,6 @@ Thumbs.db
 
 # Generated ng docs/diagrams/build.mjs mula sa *.md (ang .md ang source)
 docs/diagrams/index.html
+
+# Anong commit ang naka-deploy sa production (lokal na tala ng devops/deploy.sh)
+devops/.deployed-sha

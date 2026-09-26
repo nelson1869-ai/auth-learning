@@ -4,12 +4,11 @@ node_modules
 .env.*
 !.env.example
 
-# Hindi kailangan sa production
+# Hindi kailangan sa production (ang drizzle/ ay KAILANGAN — migrations sa loob ng image, Day 37)
 src/**/*.test.ts
 src/test
 http
 playground
-drizzle
 drizzle.config.ts
 vitest.config.ts
 tsconfig.json

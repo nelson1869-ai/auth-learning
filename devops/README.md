@@ -34,6 +34,7 @@ devops/
 ├── docker-compose.yml       ← dev: Postgres (project `auth-learning`)
 ├── docker-compose.prod.yml  ← production: backend + cloudflared (project `auth-learning-prod`)
 ├── cloudflared/config.yml   ← tunnel → api.nelson1869.com
+├── deploy.sh                ← pull ng image mula GHCR → migrate → restart → health (Day 37)
 ├── deploy/             ← mga script at dokumentasyon ng deploy
 └── monitoring/         ← Prometheus, Grafana (Phase 9+)
 ```
@@ -66,7 +67,8 @@ docker compose down         # ihinto — buhay pa rin ang data sa volume
 ## Production (Day 36) — backend sa internet
 ```bash
 cd devops
-docker compose -f docker-compose.prod.yml up -d --build   # simulan / i-update pagkatapos ng bagong code
+./deploy.sh                                               # i-deploy ang huling BERDENG main (Day 37)
+./deploy.sh <sha>                                         # isang tiyak na commit (rollback)
 docker compose -f docker-compose.prod.yml ps              # backend (healthy) + cloudflared
 docker compose -f docker-compose.prod.yml logs cloudflared | grep Registered   # 4 na koneksyon
 docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
@@ -78,6 +80,8 @@ curl https://api.nelson1869.com/api/health
   `~/.cloudflared/<tunnel-id>.json` (credentials ng tunnel) · `~/.cloudflared/cert.pem`
   (pang-gawa ng tunnel/DNS — huwag i-share)
 - `name: auth-learning-prod` — hiwalay sa dev (`auth-learning`), iwas-banggaan
+- **Ang image ay galing sa CI** (`ghcr.io/nelson1869-ai/auth-learning-backend:<sha>`), hindi binubuo sa PC —
+  tumatanggi ang compose kung walang `IMAGE_TAG` (itinatakda ng `deploy.sh`). Diagram: `docs/diagrams/09-cd-pipeline.md`
 - `restart: unless-stopped` — babangon ulit kapag nag-restart ang Docker. ⚠️ Sa WSL, siguraduhing
   tumatakbo ang Docker pagka-boot ng PC, kung hindi, patay ang API.
 - Cloudflare: **SSL/TLS → Edge Certificates → Always Use HTTPS: ON** (http → 301)

@@ -94,3 +94,29 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # CD, bahagi 1 (Day 37): gumagawa ng backend image. Sa bawat PR — build lang (sinusuri ang
+  # Dockerfile). Sa merge sa main — push din sa GHCR, naka-tag sa EKSAKTONG commit na pumasa.
+  # Walang self-hosted runner: ang PC ang kumukuha ng image (devops/deploy.sh) — D-020.
+  image:
+    needs: [backend, frontend] # image lang kapag pumasa ang tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # GITHUB_TOKEN lang — walang dagdag na secret
+    env:
+      IMAGE: ghcr.io/nelson1869-ai/auth-learning-backend
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build the backend image
+        run: docker build -t "$IMAGE:${{ github.sha }}" backend
+
+      - name: Push to GHCR (main lang, pagkatapos ng merge)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag "$IMAGE:${{ github.sha }}" "$IMAGE:main"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:main"
+
