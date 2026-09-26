@@ -15,7 +15,7 @@ flowchart TD
     Cookie -->|"oo → req.userId"| Lookup["requireRole('admin')<br/>SELECT role FROM users WHERE id = userId<br/>(sa DATABASE, hindi sa JWT)"]
     Lookup -->|"walang row<br/>(nabura ang account)"| R401b["401 Not authenticated"]
     Lookup -->|"role = user"| R403["403 Forbidden<br/>(kilala ka, pero BAWAL)<br/>+ log: event 'forbidden'"]
-    Lookup -->|"role = admin"| Route["routes/admin.ts<br/>200 { users: [...] } · max 20<br/>walang password_hash"]
+    Lookup -->|"role = admin"| Route["routes/admin.ts<br/>?page & ?limit (Day 47) → 400 kung mali<br/>200 { users, page, limit, total, totalPages }<br/>walang password_hash"]
 ```
 
 ## Bakit sa database ang role, hindi sa JWT
