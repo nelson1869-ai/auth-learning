@@ -421,10 +421,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** enum, seed data · *Reference: `user_role enum`, `seed script`*
 
 ### Day 46 — Authorization middleware
-- [ ] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo)
-- [ ] 📝 `backend/http/NN-admin-rbac.http` — user (403), admin (200), walang login (401)
-- [ ] 📊 `docs/diagrams/NN-rbac.md` — 401 vs 403 na desisyon
-- [ ] 🏗️ `routes/admin` + `requireRole` middleware — i-update ang `00-architecture.md`
+- [x] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo) *(role mula sa database bawat request, hindi sa JWT — agad tumatalab ang pagbabago)*
+- [x] 📝 `backend/http/13-admin-rbac.http` — user (403), admin (200), walang login (401)
+- [x] 📊 `docs/diagrams/13-rbac.md` — 401 vs 403 na desisyon
+- [x] 🏗️ `routes/admin` + `requireRole` middleware — i-update ang `00-architecture.md`
 - **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
 
 ### Day 47 — Listahan ng users (admin) + pagination

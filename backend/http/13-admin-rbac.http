@@ -1,0 +1,53 @@
+### =========================================================================
+### 🎓 ADMIN — 401 vs 403 (authentication vs authorization)
+### 📅 Day 46 · Phase 10 (Roles at admin)
+### =========================================================================
+### 401 = SINO ka? (walang login, sirang token, nabura ang account)
+### 403 = kilala ka, pero BAWAL ka rito (hindi admin)
+###
+### Ang role ay binabasa sa DATABASE sa bawat admin request (hindi sa JWT):
+### kapag ginawang admin o tinanggalan, AGAD itong tumatalab, kahit hindi mag-logout.
+###
+### Kailangan: isang admin account sa dev database —
+###   npm run db:set-role -- <email> admin      (tingnan ang 04-register.http #8 at D-023)
+###
+### Code: backend/src/middleware/requireRole.ts · backend/src/routes/admin.ts
+### Test: backend/src/routes/admin.test.ts · Diagram: docs/diagrams/13-rbac.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Walang login. Ang inaasahan:
+###    401 { "error": "Not authenticated" }
+###    🔍 Kahit sa path na wala (/api/admin/kahit-ano): 401 pa rin, hindi 404 —
+###       hindi nalalaman ng hindi naka-login kung anong admin routes ang mayroon
+GET http://localhost:3000/api/admin/users
+
+### -------------------------------------------------------------------------
+### 2. Mag-login bilang NORMAL na user (mula sa 05-login.http — i-register muna roon kung wala pa).
+###    Ang inaasahan: 200 · Set-Cookie: token=...
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "login-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 3. Normal na user → admin. Ang inaasahan:
+###    403 { "error": "Forbidden" }   — hindi sinasabi kung anong role ang kailangan
+###    Sa terminal ng `npm run dev`: WARN Forbidden · event: "forbidden" · role: "user"
+GET http://localhost:3000/api/admin/users
+
+### -------------------------------------------------------------------------
+### 4. Gawing admin ang login-demo HABANG naka-login (sa terminal):
+###      npm run db:set-role -- login-demo@example.com admin
+###    Tapos i-send ito ulit — WALANG bagong login. Ang inaasahan:
+###    200 { "users": [ { "id", "email", "name", "role", "createdAt" }, ... ] }   (hanggang 20, pinakabago muna)
+###    🔐 Walang password_hash sa listahan
+###    Ibalik pagkatapos:  npm run db:set-role -- login-demo@example.com user   → i-send ulit → 403 agad
+GET http://localhost:3000/api/admin/users
+
+### -------------------------------------------------------------------------
+### 5. Mag-logout. Ang inaasahan: 204 → at ang #1/#3 ay 401 na ulit
+POST http://localhost:3000/api/auth/logout
