@@ -1,4 +1,19 @@
-# Cloudflare Pages — HTTP caching (Day 36b)
+# Cloudflare Pages — mga header ng frontend (Day 36b: caching · Day 39: security)
+
+# Security headers para sa LAHAT ng page
+/*
+  # CSP: sariling code lang ang puwedeng tumakbo, at ang API lang ang puwedeng tawagan.
+  # Kahit may maipasok na <script> ang attacker (XSS), HINDI ito tatakbo
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.nelson1869.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  # Hindi mailalagay ang site sa loob ng iframe ng ibang site (clickjacking) — lumang browser
+  X-Frame-Options: DENY
+  # Huwag hulaan ng browser ang uri ng file
+  X-Content-Type-Options: nosniff
+  # Kapag lumipat sa ibang site, domain lang ang ipapaalam, hindi ang buong URL
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Hindi kailangan ng app ang camera, mikropono, o lokasyon — i-off
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
 # May hash ang pangalan ng JS/CSS (hal. index-Dv6fDG3u.js) → bagong pangalan kapag nagbago →
 # ligtas i-cache nang 1 taon sa browser at CDN
 /assets/*

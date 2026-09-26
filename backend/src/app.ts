@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import helmet from 'helmet';
 import healthRouter from './routes/health.ts';
 import echoRouter from './routes/echo.ts';
 import usersRouter from './routes/users.ts';
@@ -9,6 +10,10 @@ import { env } from './config/env.ts';
 
 // Binubuo lang ang app dito — walang listen. Kaya ma-i-import ito ng tests nang hindi binubuksan ang port
 const app = express();
+
+// Secure headers (Day 39) — una sa lahat: nosniff, HSTS, frameguard, CSP para sa API, at tinatanggal
+// ang `X-Powered-By: Express` (hindi dapat malaman ng attacker kung anong server ito)
+app.use(helmet());
 
 // CORS: payagan ang frontend (ibang origin/port) na tumawag dito, kasama ang cookie.
 // Una sa lahat — para masagot din ang preflight (OPTIONS) bago umabot sa mga route
