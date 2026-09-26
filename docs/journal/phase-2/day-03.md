@@ -23,7 +23,14 @@
 - `node -e '<code>'` — magpatakbo ng maikling JavaScript sa terminal
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kailangan ko bang i-commit ang `node_modules`?**
+  S: Hindi. Malaki ito at kayang buuin ulit ng `npm install` (o `npm ci` sa CI) mula sa `package-lock.json`. Ang lock file ang dapat i-commit.
+- **T: Ano ang pagkakaiba ng `dependencies` at `devDependencies`?**
+  S: Ang `dependencies` ay kailangan kapag tumatakbo ang app (hal. express). Ang `devDependencies` ay para sa development lang (hal. vitest, drizzle-kit). Sa Docker image natin (Day 34), `npm ci --omit=dev`, kaya dependencies lang ang naka-install.
+- **T: Bakit `import` at hindi `require`?**
+  S: ES Modules ang kasalukuyang pamantayan ng JavaScript, pareho sa browser at Node. Kaya `"type": "module"` sa `package.json`.
 
 ## Mga problema at paano ko nalutas
 - **`bash: !',: event not found`** — sa bash, espesyal ang `!` sa loob ng `"double quotes"` (history expansion). Nalutas gamit ang `'single quotes'` sa labas: `node -e 'console.log("...!")'`.

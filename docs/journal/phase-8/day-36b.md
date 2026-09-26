@@ -20,7 +20,14 @@
 - **Least privilege** sa GitHub — isang repo lang ang ibinigay sa Cloudflare.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Secret ba ang `VITE_API_URL`?**
+  S: Hindi. Nakabaon ito sa JavaScript na nada-download ng lahat. Walang secret na dapat ilagay sa `VITE_...` variables.
+- **T: Bakit hindi naka-cache ang `/api/auth/me`?**
+  S: Personal na data ito. Kapag na-cache ng CDN, puwedeng makita ng ibang user ang data ko. Kaya `Cache-Control: no-store`, at `DYNAMIC` ang makikita sa Cloudflare.
+- **T: Bakit hindi gumana ang login sa `auth-learning.pages.dev`?**
+  S: Ibang site iyon. Ang CORS ay para sa `https://nelson1869.com` lang, at ang cookie ay para sa `nelson1869.com`. Sa custom domain dapat subukan.
 
 ## Susunod
 - Day 37: CD ng backend (manual `deploy.sh` → image sa GHCR → pull ng PC)

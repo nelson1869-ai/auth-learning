@@ -19,7 +19,14 @@
 - Ang buong Phase 4: hash (argon2) → register (201/409) → validation (400, lowercase) → login (401, pareho ang oras) → JWT sa httpOnly cookie → requireAuth → me → logout.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Nelson: isulat dito — at sagutin ang mga tanong ng checkpoint sa ibaba.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit kailangan pa ng review day kung pumapasa ang tests?**
+  S: Hindi sinusubukan ng tests ang docs. Nawala ang request #1 sa `05-login.http` nang walang kahit anong error. Ang pagpapatakbo ng LAHAT ng `.http` ang nakahuli nito.
+- **T: Paano ko malalaman kung luma na ang isang diagram?**
+  S: Ikumpara sa code: may route ba sa diagram na wala na, o route sa code na wala sa diagram? Kaya bawat diagram ay may "📅 in-update sa Day …" at "Code:" na listahan ng files.
+- **T: Ano ang pinakamahalaga sa Phase 4?**
+  S: Ang daloy: hash → register → validation → login (pareho ang oras) → JWT sa httpOnly cookie → requireAuth → me → logout. At ang limitasyon: gumagana pa ang token pagkatapos mag-logout, hanggang Phase 11.
 
 ## Checkpoint Phase 4 — answer key (isinulat ng AI sa kahilingan ko)
 

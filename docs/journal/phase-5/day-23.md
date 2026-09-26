@@ -27,7 +27,14 @@
 - **Aral:** subukan ang ayos sa TOTOONG sitwasyon — ang Day 18 test ay `mv` lang, hindi `git checkout`.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kailan `useState` at kailan `useActionState`?**
+  S: `useState` kapag kailangan mong makita ang bawat tipa (hal. live na "Tina-type mo"). `useActionState` kapag form na isusumite lang: mas kaunting code, at kusang `isPending`.
+- **T: Bakit hindi ibinabalik ang password sa form kapag may error?**
+  S: Sinadya: mas ligtas na i-type ulit kaysa itago ang password sa state nang mas matagal. Ganito rin ang karamihan ng website.
+- **T: Bakit lumipat sa nodemon?**
+  S: Namamatay ang watcher ng `node --watch-path` pagkatapos ng `git checkout`, kaya lumang code ang tumatakbo nang hindi napapansin. Sinubukan sa scratch repo: buhay ang nodemon sa 4 na checkout (D-014).
 
 ## Susunod
 - Day 24: React Router — `/login`, `/register`, `/profile` (protektado), logout

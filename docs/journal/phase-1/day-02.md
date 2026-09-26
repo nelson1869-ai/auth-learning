@@ -26,7 +26,14 @@
 - `git tag <pangalan>` / `git push origin <tag>` — gumawa at mag-push ng tag
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Ano ang mangyayari kapag naibigay ko ang private key?**
+  S: Makakapag-push ang may hawak nito na parang ako. Ang private key ay hindi kailanman umaalis sa PC ko. Kapag nangyari, burahin agad ang public key sa GitHub settings at gumawa ng bago.
+- **T: Bakit kailangan pa ng PR kung ako lang naman ang gumagawa?**
+  S: Para may pagkakataong suriin bago isama sa `main` (ngayon: CI tests + review ng diff), at para malinis ang history: bawat PR ay isang buong feature. Kapag may team na, ito rin ang paraan ng code review.
+- **T: Ano ang pagkakaiba ng tag at branch?**
+  S: Gumagalaw ang branch (lumilipat sa bawat bagong commit). Ang tag ay nakapako sa iisang commit, kaya magandang pangalan para sa checkpoint (`checkpoint-phase-1`).
 
 ## Mga problema at paano ko nalutas
 - **`Repository not found`** — hindi ko pa nagagawa ang repo sa GitHub website. Nalutas nang gawin ko muna ang repo, tapos push ulit.

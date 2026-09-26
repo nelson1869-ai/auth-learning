@@ -15,7 +15,14 @@
 - Ang test na hindi kailanman pumupula ay walang silbi ("tests that pass for the wrong reason" — AGENTS.md ng reference).
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Paano ko malalaman kung ano ang dapat i-test?**
+  S: Ang mga bagay na masakit kapag nasira: security (hal. tinatanggal ang `role`), mga patakaran (lowercase ng email), at mga bug na nangyari na (para hindi maulit). Hindi kailangang i-test ang bawat linya.
+- **T: Bakit kailangang makitang pumula muna ang test?**
+  S: Kapag hindi pa ito pumupula kahit kailan, hindi mo alam kung may sinusuri ba talaga ito. Baka mali ang `expect` o hindi tumatakbo ang code. Kaya lagi nating sinisira ang code nang sadya (hanggang Day 45).
+- **T: Ano ang pagkakaiba ng `toBe` at `toEqual`?**
+  S: `toBe` = eksaktong pareho (para sa numbers, strings). `toEqual` = pareho ang laman (para sa objects at arrays, hal. `{ error: 'Not found' }`).
 
 ## Susunod
 - Day 26: API tests (Supertest), hiwalay na test database, at hatiin ang `index.js` → `app.js` + `index.js`

@@ -23,7 +23,14 @@
 - **Lumabas ang password ng Neon sa AI session log** (mali ang pag-parse ng script ng AI dahil sa kulang na simula). Pinili kong **palitan ito bago ang Day 38** — nasa roadmap na bilang paalala.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit Singapore at hindi US?**
+  S: Ang backend (PC ko sa PH) ang kumakausap sa database, hindi ang user. Mas malapit = mas mabilis ang bawat query (~30–50ms vs ~200ms).
+- **T: Ano ang dapat gawin kapag nag-leak ang password ng database?**
+  S: Palitan agad (ginawa sa Day 36b), i-update ang `.env.production`, at i-restart ang backend. Sinuri na hindi na gumagana ang luma. Ang aral para sa AI: oo/hindi lang ang ipi-print kapag sinusuri ang secret, huwag kailanman ang bahagi nito.
+- **T: Bakit hindi ibinigay sa AI ang buong Neon account (MCP)?**
+  S: Least privilege: isang connection string lang ang kailangan. Ang buong account ay kayang magbura ng project o gumawa ng bago. Kapag mas kaunti ang access, mas kaunti ang puwedeng magkamali.
 
 ## Susunod
 - Day 36: backend sa internet — named Cloudflare Tunnel → `https://api.nelson1869.com`

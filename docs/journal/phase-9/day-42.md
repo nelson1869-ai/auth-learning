@@ -52,7 +52,14 @@ docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | ../back
 ```
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit JSON ang logs sa production at hindi may kulay?**
+  S: Makina ang magbabasa: `grep`, paghahanap sa `requestId`, at sa hinaharap ay alerts at dashboards. Kapag kailangan ng tao, `| pino-pretty`.
+- **T: Bakit hindi itinatala ang lahat ng headers?**
+  S: Privacy at ingay. Hindi kailangan ang karamihan, at puwedeng may secret (cookie). Kaunting field lang (method, url, user agent, status) at IP, plus redaction bilang dagdag na pananggalang.
+- **T: Legal ba na itinatala ang IP ng user?**
+  S: Karaniwan ito para sa security (hal. pagtukoy ng bot o atake), pero personal na data ang IP. Kapag bukas na sa totoong users: may privacy notice, at may retention (ang reference ay nagbubura ng lumang logs pagkalipas ng panahon).
 
 ## Susunod
 - Day 41 — Sentral na error handling: generic na mensahe sa 5xx, buong detalye sa log (may `requestId` na).

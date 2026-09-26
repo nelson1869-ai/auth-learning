@@ -21,7 +21,14 @@
 - `Ctrl+Shift+P` → "Reload Window" — i-reload ang VS Code para mabasa ang bagong settings
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kailan 400, 401, 403, 404?**
+  S: 400 = mali ang laman ng request · 401 = hindi ka kilala (walang login) · 403 = kilala ka, pero bawal sa iyo · 404 = walang ganoong bagay. Ang 403 ay gagamitin natin sa admin (Day 46).
+- **T: Puwede bang gamitin ang `node --watch` sa production?**
+  S: Hindi. Para lang sa development ang auto-restart. Sa production, `node src/index.ts` lang, at ang Docker (`restart: unless-stopped`) ang nagre-restart kapag nag-crash. Pinalitan din natin ng nodemon ang `--watch` sa Day 23 (D-014), dahil hindi nito napapansin ang pagbabago pagkatapos ng `git checkout`.
+- **T: Bakit masama ang naka-comment na code?**
+  S: Nakakalito: hindi mo alam kung ginagamit pa ba o hindi. Nasa Git history na ang lumang bersyon kung kailangan.
 
 ## Mga problema at paano ko nalutas
 - **Naging 4 space ang indentation** pagkatapos mag-save — default iyon ng VS Code. Nalutas sa `"editor.tabSize": 2` sa `.vscode/settings.json`.

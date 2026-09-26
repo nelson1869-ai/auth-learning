@@ -30,7 +30,14 @@ Sa page: "❌ Failed to fetch". Walang cookie.
 - Ang bagong `--watch-path` ay napansin ang pagbabago sa `.env` → kusang nag-restart ✅.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Pinoprotektahan ba ng CORS ang server ko?**
+  S: Hindi, ang user ang pinoprotektahan nito. Ang browser ang humaharang sa pagbasa ng sagot; ang curl ay hindi pinapansin ang CORS. Nakita rin natin sa Day 44 na nakakarating pa rin sa server ang HTML form kahit may CORS, kaya kailangan ang Origin check.
+- **T: Bakit hindi puwedeng `origin: '*'`?**
+  S: Kapag may cookie (`credentials`), tinatanggihan ng browser ang `*`. At kahit puwede, papayagan nito ang kahit anong site na tawagin ang API gamit ang cookie ng user.
+- **T: Bakit may preflight (OPTIONS) bago ang POST?**
+  S: Dahil JSON ang `Content-Type`. Ang mga "hindi simpleng" request ay tinatanong muna ng browser sa server kung pinapayagan. Ang HTML form (simpleng request) ay walang preflight, kaya kailangan ng ibang depensa (Day 44).
 
 ## Susunod
 - Day 23: Register gamit ang React 19 `useActionState`

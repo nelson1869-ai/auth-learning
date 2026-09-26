@@ -14,7 +14,14 @@
 - **Sagot sa checkpoint (draft):** nahuhuli ng test ang pagkasira nang KUSA sa bawat PR, sa malinis na makina, at kaya na ngayong harangin ang merge — ang `.http` ay ako pa ang pumipindot at tumitingin.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung ako lang ang gumagawa, bakit kailangan ng branch protection?**
+  S: Para hindi ako mismo ang makasira ng `main` nang hindi sinasadya (hal. push na bagsak ang test). Walang bypass, kaya kahit ako ay dadaan sa PR at berdeng CI.
+- **T: Ligtas bang public ang repo?**
+  S: Oo, basta walang secret sa Git history (sinuri bago ginawang public). Ang panganib ay nasa mga bagay na kayang patakbuhin ng ibang tao, kaya walang self-hosted runner (D-020) at walang default na admin password (D-023).
+- **T: Ano ang mangyayari kapag mali ang pangalan ng required check (`bakend`)?**
+  S: Maghihintay ang GitHub sa check na hindi kailanman darating, kaya haharangin ang LAHAT ng merge. Kaya piliin mula sa listahan, huwag i-type.
 
 ## Susunod
 - ✅ Tag `checkpoint-phase-6` → Phase 7: TypeScript

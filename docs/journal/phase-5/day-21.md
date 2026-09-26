@@ -12,7 +12,14 @@
 - **`pages/`** = isang buong screen; `App.jsx` ang pumipili kung alin ang ipapakita.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit `setEmail(...)` at hindi `email = ...`?**
+  S: Hindi alam ng React na nagbago ang variable kapag direktang binago. Ang `setEmail` ang nagsasabi sa React na i-render ulit ang component.
+- **T: Bakit kailangan ng `e.preventDefault()`?**
+  S: Ang default ng HTML form ay i-reload ang buong page kapag nag-submit. Mawawala ang lahat ng state. Kaya pinipigilan natin ito at tayo ang nagpapadala gamit ang `fetch`.
+- **T: Ligtas bang nasa state ang password habang nagta-type?**
+  S: Oo, nasa memory lang ito ng page at hindi ipinapakita. Ang mahalaga: hindi ito isinusulat sa `localStorage` o sa log, at HTTPS ang daan papunta sa server.
 
 ## Susunod
 - Day 22: `fetch` sa backend + CORS (makikita muna ang error sa DevTools)

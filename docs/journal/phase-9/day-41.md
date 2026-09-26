@@ -51,7 +51,14 @@
 - **Mas mabuti ang mabilis na error kaysa sa walang sagot.** Ang nakabitin ay walang log, kaya hindi mo alam na may problema.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Bakit hindi ipakita ang totoong error sa user kahit sa dev?**
+  S: Iisang ugali sa lahat ng environment. Madaling makalimutan kapag magkaiba. Sa dev, nasa terminal (pino-pretty) na ang buong error at stack, kaya hindi na kailangan sa sagot.
+- **T: Bakit 5 segundo ang timeout ng database?**
+  S: Sapat para sa mabagal na network, pero hindi masyadong matagal para maghintay ang user. Ang mahalaga: may hangganan, dahil ang default ay magpakailanman.
+- **T: Ano ang dapat kong gawin kapag may nag-report ng 500?**
+  S: Hingin ang `requestId` (nasa sagot at sa `X-Request-Id` header), tapos `docker compose logs --no-log-prefix backend | grep <requestId>`. Makikita ang buong error at stack.
 
 ## Susunod
 - Day 44 — CSRF protection (kailangang i-update ang frontend at lahat ng `.http` na may POST).

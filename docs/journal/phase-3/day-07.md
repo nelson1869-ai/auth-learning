@@ -18,7 +18,14 @@
 - Walang laman ang `.env.example` noong una.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Mawawala ba ang data kapag `docker compose down`?**
+  S: Hindi. Nasa volume (`pgdata`) ang data. Ang `down -v` lang ang nagbubura ng volume, kaya iyon ang dapat iwasan.
+- **T: Bakit Docker at hindi i-install nang direkta ang Postgres sa PC?**
+  S: Iisang command para sa pareho at eksaktong bersyon (`postgres:17-alpine`), madaling burahin at ulitin, at hindi sumasalungat sa ibang Postgres sa PC (may Windows Postgres pala sa 5434).
+- **T: Bakit hindi naka-commit ang `devops/.env`?**
+  S: May password ito. Ang `.env.example` (walang totoong value) ang naka-commit, para alam ng teammate kung anong variables ang kailangan.
 
 ## Susunod
 - Day 08: Unang SQL — `psql`, `CREATE TABLE users`, `INSERT`, `SELECT`

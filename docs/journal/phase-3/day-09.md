@@ -18,7 +18,14 @@
 - Na-merge ang PR #12 bago ko na-push ang huling commit (VS Code settings) → hindi ito nakasama sa `main`. Inilipat (cherry-pick) sa Day 09 branch. Aral: **push muna lahat, saka merge.**
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung may `UNIQUE` na sa database, kailangan pa ba ng check sa backend?**
+  S: Ang database ang huling bantay at ang tanging tama kapag sabay ang dalawang request. Sa backend, ginagawa lang nating magandang error ang violation nito (409, Day 13), at nilo-lowercase ang email bago i-save (Day 14).
+- **T: Bakit `TIMESTAMPTZ` at hindi `TIMESTAMP`?**
+  S: May kasamang timezone. Pareho ang oras kahit saang bansa basahin (hal. PC ko sa Manila at Neon sa Singapore). Ang walang timezone ay madaling magkamali ng ilang oras.
+- **T: Bakit kinakain ng nabigong INSERT ang id?**
+  S: Kinukuha ang susunod na numero bago pa suriin ang constraints, at hindi na ito ibinabalik kahit mabigo. Normal ito, hindi bug.
 
 ## Susunod
 - Day 10: Backend ↔ database — `--env-file`, Drizzle, pg; unang query mula sa Express

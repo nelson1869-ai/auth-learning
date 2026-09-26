@@ -34,7 +34,14 @@
 - **Seed na may password + public repo = butas.** Mas ligtas ang i-promote ang account na mayroon na.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Paano kung maraming admin ang kailangan?**
+  S: Patakbuhin ang `set-role` para sa bawat account. Sa hinaharap, puwedeng magkaroon ng admin page na nagpo-promote, pero kailangan nito ng mas mahigpit na proteksyon (audit log, Day 48; at superadmin lang ang puwede, gaya ng reference).
+- **T: Bakit hindi `role` sa JWT para hindi na kailangang tumingin sa database?**
+  S: Mabilis nga, pero luma ito hanggang mag-expire ang token. Kapag tinanggalan ng admin, admin pa rin siya nang hanggang 1 oras. Iyan ang problema ng reference. Sa Day 46, babasahin natin ang role sa database para sa admin routes.
+- **T: Bakit script at hindi endpoint ang paggawa ng admin?**
+  S: Kapag endpoint ito, kayang abusuhin mula sa internet. Ang script ay kailangan ng access sa server o sa `.env.production`, kaya ang may-ari lang ang makakagawa.
 
 ## Susunod
 - Day 46 — `requireRole('admin')`: 401 (sino ka?) vs **403** (bawal sa iyo).

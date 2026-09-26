@@ -21,7 +21,14 @@
 - Kinopya ko pati ang `// ⬅️ BAGO` na pananda ng lesson — pinalitan ng tunay na comment (bakit, hindi "bago").
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung nababasa ng kahit sino ang payload ng JWT, ligtas ba ito?**
+  S: Oo, basta walang secret sa loob (id lang, `sub`). Ang proteksyon ay ang pirma: hindi ito mababago nang hindi nalalaman. Huwag maglagay ng email, password o personal na data sa payload.
+- **T: Ano ang mangyayari kapag na-leak ang `JWT_SECRET`?**
+  S: Makakagawa ang attacker ng token para sa kahit sinong user (hal. `sub: 1`). Kaya nasa `.env` lang ito, iba sa dev at production, at mahaba (64 characters). Kapag na-leak: palitan, at lahat ay kailangang mag-login ulit.
+- **T: Bakit parehong 1 oras ang `maxAge` ng cookie at `expiresIn` ng JWT?**
+  S: Para sabay silang mag-expire. Kung mas mahaba ang cookie, magpapadala ang browser ng patay na token; kung mas maikli, mawawala ang cookie kahit valid pa ang token.
 
 ## Susunod
 - Day 17: Protektadong route — middleware na nagbabasa ng cookie at `jwt.verify`, `GET /api/auth/me`

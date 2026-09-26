@@ -16,7 +16,14 @@
 - **Ika-apat na beses na luma ang code ng server pagkatapos ng `git pull`** (404 sa `/me` na naka-merge na). Ang ugat: binabantayan ng `--watch` ang mismong file; pinapalitan ng git ang file, kaya nawawala ito sa paningin. Sinubukan sa hiwalay na folder: `--watch` → v1 v2 (nakaligtaan ang v3); `--watch-path=./src` → v1 v2 v3. Inayos ang `dev` script — hindi na kailangang tandaan ang restart pagkatapos ng pull.
 
 ## Mga tanong ko pa / hindi pa malinaw
-- (Idagdag dito ang anumang hindi pa malinaw.)
+> ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
+
+- **T: Kung nabura na ang cookie, bakit gumagana pa ang kinopyang token?**
+  S: Stateless ang JWT: walang listahan ang server ng mga naka-logout na token. Sinusuri lang nito ang pirma at `exp`. Ang ayos (Phase 11): maikling access token + refresh token sa database na kayang i-revoke.
+- **T: Bakit walang `requireAuth` ang logout?**
+  S: Dapat laging gumana ang logout, kahit expired o sira ang token. Kung may `requireAuth`, 401 ang makukuha ng user na may expired na token, at hindi mabubura ang cookie niya.
+- **T: Bakit 204 at hindi 200?**
+  S: Ang 204 No Content ay "nagawa, pero walang ibabalik". Walang kailangang body ang logout.
 
 ## Susunod
 - Day 19: Review day — balikan ang lahat ng code, `.http`, diagram at architecture → checkpoint Phase 4
