@@ -1,6 +1,6 @@
 # 01 — Request Lifecycle (ang buhay ng isang request)
 
-> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database), Day 19 (auth routes), Day 39 (`helmet()`) at Day 42 (logging)
+> 📅 Day 04 · Phase 2 (Unang API) · in-update sa Day 05 (`time`), Day 06 (`express.json()`, `routes/`, POST na may body) Day 10 (database), Day 19 (auth routes), Day 39 (`helmet()`), Day 42 (logging) at Day 41 (error handler)
 >
 > **Code:** `backend/src/index.ts`, `backend/src/routes/health.ts`, `backend/src/routes/echo.ts`, `backend/src/routes/users.ts`, `backend/src/db/index.ts`
 > **Subukan:** `backend/http/01-health.http`, `backend/http/02-echo.http`, `backend/http/03-users-count.http`
@@ -16,14 +16,14 @@ flowchart TD
     Json -->|"hindi (o GET na walang body)"| Skip["Hindi ginagalaw<br/>req.body = undefined"]
     Json -->|"oo"| Parse{"Tama ba ang JSON?"}
     Parse -->|"oo"| Body["req.body = { name: 'Nelson' }"]
-    Parse -->|"sira, hal. { name:"| Bad["400 Bad Request<br/>HTML na may SyntaxError<br/>(hindi na umaabot sa route)"]
+    Parse -->|"sira, hal. { name:"| Bad["400 { error: 'Invalid JSON' }<br/>(errorHandler, Day 41 · dati: HTML + stack trace)<br/>hindi na umaabot sa route"]
     Skip --> Match
     Body --> Match{"May route ba na tugma sa<br/>'/api' + METHOD + PATH?"}
     Match -->|"GET /health<br/>routes/health.ts"| Health["res.json({ status, time })"]
     Match -->|"POST /echo<br/>routes/echo.ts"| Echo["res.json({ received: req.body })"]
     Match -->|"GET /users/count<br/>routes/users.ts"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
     Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
-    Match -->|"wala (hal. GET /api/echo)"| NotFound["404 Not Found<br/>HTML na 'Cannot GET ...'"]
+    Match -->|"wala (hal. GET /api/echo)"| NotFound["404 { error: 'Not found' }<br/>(notFound, Day 41 · dati: HTML 'Cannot GET ...')"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK
     OK --> Done(["Client: natanggap ang sagot"])
@@ -39,9 +39,9 @@ flowchart TD
 - **Walang `Content-Type: application/json` → walang `req.body`.** Hindi
   hinuhulaan ng `express.json()` kung JSON ang ipinadala. Ang
   `{ received: undefined }` ay nagiging `{}` sa JSON.
-- **Sirang JSON → 400, at may stack trace sa HTML.** Sa development lang
-  lumalabas ang stack trace (tinatago kapag `NODE_ENV=production`). Aayusin
-  natin sa Phase 9 (error handler, JSON na lahat ng error).
+- **Sirang JSON → 400 `{ "error": "Invalid JSON" }`.** Bago ang Day 41: HTML na may stack
+  trace at mga file path ng PC (sa dev). Ngayon ay JSON na ang lahat ng error. Tingnan ang
+  diagram 11 (middleware pipeline).
 - **Ang route ay METHOD + PATH.** Kaya 404 ang `GET /api/echo`: `router.post`
   lang ang mayroon.
 - **Kailangang SUMAGOT ang bawat route function.** Kapag walang `res.json()`
@@ -61,9 +61,9 @@ flowchart TD
     Pool --> Up{"Buhay ba ang Postgres?"}
     Up -->|"oo"| Rows["Postgres: { count: 2 }"]
     Rows --> OK["200 OK<br/>{ count: 2 }"]
-    Up -->|"hindi (docker compose stop)"| Fail["Error: Failed query ..."]
+    Up -->|"hindi (docker compose stop)<br/>5s timeout (Day 41)"| Fail["Error: Failed query ..."]
     Fail --> Catch["Express 5: kusang sinasalo<br/>ang error ng async route"]
-    Catch --> E500["500 Internal Server Error<br/>HTML na may SQL + stack trace<br/>(🔐 aayusin sa Phase 9)"]
+    Catch --> E500["500 { error: 'Internal server error', requestId }<br/>errorHandler (Day 41) — ang SQL + stack<br/>ay nasa LOG lang"]
     Pool -.->|"naputol ang idle na koneksyon"| PoolErr["pool.on('error') → log lang<br/>BUHAY pa rin ang server<br/>(kung wala ito: crash ang buong server)"]
     OK --> Done(["Client"])
     E500 --> Done

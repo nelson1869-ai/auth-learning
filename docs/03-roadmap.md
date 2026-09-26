@@ -15,6 +15,9 @@
 >   bagong `.http` file (`backend/http/NN-*.http`); bawat bagong o **nagbagong
 >   flow** ay may bago o in-update na diagram (`docs/diagrams/NN-*.md`). Parehong
 >   tuloy-tuloy ang numero — tingnan ang pinakamataas na numero bago gumawa ng bago.
+  **`NN-` sa plano = wala pang numero:** ibibigay lang ang numero sa araw na gagawin
+  ang file. (Day 41: nagbanggaan ang mga numerong itinakda nang maaga — hal.
+  `10-admin-rbac.http` vs `10-logging.http` — kaya inalis ang mga numero sa hinaharap.)
 >   Ang mga review day ay may 🔍 task: suriin na tugma pa ang lahat sa code.
 > - **🏗️ Architecture:** kapag nagbabago ang folder structure, may 🏗️ task —
 >   sundan ang [`06-architecture.md`](06-architecture.md), at i-update ito kapag nagbago.
@@ -384,8 +387,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** "mas mabuting mag-crash agad kaysa tumakbo nang mali"
 
 ### Day 41 — Sentral na error handling
-- [ ] Isang error handler para sa lahat; **generic na mensahe sa 5xx**, detalye sa logs lang
-- [ ] 📊 `docs/diagrams/11-middleware-pipeline.md` — pagkakasunod ng middleware (helmet → parsers → routes → error handler)
+- [x] Isang error handler para sa lahat; **generic na mensahe sa 5xx**, detalye sa logs lang *(+ `requestId` sa sagot ng 5xx, JSON 404, at `connectionTimeoutMillis` — dati nakabitin ang request kapag patay ang DB)*
+- [x] 📝 `backend/http/11-errors.http`
+- [x] 📊 `docs/diagrams/11-middleware-pipeline.md` — pagkakasunod ng middleware (requestLogger → helmet → cors → parsers → routes → 404 → error handler)
 - **Matututunan:** bakit mapanganib ipakita ang internal errors · *Reference: `fix(errors)`*
 
 ### Day 42 — Structured logging
@@ -396,12 +400,12 @@ direktang nagtatrabaho sa `main`?*
 ### Day 43 — Rate limiting
 - [x] `express-rate-limit` sa login/register lang (hindi sa lahat ng route!) — **inagahan bago ang MVP launch**; bawat totoong IP sa likod ng tunnel (`CF-Connecting-IP`, sinukat nang live); may sariling test
 - [x] 📝 `backend/http/08-rate-limit.http` — pindutin nang 11 beses → 429
-- [ ] 📊 I-update ang `11-middleware-pipeline.md`
+- [x] 📊 I-update ang `11-middleware-pipeline.md` *(kasama na sa pagkagawa nito, Day 41)*
 - **Matututunan:** brute force, bakit iba ang limit ng bawat route · *Reference: `scope authLimiter`*
 
 ### Day 44 — CSRF protection
 - [ ] Double-submit cookie; i-update ang frontend at lahat ng `.http` files
-- [ ] 📝 `backend/http/11-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
+- [ ] 📝 `backend/http/NN-csrf.http` — at **i-update ang LAHAT ng lumang `.http` files** na may POST (kailangan na ng CSRF token)
 - [ ] 📊 I-update ang `11-middleware-pipeline.md` at `07-frontend-backend.md`
 - **Matututunan:** bakit may CSRF kapag cookie ang gamit sa auth · *Reference: `CSRF protection`*
 
@@ -418,19 +422,19 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 46 — Authorization middleware
 - [ ] `requireRole('admin')` — 401 vs **403** (sino ka vs anong pinapayagan sa iyo)
-- [ ] 📝 `backend/http/10-admin-rbac.http` — user (403), admin (200), walang login (401)
-- [ ] 📊 `docs/diagrams/11-rbac.md` — 401 vs 403 na desisyon
+- [ ] 📝 `backend/http/NN-admin-rbac.http` — user (403), admin (200), walang login (401)
+- [ ] 📊 `docs/diagrams/NN-rbac.md` — 401 vs 403 na desisyon
 - [ ] 🏗️ `routes/admin` + `requireRole` middleware — i-update ang `00-architecture.md`
 - **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
 
 ### Day 47 — Listahan ng users (admin) + pagination
 - [ ] `GET /api/admin/users?page=&limit=` na may max limit
-- [ ] 📝 `backend/http/11-pagination.http` — page, limit, at sobrang laking limit (400)
+- [ ] 📝 `backend/http/NN-pagination.http` — page, limit, at sobrang laking limit (400)
 - **Matututunan:** bakit laging may limit ang listahan · *Reference: `pagination`*
 
 ### Day 48 — Audit log
 - [ ] `audit_logs` table: sino, ano, kailan, saan (IP) — para sa login, logout, admin actions
-- [ ] 📝 `backend/http/12-audit-logs.http`
+- [ ] 📝 `backend/http/NN-audit-logs.http`
 - [ ] 📊 I-update ang `02-er-diagram.md` (`audit_logs` table)
 - **Matututunan:** forensic trail · *Reference: `audit logging`*
 
@@ -455,8 +459,8 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 52 — Rotation at reuse detection
 - [ ] Bagong refresh token bawat gamit; ang pag-replay ng luma = **nakaw** → i-revoke ang buong family
-- [ ] 📝 `backend/http/13-refresh-tokens.http` — normal na refresh, at pag-replay ng lumang token
-- [ ] 📊 `docs/diagrams/12-refresh-rotation.md` — `sequenceDiagram` ng rotation + reuse detection
+- [ ] 📝 `backend/http/NN-refresh-tokens.http` — normal na refresh, at pag-replay ng lumang token
+- [ ] 📊 `docs/diagrams/NN-refresh-rotation.md` — `sequenceDiagram` ng rotation + reuse detection
 - [ ] 📊 I-update ang `02-er-diagram.md` (`refresh_tokens` table)
 - **Matututunan:** token rotation · *Reference: `refresh-token rotation with reuse detection`*
 
@@ -468,15 +472,15 @@ direktang nagtatrabaho sa `main`?*
 ### Day 54 — Mga device ko (sessions page)
 - [ ] `GET /api/auth/sessions` at `DELETE /api/auth/sessions/:id` (naka-scope sa sariling user — IDOR 🔐)
 - [ ] Frontend: listahan ng naka-login na devices, may "Logout" bawat isa
-- [ ] 📝 `backend/http/14-sessions.http` — listahan, pag-revoke, at pag-revoke ng session ng IBANG user (404)
-- [ ] 📊 `docs/diagrams/13-sessions.md`
+- [ ] 📝 `backend/http/NN-sessions.http` — listahan, pag-revoke, at pag-revoke ng session ng IBANG user (404)
+- [ ] 📊 `docs/diagrams/NN-sessions.md`
 - **Matututunan:** IDOR · *Reference: `session management`*
 
 ### Day 55 — Change password
 - [ ] Kailangan ang kasalukuyang password (reauthentication); i-revoke ang LAHAT ng session
 - [ ] Frontend: change-password form
-- [ ] 📝 `backend/http/15-change-password.http`
-- [ ] 📊 `docs/diagrams/14-change-password.md`
+- [ ] 📝 `backend/http/NN-change-password.http`
+- [ ] 📊 `docs/diagrams/NN-change-password.md`
 - **Matututunan:** high-risk events · *Reference: `change-password with reauthentication`*
 
 ### Day 56 — RS256 at JWT claims
@@ -500,15 +504,15 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 59 — Password reset
 - [ ] Single-use na token (hashed, may expiry); laging "kung may account, may email na"
-- [ ] 📝 `backend/http/16-password-reset.http`
-- [ ] 📊 `docs/diagrams/15-password-reset.md`
+- [ ] 📝 `backend/http/NN-password-reset.http`
+- [ ] 📊 `docs/diagrams/NN-password-reset.md`
 - [ ] 📊 I-update ang `02-er-diagram.md` (`verification_tokens` table)
 - **Matututunan:** single-use tokens · *Reference: `password reset and email verification`*
 
 ### Day 60 — Email verification
 - [ ] Link sa email pagka-register; markahan ang `email_verified_at`
-- [ ] 📝 `backend/http/17-verify-email.http`
-- [ ] 📊 `docs/diagrams/16-verify-email.md`
+- [ ] 📝 `backend/http/NN-verify-email.http`
+- [ ] 📊 `docs/diagrams/NN-verify-email.md`
 
 ### Day 61 — Frontend pages
 - [ ] Forgot password, reset password, at verify email pages
@@ -525,13 +529,13 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 63 — Per-account lockout
 - [ ] 5 maling password → 15 minutong lock (hiwalay sa IP rate limit)
-- [ ] 📝 `backend/http/18-lockout.http` — 5 maling password → 423
+- [ ] 📝 `backend/http/NN-lockout.http` — 5 maling password → 423
 - [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang lockout branch
 - **Matututunan:** bakit hindi sapat ang IP limit (maraming IP ang attacker) · *Reference: `per-account lockout`*
 
 ### Day 64 — Lockout DoS at device cookies
 - [ ] Kayang i-lock ng kahit sino ang account mo — ayusin gamit ang device cookies (OWASP)
-- [ ] 📝 `backend/http/19-device-cookies.http`
+- [ ] 📝 `backend/http/NN-device-cookies.http`
 - [ ] 📊 I-update ang `04-login-flow.md` at `02-er-diagram.md` (`trusted_devices`)
 - **Matututunan:** kapag ang depensa mismo ang nagiging atake · *Reference: `device cookies`*
 
@@ -558,7 +562,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 68 — Transactions
 - [ ] Change/reset password: lahat o wala; side effects (email, cookies) PAGKATAPOS ng commit
-- [ ] 📊 I-update ang `03-register-flow.md`, `14-change-password.md`, `15-password-reset.md`: markahan ang transaction boundary (`subgraph`)
+- [ ] 📊 I-update ang `03-register-flow.md`, `NN-change-password.md`, `NN-password-reset.md`: markahan ang transaction boundary (`subgraph`)
 - [ ] 📝 Hindi kayang magpadala ng sabay na request ang `.http` — dito, ang **tests** ang patunay
 - **Matututunan:** atomicity · *Reference: `atomic with transactions`*
 
@@ -578,7 +582,7 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 71 — Pareho ang sagot
 - [ ] Login, forgot-password: pareho ang status at mensahe kahit may account o wala
-- [ ] 📝 `backend/http/20-user-enumeration.http` — ikumpara ang sagot para sa may account at wala
+- [ ] 📝 `backend/http/NN-user-enumeration.http` — ikumpara ang sagot para sa may account at wala
 - **Matututunan:** user enumeration · *Reference: `revealing which emails have accounts`*
 
 ### Day 72 — Pareho ang oras
@@ -608,7 +612,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 78 — API documentation
 - [ ] OpenAPI + Swagger UI mula sa parehong Zod schemas
 - [ ] **Gumawa ng types ng frontend mula sa OpenAPI spec** — para hindi na kopya ang `User` type sa `frontend/src/api/auth.ts` (D-019)
-- [ ] 📝 `backend/http/21-openapi.http` — kunin ang spec
+- [ ] 📝 `backend/http/NN-openapi.http` — kunin ang spec
 - **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
 
 ### Day 79 — Walang naiwang unused code
@@ -623,13 +627,13 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 80 — Health checks
 - [ ] `/health/live` (buhay ba ang process) vs `/health/ready` (handa ba ang DB)
-- [ ] 📝 `backend/http/22-health-checks.http` — `/live` at `/ready`
+- [ ] 📝 `backend/http/NN-health-checks.http` — `/live` at `/ready`
 - **Matututunan:** bakit dalawa · *Reference: `two-tier health checks`*
 
 ### Day 81 — Metrics
 - [ ] OpenTelemetry + `/metrics` (ilang request, gaano kabilis, ilang error)
-- [ ] 📝 `backend/http/23-metrics.http`
-- [ ] 📊 `docs/diagrams/17-observability.md` — app → Prometheus → Grafana/Alertmanager
+- [ ] 📝 `backend/http/NN-metrics.http`
+- [ ] 📊 `docs/diagrams/NN-observability.md` — app → Prometheus → Grafana/Alertmanager
 - **Matututunan:** metrics vs logs · *Reference: `metrics + distributed tracing`*
 
 ### Day 82–83 — Dashboards
@@ -669,8 +673,8 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 90 — Data retention
 - [ ] Oras-oras na paglilinis ng expired na data, may advisory lock
-- [ ] 📝 `backend/http/24-retention.http` — gabay kung paano obserbahan ang cleanup job
-- [ ] 📊 `docs/diagrams/18-retention.md`
+- [ ] 📝 `backend/http/NN-retention.http` — gabay kung paano obserbahan ang cleanup job
+- [ ] 📊 `docs/diagrams/NN-retention.md`
 - **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
 
 ### Day 91 — Backup drill
@@ -712,12 +716,12 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 95–96 — Pagdagdag ng passkey
 - [ ] Registration ceremony (backend + frontend button)
-- [ ] 📝 `backend/http/25-passkeys.http` — options lang (kailangan ng browser para sa verify)
-- [ ] 📊 `docs/diagrams/19-passkey-register.md`
+- [ ] 📝 `backend/http/NN-passkeys.http` — options lang (kailangan ng browser para sa verify)
+- [ ] 📊 `docs/diagrams/NN-passkey-register.md`
 
 ### Day 97–98 — Login gamit ang passkey
 - [ ] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐
-- [ ] 📊 `docs/diagrams/20-passkey-login.md`, kasama ang decoy options branch
+- [ ] 📊 `docs/diagrams/NN-passkey-login.md`, kasama ang decoy options branch
 
 ### Day 99 — E2E test
 - [ ] Playwright + virtual authenticator — totoong browser, walang totoong hardware

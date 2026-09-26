@@ -1,0 +1,52 @@
+### =========================================================================
+### 🎓 ERROR HANDLING — laging JSON, walang internal na detalye
+### 📅 Day 41 · Phase 9 (Pangunahing hardening)
+### =========================================================================
+### Bago ang Day 41: HTML ni Express ("Cannot GET /", stack trace, mga file path
+### ng PC mo) — nakikita ng kahit sinong nagpadala ng sirang request, pati ng
+### mga scanner (hal. Palo Alto Networks, na nakita sa production logs).
+###
+### Ngayon:
+###   404            → { "error": "Not found" }
+###   4xx (library)  → { "error": "Invalid JSON" } · { "error": "Payload Too Large" }
+###   5xx            → { "error": "Internal server error", "requestId": "..." }
+###                    ang BUONG detalye (SQL, stack) ay nasa terminal ng `npm run dev`
+###
+### Code: backend/src/middleware/errorHandler.ts · app.ts (huling dalawang app.use)
+### Test: backend/src/routes/errors.test.ts
+### Diagram: docs/diagrams/11-middleware-pipeline.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Walang ganitong route. Ang inaasahan:
+###    404 { "error": "Not found" }   (dati: HTML na "Cannot GET /")
+###    🔐 Hindi ibinabalik ang URL na hiningi — huwag i-echo ang input ng client
+GET http://localhost:3000/
+
+### -------------------------------------------------------------------------
+### 2. Sirang JSON (kulang ang dulo). Ang inaasahan:
+###    400 { "error": "Invalid JSON" }
+###    (dati: HTML na may "SyntaxError" at .../auth-learning/backend/node_modules/... — ang
+###    mga folder ng PC mo, nakikita ng kahit sino)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email":
+
+### -------------------------------------------------------------------------
+### 3. 500 — kailangang patayin ang database. Gawin:
+###    a. sa ibang terminal:  cd devops && docker compose stop
+###    b. i-send ito → maghintay ng ~5 segundo. Ang inaasahan:
+###       500 { "error": "Internal server error", "requestId": "fe640dcb-..." }
+###       (dati: NAKABITIN — walang sagot, walang log; walang timeout ang database pool)
+###    c. sa terminal ng `npm run dev`: hanapin ang requestId →
+###       ERROR Unhandled error · DrizzleQueryError · "Failed query: select count(*) ..." · stack
+###    d. ⚠️ IBALIK:  cd devops && docker compose start   → i-send ulit → 200 { "count": ... }
+###
+### 🔍 Ang SQL at pangalan ng table ay nasa LOG lang, hindi sa sagot (sinubukan, Day 41: 5.2s → 500)
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 4. Ang sinadyang 4xx ng mga route ay HINDI binago. Ang inaasahan:
+###    401 { "error": "Not authenticated" }  — ang route mismo ang sumagot, hindi ang errorHandler
+GET http://localhost:3000/api/auth/me

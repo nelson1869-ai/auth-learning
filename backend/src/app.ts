@@ -8,6 +8,7 @@ import usersRouter from './routes/users.ts';
 import authRouter from './routes/auth.ts';
 import { env } from './config/env.ts';
 import { requestLogger } from './middleware/requestLogger.ts';
+import { notFound, errorHandler } from './middleware/errorHandler.ts';
 
 // Binubuo lang ang app dito — walang listen. Kaya ma-i-import ito ng tests nang hindi binubuksan ang port
 const app = express();
@@ -33,5 +34,9 @@ app.use('/api', healthRouter);
 app.use('/api', echoRouter);
 app.use('/api', usersRouter);
 app.use('/api', authRouter);
+
+// HULI sa lahat (Day 41): walang tumugmang route → 404 JSON · may error saanman sa itaas → errorHandler
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
