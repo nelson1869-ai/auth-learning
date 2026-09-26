@@ -51,5 +51,6 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 **🎉 MVP tapos (2026-09-26)** — tag `checkpoint-mvp`. Live sa `https://nelson1869.com`
 (Cloudflare Pages) + `https://api.nelson1869.com` (Cloudflare Tunnel → PC → Neon), may CI/CD
 at rate limiting. **✅ Phase 9 — hardening tapos (2026-09-27)**, tag `checkpoint-phase-9`: secure headers, error handler,
-logging, rate limiting, CSRF. **Ngayon: Phase 10 — roles at admin** (✅ Day 45 roles · ✅ Day 46 admin: 401 vs 403 · ✅ Day 47 pagination · ✅ Day 48 audit log · ✅ Day 49 admin page).
+logging, rate limiting, CSRF. **✅ Phase 10 — roles at admin tapos (2026-09-27)**, tag `checkpoint-phase-10`: roles, 401 vs 403, pagination, audit log,
+admin page. **Susunod: Phase 11 — mas ligtas na sessions.**
 Tingnan ang [roadmap](docs/03-roadmap.md).
