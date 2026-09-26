@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { refreshTokens } from '../db/schema.ts';
 import { env } from '../config/env.ts';
@@ -112,4 +112,22 @@ export async function rotateRefreshToken(raw: string): Promise<RotateResult> {
     .set({ revokedAt: now, revokeReason: 'reuse' })
     .where(and(eq(refreshTokens.familyId, row.familyId), isNull(refreshTokens.revokedAt)));
   return { status: 'reused', userId: row.userId };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Totoong logout (Day 53): bawiin ang session sa DATABASE, hindi lang burahin ang cookie.
+// Ang buong family ng token (ang login na ito, sa device na ito) — hindi ang ibang device ko.
+// Isang statement: hanapin ang family ng token (subquery) at bawiin ang lahat ng aktibo roon.
+// Ibinabalik ang user id (para sa audit), o undefined kung walang ganitong token
+export async function revokeFamilyOf(raw: string): Promise<number | undefined> {
+  const familyOfToken = db
+    .select({ familyId: refreshTokens.familyId })
+    .from(refreshTokens)
+    .where(eq(refreshTokens.tokenHash, hashToken(raw)));
+  const revoked = await db
+    .update(refreshTokens)
+    .set({ revokedAt: new Date(), revokeReason: 'logout' })
+    .where(and(inArray(refreshTokens.familyId, familyOfToken), isNull(refreshTokens.revokedAt)))
+    .returning({ userId: refreshTokens.userId });
+  return revoked[0]?.userId;
 }

@@ -107,7 +107,11 @@ Bilang lang — hindi kailanman ang listahan ng users.
 | **204** | Palagi — may cookie man o wala | walang body · binubura ang **dalawang** cookie: `token` (Path=/) at `refresh_token` (Path=/api/auth), `Expires=Thu, 01 Jan 1970` |
 
 ⚠️ Sa browser lang nabubura ang mga cookie — ang access token na nakopya bago mag-logout ay valid pa hanggang
-mag-expire (15 minuto), at ang refresh token ay aktibo pa sa database hanggang Day 53 (totoong logout).
+mag-expire (≤ 15 minuto — hindi ito naka-save, kaya hindi mababawi).
+
+**Day 53 — totoong logout:** binabawi ang refresh token (at ang buong family nito — ang login na ito, sa device na ito)
+sa database (`revoke_reason = 'logout'`). Ang kinopyang refresh token → `401`. Hindi ginagalaw ang ibang device.
+Hindi ito itinuturing na nakaw (walang `refresh_reuse`). Ang "sino" sa audit ay mula sa access token, o sa refresh token kung expired na ang access token.
 
 ## `POST /api/auth/refresh` (Day 51)
 **Auth:** ang cookie na `refresh_token` (Path=/api/auth). Walang body. Tinatawag ng frontend kapag 401 ang isang request.

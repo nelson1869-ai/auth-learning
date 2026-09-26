@@ -1,6 +1,6 @@
 # 06 — Buong auth flow (sequence)
 
-> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token) at Day 52 (rotation)
+> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token), Day 52 (rotation) at Day 53 (totoong logout)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
@@ -62,7 +62,8 @@ sequenceDiagram
     rect rgba(128,128,128,0.08)
     Note over U,D: LOGOUT — Day 18
     B->>S: POST /api/auth/logout
-    S->>D: INSERT audit_logs (logout · sino = mula sa token kung valid pa) — Day 48
+    S->>D: UPDATE refresh_tokens SET revoked_at, reason='logout' WHERE family = (family ng token) — Day 53
+    S->>D: INSERT audit_logs (logout · sino = mula sa access o refresh token) — Day 48
     S-->>B: 204 + Set-Cookie: token= at refresh_token= · Expires=1970 (burahin ang dalawa, Day 51)
     B->>B: binura ang cookie
     B->>S: GET /api/auth/me — walang cookie

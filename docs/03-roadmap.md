@@ -465,8 +465,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** token rotation · *Reference: `refresh-token rotation with reuse detection`*
 
 ### Day 53 — Totoong logout
-- [ ] I-revoke ang refresh token sa DB, hindi lang i-clear ang cookie
-- [ ] 📝 I-update ang `07-logout.http`: subukang gamitin ang lumang refresh token pagkatapos mag-logout → 401
+- [x] I-revoke ang refresh token sa DB, hindi lang i-clear ang cookie *(ang buong family, isang atomic na statement; ibang device hindi ginagalaw)*
+- [x] 📝 I-update ang `07-logout.http`: subukang gamitin ang lumang refresh token pagkatapos mag-logout → 401 *(#6)*
 - **Matututunan:** stateful vs stateless na logout
 
 ### Day 54 — Mga device ko (sessions page)

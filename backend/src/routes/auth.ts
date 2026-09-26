@@ -13,6 +13,7 @@ import {
   ACCESS_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
+  revokeFamilyOf,
   rotateRefreshToken,
   signAccessToken,
 } from '../lib/session.ts';
@@ -181,11 +182,14 @@ router.post('/auth/refresh', async (req, res) => {
   res.status(401).json({ error: 'Not authenticated' });
 });
 
-// Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.
-// ⚠️ Sa browser lang nabubura — ang refresh token sa database ay aktibo pa hanggang Day 53 (totoong logout)
+// Walang requireAuth: laging gumagana ang logout, kahit expired na ang access token.
+// Day 53 — totoong logout: binabawi ang refresh token sa DATABASE. Kahit may nakakopya nito, hindi na ito gagana.
+// ⚠️ Ang access token (JWT) ay valid pa hanggang mag-expire (≤ 15 min) — hindi ito naka-save, kaya hindi mababawi
 router.post('/auth/logout', async (req, res) => {
-  // Sino ang nag-logout? Mula sa token kung valid pa; kung hindi, hindi kilala (null) — gagana pa rin ang logout
-  const userId = userIdFromToken(req.cookies.token) ?? null;
+  const raw: unknown = req.cookies.refresh_token;
+  const revokedFor = typeof raw === 'string' ? await revokeFamilyOf(raw) : undefined;
+  // Sino ang nag-logout? Mula sa access token kung valid pa, o mula sa binawing refresh token; kung wala, null
+  const userId = userIdFromToken(req.cookies.token) ?? revokedFor ?? null;
   await audit(req, { action: 'logout', actorId: userId, targetId: userId });
   clearSessionCookies(res); // pareho ng access at refresh (Day 51)
   res.status(204).end(); // 204 = nagawa, walang body

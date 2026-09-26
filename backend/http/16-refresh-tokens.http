@@ -80,6 +80,6 @@ POST http://localhost:3000/api/auth/logout
 
 ### -------------------------------------------------------------------------
 ### 6. Refresh pagkatapos mag-logout. Ang inaasahan: 401 — walang cookie na maipapadala
-### ⚠️ Pero AKTIBO pa ang refresh token sa DATABASE (revoked_at = null) — kung may nakakopya nito,
-###    gagana pa (tingnan sa db:studio). Aayusin sa Day 53 (totoong logout)
+### ✅ Day 53: binawi rin ang refresh token sa DATABASE (revoke_reason = 'logout', tingnan sa db:studio) —
+###    kahit may nakakopya nito, 401 na (tingnan ang 07-logout.http #6)
 POST http://localhost:3000/api/auth/refresh
