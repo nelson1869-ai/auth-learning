@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { CookieOptions } from 'express';
+import type { CookieOptions, RequestHandler } from 'express';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
@@ -8,9 +8,13 @@ import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.ts';
 import { requireAuth } from '../middleware/requireAuth.ts';
+import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
 import { env } from '../config/env.ts';
 
 const router = Router();
+
+// Walang limiter sa tests (undefined) — pass-through na middleware
+const pass: RequestHandler = (_req, _res, next) => next();
 
 // 🔐 Walang cache sa kahit anong sagot ng auth (user data, login, cookies) — hindi dapat itago
 // ng browser o ng CDN; kung hindi, puwedeng makita ng susunod na gumamit ang data ng iba
@@ -38,7 +42,7 @@ const COOKIE_OPTIONS: CookieOptions = {
   secure: env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
 };
 
-router.post('/auth/register', async (req, res) => {
+router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
   // Suriin at linisin ang input BAGO gamitin — maling input = 400, hindi 500
   const result = registerSchema.safeParse(req.body);
   if (!result.success) {
@@ -73,7 +77,7 @@ router.post('/auth/register', async (req, res) => {
 // Kung wala ito, mas mabilis ang 401 ng email na walang account → malalaman ng attacker kung sino ang may account.
 const DUMMY_HASH = await argon2.hash('dummy-password-para-sa-timing');
 
-router.post('/auth/login', async (req, res) => {
+router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({
