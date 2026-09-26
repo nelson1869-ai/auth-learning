@@ -340,11 +340,15 @@ direktang nagtatrabaho sa `main`?*
 
 ### Day 38 — MVP launch 🎉
 - [x] 🔐 **BAGO ang lahat: i-reset ang password ng Neon** (`auth_learning_owner`) — ginawa sa Day 36b; patay na ang lumang password (500 hanggang ni-restart, tapos 200)
-- [ ] Isang kaibigan: register → login → logout mula sa **sarili niyang phone**
-- [ ] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
+- [x] Register → login → logout mula sa **phone** sa totoong internet — sa phone ni Nelson (2026-09-26, 10:02 PM, user #1); kaibigan: kapag may pagkakataon
+- [x] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
 - **Matututunan:** ang saya ng "gumagana para sa totoong tao"
 
 **✅ Checkpoint (`checkpoint-mvp`):** Tapos na ang MVP (tingnan ang [project brief](01-project-brief.md)).
+> ✅ **Tapos: 2026-09-26.** Live: `https://nelson1869.com` + `https://api.nelson1869.com`.
+> **Buhay na plano:** inagahan ang rate limiting (Day 43) bago ang launch; ang automate ng
+> pull sa Day 37 ay pagkatapos ng Phase 9. **Susunod:** patayin ang production backend →
+> Phase 9 (hardening) → saka buksan nang pangmatagalan.
 
 ---
 

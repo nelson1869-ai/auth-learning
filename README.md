@@ -48,8 +48,7 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 
 ## Kasalukuyang estado
 
-**Phase 8 — Totoong deploy 🌐.** Tapos na ang Phase 1–7 ✅ (tags `checkpoint-phase-1`
-hanggang `checkpoint-phase-7`). Buong auth app sa TypeScript, may CI at branch protection.
-Phase 8 (D-020): domain **`nelson1869.com`** ✅ · Dockerfile ✅ · Neon database (Singapore) ✅ ·
-susunod: Cloudflare Tunnel (`api.nelson1869.com`), Cloudflare Pages, CD, at ang MVP launch.
+**🎉 MVP tapos (2026-09-26)** — tag `checkpoint-mvp`. Live sa `https://nelson1869.com`
+(Cloudflare Pages) + `https://api.nelson1869.com` (Cloudflare Tunnel → PC → Neon), may CI/CD
+at rate limiting. **Susunod: Phase 9 — hardening** bago buksan nang pangmatagalan.
 Tingnan ang [roadmap](docs/03-roadmap.md).
