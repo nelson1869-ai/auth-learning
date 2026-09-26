@@ -329,11 +329,12 @@ direktang nagtatrabaho sa `main`?*
   **CDN** (kopya malapit sa user) at **HTTP caching** — ano ang puwede at HINDI puwedeng i-cache
 
 ### Day 37 — CD ng backend: manual muna, tapos automate
-- [ ] **Manual muna:** isang `deploy.sh` sa PC — pull → migrate → restart; isulat ang bawat hakbang
-- [ ] **Tapos automate:** GitHub Actions (GitHub-hosted) → gumagawa ng Docker image → GHCR; ang PC ang **kumukuha** (pull) ng bagong image
-- [ ] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017, D-020)
-- [ ] Deploy lang ang eksaktong commit na pumasa sa CI
-- [ ] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → image → pull → restart; i-update ang `00-architecture.md`
+- [x] **Manual muna:** `devops/deploy.sh` — pull ng image ng huling berdeng commit → migrate (sa loob ng image) → restart → health check
+- [x] GitHub Actions (GitHub-hosted, job `image`) → Docker image → **GHCR**, naka-tag sa commit SHA; ang PC ang **kumukuha** (pull)
+- [ ] **Automate ang pull** (timer sa PC na nagpapatakbo ng `deploy.sh`) — pagkatapos ng Phase 9, kapag laging bukas na ang app
+- [x] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017, D-020)
+- [x] Deploy lang ang eksaktong commit na pumasa sa CI
+- [x] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → image → pull → restart; i-update ang `00-architecture.md`
 - **Matututunan:** CD, push vs pull deploy, bakit **manual muna** (hindi mo magagawang
   awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
 
