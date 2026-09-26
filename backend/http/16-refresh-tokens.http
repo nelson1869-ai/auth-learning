@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 REFRESH TOKENS — dalawang token
-### 📅 Day 51 · Phase 11 (Mas ligtas na sessions)
+### 📅 Day 51 · Phase 11 (Mas ligtas na sessions) · in-update sa Day 52 (rotation + reuse detection)
 ### =========================================================================
 ### access token  (cookie `token`)         = JWT, 15 MINUTO, hindi naka-save sa database
 ### refresh token (cookie `refresh_token`) = random, 7 ARAW, SHA-256 hash lang ang nasa `refresh_tokens`
@@ -40,11 +40,23 @@ Content-Type: application/json
 ### -------------------------------------------------------------------------
 ### 2. Bagong access token. Ang inaasahan:
 ###    204 · Set-Cookie: token=<BAGONG JWT>; Max-Age=900
+###          Set-Cookie: refresh_token=<BAGONG TOKEN>  ← Day 52: rotation — iba na sa #1
 ###    (Ipinapadala ng REST Client ang refresh_token cookie dahil /api/auth ang path)
+### 🔍 Day 52 — subukang maging "magnanakaw":
+###    a. BAGO i-send ito, kopyahin ang refresh_token mula sa Set-Cookie ng #1
+###    b. i-send ito (ang tunay na user ay nag-refresh)
+###    c. maghintay ng 11 segundo, tapos i-send ang #2b sa ibaba gamit ang kinopyang LUMANG token
+###    d. i-send ulit ito (#2): 401 din — binawi ang BUONG family. Sa terminal: WARN "Refresh token reuse"
+###    (Sa loob ng 10 segundo: 204 pa rin ang #2b — ang "reuse interval" para sa sabay na refresh ng 2 tab)
 POST http://localhost:3000/api/auth/refresh
 
 ### -------------------------------------------------------------------------
-### 3. /me gamit ang bagong access token. Ang inaasahan: 200 { "user": { ... } }
+### 2b. Ang "magnanakaw" — palitan ang PASTE-DITO (tingnan ang #2). Ang inaasahan (lampas 10s): 401
+POST http://localhost:3000/api/auth/refresh
+Cookie: refresh_token=PASTE-DITO
+
+### -------------------------------------------------------------------------
+### 3. /me gamit ang bagong access token (kung hindi mo ginawa ang #2b; kung ginawa — mag-login ulit sa #1). Ang inaasahan: 200 { "user": { ... } }
 GET http://localhost:3000/api/auth/me
 
 ### -------------------------------------------------------------------------

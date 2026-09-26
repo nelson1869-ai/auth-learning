@@ -458,10 +458,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit dalawang token · *Reference: `refresh-token session foundation`*
 
 ### Day 52 — Rotation at reuse detection
-- [ ] Bagong refresh token bawat gamit; ang pag-replay ng luma = **nakaw** → i-revoke ang buong family
-- [ ] 📝 `backend/http/NN-refresh-tokens.http` — normal na refresh, at pag-replay ng lumang token
-- [ ] 📊 `docs/diagrams/NN-refresh-rotation.md` — `sequenceDiagram` ng rotation + reuse detection
-- [ ] 📊 I-update ang `02-er-diagram.md` (`refresh_tokens` table)
+- [x] Bagong refresh token bawat gamit; ang pag-replay ng luma = **nakaw** → i-revoke ang buong family *(+ reuse interval 10s para sa sabay na refresh; claim + bagong token sa iisang transaction)*
+- [x] 📝 `backend/http/16-refresh-tokens.http` — normal na refresh, at pag-replay ng lumang token
+- [x] 📊 `docs/diagrams/14-refresh-rotation.md` — `sequenceDiagram` ng rotation + reuse detection
+- [x] 📊 I-update ang `02-er-diagram.md` (`refresh_tokens` table, `revoke_reason`)
 - **Matututunan:** token rotation · *Reference: `refresh-token rotation with reuse detection`*
 
 ### Day 53 — Totoong logout

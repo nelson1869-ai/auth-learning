@@ -114,8 +114,10 @@ mag-expire (15 minuto), at ang refresh token ay aktibo pa sa database hanggang D
 
 | Status | Kailan | Body / Headers |
 |---|---|---|
-| **204** | Aktibo ang refresh token (hindi binawi, hindi expired) | walang body · `Set-Cookie: token=<bagong JWT>; Max-Age=900` |
+| **204** | Aktibo ang refresh token | walang body · `Set-Cookie: token=<bagong JWT>; Max-Age=900` **at** `refresh_token=<BAGONG token>` (rotation, Day 52) — hindi na gagana ang luma |
+| **204** | Ang token ay na-rotate **kanina lang** (< 10s) — sabay na refresh, hal. 2 tab | `Set-Cookie: token=<bagong JWT>` lang (walang bagong refresh token) |
 | **401** | Walang cookie, pekeng token, binawi, expired, o nabura ang user | `{ "error": "Not authenticated" }` + binubura ang dalawang cookie |
+| **401** | **Ginamit ulit ang lumang token** (lampas 10s) — posibleng nakaw | pareho, **at binabawi ang buong family** (pati ang bagong token) + audit `refresh_reuse` |
 
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
@@ -151,6 +153,7 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `POST /api/auth/login` (401) | `login_failed` | `null` · ang account kung mayroon · `{ email }` — **hindi** ang password |
 | `POST /api/auth/logout` | `logout` | mula sa token kung valid pa, kung hindi `null` |
 | `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
+| `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |
 
 Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
 

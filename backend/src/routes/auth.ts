@@ -8,11 +8,12 @@ import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema } from '../validations/auth.ts';
 import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
 import { audit } from '../lib/audit.ts';
+import { logger } from '../lib/logger.ts';
 import {
   ACCESS_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
-  findActiveRefreshToken,
+  rotateRefreshToken,
   signAccessToken,
 } from '../lib/session.ts';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
@@ -153,17 +154,31 @@ router.get('/auth/me', requireAuth, async (req, res) => {
 });
 
 // Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
-// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala)
+// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala).
+// Day 52: bawat refresh ay may BAGONG refresh token (rotation); ang paggamit ulit ng luma = nakaw
 router.post('/auth/refresh', async (req, res) => {
   const raw: unknown = req.cookies.refresh_token;
-  const session = typeof raw === 'string' ? await findActiveRefreshToken(raw) : undefined;
-  if (!session) {
-    // Wala, binawi, expired, o pekeng token — burahin ang mga cookie para hindi na subukan ulit ng browser
-    clearSessionCookies(res);
-    return res.status(401).json({ error: 'Not authenticated' });
+  const result = typeof raw === 'string' ? await rotateRefreshToken(raw) : ({ status: 'invalid' } as const);
+
+  if (result.status === 'rotated') {
+    setAccessCookie(res, signAccessToken(result.userId));
+    res.cookie('refresh_token', result.refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
+    return res.status(204).end();
   }
-  setAccessCookie(res, signAccessToken(session.userId));
-  res.status(204).end();
+  if (result.status === 'grace') {
+    // Sabay na refresh (hal. dalawang tab): access token lang — ang bagong refresh token ay nasa cookie na
+    // mula sa unang request. HINDI ginagalaw ang refresh_token cookie
+    setAccessCookie(res, signAccessToken(result.userId));
+    return res.status(204).end();
+  }
+  if (result.status === 'reused') {
+    // Security event: sa logs (Day 42) at sa audit log (Day 48)
+    (req.log ?? logger).warn({ event: 'refresh_reuse', userId: result.userId }, 'Refresh token reuse — family revoked');
+    await audit(req, { action: 'refresh_reuse', targetId: result.userId });
+  }
+  // Wala, binawi, expired, pekeng token, o nakaw — burahin ang mga cookie para hindi na subukan ulit ng browser
+  clearSessionCookies(res);
+  res.status(401).json({ error: 'Not authenticated' });
 });
 
 // Walang requireAuth: laging puwedeng burahin ang sariling cookie, kahit expired na ang token.

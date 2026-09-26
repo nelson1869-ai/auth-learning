@@ -33,6 +33,7 @@ export const AUDIT_ACTIONS = [
   'access_denied', // 403 — may naka-login na sumubok pumasok sa hindi niya puwede
   'admin_list_users',
   'admin_list_audit_logs',
+  'refresh_reuse', // Day 52 — ginamit ulit ang lumang refresh token: posibleng nakaw → binawi ang buong family
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -71,6 +72,9 @@ export const refreshTokens = pgTable(
     familyId: uuid('family_id').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }), // null = aktibo pa
+    // Bakit binawi (Day 52): 'rotated' = napalitan ng bago (normal) · 'reuse' = ginamit ulit ang luma (nakaw!) ·
+    // 'logout' = nag-logout (Day 53). Kailangan para malaman kung sabay na refresh lang o pagnanakaw
+    revokeReason: text('revoke_reason').$type<'rotated' | 'reuse' | 'logout'>(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('refresh_tokens_user_id_idx').on(table.userId)],

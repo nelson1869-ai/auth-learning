@@ -1,6 +1,6 @@
 # 06 — Buong auth flow (sequence)
 
-> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`) at Day 51 (refresh token)
+> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token) at Day 52 (rotation)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
@@ -54,8 +54,8 @@ sequenceDiagram
     B->>S: GET /api/... — Cookie: token=<expired>
     S-->>B: 401
     B->>S: POST /api/auth/refresh — Cookie: refresh_token=... (isang beses lang kahit sabay ang maraming 401)
-    S->>D: SELECT refresh_tokens WHERE token_hash = sha256(...) AND hindi binawi AND hindi expired
-    S-->>B: 204 + Set-Cookie: token=<bagong JWT, 15 min>
+    S->>D: UPDATE … SET revoked_at, reason='rotated' WHERE token_hash = sha256(...) AND aktibo · + INSERT bagong token (transaction)
+    S-->>B: 204 + Set-Cookie: token=<bagong JWT, 15 min> · refresh_token=<BAGO> (Day 52 — tingnan ang diagram 14)
     B->>S: inuulit ang orihinal na request → 200
     end
 
