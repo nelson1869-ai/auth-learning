@@ -1,0 +1,24 @@
+# 🚨 Sariling project name — HINDI dapat bumangga sa dev compose (`auth-learning`, Day 07)
+name: auth-learning-prod
+
+services:
+  backend:
+    build: ../backend
+    image: auth-learning-backend:prod
+    # Secrets (Neon DATABASE_URL, JWT_SECRET, …) — gitignored, hindi kailanman nasa image
+    env_file: ../backend/.env.production
+    restart: unless-stopped
+    # Walang `ports:` — hindi kailangang buksan sa PC; si cloudflared lang ang kumakausap dito
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.9.3 # naka-pin na version — hindi `latest` (devops README)
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    # Pareho ang UID sa may-ari ng credentials file sa PC (600/400) — para mabasa nang hindi niluluwagan ang permission
+    user: "1000:1000"
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ${HOME}/.cloudflared/714ae270-6cfe-4ace-90ba-59d054bf2ea5.json:/etc/cloudflared/credentials.json:ro
+    depends_on:
+      backend:
+        condition: service_healthy # hintayin ang HEALTHCHECK ng backend image bago magbukas sa internet
+    restart: unless-stopped

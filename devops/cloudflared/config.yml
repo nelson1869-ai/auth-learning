@@ -1,0 +1,11 @@
+# Named Cloudflare Tunnel (Day 36) — hindi secret ang tunnel ID; ang credentials file ang secret
+# (nasa ~/.cloudflared/ sa PC, hindi sa repo — ikinakabit ito ng docker-compose.prod.yml)
+tunnel: 714ae270-6cfe-4ace-90ba-59d054bf2ea5
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # api.nelson1869.com → ang backend container, sa loob ng Docker network (walang port sa PC o router)
+  - hostname: api.nelson1869.com
+    service: http://backend:3000
+  # Kahit anong ibang hostname → 404 (huwag ilantad nang hindi sinasadya)
+  - service: http_status:404

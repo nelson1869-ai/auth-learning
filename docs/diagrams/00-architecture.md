@@ -78,15 +78,16 @@ flowchart LR
 
 ## Kapag naka-deploy na (Phase 8 — hybrid, D-020)
 
-> 📅 in-update pagkatapos ng Day 35 · ✅ domain, Dockerfile, Neon · ⏳ Tunnel (Day 36), Pages (Day 36b), CD (Day 37)
+> 📅 in-update sa Day 36 · ✅ domain, Dockerfile, Neon, **Tunnel (live)** · ⏳ Pages (Day 36b), CD (Day 37)
+> **Subukan:** `backend/http/prod/01-production.http`
 
 ```mermaid
 flowchart LR
     User(["👤 Kaibigan<br/>(phone, kahit saan)"]) -->|"https://nelson1869.com"| Pages["Cloudflare Pages + CDN<br/>frontend (React, static)<br/>⏳ Day 36b"]
     User -->|"https://api.nelson1869.com<br/>+ Cookie: token"| Edge["Cloudflare<br/>DNS + HTTPS"]
-    Edge -->|"named Tunnel<br/>walang bukas na port sa router<br/>⏳ Day 36"| PC
+    Edge -->|"named Tunnel auth-learning ✅ Day 36<br/>4 koneksyon (Cebu ×2, Hong Kong ×2)<br/>walang bukas na port sa router"| PC
     subgraph PC["🖥️ PC ni Nelson"]
-        CFD["cloudflared"] --> BE["backend container<br/>node src/index.ts ✅ Day 34"]
+        CFD["cloudflared container<br/>devops/docker-compose.prod.yml"] -->|"http://backend:3000<br/>(Docker network lang)"| BE["backend container<br/>node src/index.ts ✅ Day 34"]
     end
     BE -->|"TLS · sslmode=verify-full"| Neon[("Neon · Singapore<br/>Postgres 17 · point-in-time restore<br/>✅ Day 35")]
     GH["GitHub<br/>CI ✅ · CD ⏳ Day 37"] -.->|"merge → image → PC ang kumukuha (pull)"| BE
