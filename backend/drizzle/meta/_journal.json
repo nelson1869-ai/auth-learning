@@ -15,6 +15,13 @@
       "when": 1790341336809,
       "tag": "0001_amusing_whiplash",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790441301762,
+      "tag": "0002_add_user_role",
+      "breakpoints": true
     }
   ]
 }

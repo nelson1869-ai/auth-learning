@@ -98,6 +98,8 @@ curl localhost:3099/api/health
   `-pooler`; `sslmode=verify-full`), ibang `JWT_SECRET` kaysa dev, `CLIENT_URL=https://nelson1869.com`,
   `NODE_ENV=production`
 - Migrations sa production: `node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate`
+- **Admin (Day 45):** `npm run db:set-role -- <email> admin` (dev) — para sa production, tingnan ang `devops/README.md`.
+  Walang default na admin account o password sa code.
 - **Restore:** Neon → Backup & Restore → branch `production` → **ilagay ang oras nang tahasan**
   (ang default ay "ngayon" — walang maibabalik). 6 na oras lang ang history sa Free plan.
 

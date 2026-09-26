@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) at Day 45 (`role`, migration 0002) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -17,6 +17,7 @@ erDiagram
         text email UK "NOT NULL · UNIQUE (users_email_unique)"
         text name "optional"
         text password_hash "NOT NULL · argon2id hash, hindi kailanman ibinabalik sa API"
+        user_role role "NOT NULL · DEFAULT 'user' · enum: user | admin"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
 ```
@@ -28,6 +29,11 @@ erDiagram
 | **PK** | Primary key — ang "ID card" ng row: natatangi at hindi puwedeng walang laman |
 | **UK** | Unique key — bawal ang doble |
 | `serial` / `text` / `timestamptz` | ang type ng column |
+| `user_role` | **enum** (Day 45) — sariling type sa Postgres; `user` o `admin` lang ang tinatanggap. Sinubukan: ang `'superadmin'` ay tinanggihan ng **database** mismo |
+
+**Paano nagiging admin (Day 45):** hindi kailanman mula sa request. Ang register ay laging `user`,
+at binabalewala ang `"role"` sa body. Ang admin ay itinatakda ng script:
+`npm run db:set-role -- <email> admin` (`backend/src/db/set-role.ts`).
 
 ## Paano nagbabago ang database (mula Day 11)
 

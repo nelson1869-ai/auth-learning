@@ -76,6 +76,8 @@ docker compose -f docker-compose.prod.yml logs -f backend                      #
 docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | ../backend/node_modules/.bin/pino-pretty   # may kulay
 docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | grep <X-Request-Id>                       # isang request
 docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
+# gawing admin ang account na NAKA-REGISTER na (Day 45) — user para ibalik
+docker run --rm --env-file ../backend/.env.production ghcr.io/nelson1869-ai/auth-learning-backend:$IMAGE_TAG node src/db/set-role.ts <email> admin
 curl https://api.nelson1869.com/api/health
 ```
 - **Named Cloudflare Tunnel** `auth-learning` → `https://api.nelson1869.com` → `http://backend:3000`

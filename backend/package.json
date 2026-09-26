@@ -12,7 +12,8 @@
     "db:migrate:test": "node --env-file=.env.test node_modules/drizzle-kit/bin.cjs migrate",
     "lint": "oxlint src",
     "typecheck": "tsc",
-    "db:migrate:prod": "node --env-file=.env.production src/db/migrate.ts"
+    "db:migrate:prod": "node --env-file=.env.production src/db/migrate.ts",
+    "db:set-role": "node --env-file=.env src/db/set-role.ts"
   },
   "keywords": [],
   "author": "",
