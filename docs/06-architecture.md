@@ -95,7 +95,7 @@ backend/
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51)
 │   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
-├── drizzle/              ← migrations 0000–0004
+├── drizzle/              ← migrations 0000–0005
 └── http/                 ← 01–16 .http walkthroughs
 ```
 

@@ -36,6 +36,13 @@
       "when": 1790452952086,
       "tag": "0004_add_refresh_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790455560769,
+      "tag": "0005_add_revoke_reason",
+      "breakpoints": true
     }
   ]
 }

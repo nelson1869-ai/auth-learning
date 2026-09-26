@@ -43,7 +43,7 @@ flowchart LR
     end
     DB -->|"SQL · localhost:5435"| PG
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0004")]
+        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0005")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end
