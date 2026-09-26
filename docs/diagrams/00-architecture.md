@@ -6,8 +6,8 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
-> **Subukan:** `backend/http/01`–`10`
+> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 46 (admin) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> **Subukan:** `backend/http/01`–`13`
 
 ```mermaid
 flowchart LR
@@ -20,20 +20,23 @@ flowchart LR
     subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
         MW["requestLogger — log + X-Request-Id<br/>helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>express.json() · cookieParser()"]
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
-        Routes["routes/<br/>auth.ts: register · login · me · logout<br/>users.ts: count · health.ts · echo.ts"]
+        Routes["routes/<br/>auth.ts: register · login · me · logout<br/>admin.ts: /admin/users (Day 46)<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
         Auth["middleware/requireAuth.ts<br/>jwt.verify (JWT_SECRET)"]
+        Role["middleware/requireRole.ts<br/>role mula sa DB → 403 kung hindi admin"]
         Hash["argon2<br/>hash · verify"]
         DB["db/index.ts<br/>Drizzle + pg Pool"]
         MW --> Routes
         Routes --> Val
-        Routes -->|"/me"| Auth
+        Routes -->|"/me · /admin/*"| Auth
+        Auth -->|"/admin/*"| Role
+        Role --> DB
         Routes --> Hash
         Routes --> DB
     end
     DB -->|"SQL · localhost:5435"| PG
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (migrations 0000, 0001)")]
+        PG[("postgres:17-alpine<br/>users (migrations 0000–0002, may role)")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end

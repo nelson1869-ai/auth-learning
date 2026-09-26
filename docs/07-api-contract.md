@@ -25,6 +25,7 @@
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
 | POST | `/api/auth/logout` | Burahin ang cookie | — | `07-logout.http` |
+| GET | `/api/admin/users` | Mga pinakabagong user (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` |
 
 ---
 
@@ -103,6 +104,16 @@ HS256, 1 oras. Hindi ito mababasa ng JavaScript sa frontend — kusang ipinapada
 
 ⚠️ Sa browser lang nabubura ang cookie — ang token na nakopya bago mag-logout ay
 valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
+
+## `GET /api/admin/users`
+**Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
+kaya agad tumatalab ang pagbabago ng role. Walang body.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Admin | `{ "users": [ { "id": 7, "email": "…", "name": "…", "role": "admin", "createdAt": "…" } ] }` — hanggang 20, pinakabago muna (page/limit: Day 47) · **walang** `password_hash` |
+| **401** | Walang login, sirang token, o nabura ang account — kahit sa `/api/admin/<kahit-ano>` | `{ "error": "Not authenticated" }` |
+| **403** | Naka-login pero hindi admin | `{ "error": "Forbidden" }` — hindi sinasabi kung anong role ang kailangan |
 
 ## Caching (Day 36b)
 Lahat ng `/api/auth/*` ay may **`Cache-Control: no-store`** — hindi kailanman itatago ng
