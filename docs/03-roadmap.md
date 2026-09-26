@@ -308,8 +308,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** image, layers, `.dockerignore`, bakit hindi root — *Reference: item 21*
 
 ### Day 35 — Managed database na may backup (Neon)
-- [ ] Neon project; `DATABASE_URL` ng production; `npm run db:migrate` doon
-- [ ] **Backup at restore:** subukan talagang mag-restore
+- [x] Neon project (Singapore, Postgres 17); `DATABASE_URL` sa `backend/.env.production` (`sslmode=verify-full`); migrations doon
+- [x] **Backup at restore:** subukan talagang mag-restore — ginawa: binura ang row → point-in-time restore → bumalik
 - **Matututunan:** managed DB, "ang backup na hindi pa nasusubukang i-restore ay hindi backup"
 
 ### Day 36 — Backend sa internet: named Cloudflare Tunnel
@@ -338,6 +338,7 @@ direktang nagtatrabaho sa `main`?*
   awtomatiko ang hindi mo pa nagagawa nang mano-mano) · *Reference: item 22*
 
 ### Day 38 — MVP launch 🎉
+- [ ] 🔐 **BAGO ang lahat: i-reset ang password ng Neon** (`auth_learning_owner`) — lumabas ito sa AI session log noong Day 35; i-update ang `backend/.env.production`
 - [ ] Isang kaibigan: register → login → logout mula sa **sarili niyang phone**
 - [ ] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
 - **Matututunan:** ang saya ng "gumagana para sa totoong tao"
