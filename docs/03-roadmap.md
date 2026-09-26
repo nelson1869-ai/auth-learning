@@ -428,8 +428,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** authentication vs authorization · *Reference: `requireRole`*
 
 ### Day 47 — Listahan ng users (admin) + pagination
-- [ ] `GET /api/admin/users?page=&limit=` na may max limit
-- [ ] 📝 `backend/http/NN-pagination.http` — page, limit, at sobrang laking limit (400)
+- [x] `GET /api/admin/users?page=&limit=` na may max limit *(+ `total`/`totalPages`; test sa `REPEATABLE READ` na transaction para hindi flaky)*
+- [x] 📝 `backend/http/14-pagination.http` — page, limit, at sobrang laking limit (400)
 - **Matututunan:** bakit laging may limit ang listahan · *Reference: `pagination`*
 
 ### Day 48 — Audit log

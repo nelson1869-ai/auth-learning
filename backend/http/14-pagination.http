@@ -1,0 +1,60 @@
+### =========================================================================
+### 🎓 PAGINATION — ?page= at ?limit=
+### 📅 Day 47 · Phase 10 (Roles at admin)
+### =========================================================================
+### Hindi kailanman ibinibigay ang LAHAT ng row. Isang page lang bawat request:
+###   ?page=2&limit=20  → laktawan ang 20 (OFFSET), kunin ang susunod na 20 (LIMIT)
+###   default: page 1, limit 20 · max: limit 100, page 1,000,000
+###
+### Sagot: { users: [...], page, limit, total, totalPages }
+###
+### Kailangan: naka-login bilang ADMIN (tingnan ang 13-admin-rbac.http). Palitan ang email/password
+### sa #1 ng dev admin mo (hal. ginawa gamit ang `npm run db:set-role -- <email> admin`).
+###
+### Code: backend/src/validations/pagination.ts · backend/src/routes/admin.ts (listUsers)
+### Test: validations/pagination.test.ts · routes/pagination.test.ts
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Mag-login bilang admin. Ang inaasahan: 200
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nelson_dev@1869.com",
+  "password": "PALITAN-NG-PASSWORD-MO"
+}
+
+### -------------------------------------------------------------------------
+### 2. Walang query → page 1, limit 20. Ang inaasahan:
+###    200 { "users": [...], "page": 1, "limit": 20, "total": N, "totalPages": ... }
+GET http://localhost:3000/api/admin/users
+
+### -------------------------------------------------------------------------
+### 3. Isang user bawat page. Ang inaasahan: 200 · isang user lang (ang pinakabago) · totalPages = total
+GET http://localhost:3000/api/admin/users?page=1&limit=1
+
+### -------------------------------------------------------------------------
+### 4. Page 2. Ang inaasahan: ang SUSUNOD na user — hindi kapareho ng #3 (walang naulit, walang nalaktawan)
+GET http://localhost:3000/api/admin/users?page=2&limit=1
+
+### -------------------------------------------------------------------------
+### 5. Lampas sa huling page. Ang inaasahan: 200 { "users": [] } — hindi error, wala lang laman
+GET http://localhost:3000/api/admin/users?page=999&limit=20
+
+### -------------------------------------------------------------------------
+### 6. Sobrang laking limit. Ang inaasahan:
+###    400 { "error": "Invalid input", "fields": { "limit": ["Too big: expected number to be <=100"] } }
+###    🔐 Kung walang max: ang ?limit=999999 ay magpapabagal sa server at database (at sa browser ng admin)
+GET http://localhost:3000/api/admin/users?limit=999999
+
+### -------------------------------------------------------------------------
+### 7. Hindi numero. Ang inaasahan:
+###    400 · fields.page: ["Invalid input: expected number, received NaN"]
+GET http://localhost:3000/api/admin/users?page=abc
+
+### -------------------------------------------------------------------------
+### 8. Napakalaking numero. Ang inaasahan: 400
+###    🔍 (Day 47) Si Zod 4 mismo ang tumatanggi sa 1e20 — ang `.int()` ay "safe integer" lang.
+###       Ang max natin (1,000,000) ay para sa bilis ng OFFSET, hindi para iwas-500.
+GET http://localhost:3000/api/admin/users?page=1e20

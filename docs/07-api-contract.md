@@ -25,7 +25,7 @@
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
 | POST | `/api/auth/logout` | Burahin ang cookie | — | `07-logout.http` |
-| GET | `/api/admin/users` | Mga pinakabagong user (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` |
+| GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 
 ---
 
@@ -109,9 +109,12 @@ valid pa hanggang mag-expire (1 oras). Phase 11: refresh tokens sa database.
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
 kaya agad tumatalab ang pagbabago ng role. Walang body.
 
+**Query (Day 47):** `page` (1–1,000,000, default 1) · `limit` (1–100, default 20). Pinakabago muna (`id` pababa).
+
 | Status | Kailan | Body |
 |---|---|---|
-| **200** | Admin | `{ "users": [ { "id": 7, "email": "…", "name": "…", "role": "admin", "createdAt": "…" } ] }` — hanggang 20, pinakabago muna (page/limit: Day 47) · **walang** `password_hash` |
+| **200** | Admin | `{ "users": [ { "id": 7, "email": "…", "name": "…", "role": "admin", "createdAt": "…" } ], "page": 1, "limit": 20, "total": 42, "totalPages": 3 }` · lampas sa huling page = `"users": []` · **walang** `password_hash` |
+| **400** | Maling `page`/`limit` (hal. `limit=101`, `page=abc`) | `{ "error": "Invalid input", "fields": { "limit": ["Too big: …"] } }` |
 | **401** | Walang login, sirang token, o nabura ang account — kahit sa `/api/admin/<kahit-ano>` | `{ "error": "Not authenticated" }` |
 | **403** | Naka-login pero hindi admin | `{ "error": "Forbidden" }` — hindi sinasabi kung anong role ang kailangan |
 

@@ -43,7 +43,7 @@ GET http://localhost:3000/api/admin/users
 ### 4. Gawing admin ang login-demo HABANG naka-login (sa terminal):
 ###      npm run db:set-role -- login-demo@example.com admin
 ###    Tapos i-send ito ulit — WALANG bagong login. Ang inaasahan:
-###    200 { "users": [ { "id", "email", "name", "role", "createdAt" }, ... ] }   (hanggang 20, pinakabago muna)
+###    200 { "users": [ { "id", "email", "name", "role", "createdAt" }, ... ] }   (page 1, hanggang 20, pinakabago muna — tingnan ang 14-pagination.http)
 ###    🔐 Walang password_hash sa listahan
 ###    Ibalik pagkatapos:  npm run db:set-role -- login-demo@example.com user   → i-send ulit → 403 agad
 GET http://localhost:3000/api/admin/users
