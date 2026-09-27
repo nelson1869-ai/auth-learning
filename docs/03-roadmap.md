@@ -555,7 +555,7 @@ direktang nagtatrabaho sa `main`?*
 > request, pero **nasisira kapag 20 request ang sabay** — at nagmukha itong "10/10" bago nahuli.
 
 ### Day 66 — Race conditions
-- [ ] Test na nagpapadala ng 20 sabay na request (`Promise.all`) — mahuli ang bug
+- [x] Test na nagpapadala ng 20 sabay na request (`Promise.all`) — mahuli ang bug *(`concurrency.test.ts`: tahasang sinusukat ang bug sa lockout — account at device: 20/20 nasuri, hindi na-lock · register at verify-email: ligtas na · 📊 bagong `20-race-conditions.md`)*
 - **Matututunan:** TOCTOU ("check then act") · *Reference: `race-safe`*
 
 ### Day 67 — Atomic SQL
