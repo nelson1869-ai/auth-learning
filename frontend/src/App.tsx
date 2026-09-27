@@ -5,6 +5,9 @@ import ProfilePage from './pages/ProfilePage.tsx';
 import AdminPage from './pages/AdminPage.tsx';
 import SessionsPage from './pages/SessionsPage.tsx';
 import ChangePasswordPage from './pages/ChangePasswordPage.tsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
+import VerifyEmailPage from './pages/VerifyEmailPage.tsx';
 
 function App() {
   return (
@@ -25,6 +28,10 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
+          {/* Mula sa mga link sa email (Day 61) — hindi kailangang naka-login */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           {/* Kahit anong ibang URL → profile (na magpapasa sa login kung hindi naka-login) */}
           <Route path="*" element={<Navigate to="/profile" replace />} />
         </Routes>

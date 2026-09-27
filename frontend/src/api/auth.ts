@@ -15,6 +15,7 @@ export type User = {
   email: string;
   name: string | null;
   role: 'user' | 'admin'; // Day 49 — para ipakita/itago ang Admin link (UX lang; ang backend ang bantay)
+  emailVerified: boolean; // Day 60 — para sa paalalang "i-verify ang email mo" (soft)
 };
 
 // Mga error bawat field mula sa Zod ng backend (400), hal. { password: ['Too small ...'] }
@@ -127,6 +128,46 @@ export async function changePassword(currentPassword: string, newPassword: strin
   if (res.ok) return;
   const data = await res.json();
   throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Email (Day 61): forgot/reset password at email verification
+
+// POST na may JSON — ibinabalik ang Response; nagtatapon ng ApiError kapag hindi 2xx
+async function postJson(path: string, body?: unknown): Promise<Response> {
+  const res = await apiFetch(path, {
+    method: 'POST',
+    headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (res.ok) return res;
+  const data = await res.json().catch(() => ({}));
+  throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+}
+
+// Laging parehong sagot ang backend (may account man o wala) — kaya walang "wala ang email" na mensahe dito
+export async function forgotPassword(email: string): Promise<void> {
+  await postJson('/auth/forgot-password', { email });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await postJson('/auth/reset-password', { token, newPassword });
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await postJson('/auth/verify-email', { token });
+}
+
+export async function resendVerification(): Promise<void> {
+  await postJson('/auth/resend-verification');
+}
+
+// Kunin ang token mula sa #token=… ng URL, tapos TANGGALIN ito sa address bar: hindi mananatili sa history,
+// at hindi makikita kapag nag-screenshot o nag-share ng screen (Day 59: huwag i-paste ang link kahit saan)
+export function takeTokenFromHash(): string {
+  const token = new URLSearchParams(window.location.hash.slice(1)).get('token') ?? '';
+  if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
+  return token;
 }
 
 export async function logout(): Promise<void> {

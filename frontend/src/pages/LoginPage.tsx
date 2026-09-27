@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { login, errorMessage } from '../api/auth.ts';
 
 export default function LoginPage() {
@@ -42,6 +42,9 @@ export default function LoginPage() {
       <button type="submit">Login</button>
 
       {error && <p>❌ {error}</p>}
+      <p>
+        <Link to="/forgot-password">Nakalimutan ang password?</Link>
+      </p>
     </form>
   );
 }
