@@ -44,6 +44,7 @@ nang hindi nasisira ang iba.
 | **7** | Lahat → `.ts`; `src/config/env.ts`, `src/types/` | TypeScript: ipinakita na puwedeng `undefined` ang bawat `process.env` → iisang lugar na sumusuri (mas maaga sa plano, dati Phase 9) |
 | **9** | `helmet()` sa `app.ts`, `middleware/rateLimiter.ts`, `frontend/public/_headers` (CSP), `lib/` (logger, clientIp) + `middleware/requestLogger.ts`, `middleware/errorHandler.ts`, `middleware/csrf.ts` | Hardening bago buksan sa lahat: security headers (Day 39), sentral na error handling (Day 41), CSRF (Day 44), logs na may request ID (Day 42), limit sa panghuhula ng password (Day 43) |
 | **10** | `routes/admin.ts` + `middleware/requireRole.ts` (Day 46), `db/set-role.ts` (Day 45), `lib/audit.ts` + `audit_logs` table (Day 48) | Hiwalay na grupo ng URL na may sariling patakaran (admin lang) |
+| **11** | `lib/session.ts` + `lib/jwt.ts`, `refresh_tokens` table (migrations 0004–0006) | Mas ligtas na sessions: refresh tokens na kayang bawiin (Day 51–53), mga device (Day 54), change password (Day 55), RS256 (Day 56) — at walang `req` ang dalawang bagong lib file (tingnan ang review finding) |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto
@@ -70,7 +71,7 @@ backend/
 │   ├── index.ts          ← (Day 26) app.listen lang
 │   ├── config/env.ts     ← (Phase 7) sinusuri ang env pagka-start
 │   ├── types/            ← (Phase 7) hal. req.userId
-│   ├── routes/           ← auth.ts (register/login/me/refresh/logout), users.ts (count),
+│   ├── routes/           ← auth.ts (register/login/me/logout), users.ts (count),
 │   │                        health.ts, echo.ts (pang-aral)
 │   ├── middleware/       ← requireAuth.ts (cookie → jwt.verify → req.userId)
 │   ├── validations/      ← auth.ts (registerSchema, loginSchema — Zod, + z.infer types)
@@ -80,7 +81,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 10** (sinuri Day 50, tugma sa totoong folders):
+**Ngayon — Phase 11** (sinuri Day 57, tugma sa totoong folders):
 ```
 backend/
 ├── src/
@@ -88,11 +89,12 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (register/login/me/logout) · admin.ts (users, audit-logs + listUsers/listAuditLogs)
+│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password)
+│   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
 │   │                        users.ts (count) · health.ts · echo.ts
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
-│   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51)
+│   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56)
 │   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
 ├── drizzle/              ← migrations 0000–0006
@@ -101,6 +103,7 @@ backend/
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**
 > - `lib/audit.ts` at `lib/clientIp.ts` ay tumatanggap ng `req`, pero ayon sa table sa ibaba, ang `lib/` ay "walang alam sa HTTP".
+>   *(Day 57: gumanda — ang `lib/session.ts` at `lib/jwt.ts` ng Phase 11 ay walang `req`; plain na `Device` ang ipinapasa ng route.)*
 > - Ang `listUsers`/`listAuditLogs` (mga query) ay nasa `routes/admin.ts`, at ang login/register logic ay nasa `routes/auth.ts`.
 >
 > Gumagana at may tests ang lahat, pero habang dumarami ang features, mahirap nang subukan ang logic nang walang Express.

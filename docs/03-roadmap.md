@@ -489,10 +489,11 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** HS256 vs RS256 · *Reference: `HS256 to RS256`, `iss/aud claim validation`*
 
 ### Day 57 — Review day + session flow diagram
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(18 `.http`, bagong server bawat isa · 1 lumang pangako sa diagram 06)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(naayos ang maling edit ng Day 51 sa Phase 4 tree; + Phase 11 row)*
+- [x] 📊 Session flow diagram: `docs/diagrams/17-session-lifecycle.md`
 
-**✅ Checkpoint (`checkpoint-phase-11`):** *Bakit nire-revoke ang BUONG family kapag may reuse?*
+**✅ Checkpoint (`checkpoint-phase-11`):** *Bakit nire-revoke ang BUONG family kapag may reuse?* — **TAPOS ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-11/day-57.md`
 
 ---
 

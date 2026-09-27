@@ -77,6 +77,8 @@ sequenceDiagram
   na ang nagpapakilala sa iyo sa bawat request.
 - **Hindi nagtatanong ang server sa database kung "naka-login" ka** — sinusuri lang
   nito ang pirma ng token (stateless). Mabilis, pero may kapalit ⬇️
-- **⚠️ Limitasyon:** sa browser lang nabubura ang cookie sa logout. Ang token na
-  nakopya bago mag-logout ay valid pa hanggang mag-expire (sinubukan, Day 18: 200).
-  Lulutasin ng refresh tokens sa database — Phase 11 (Day 51–52), D-012.
+- **Limitasyon (Day 18) at kung paano ito nalutas (Phase 11):** noon, sa browser lang nabubura ang cookie, at
+  ang token na nakopya bago mag-logout ay valid pa nang 1 oras (sinubukan, Day 18: 200). Ngayon:
+  - ang **refresh token** ay nasa database at **binabawi sa logout** (Day 53), kaya ang kinopya ay 401;
+  - ang **access token** (JWT, stateless) ay valid pa, pero **15 minuto** na lang (Day 51).
+  Tingnan ang diagram 14 (rotation) at 17 (buhay ng isang session).
