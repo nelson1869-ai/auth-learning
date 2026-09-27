@@ -45,6 +45,7 @@ May isang maling alarma rin: ang una kong pagsubok sa Grafana ay `000` (walang k
 | `.http` 28 laban sa totoong Prometheus | ✅ 7/7 (kasama ang 400 sa maling PromQL) |
 | Buong suite · tsc · lint (oxlint + knip) | ✅ 194 · ✅ · ✅ |
 | 48 diagram (render sa browser) | ✅ 48/48 |
+| Production (deploy `520f02b`) | ✅ step 7: prometheus at grafana "Running" · readiness `ready` · 15/15 audit series ay nasa 0 pagka-start · **isang maling login → mga sample `0, 0, 0, 0, 1`, `increase(5m)` = 1.05** (dati: 0). Hindi eksaktong 1 dahil nag-e-extrapolate ang `increase()` sa buong 5 minuto |
 
 ## Kumpara sa reference
 - **Pareho:** Prometheus + Grafana sa compose, parehong naka-pin na version (v3.7.3, 12.3.0), provisioned na datasource at dashboard, iisang read-only mount para sa provisioning
