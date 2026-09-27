@@ -1,0 +1,77 @@
+### =========================================================================
+### 🎓 MASS ASSIGNMENT — nagsisingit ng dagdag na field sa body ("role": "admin", "userId": …)
+### 📅 Day 77 · Phase 16 (Malinis na architecture)
+### =========================================================================
+### Ang atake: umaasa ang attacker na basta ipapasa ng code ang BUONG body sa database, hal.
+###   db.insert(users).values(req.body)   ← "role": "admin" → admin na siya
+###   changePassword({ ...req.body })      ← "userId": 7    → password ng iba ang napalitan
+###
+### Apat na depensa dito (bawat isa ay sinubok nang hiwalay — tingnan ang routes/mass-assignment.test.ts):
+###   1. parseOr400 (Zod) — tinatanggal ang mga field na wala sa schema (controllers/http.ts)
+###   2. pagkakasunod ng spread — { ...input, userId }: ang galing sa SERVER ang nasa huli (controllers/auth.controller.ts)
+###   3. tahasang pagpili ng field sa service — values({ email: input.email, name: input.name, passwordHash })
+###   4. reauthentication — kailangan ang KASALUKUYANG password ng may-ari (hindi alam ng attacker)
+###
+### Sa dev: bagong server (register: 10 bawat 15 min bawat IP — 2 ang ginagamit dito)
+### Code: backend/src/controllers/http.ts (parseOr400) · controllers/auth.controller.ts · services/auth/*
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Ang BIKTIMA (bagong email bawat takbo — {{$timestamp}}). Ginagamit ng #4 ang "id" sa sagot
+# @name victim
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ma-victim-{{$timestamp}}@example.com",
+  "password": "password-ng-biktima"
+}
+
+### -------------------------------------------------------------------------
+### 1. Ang ATTACKER, nagsisingit ng mga field sa register. Ang inaasahan: 201 — pero BINALEWALA ang lahat ng dagdag
+# @name attacker
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ma-attacker-{{$timestamp}}@example.com",
+  "password": "password-ng-attacker",
+  "role": "admin",
+  "emailVerifiedAt": "2026-01-01T00:00:00Z",
+  "failedLoginAttempts": -1000,
+  "id": 1
+}
+
+### -------------------------------------------------------------------------
+### 2. Login bilang attacker
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{attacker.response.body.$.user.email}}", "password": "password-ng-attacker" }
+
+### -------------------------------------------------------------------------
+### 3. /me. Ang inaasahan: 200 · "role": "user" · "emailVerified": false — hindi naging admin, hindi "verified"
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 4. Palitan ang password, may "userId" ng BIKTIMA sa body. Ang inaasahan: 204 — pero ang password ng ATTACKER ang napalitan
+###    (ang userId ay laging galing sa login token, hindi sa body)
+POST http://localhost:3000/api/auth/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "password-ng-attacker",
+  "newPassword": "bagong-password-ng-attacker",
+  "userId": {{victim.response.body.$.user.id}}
+}
+
+### -------------------------------------------------------------------------
+### 5. Ang biktima, gamit ang DATI niyang password. Ang inaasahan: 200 — walang nagalaw
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{victim.response.body.$.user.email}}", "password": "password-ng-biktima" }
+
+### -------------------------------------------------------------------------
+### 6. Admin page gamit ang session ng biktima (ang huling login). Ang inaasahan: 403 — at hindi rin admin ang attacker (#3)
+GET http://localhost:3000/api/admin/users

@@ -610,7 +610,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** separation of concerns, refactoring nang ligtas · *Reference: `service layer`*
 
 ### Day 77 — Mass-assignment guard
-- [ ] Parsed na input lang ang ipinapasa sa service; test na may isiningit na `userId` 🔐
+- [x] Parsed na input lang ang ipinapasa sa service; test na may isiningit na `userId` 🔐 *(`mass-assignment.test.ts` + `24-mass-assignment.http` · 4 na depensa, sinira nang isa-isa at magkasama: kailangang sirain ang DALAWA para magtagumpay ang atake)*
 - **Matututunan:** mass assignment · *Reference: `mass-assignment guard`*
 
 ### Day 78 — API documentation
