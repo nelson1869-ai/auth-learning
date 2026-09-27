@@ -137,7 +137,7 @@ flowchart TD
 ## Admin page — itinatago ang link, pero ang BACKEND ang bantay (Day 49)
 
 > 📅 Day 49 · Phase 10 · **Code:** `frontend/src/pages/AdminPage.tsx` · `frontend/src/api/admin.ts` ·
-> `ProfilePage.tsx` (link) · backend: `routes/admin.ts`, `middleware/requireRole.ts`
+> `ProfilePage.tsx` (link) · backend: `routes/admin.ts` (bantay) → `controllers/admin.controller.ts` → `services/admin.service.ts` (Day 76), `middleware/requireRole.ts`
 
 ```mermaid
 flowchart TD

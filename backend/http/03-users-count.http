@@ -13,7 +13,7 @@
 ###      i-restart (Ctrl+C → npm run dev) — kung hindi, walang DATABASE_URL → 500
 ###   3. I-click ang "Send Request"
 ###
-### Code: backend/src/routes/users.ts · backend/src/db/index.ts · backend/src/db/schema.ts
+### Code: backend/src/controllers/users.controller.ts · services/users.service.ts (Day 76) · backend/src/db/index.ts · backend/src/db/schema.ts
 ### =========================================================================
 
 ### -------------------------------------------------------------------------

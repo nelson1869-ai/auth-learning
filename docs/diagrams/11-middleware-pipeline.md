@@ -22,7 +22,7 @@ flowchart TD
     Cookie --> Routes{"6 · routers sa /api<br/>health · echo · users · auth · admin"}
     Routes -->|"login · register · change-password<br/>forgot-password · resend-verification"| Limit{"rateLimiter (Day 43, 55, 59, 60)<br/>sobra na ang subok?"}
     Limit -->|"oo"| R429["429 Too many attempts"]
-    Limit -->|"hindi"| Handler["route handler<br/>(Zod · argon2 · db)"]
+    Limit -->|"hindi"| Handler["controller (Zod) → service<br/>(argon2 · db) — Day 74–76"]
     Routes -->|"/admin/* (Day 46)"| Admin{"requireAuth → requireRole('admin')<br/>401 · 403 (+ audit: access_denied)"}
     Admin -->|"admin"| Handler
     Routes -->|"ibang route"| Handler

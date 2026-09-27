@@ -11,7 +11,7 @@
 ### Kailangan: isang admin account sa dev database —
 ###   npm run db:set-role -- <email> admin      (tingnan ang 04-register.http #8 at D-023)
 ###
-### Code: backend/src/middleware/requireRole.ts · backend/src/routes/admin.ts
+### Code: backend/src/middleware/requireRole.ts · backend/src/routes/admin.ts (ang bantay) · controllers/admin.controller.ts · services/admin.service.ts (Day 76)
 ### Test: backend/src/routes/admin.test.ts · Diagram: docs/diagrams/13-rbac.md
 ### =========================================================================
 

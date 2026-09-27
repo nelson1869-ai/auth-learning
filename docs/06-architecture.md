@@ -49,7 +49,7 @@ nang hindi nasisira ang iba.
 | **13** | `lib/trustedDevices.ts`, `trusted_devices` table (0010), `users.failed_login_attempts`/`locked_until` (0009) | Per-account lockout (Day 63) at device cookies laban sa lockout DoS (Day 64). Walang `req` ang bagong lib, gaya ng `session.ts` |
 | **14** | `lib/loginLockout.ts` (Day 67), partial UNIQUE indexes (0011), `routes/concurrency.test.ts` + `transactions.test.ts` | Tama kahit sabay-sabay: atomic na bilang (reserve-then-verify), transaction bago ang cookies sa login, ang database bilang huling bantay ng "isang aktibo" |
 | **15** | `unknown_login_attempts` (0012) + `unknownEmailCounter` sa `lib/loginLockout.ts` · `scripts/login-timing.ts` | Hindi malaman kung sino ang may account: pareho ang sagot (Day 71) at ang oras (Day 72) sa login |
-| **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
+| **16** | `src/controllers/` + `src/services/` (✅ Day 74–76) | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto
 
@@ -85,7 +85,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 16, habang inililipat** (Day 74–75: register, login, me, refresh, logout, sessions, change-password na ang nasa controller + service; tugma sa totoong folders):
+**Ngayon — Phase 16: ang huling hugis, TAPOS** (Day 76 — lahat ng route ay routing lang; sinuri gamit ang grep, tingnan sa ibaba):
 ```
 backend/
 ├── src/
@@ -93,13 +93,12 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (URL → middleware → handler; forgot/reset/verify/resend ay nasa route pa — Day 76)
-│   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
-│   │                        users.ts (count) · health.ts · echo.ts
-│   ├── controllers/      ← Day 74–75 · HTTP lang: http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts (register, login, me,
-│   │                        refresh, logout, sessions, revokeSessionById, changePassword)
-│   ├── services/auth/    ← Day 74–75 · logic, WALANG Express: registration · login · session (me, refresh, logout, sessions) ·
-│   │                        password (change) · verification (mga email)
+│   ├── routes/           ← ROUTING LANG: auth.ts · admin.ts (+ ang bantay: requireAuth + requireRole) · users.ts · health.ts · echo.ts
+│   ├── controllers/      ← HTTP lang (Day 74–76): http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts · admin.controller.ts ·
+│   │                        users.controller.ts
+│   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts
+│   │   └── auth/         ← registration · login · session (me, refresh, logout, sessions) · password (change, forgot, reset) ·
+│   │                        verification (verify, resend, mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
@@ -119,7 +118,11 @@ backend/
 > Gumagana at may tests ang lahat, pero habang dumarami ang features, mahirap nang subukan ang logic nang walang Express.
 > **Ayos sa Phase 16:** `controllers/` (HTTP) + `services/` (logic, walang `req`). Ang `audit` ay tatanggap na lang ng plain na
 > `{ ip, userAgent }` (katulad ng `auditFor(req)` ng reference).
-> *(Day 74: ✅ `writeAudit(source, event)` na walang `req` + `auditFor(req)` bilang adapter · ✅ register at login · Day 75: ✅ me, refresh, logout, sessions, change-password · ⏳ forgot/reset/verify/resend at admin sa Day 76.)*
+> *(Day 74: ✅ `writeAudit(source, event)` na walang `req` + `auditFor(req)` bilang adapter · ✅ register at login · Day 75: ✅ me, refresh, logout, sessions, change-password · Day 76: ✅ forgot/reset/verify/resend, admin, users count · ✅ inalis ang pansamantalang `audit(req, …)`.)*
+>
+> **✅ NALUTAS (Day 76).** Sinuri gamit ang grep: walang controller na nag-i-import ng `db`/drizzle/argon2 · walang service na nag-i-import ng `express` o gumagamit ng `req`/`res` ·
+> walang route na may `db`, argon2, Zod o `.status(`. Ang natitirang `req` sa `lib/`: ang `auditFor(req)` sa `lib/audit.ts` (sinadya — ito ang adapter)
+> at ang `clientIp(req)` (tinatawag lang ng mga adapter). Ang `listUsers`/`listAuditLogs` ay nasa `services/admin.service.ts`.
 
 **Phase 16 — ang huling hugis (katulad ng reference):**
 ```

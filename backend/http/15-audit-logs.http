@@ -10,7 +10,7 @@
 ### 🔐 Kailanman: walang password, token, o cookie sa audit log.
 ###
 ### Kailangan: dev admin (palitan ang password sa #3) — tingnan ang 13-admin-rbac.http
-### Code: backend/src/lib/audit.ts · backend/src/routes/admin.ts (listAuditLogs)
+### Code: backend/src/lib/audit.ts (writeAudit, auditFor) · backend/src/services/admin.service.ts (listAuditLogs, Day 76)
 ### Test: backend/src/lib/audit.test.ts · Diagram: docs/diagrams/02-er-diagram.md
 ### =========================================================================
 

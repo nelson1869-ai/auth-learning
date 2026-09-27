@@ -603,10 +603,10 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 16 — Malinis na architecture · 🏗️ *Architect* + ⚙️ *Backend* · Day 74–79
 
 ### Day 74–76 — Service layer
-- [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express) *(Day 74 ✅ pundasyon — `auditFor(req)`, `controllers/http.ts` — + register + login · Day 75 ✅ me, refresh, logout, sessions, change-password · Day 76: ang iba)*
-- [ ] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang
-- [ ] 📊 I-update ang LAHAT ng diagram: hiwalay na banggitin ang controller (HTTP) at service (logic)
-- [ ] 🏗️ Ang huling hugis: `controllers/` + `services/` — i-update ang `docs/06-architecture.md` at LAHAT ng diagram
+- [x] Hatiin: controller (HTTP lang) → service (business logic, walang Express) *(Day 74 pundasyon + register + login · Day 75 me, refresh, logout, sessions, change-password · Day 76 forgot/reset/verify/resend, admin, users count · `routes/auth.ts` 470 → 63 linya)*
+- [x] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang *(10 hakbang, 175/175 bawat isa; ang tanging binago sa tests: isang import path)*
+- [x] 📊 I-update ang LAHAT ng diagram: hiwalay na banggitin ang controller (HTTP) at service (logic) *(sinuri ang header ng bawat diagram · 03, 16 may kahon ng controller/service · 00 bagong layers)*
+- [x] 🏗️ Ang huling hugis: `controllers/` + `services/` — i-update ang `docs/06-architecture.md` at LAHAT ng diagram *(+ sinuri gamit ang grep ang mga tuntunin ng bawat layer)*
 - **Matututunan:** separation of concerns, refactoring nang ligtas · *Reference: `service layer`*
 
 ### Day 77 — Mass-assignment guard

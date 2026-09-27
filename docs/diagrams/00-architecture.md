@@ -13,34 +13,33 @@
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
     subgraph FEG["frontend/ · Vite 8 + React 19 + TypeScript"]
-        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49) · Sessions (Day 54) · ChangePassword (Day 55)<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
+        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49) · Sessions (Day 54) · ChangePassword (Day 55)<br/>ForgotPassword · ResetPassword · VerifyEmail (Day 61) · hooks/useHashToken<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
     end
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
     subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
         MW["requestLogger — log + X-Request-Id<br/>helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>requireSameOrigin — CSRF (Day 44)<br/>express.json() · cookieParser()"]
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
-        Routes["routes/<br/>auth.ts: register · login · me · refresh · logout · sessions ·<br/>change-password · forgot/reset-password · verify-email<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
-        Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
+        Routes["routes/ — ROUTING LANG (Day 76)<br/>auth.ts · admin.ts · users.ts · health.ts · echo.ts<br/>URL → rate limit · requireAuth · requireRole → controller"]
         Auth["middleware/requireAuth.ts<br/>lib/jwt.ts: RS256 · PUBLIC key · iss/aud"]
         Role["middleware/requireRole.ts<br/>role mula sa DB → 403 kung hindi admin"]
+        Ctrl["controllers/ — HTTP LANG (Day 74–76)<br/>http.ts: cookies · parseOr400 · deviceOf<br/>auth · admin · users controllers<br/>input → service → status · body · cookies"]
+        Val["validations/<br/>Zod: auth.ts · pagination.ts"]
+        Svc["services/ — LOGIC, walang Express (Day 74–76)<br/>auth/: registration · login · session · password · verification<br/>admin · users<br/>tumatanggap ng plain na input + audit → maliit na resulta"]
+        Lib["lib/<br/>loginLockout · trustedDevices · session · jwt ·<br/>verificationTokens · email · background · audit"]
         Hash["argon2<br/>hash · verify"]
-        Audit["lib/audit.ts (Day 48)<br/>sino · ano · kanino · totoong IP"]
-        Session["lib/session.ts (Day 51)<br/>access JWT 15 min · refresh token (SHA-256)"]
-        Mail["lib/email.ts (Day 58)<br/>Resend (production) · log (dev/test)"]
         DB["db/index.ts<br/>Drizzle + pg Pool"]
         MW --> Routes
-        Routes --> Val
-        Routes -->|"/me · /admin/*"| Auth
+        Routes -->|"/me · /sessions · /change-password · /admin/*"| Auth
         Auth -->|"/admin/*"| Role
         Role --> DB
-        Routes --> Hash
-        Routes --> DB
-        Routes -->|"register · login · logout · admin"| Audit
-        Role -->|"403 → access_denied"| Audit
-        Audit --> DB
-        Routes -->|"login · refresh"| Session
-        Session --> DB
+        Routes --> Ctrl
+        Ctrl --> Val
+        Ctrl -->|"parsed na input + auditFor(req)"| Svc
+        Svc --> Hash
+        Svc --> Lib
+        Svc --> DB
+        Lib --> DB
     end
     DB -->|"SQL · localhost:5435"| PG
     Mail -->|"HTTPS · Resend API<br/>SPF · DKIM · DMARC"| Resend(["📧 Resend (Tokyo)<br/>no-reply@nelson1869.com"])
