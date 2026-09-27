@@ -18,11 +18,8 @@ import { logger } from '../lib/logger.ts';
 import {
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
-  familyOf,
-  listSessions,
   revokeAllSessions,
   revokeFamilyOf,
-  revokeSession,
   rotateRefreshToken,
 } from '../lib/session.ts';
 import {
@@ -35,7 +32,7 @@ import {
 import { createTrustedDevice, DEVICE_COOKIE, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import { claimVerificationToken, isVerificationTokenUsable } from '../lib/verificationTokens.ts';
-import { login, register } from '../controllers/auth.controller.ts';
+import { login, me, register, revokeSessionById, sessions } from '../controllers/auth.controller.ts';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../services/auth/verification.service.ts';
 import {
   DEVICE_COOKIE_OPTIONS,
@@ -61,29 +58,7 @@ router.post('/auth/register', registerLimiter ?? pass, register);
 
 router.post('/auth/login', loginLimiter ?? pass, login);
 
-// requireAuth muna: kung walang tamang token, hindi na aabot dito (401)
-router.get('/auth/me', requireAuth, async (req, res) => {
-  // Nilagay ng requireAuth — pero `number | undefined` ang type, kaya suriin (walang `!` na hula)
-  const userId = req.userId;
-  if (userId === undefined) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const [user] = await db
-    // + role (Day 49): para malaman ng frontend kung ipapakita ang Admin link. UX lang iyon —
-    // ang requireRole ng backend pa rin ang tunay na bantay sa /api/admin/*
-    .select({ id: users.id, email: users.email, name: users.name, role: users.role, emailVerifiedAt: users.emailVerifiedAt })
-    .from(users)
-    .where(eq(users.id, userId));
-
-  if (!user) {
-    // tama ang token, pero nabura na ang user
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name).
-  // Day 60: emailVerified (true/false) — para sa paalala sa frontend ("soft" verification)
-  const { emailVerifiedAt, ...rest } = user;
-  res.json({ user: { ...rest, emailVerified: emailVerifiedAt !== null } });
-});
+router.get('/auth/me', requireAuth, me);
 
 // Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
 // Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala).
@@ -129,36 +104,9 @@ router.post('/auth/logout', async (req, res) => {
 // ---------------------------------------------------------------------------------------------
 // Mga device ko (Day 54)
 
-// GET /api/auth/sessions — ang mga naka-login kong session. Ang "current" = ang device na nagtatanong
-// (ang refresh_token cookie ay ipinapadala rito dahil /api/auth ang path nito)
-router.get('/auth/sessions', requireAuth, async (req, res) => {
-  const userId = req.userId;
-  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
-  const raw: unknown = req.cookies.refresh_token;
-  const current = typeof raw === 'string' ? await familyOf(raw) : undefined;
-  const sessions = await listSessions(userId);
-  res.json({ sessions: sessions.map((session) => ({ ...session, current: session.id === current })) });
-});
-
-// DELETE /api/auth/sessions/:id — i-logout ang isang device.
-// 🔐 IDOR (Insecure Direct Object Reference): ang id ay galing sa URL, kaya kayang palitan ng kahit sino.
-// Kaya: (1) naka-scope sa naka-login na user ang pagbawi (revokeSession), at (2) 404 — hindi 403 — sa session
-// ng ibang user, sa id na wala, at sa id na hindi UUID. Iisang sagot: hindi nalalaman kung totoo ang id
-const sessionId = z.uuid();
-router.delete('/auth/sessions/:id', requireAuth, async (req, res) => {
-  const userId = req.userId;
-  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
-  // Hindi UUID → hindi na tinatanong ang database (kung hindi: error ng Postgres sa maling uuid → 500)
-  const parsed = sessionId.safeParse(req.params.id);
-  if (!parsed.success || !(await revokeSession(userId, parsed.data))) {
-    return res.status(404).json({ error: 'Not found' });
-  }
-  await audit(req, { action: 'session_revoked', actorId: userId, targetId: userId, metadata: { session: parsed.data } });
-  // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
-  const raw: unknown = req.cookies.refresh_token;
-  if (typeof raw === 'string' && (await familyOf(raw)) === parsed.data) clearSessionCookies(res);
-  res.status(204).end();
-});
+router.get('/auth/sessions', requireAuth, sessions);
+// 🔐 IDOR: tingnan ang controller at ang session.service (404 sa session na hindi iyo)
+router.delete('/auth/sessions/:id', requireAuth, revokeSessionById);
 
 // ---------------------------------------------------------------------------------------------
 // Change password (Day 55) — isang "high-risk event": dito nauuwi ang account kapag may nakanakaw

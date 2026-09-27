@@ -1,12 +1,14 @@
 import type { RequestHandler } from 'express';
+import { z } from 'zod';
 import { auditFor } from '../lib/audit.ts';
 import { runInBackground } from '../lib/background.ts';
 import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
 import { loginSchema, registerSchema } from '../validations/auth.ts';
 import { login as loginService } from '../services/auth/login.service.ts';
 import { registerUser } from '../services/auth/registration.service.ts';
+import { getMe, listMySessions, revokeMySession } from '../services/auth/session.service.ts';
 import { sendVerificationEmail } from '../services/auth/verification.service.ts';
-import { deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
+import { clearSessionCookies, deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
 
 // Auth controllers (Day 74) — HTTP LANG: suriin ang input → tawagin ang service → isalin ang resulta sa status, body at cookies.
 // Walang SQL, walang argon2, walang patakaran ng negosyo dito — nasa services/auth/* ang mga iyon
@@ -48,4 +50,51 @@ export const login: RequestHandler = async (req, res) => {
   setRefreshCookie(res, result.refreshToken);
   if (result.newDeviceToken) setDeviceCookie(res, result.newDeviceToken);
   res.json({ user: result.user });
+};
+
+// requireAuth muna sa route: kung walang tamang token, hindi na aabot dito (401)
+export const me: RequestHandler = async (req, res) => {
+  // Nilagay ng requireAuth — pero `number | undefined` ang type, kaya suriin (walang `!` na hula)
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  const user = await getMe(userId);
+  if (!user) {
+    // tama ang token, pero nabura na ang user
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  res.json({ user });
+};
+
+// GET /api/auth/sessions — ang refresh_token cookie ay ipinapadala rito dahil /api/auth ang path nito
+export const sessions: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  res.json({ sessions: await listMySessions(userId, req.cookies.refresh_token) });
+};
+
+// DELETE /api/auth/sessions/:id — 404 (hindi 403) sa session ng ibang user, sa id na wala, at sa id na hindi UUID
+const sessionIdSchema = z.uuid();
+export const revokeSessionById: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  // Hindi UUID → hindi na tinatanong ang database (kung hindi: error ng Postgres sa maling uuid → 500)
+  const parsed = sessionIdSchema.safeParse(req.params.id);
+  const result = parsed.success ? await revokeMySession(userId, parsed.data, req.cookies.refresh_token, auditFor(req)) : undefined;
+  if (!result || result.status === 'not_found') {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
+  // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
+  if (result.wasCurrent) clearSessionCookies(res);
+  res.status(204).end();
 };
