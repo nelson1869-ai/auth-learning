@@ -129,7 +129,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas — `z.toJSONSchema` (Zod 4) + `swagger-ui-express` + sariling generator ng frontend types (D-027) | Backend | 16 ✅ Day 78 |
 | **knip** | Paghahanap ng unused code at dependencies — v6 (walang TypeScript peer, kaya ayos sa TS 7), bahagi ng `npm run lint` | QA | 16 ✅ Day 79 |
 | **OpenTelemetry** | Metrics at tracing — Day 81: metrics SDK + Prometheus exporter + sariling middleware, walang auto-instrumentation (D-028); tracing: hindi pa | DevOps | 17 ✅ Day 81 (metrics) |
-| **Prometheus** + **Grafana** | Pag-iipon ng metrics at dashboards | DevOps | 17 |
+| **Prometheus** + **Grafana** | Pag-iipon ng metrics at dashboards — Day 82: Prometheus v3.7.3 + Grafana 12.3.0 (naka-pin), provisioned na datasource at dashboard, 127.0.0.1 lang | DevOps | 17 ✅ Day 82–83 |
 | **Alertmanager** | Email kapag may sira | DevOps | 17 |
 | **Dependabot**, **gitleaks**, **Grype** | Supply-chain at container security | DevOps / Security | 18 |
 | **Redis** | Shared na store ng rate limiter (maraming server) + **server cache** (Day 92b) | DevOps | 18 |

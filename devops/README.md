@@ -32,11 +32,15 @@ Docker · Docker Compose · GitHub Actions · Cloudflare (domain + Tunnel) · Pr
 ```
 devops/
 ├── docker-compose.yml       ← dev: Postgres (project `auth-learning`)
-├── docker-compose.prod.yml  ← production: backend + cloudflared (project `auth-learning-prod`)
+├── docker-compose.prod.yml  ← production: backend + cloudflared + prometheus + grafana (project `auth-learning-prod`)
 ├── cloudflared/config.yml   ← tunnel → api.nelson1869.com
 ├── deploy.sh                ← pull ng image mula GHCR → migrate → restart → health (Day 37)
 ├── deploy/             ← mga script at dokumentasyon ng deploy
-└── monitoring/         ← Prometheus, Grafana (Phase 9+)
+└── monitoring/              ← Day 82: Prometheus + Grafana (lahat ng config ay naka-commit, walang click sa UI)
+    ├── prometheus/prometheus.yml                       ← scrape ng backend:9464 bawat 15s
+    └── grafana/provisioning/
+        ├── datasources/prometheus.yml                  ← Grafana → http://prometheus:9090
+        └── dashboards/{dashboards.yml, json/app-overview.json}   ← ang dashboard ng app
 ```
 > Ang GitHub Actions workflows ay nasa `/.github/workflows/` sa root —
 > requirement iyon ng GitHub, hindi puwedeng ilipat dito.
@@ -96,6 +100,30 @@ curl https://api.nelson1869.com/api/health/ready  # readiness: naaabot ba ang Ne
 - Cloudflare: **SSL/TLS → Edge Certificates → Always Use HTTPS: ON** (http → 301)
 - `TRUST_CLOUDFLARE=true` sa `backend/.env.production` — rate limit bawat totoong IP (`CF-Connecting-IP`).
   Ligtas LANG dahil walang bukas na port ang backend. Na-block? `docker compose … restart backend` (memory store)
+
+## Monitoring (Day 82–83) — Prometheus + Grafana
+| | URL (sa PC lang) | Login |
+|---|---|---|
+| Grafana dashboard | http://127.0.0.1:3002/d/auth-learning-app | `admin` + `GRAFANA_ADMIN_PASSWORD` sa `devops/.env` |
+| Prometheus | http://127.0.0.1:9091 (Status → Targets: dapat **UP**) | wala (kaya 127.0.0.1 lang) |
+
+```bash
+cd devops && export IMAGE_TAG=$(cat .deployed-sha)
+docker compose -f docker-compose.prod.yml up -d prometheus grafana     # simulan (ginagawa na rin ng deploy.sh, step 7)
+docker compose -f docker-compose.prod.yml restart prometheus           # ⚠️ pagkatapos baguhin ang prometheus.yml (hindi kusang binabasa ulit)
+# app-overview.json: kusang binabasa ulit ng Grafana (bawat ~10s) — i-refresh lang ang browser
+docker compose -f docker-compose.prod.yml logs grafana | tail           # kapag ayaw mag-load
+# (opsyonal) burahin ang 4 na plugin na na-download bago pinatay ang preinstall (Day 82), tapos i-restart ang grafana:
+docker compose -f docker-compose.prod.yml exec grafana sh -c 'for p in grafana-exploretraces-app grafana-lokiexplore-app grafana-metricsdrilldown-app grafana-pyroscope-app; do grafana cli plugins remove $p; done'
+```
+- **🔐 127.0.0.1 lang** (hindi `0.0.0.0`): hindi maaabot mula sa LAN o sa tunnel. Sinubukan mula sa LAN IP → walang koneksyon.
+  Iba ang port sa reference (9090/3001 ay gamit na nito sa PC na ito).
+- **Walang password ang Prometheus.** Ayos lang dahil sa PC lang ito naaabot. Kapag ilalabas, kailangan ng login sa harap nito.
+- **Grafana:** walang sign-up, walang anonymous, walang pag-download ng plugin tuwing boot, walang analytics.
+  Ang password ay galing sa `devops/.env`. ⚠️ Sa **unang** boot lang ito ginagamit (nakaimbak na sa volume pagkatapos, gaya ng Postgres);
+  para palitan: `docker compose -f docker-compose.prod.yml exec grafana grafana cli admin reset-admin-password <bago>`.
+- **May memory limit** (512M / 256M) at retention (15 araw o 1GB): hindi puwedeng kainin ng monitoring ang PC na nagpapatakbo ng app.
+- Ang mga query ay nasa `backend/http/28-prometheus-queries.http`. Diagram: `docs/diagrams/22-observability.md`.
 
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit

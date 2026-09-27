@@ -1,0 +1,78 @@
+### =========================================================================
+### 🎓 PROMETHEUS QUERIES — ang mga tanong sa likod ng bawat panel ng dashboard (PromQL)
+### 📅 Day 82–83 · Phase 17 (Observability)
+### =========================================================================
+### Ang daloy: backend:9464/metrics ──(scrape bawat 15s)──▶ Prometheus ──(query)──▶ Grafana dashboard
+###   Ang mga query dito ay KAPAREHO ng nasa devops/monitoring/grafana/provisioning/dashboards/json/app-overview.json.
+###   Kapag gusto mong baguhin ang isang panel, subukan muna rito ang query.
+###
+### ⚠️ Ang production stack ang kailangan (hindi ang dev server): cd devops && ./deploy.sh
+###    o: docker compose -f docker-compose.prod.yml up -d prometheus grafana  (tingnan ang devops/README.md)
+### 🔐 127.0.0.1 LANG — hindi maaabot mula sa LAN o internet. Walang password ang Prometheus, kaya hindi ito dapat ilabas.
+###
+### Grafana (sa browser): http://127.0.0.1:3002/d/auth-learning-app  (admin + GRAFANA_ADMIN_PASSWORD sa devops/.env)
+### Ang sagot ng bawat query: { "status": "success", "data": { "result": [ { "metric": {...}, "value": [oras, "NUMERO"] } ] } }
+###
+### Mga salitang PromQL:
+###   rate(x[5m])      → ilan BAWAT SEGUNDO, average sa huling 5 minuto (para sa counter na laging tumataas)
+###   increase(x[5m])  → ilan ang nadagdag sa huling 5 minuto
+###   sum by (label)   → pagsamahin ang mga serye, isang linya bawat value ng label
+###   histogram_quantile(0.95, …) → p95: 95% ng request ay mas mabilis dito
+###
+### Config: devops/monitoring/ · Code ng metrics: backend/src/lib/metrics.ts · Diagram: docs/diagrams/22-observability.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Buhay ba ang app? (panel "App (Prometheus up)")
+###    Ang inaasahan: 200 · value "1" (0 = hindi ma-scrape ang backend:9464 — iyan ang ia-alert sa Day 84)
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=up{job="auth-learning-backend"}
+
+### -------------------------------------------------------------------------
+### 2. Ilang request bawat segundo, ayon sa status (panel "Requests / segundo ayon sa status")
+###    Ang inaasahan: 200 · isang serye bawat status (200, 401, 404…). Gumawa muna ng request, hal. 06-me.http
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum by (http_response_status_code) (rate(http_server_request_duration_count[5m]))
+
+### -------------------------------------------------------------------------
+### 3. Ilang % ang 5xx? (panel "5xx")
+###    Ang inaasahan: 200 · value "0" kapag walang 5xx.
+###    Bakit may `or vector(0)`: kapag WALANG 5xx, walang serye → walang resulta → "No data" sa Grafana sa halip na 0%.
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=100 * (sum(rate(http_server_request_duration_count{http_response_status_code=~"5.."}[5m])) or vector(0)) / clamp_min(sum(rate(http_server_request_duration_count[5m])), 1e-9)
+
+### -------------------------------------------------------------------------
+### 4. Gaano kabagal? p95 bawat route, hindi kasama ang health checks (panel "p95 na tagal ayon sa route")
+###    Ang inaasahan: 200 · value sa SEGUNDO (hal. "0.0047" = 4.7ms). "NaN" = walang request sa route na iyon sa huling 5 minuto
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=histogram_quantile(0.95, sum by (le, http_route) (rate(http_server_request_duration_bucket{http_route!~"/api/health.*"}[5m])))
+
+### -------------------------------------------------------------------------
+### 5. 🔐 Mga security event (panel "Security events")
+###    Ang inaasahan: 200 · isang serye bawat action (0 kung wala). Subukan: 05-login.http na maling password, tapos ulitin ito
+###    (hintayin ang ~15s na scrape) → tataas ang login_failed.
+###    Day 82 🐛: dati, hindi nakikita ang UNANG event pagkatapos ng bawat restart (ang serye ay "ipinapanganak" sa 1,
+###    walang naunang sample na paghahambingan). Ayos: sinisimulan sa 0 ang bawat action (lib/metrics.ts).
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum by (action) (increase(auth_audit_events_total{action=~"login_failed|account_locked|refresh_reuse|access_denied|password_change_failed"}[5m]))
+
+### -------------------------------------------------------------------------
+### 6. Maling PromQL → 400, may paliwanag sa "error". Ang inaasahan: 400 { "status": "error", "errorType": "bad_data", … }
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum by (
+
+### -------------------------------------------------------------------------
+### 7. Ano ang sinisilip ng Prometheus? Ang inaasahan: 200 · "health": "up", "scrapeUrl": "http://backend:9464/metrics", "lastError": ""
+GET http://127.0.0.1:9091/api/v1/targets

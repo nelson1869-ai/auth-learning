@@ -641,7 +641,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** metrics vs logs · *Reference: `metrics + distributed tracing`*
 
 ### Day 82–83 — Dashboards
-- [ ] Prometheus + Grafana: isang dashboard ng app
+- [x] Prometheus + Grafana: isang dashboard ng app *(8 panel, provisioned mula sa file — walang click sa UI · 127.0.0.1 lang · may memory limit · nahuli: "No data" sa halip na 0% · ang unang audit event pagkatapos ng restart ay hindi nakikita ng `increase()` → sinisimulan sa 0)*
+- [x] 📝 `backend/http/28-prometheus-queries.http` — ang mga query sa likod ng bawat panel
+- [x] 📊 `docs/diagrams/22-observability.md` — Prometheus at Grafana (buong linya na)
 - **Matututunan:** "nakikita mo ba ang problema bago pa magreklamo ang user?"
 
 ### Day 84 — Alerts
