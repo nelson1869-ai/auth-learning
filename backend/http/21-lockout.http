@@ -16,6 +16,8 @@
 ###   - ✅ Naayos sa Day 64: "kayang i-lock ng KAHIT SINO ang account mo" — hindi na sa browser na dati mo nang ginamit
 ###     (device cookies, 22-device-cookies.http). Ang BAGONG browser mo ay naka-lock pa rin → labasan: reset password.
 ###   - SABAY na 20 hula: lahat nasusuri, at hindi na-lock (sinukat: 2–3 lang ang naitala) — Day 66–67.
+###     Hindi ito kayang ipakita ng .http (isa-isa ang pagpapadala) — ang patunay ay routes/concurrency.test.ts (Day 66)
+###     at ang diagram 20-race-conditions.md
 ###   - Ang 423 ay nagsasabing may account ang email (Phase 15).
 ###
 ### Sa dev: bagong server bago patakbuhin (ang rate limit ay 10 palpak bawat IP — 7 ang ginagamit dito).

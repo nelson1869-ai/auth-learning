@@ -65,7 +65,7 @@ flowchart TD
 - **Sunod-sunod lang ang binibilang:** balik sa 0 sa tamang login. At 0 ulit pagka-lock, para 5 subok ulit pagkatapos ng 15 minuto (hindi 1).
 - **⚠️ Tatlong alam na kahinaan, bawat isa ay may nakaplanong araw:**
   1. ~~**Kayang i-lock ng kahit sino ang account mo**~~ → **naayos sa Day 64** (device cookies, tingnan sa ibaba).
-  2. **Sabay na hula:** binabasa ang bilang, +1 sa JavaScript, saka isinusulat. Sinukat: 20 sabay na maling password → **20 × 401, lahat
+  2. **Sabay na hula** (tingnan ang diagram 20 at `concurrency.test.ts`, Day 66): binabasa ang bilang, +1 sa JavaScript, saka isinusulat. Sinukat: 20 sabay na maling password → **20 × 401, lahat
      nasuri, bilang = 2–3, hindi na-lock.** → Day 66 (test na huhuli) at Day 67 (`UPDATE … WHERE … RETURNING`).
   3. **Ang 423 ay nagsasabing may account ang email** (ang walang account ay laging 401). Mayroon ding isang dagdag na UPDATE sa
      maling password ng totoong account (hindi pa muling sinukat ang oras) → Phase 15.
