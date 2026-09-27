@@ -12,15 +12,12 @@ import {
   verifyEmailSchema,
 } from '../validations/auth.ts';
 import { requireAuth } from '../middleware/requireAuth.ts';
-import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
+import { signAccessToken } from '../lib/jwt.ts';
 import { audit } from '../lib/audit.ts';
-import { logger } from '../lib/logger.ts';
 import {
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
   revokeAllSessions,
-  revokeFamilyOf,
-  rotateRefreshToken,
 } from '../lib/session.ts';
 import {
   changePasswordLimiter,
@@ -32,12 +29,11 @@ import {
 import { createTrustedDevice, DEVICE_COOKIE, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import { claimVerificationToken, isVerificationTokenUsable } from '../lib/verificationTokens.ts';
-import { login, me, register, revokeSessionById, sessions } from '../controllers/auth.controller.ts';
+import { login, logout, me, refresh, register, revokeSessionById, sessions } from '../controllers/auth.controller.ts';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../services/auth/verification.service.ts';
 import {
   DEVICE_COOKIE_OPTIONS,
   REFRESH_COOKIE_OPTIONS,
-  clearSessionCookies,
   deviceOf,
   setAccessCookie,
 } from '../controllers/http.ts';
@@ -60,46 +56,9 @@ router.post('/auth/login', loginLimiter ?? pass, login);
 
 router.get('/auth/me', requireAuth, me);
 
-// Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
-// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala).
-// Day 52: bawat refresh ay may BAGONG refresh token (rotation); ang paggamit ulit ng luma = nakaw
-router.post('/auth/refresh', async (req, res) => {
-  const raw: unknown = req.cookies.refresh_token;
-  const result = typeof raw === 'string' ? await rotateRefreshToken(raw, deviceOf(req)) : ({ status: 'invalid' } as const);
-
-  if (result.status === 'rotated') {
-    setAccessCookie(res, signAccessToken(result.userId));
-    res.cookie('refresh_token', result.refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
-    return res.status(204).end();
-  }
-  if (result.status === 'grace') {
-    // Sabay na refresh (hal. dalawang tab): access token lang — ang bagong refresh token ay nasa cookie na
-    // mula sa unang request. HINDI ginagalaw ang refresh_token cookie
-    setAccessCookie(res, signAccessToken(result.userId));
-    return res.status(204).end();
-  }
-  if (result.status === 'reused') {
-    // Security event: sa logs (Day 42) at sa audit log (Day 48)
-    (req.log ?? logger).warn({ event: 'refresh_reuse', userId: result.userId }, 'Refresh token reuse — family revoked');
-    await audit(req, { action: 'refresh_reuse', targetId: result.userId });
-  }
-  // Wala, binawi, expired, pekeng token, o nakaw — burahin ang mga cookie para hindi na subukan ulit ng browser
-  clearSessionCookies(res);
-  res.status(401).json({ error: 'Not authenticated' });
-});
-
-// Walang requireAuth: laging gumagana ang logout, kahit expired na ang access token.
-// Day 53 — totoong logout: binabawi ang refresh token sa DATABASE. Kahit may nakakopya nito, hindi na ito gagana.
-// ⚠️ Ang access token (JWT) ay valid pa hanggang mag-expire (≤ 15 min) — hindi ito naka-save, kaya hindi mababawi
-router.post('/auth/logout', async (req, res) => {
-  const raw: unknown = req.cookies.refresh_token;
-  const revokedFor = typeof raw === 'string' ? await revokeFamilyOf(raw) : undefined;
-  // Sino ang nag-logout? Mula sa access token kung valid pa, o mula sa binawing refresh token; kung wala, null
-  const userId = userIdFromAccessToken(req.cookies.token) ?? revokedFor ?? null;
-  await audit(req, { action: 'logout', actorId: userId, targetId: userId });
-  clearSessionCookies(res); // pareho ng access at refresh (Day 51)
-  res.status(204).end(); // 204 = nagawa, walang body
-});
+router.post('/auth/refresh', refresh);
+// Walang requireAuth: laging gumagana ang logout, kahit expired na ang access token
+router.post('/auth/logout', logout);
 
 // ---------------------------------------------------------------------------------------------
 // Mga device ko (Day 54)

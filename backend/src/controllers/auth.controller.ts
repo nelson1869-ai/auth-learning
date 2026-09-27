@@ -6,7 +6,7 @@ import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
 import { loginSchema, registerSchema } from '../validations/auth.ts';
 import { login as loginService } from '../services/auth/login.service.ts';
 import { registerUser } from '../services/auth/registration.service.ts';
-import { getMe, listMySessions, revokeMySession } from '../services/auth/session.service.ts';
+import { getMe, listMySessions, logout as logoutService, refreshSession, revokeMySession } from '../services/auth/session.service.ts';
 import { sendVerificationEmail } from '../services/auth/verification.service.ts';
 import { clearSessionCookies, deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
 
@@ -97,4 +97,36 @@ export const revokeSessionById: RequestHandler = async (req, res) => {
   // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
   if (result.wasCurrent) clearSessionCookies(res);
   res.status(204).end();
+};
+
+// POST /api/auth/refresh — tinatawag ng frontend kapag 401 ang isang request.
+// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala)
+export const refresh: RequestHandler = async (req, res) => {
+  const result = await refreshSession(req.cookies.refresh_token, deviceOf(req), auditFor(req));
+  if (result.status === 'rotated') {
+    setAccessCookie(res, result.accessToken);
+    setRefreshCookie(res, result.refreshToken);
+    res.status(204).end();
+    return;
+  }
+  if (result.status === 'grace') {
+    // Ang bagong refresh token ay nasa cookie na mula sa unang request — HINDI ginagalaw ang refresh_token cookie
+    setAccessCookie(res, result.accessToken);
+    res.status(204).end();
+    return;
+  }
+  if (result.status === 'reused') {
+    // Security event: sa logs (Day 42, kasama ang requestId) — ang audit ay itinala na ng service (Day 48)
+    req.log.warn({ event: 'refresh_reuse', userId: result.userId }, 'Refresh token reuse — family revoked');
+  }
+  // Wala, binawi, expired, pekeng token, o nakaw — burahin ang mga cookie para hindi na subukan ulit ng browser
+  clearSessionCookies(res);
+  res.status(401).json({ error: 'Not authenticated' });
+};
+
+// POST /api/auth/logout — walang requireAuth: laging gumagana, kahit expired na ang access token
+export const logout: RequestHandler = async (req, res) => {
+  await logoutService(req.cookies.refresh_token, req.cookies.token, auditFor(req));
+  clearSessionCookies(res); // pareho ng access at refresh (Day 51)
+  res.status(204).end(); // 204 = nagawa, walang body
 };

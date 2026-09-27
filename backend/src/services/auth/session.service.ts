@@ -2,7 +2,8 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../db/index.ts';
 import { users } from '../../db/schema.ts';
 import type { Audit } from '../../lib/audit.ts';
-import { familyOf, listSessions, revokeSession } from '../../lib/session.ts';
+import { signAccessToken, userIdFromAccessToken } from '../../lib/jwt.ts';
+import { familyOf, listSessions, revokeFamilyOf, revokeSession, rotateRefreshToken, type Device } from '../../lib/session.ts';
 
 // Sessions (Day 49–54) — business logic lang: walang req/res, walang cookies, walang status code (Day 75).
 // Ang raw na refresh token (mula sa cookie) ay `unknown`: ang service ang sumusuri kung string ito
@@ -37,4 +38,35 @@ export async function revokeMySession(userId: number, sessionId: string, rawRefr
   // Ang device ba na ito mismo ang ni-logout? (kung oo, buburahin ng controller ang mga cookie nito)
   const wasCurrent = typeof rawRefreshToken === 'string' && (await familyOf(rawRefreshToken)) === sessionId;
   return { status: 'revoked', wasCurrent };
+}
+
+// Bagong access token gamit ang refresh token (Day 51). Day 52: bawat refresh ay may BAGONG refresh token (rotation);
+// ang paggamit ulit ng luma = nakaw → binawi ang buong family
+export type RefreshResult =
+  | { status: 'rotated'; accessToken: string; refreshToken: string }
+  | { status: 'grace'; accessToken: string } // sabay na refresh (dalawang tab): access token lang
+  | { status: 'reused'; userId: number } // security event — itinala na sa audit; ang controller ang magla-log
+  | { status: 'invalid' }; // wala, binawi, expired, o peke
+
+export async function refreshSession(rawRefreshToken: unknown, device: Device, audit: Audit): Promise<RefreshResult> {
+  if (typeof rawRefreshToken !== 'string') return { status: 'invalid' };
+  const result = await rotateRefreshToken(rawRefreshToken, device);
+  if (result.status === 'rotated') {
+    return { status: 'rotated', accessToken: signAccessToken(result.userId), refreshToken: result.refreshToken };
+  }
+  if (result.status === 'grace') return { status: 'grace', accessToken: signAccessToken(result.userId) };
+  if (result.status === 'reused') {
+    await audit({ action: 'refresh_reuse', targetId: result.userId });
+    return { status: 'reused', userId: result.userId };
+  }
+  return { status: 'invalid' };
+}
+
+// Day 53 — totoong logout: binabawi ang refresh token sa DATABASE. Laging nagtatagumpay (kahit walang cookie).
+// ⚠️ Ang access token (JWT) ay valid pa hanggang mag-expire (≤ 15 min) — hindi ito naka-save, kaya hindi mababawi
+export async function logout(rawRefreshToken: unknown, rawAccessToken: unknown, audit: Audit): Promise<void> {
+  const revokedFor = typeof rawRefreshToken === 'string' ? await revokeFamilyOf(rawRefreshToken) : undefined;
+  // Sino ang nag-logout? Mula sa access token kung valid pa, o mula sa binawing refresh token; kung wala, null
+  const userId = userIdFromAccessToken(rawAccessToken) ?? revokedFor ?? null;
+  await audit({ action: 'logout', actorId: userId, targetId: userId });
 }
