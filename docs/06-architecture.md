@@ -107,7 +107,7 @@ backend/
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
 ├── drizzle/              ← migrations 0000–0012
-└── http/                 ← 01–23 .http walkthroughs
+└── http/                 ← 01–24 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**

@@ -48,3 +48,26 @@ flowchart TD
 - **Mga cookie at audit PAGKATAPOS ng commit:** kung nag-rollback, walang dapat maipadala.
 - **Natitirang limitasyon:** ang access token (JWT) ng ibang device ay gagana pa nang ≤ 15 minuto (Day 53). Ang reference ay may `tokenVersion`
   para rito; nasa backlog natin ito.
+
+## Mass assignment: apat na depensa (Day 77)
+
+> **Subukan:** `backend/http/24-mass-assignment.http` · test: `backend/src/routes/mass-assignment.test.ts`
+
+```mermaid
+flowchart LR
+    Body(["body mula sa attacker<br/>{ currentPassword, newPassword,<br/>userId: 7 ← ang biktima }"]) --> D1["1 · parseOr400 (Zod)<br/>tinatanggal ang userId<br/>(wala sa schema)"]
+    D1 --> D2["2 · controller<br/>{ ...input, userId: req.userId }<br/>ang galing sa SERVER ang nasa huli"]
+    D2 --> D3["3 · service<br/>tahasang kinukuha ang bawat field<br/>(hindi ipinapasa ang buong input sa DB)"]
+    D3 --> D4["4 · reauthentication<br/>kailangan ang password ng MAY-ARI"]
+    D4 --> OK["✅ ang password lang ng attacker<br/>ang napalitan"]
+```
+
+| Sinira (pansubok, Day 77) | Ligtas pa ba? |
+|---|---|
+| 1 lang (raw na body mula sa `parseOr400`) | ✅ oo: ang spread (2) at ang service (3) pa rin ang nagbabantay. Bumagsak lang ang unit test ng `parseOr400` |
+| 2 lang (baligtad ang spread) | ✅ oo: tinatanggal ni Zod (1) ang `userId` |
+| 1 + 2 | ❌ **napalitan ang password ng biktima**, pero sa test lang (parehong password). Kapag iba ang password ng biktima: **400 "Incorrect password"** (4) |
+| 1 + 3 (register: `values({ ...input })`) | ❌ **naging admin** ang attacker |
+| 1 + 2 (login: device mula sa body) | ❌ ang IP sa "Mga device ko" ay galing sa attacker |
+
+**Aral:** walang iisang depensa na sapat kapag nagkamali ang code. Kaya may ilang layer: kailangang magkamali ang **dalawa** bago magtagumpay ang atake.
