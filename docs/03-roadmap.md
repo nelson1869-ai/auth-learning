@@ -516,7 +516,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 📊 `docs/diagrams/19-verify-email.md`
 
 ### Day 61 — Frontend pages
-- [ ] Forgot password, reset password, at verify email pages
+- [x] Forgot password, reset password, at verify email pages *(+ paalala at "Ipadala ulit" sa Profile; button ang verify, hindi kusa; `useHashToken`: tinatanggal ang token sa address bar)*
 
 ### Day 62 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)

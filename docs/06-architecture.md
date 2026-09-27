@@ -146,7 +146,9 @@ backend/src/
 frontend/src/
 ├── main.tsx          ← simula ng app
 ├── App.tsx           ← aling page ang ipapakita
-├── pages/            ← Login, Register, Profile, Admin, Sessions, ChangePassword (isang screen bawat isa)
+├── pages/            ← Login, Register, Profile, Admin, Sessions, ChangePassword,
+│                        ForgotPassword, ResetPassword, VerifyEmail (Day 61) — isang screen bawat isa
+├── hooks/            ← useHashToken.ts (Day 61) — token mula sa #fragment ng link sa email
 ├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button) — wala pang laman (Day 50)
 └── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar: auth.ts, admin.ts
 ```

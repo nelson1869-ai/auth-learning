@@ -69,3 +69,12 @@ small.note {
   padding: 1px 6px;
 }
 
+
+/* Paalalang "hindi pa verified" sa Profile (Day 61) — dilaw: babala, hindi error */
+.notice {
+  background: #fff8e1;
+  border: 1px solid #f0c36d;
+  border-radius: 6px;
+  padding: 4px 12px 12px;
+  margin-bottom: 12px;
+}
