@@ -460,3 +460,24 @@
   **Walang kailangang mag-login ulit**, dahil nasa database ang refresh token at hindi ito JWT.
 - **Kapalit:** walang "key rotation" pa (iisang key). Sa hinaharap: `kid` sa header at dalawang public key habang nagpapalit.
 
+## D-025 · Email: Resend, "sending access" na key, walang tracking
+
+- **Petsa:** 2026-09-27 (Day 58)
+- **Context:** kailangan ng password reset at email verification (Phase 12) ang totoong email. Stub lang (log) ang reference.
+- **Mga pagpipilian:** Resend · Brevo · Gmail SMTP (App Password).
+- **Pinili:** **Resend**, pinili ni Nelson (rekomendasyon).
+- **Bakit:**
+  - HTTP API: `fetch` lang, walang bagong library.
+  - Sariling domain (`no-reply@nelson1869.com`), kaya natutunan ang SPF, DKIM at DMARC. Libre hanggang 3,000/buwan.
+  - Region Tokyo, pinakamalapit sa PH.
+- **Mga setting:**
+  - **API key: "Sending access" lang**, para sa `nelson1869.com` (least privilege). Nasa `.env.production`, at hindi kailanman ipinakita sa chat.
+  - **Click at open tracking: off.** Pinapalitan ng click tracking ang mga link, at may secret na token ang reset link.
+    (Hindi ma-off ang click tracking sa form ng pagdagdag; `text/plain` ang email natin, at susuriin ang link sa Day 59.)
+  - **Receiving: off** (hindi tayo tumatanggap ng email).
+  - DMARC `p=none` muna (bantayan), puwedeng gawing `quarantine` kapag matatag na.
+- **Code:** `lib/email.ts`: Resend kapag may `RESEND_API_KEY`, kung wala ay log lang (dev at tests, walang totoong email mula sa tests).
+  **Fail-fast:** ayaw mag-start ng production kapag walang key.
+- **Natutunan (deliverability):** PASS ang SPF, DKIM at DMARC, pero **Spam** pa rin sa Gmail (dalawang email, pati ang maayos na
+  transactional na laman). Bagong domain ito na walang reputasyon, kaya kailangan ng warm-up. Hindi ito maaayos ng code.
+

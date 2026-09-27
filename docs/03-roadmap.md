@@ -500,7 +500,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 12 — Email · ⚙️ *Backend* + 🎨 *Frontend* + 🚀 *DevOps* · Day 58–62
 
 ### Day 58 — Totoong email provider
-- [ ] Resend o Brevo; API key sa `.env` lang
+- [x] Resend o Brevo; API key sa `.env` lang *(Resend — D-025; domain na-verify: SPF/DKIM/DMARC PASS; `npm run email:test`; fail-fast sa production na walang key)*
 - **Matututunan:** transactional email, deliverability (bakit napupunta sa spam)
 
 ### Day 59 — Password reset

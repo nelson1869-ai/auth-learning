@@ -6,7 +6,7 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · Day 56 (RS256) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · Day 56 (RS256) · Day 58 (email) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`18`
 
 ```mermaid
@@ -27,6 +27,7 @@ flowchart LR
         Hash["argon2<br/>hash · verify"]
         Audit["lib/audit.ts (Day 48)<br/>sino · ano · kanino · totoong IP"]
         Session["lib/session.ts (Day 51)<br/>access JWT 15 min · refresh token (SHA-256)"]
+        Mail["lib/email.ts (Day 58)<br/>Resend (production) · log (dev/test)"]
         DB["db/index.ts<br/>Drizzle + pg Pool"]
         MW --> Routes
         Routes --> Val
@@ -42,6 +43,7 @@ flowchart LR
         Session --> DB
     end
     DB -->|"SQL · localhost:5435"| PG
+    Mail -->|"HTTPS · Resend API<br/>SPF · DKIM · DMARC"| Resend(["📧 Resend (Tokyo)<br/>no-reply@nelson1869.com"])
     subgraph Docker["Docker · project: auth-learning"]
         PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0006")]
         Vol[/"volume: auth-learning_pgdata"/]

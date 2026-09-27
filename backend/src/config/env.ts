@@ -33,7 +33,16 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
-});
+  // Email (Day 58). Resend API key (nagsisimula sa "re_"). Kapag wala: nilo-log lang ang email (dev at tests)
+  RESEND_API_KEY: z.string().startsWith('re_').optional(),
+  // Kanino galing ang email — dapat nasa domain na na-verify sa Resend (SPF/DKIM)
+  EMAIL_FROM: z.string().default('auth-learning <no-reply@nelson1869.com>'),
+})
+  // Sa production, BAWAL walang email provider: kung hindi, tahimik na mawawala ang reset/verification emails
+  .refine((env) => env.NODE_ENV !== 'production' || env.RESEND_API_KEY !== undefined, {
+    path: ['RESEND_API_KEY'],
+    message: 'Required in production (emails would silently go nowhere)',
+  });
 
 const result = envSchema.safeParse(process.env);
 if (!result.success) {
