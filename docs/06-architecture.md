@@ -45,6 +45,7 @@ nang hindi nasisira ang iba.
 | **9** | `helmet()` sa `app.ts`, `middleware/rateLimiter.ts`, `frontend/public/_headers` (CSP), `lib/` (logger, clientIp) + `middleware/requestLogger.ts`, `middleware/errorHandler.ts`, `middleware/csrf.ts` | Hardening bago buksan sa lahat: security headers (Day 39), sentral na error handling (Day 41), CSRF (Day 44), logs na may request ID (Day 42), limit sa panghuhula ng password (Day 43) |
 | **10** | `routes/admin.ts` + `middleware/requireRole.ts` (Day 46), `db/set-role.ts` (Day 45), `lib/audit.ts` + `audit_logs` table (Day 48) | Hiwalay na grupo ng URL na may sariling patakaran (admin lang) |
 | **11** | `lib/session.ts` + `lib/jwt.ts`, `refresh_tokens` table (migrations 0004–0006) | Mas ligtas na sessions: refresh tokens na kayang bawiin (Day 51–53), mga device (Day 54), change password (Day 55), RS256 (Day 56) — at walang `req` ang dalawang bagong lib file (tingnan ang review finding) |
+| **12** | `lib/email.ts` (Resend) + `lib/verificationTokens.ts` + `lib/background.ts`, `verification_tokens` table (0007), `email_verified_at` (0008) · frontend: 3 page + `hooks/` | Totoong email: password reset (Day 59) at email verification (Day 60), mga page mula sa link (Day 61) |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto
@@ -81,7 +82,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 11** (sinuri Day 57, tugma sa totoong folders):
+**Ngayon — Phase 12** (sinuri Day 62, tugma sa totoong folders):
 ```
 backend/
 ├── src/
@@ -89,7 +90,7 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password/forgot/reset/verify)
+│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password/forgot/reset/verify/resend-verification)
 │   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
 │   │                        users.ts (count) · health.ts · echo.ts
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler

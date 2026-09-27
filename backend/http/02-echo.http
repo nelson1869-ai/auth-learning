@@ -48,11 +48,11 @@ POST http://localhost:3000/api/echo
 ### -------------------------------------------------------------------------
 ### 3. SIRANG JSON (kulang ang dulo). Ang inaasahan:
 ###    Status:  400 Bad Request
-###    Body:    HTML na may "SyntaxError: Unexpected end of JSON input"
+###    Body:    { "error": "Invalid JSON" }   (mula Day 41)
 ###
 ### 🔍 Hindi na umabot sa route: si `express.json()` na ang tumanggi.
-### 🔐 May stack trace (mga file path ng server) sa sagot. Sa development lang
-### iyan lumalabas; sa Phase 9 papalitan natin ng maayos na JSON error.
+### 🔐 Dati (bago ang Day 41): HTML na may "SyntaxError…" at stack trace (mga file path ng server).
+###    Ngayon, ang errorHandler ang sumasagot ng maikling JSON — tingnan ang 11-errors.http.
 POST http://localhost:3000/api/echo
 Content-Type: application/json
 
@@ -60,7 +60,7 @@ Content-Type: application/json
 
 ### -------------------------------------------------------------------------
 ### 4. Tamang path, maling METHOD. Ang inaasahan:
-###    Status:  404 Not Found (HTML na "Cannot GET /api/echo")
+###    Status:  404 Not Found · { "error": "Not found" }   (dati: HTML na "Cannot GET /api/echo")
 ###
 ### 🔍 `router.post('/echo')` lang ang mayroon, kaya walang GET.
 GET http://localhost:3000/api/echo

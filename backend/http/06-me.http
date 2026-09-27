@@ -42,7 +42,8 @@ Content-Type: application/json
 ### -------------------------------------------------------------------------
 ### 2. Me — MAY cookie (kusang ipinadala ng REST Client). Ang inaasahan:
 ###    Status:  200 OK
-###    Body:    { "user": { "id": ..., "email": "me-demo@example.com", "name": "Me Demo", "role": "user" } }
+###    Body:    { "user": { "id": ..., "email": "me-demo@example.com", "name": "Me Demo", "role": "user",
+###               "emailVerified": false } }   (role: Day 49 · emailVerified: Day 60 — tingnan ang 20-verify-email.http)
 ###    (Day 49: + role — para ipakita ng frontend ang Admin link; "admin" pagkatapos ng db:set-role)
 ###
 ### 🔍 Walang email o password sa request na ito — ang cookie lang ang nagpakilala sa iyo.

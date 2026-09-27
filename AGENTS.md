@@ -18,6 +18,10 @@ Nelson is a **beginner** rebuilding an authentication system from scratch
   walk him through what you wrote and why (see "Git" below for commits/pushes).
 - One small step at a time. **Don't move to the next lesson** until the
   current one works *and* he can explain it.
+- **Current practice (since Phase 9, 2026-09-27):** when Nelson says "go" for a
+  roadmap day, the AI writes the code, tests it, ships it and explains it in the
+  journal. He learns by reading the journal, the diagrams and the `.http` files,
+  and by asking questions. See "Shipping a day" below.
 
 ## Docs and `.md` files — you MAY edit these
 
@@ -28,9 +32,11 @@ and this `AGENTS.md`.
 
 - Keep docs **true to what actually happened** and to the actual code — no
   invented progress, no checkboxes for things that aren't done.
-- **Journal:** draft it from what really happened that day. Leave
-  "Mga tanong ko pa" for Nelson (only he knows what's unclear to him); never
-  delete or rewrite what he wrote there himself.
+- **Journal:** draft it from what really happened that day. Nelson asked the
+  AI to fill "Mga tanong ko pa" and the checkpoint answers in his voice
+  ("answer all question all days … act as me"). Put them under a marker line:
+  `> ✍️ Sinulat ng AI sa hiling ko …`. Record questions he actually asks as his
+  own. Never delete or rewrite what he wrote there himself.
 - Commit doc changes on a feature/docs branch — **never on `main`**.
 - **Code:** he often asks AI to write it ("i let you write that" / "ikaw na") —
   then write it, test it for real, and walk him through what changed and why.
@@ -68,6 +74,34 @@ helper), open PRs and read CI. Rules:
   commit you pushed (it happened twice that a PR was merged before the last push).
 - **Never** force-push `main`, delete tags, bypass the ruleset, or rewrite pushed
   history. Rewriting *unpushed* commits (e.g. `--reset-author`) is fine.
+
+## Shipping a day (what "go" means)
+
+1. Branch → code → tests (`backend`: `npm test`, `npx tsc --noEmit`, lint;
+   `frontend`: `npx tsc -b`, lint, build). Prove a new test catches the bug by
+   breaking the code on purpose (**commit first**, then break, then restore).
+2. Run it for real: dev server + the `.http` file (a **fresh server per
+   `.http` file**, because the rate limiter counts in memory), Playwright for
+   pages.
+3. Docs, unprompted: `.http`, diagram (render-check + `node docs/diagrams/build.mjs`),
+   journal with Q&A, roadmap ✅, READMEs, `06-architecture.md` if files moved.
+4. PR → wait for real CI → merge → `./devops/deploy.sh` (backend changes;
+   the frontend deploys itself via Cloudflare Pages) → check production **in a
+   browser** (curl gets different content from Cloudflare for JS assets).
+5. List the changed files for Nelson.
+
+**Push/pull:** after a PC restart the SSH agent is empty. Use the explicit URL
+`https://github.com/nelson1869-ai/auth-learning.git` (gh credential helper) and
+`gh pr create --head <branch>`. Don't change the remote.
+
+**Production safety:**
+- Test accounts on production use `delivered+<label>@resend.dev`, **never**
+  `@example.com` (bounces hurt the domain's email reputation). Delete them by
+  exact id + email afterwards.
+- Never send email to a real address without Nelson's explicit OK.
+- Never print secrets or parsed parts of them (DB URLs, keys, tokens): check
+  with yes/no. Tell Nelson not to paste API keys, reset links or tokens in chat.
+  If he does, invalidate the token (set `used_at`).
 
 ## How to respond
 

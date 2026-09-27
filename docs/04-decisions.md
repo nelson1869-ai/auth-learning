@@ -176,6 +176,7 @@
   - **Update (Day 56):** RS256 na — tingnan ang D-024.
   - Walang paraan pang bawiin ang isang token bago mag-expire (logout = burahin
     lang ang cookie sa browser) — lulutasin ng refresh tokens sa database (Phase 11, Day 51–52).
+  - **Update (Day 53):** ✅ nalutas — binabawi na sa database ang refresh token sa logout; ang access token ay ≤ 15 minuto na lang.
   - Lilipat sa RS256 + `iss`/`aud` sa Phase 11 (Day 56), gaya ng reference project.
 
 ---

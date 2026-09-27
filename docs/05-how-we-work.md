@@ -88,6 +88,10 @@ git branch -d feature/something           # 8. burahin ang lokal na branch
 Password, API keys, `.env` files → **hindi kailanman** ise-save sa Git. Kapag
 na-push na sa GitHub, ituring na nakita na ng lahat. Kaya may `.gitignore`.
 
+**Pati sa chat (Day 59):** huwag i-paste ang API key, reset link o token, kahit sa AI. Parang susi ang token.
+Kapag nai-paste na, ituring na nakita na ito: patayin agad sa database (hal. `used_at` sa `verification_tokens`).
+Sabihin na lang kung ✅ o ❌ ang lumabas.
+
 ## 6. Mga panuntunan ng Architect
 
 - **"Anong problema ang nilulutas nito?"** — Bago magdagdag ng folder, library,
@@ -173,6 +177,8 @@ ay para mahuli ng computer ang mga sira nang kusa.
   ## Susunod
   ```
 - Ang **"Mga tanong ko pa"** ang pinakamahalaga — dito magsisimula ang susunod na lesson.
+- **Mula Phase 9:** sa hiling ko, ang AI ang sumasagot sa "Mga tanong ko pa" at sa checkpoint question, sa salitang parang ako.
+  May marka ito: `> ✍️ Sinulat ng AI sa hiling ko …`. Ang mga tanong na talagang tinanong ko ay nakasulat bilang akin.
 
 ## 11. Comments sa code — Taglish, maikli, at "BAKIT"
 

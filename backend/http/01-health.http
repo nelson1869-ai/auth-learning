@@ -31,15 +31,15 @@ GET http://localhost:3000/api/health
 ### -------------------------------------------------------------------------
 ### 2. Route na WALA — ang inaasahan:
 ###    Status:  404 Not Found
-###    Body:    isang HTML page ("Cannot GET /api/wala") — default ng Express
+###    Body:    { "error": "Not found" }   (mula Day 41 — `middleware/errorHandler.ts` notFound)
 ###
-### 🔍 Pansinin: HTML ang sagot, hindi JSON. Para sa isang API, mas maganda
-### kung JSON din ang 404 — aayusin natin iyan sa Phase 9 (error handling).
+### 🔍 Dati (bago ang Day 41): HTML na "Cannot GET /api/wala", ang default ng Express.
+### Para sa isang API, JSON dapat ang lahat ng sagot — tingnan ang 11-errors.http.
 GET http://localhost:3000/api/wala
 
 ### -------------------------------------------------------------------------
 ### 3. Maling METHOD sa tamang path — ang inaasahan:
-###    Status:  404 Not Found
+###    Status:  404 Not Found · { "error": "Not found" }
 ###
 ### 🔍 Pansinin: ang route ay METHOD + PATH. Walang `app.post('/api/health')`
 ### sa code, kaya hindi ito nahahanap — kahit tama ang path.
