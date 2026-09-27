@@ -23,6 +23,10 @@ Pinatunayan: tinanggal ko ang listener → bumagsak ang test sa mismong hakbang 
 | Dev (Playwright, 15 check) | register → banner · resend → bagong link · lumang link → error · walang `#` sa URL · verify → wala na ang banner · forgot (may account at wala: parehong mensahe) · maikling password → error · bagong password → login · gamit na ang link → error · page na walang token | ✅ 15/15 |
 | Sadyang sinira | walang `hashchange` listener | ✅ bumagsak |
 | Linis | 5 test account sa dev, binura ayon sa id | ✅ admin lang ang natira |
+| Production (Playwright, `delivered+…@resend.dev`) | register → login → banner · Ipadala ulit → 202 · walang `#` sa URL · pekeng token → error · forgot → "kung may account…" · reset na walang token · DB: nagamit na ang unang verify link, aktibo ang bago | ✅ · binura ang account (admin lang ang natira) |
+
+> 💡 Maliit na aral: tiningnan ko muna gamit ang `curl` kung live na ang bagong JS. HTML ang ibinalik ng Cloudflare sa curl, kaya akala ko luma pa.
+> Sa totoong browser, tama ang JS. Kaya ang pagsuri sa production ay dapat gamit ang **browser**, hindi curl.
 
 ## Kumpara sa reference
 - **Walang frontend ang reference** (`CLIENT_URL` ay placeholder lang). Ang link sa email nito ay papunta sa page na wala.
