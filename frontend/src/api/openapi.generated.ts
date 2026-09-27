@@ -150,6 +150,14 @@ export type Health = {
   time: string;
 };
 
+export type Ready = {
+  status: "ready" | "not_ready";
+  checks: {
+    database: "ok" | "down";
+  };
+  time: string;
+};
+
 export type Count = {
   count: number;
 };

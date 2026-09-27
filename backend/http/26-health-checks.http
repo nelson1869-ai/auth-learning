@@ -1,0 +1,35 @@
+### =========================================================================
+### 🎓 HEALTH CHECKS — "buhay ba?" (live) vs "handa ba?" (ready)
+### 📅 Day 80 · Phase 17 (Observability)
+### =========================================================================
+### LIVE  — buhay ba ang process? Walang database. Ginagamit ng Docker HEALTHCHECK (bawat 30s).
+###         Bakit walang database: kapag bawat 30s ay may SELECT 1, hindi na makakatulog ang Neon (serverless) — mauubos
+###         ang compute hours. At kung ang database ang may problema, walang silbi ang pag-restart ng app
+### READY — handa bang maglingkod? SELECT 1 na may 3s na limit → 200, o 503 kung hindi.
+###         Ginagamit ng deploy.sh (isang beses, mula sa internet): kapag 503, pumapalya ang deploy
+###
+### Hindi itinatala sa request log ang /api/health* (ingay lang — Day 42). Ang "hindi handa" ay may log: readiness_db_down
+### Code: backend/src/controllers/health.controller.ts · services/health.service.ts · routes/health.ts · devops/deploy.sh
+### Test: backend/src/routes/health.test.ts
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Liveness. Ang inaasahan: 200 { "status": "ok", "time": "..." } — kahit patay ang database
+GET http://localhost:3000/api/health/live
+
+### -------------------------------------------------------------------------
+### 2. Ang dati (Day 3). Ang inaasahan: 200 — pareho ng /live (hindi binago, para hindi masira ang mga dating gumagamit)
+GET http://localhost:3000/api/health
+
+### -------------------------------------------------------------------------
+### 3. Readiness. Ang inaasahan: 200 { "status": "ready", "checks": { "database": "ok" }, "time": "..." }
+GET http://localhost:3000/api/health/ready
+
+### -------------------------------------------------------------------------
+### 4. Subukan: patayin ang database, tapos i-send ulit ang #1 at #3:
+###      cd devops && docker compose stop postgres
+###    Ang inaasahan: #1 → 200 agad · #3 → 503 { "status": "not_ready", "checks": { "database": "down" } } pagkalipas ng ~3s
+###      (at sa terminal ng server: WARN readiness_db_down · reason: timeout)
+###    Ibalik:  docker compose start postgres   → #3 ay 200 ulit
+###    🔍 Walang detalye ng error sa sagot (hal. "ECONNREFUSED") — nasa log lang (Day 41)
+GET http://localhost:3000/api/health/ready

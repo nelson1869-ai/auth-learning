@@ -96,8 +96,8 @@ backend/
 │   ├── routes/           ← ROUTING LANG: auth.ts · admin.ts (+ ang bantay: requireAuth + requireRole) · users.ts · health.ts · echo.ts
 │   │                        · docs.ts (/api/openapi.json, /api/docs — Day 78)
 │   ├── controllers/      ← HTTP lang (Day 74–76): http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts · admin.controller.ts ·
-│   │                        users.controller.ts
-│   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts
+│   │                        users.controller.ts · health.controller.ts (live/ready, Day 80)
+│   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts · health.service.ts (Day 80)
 │   │   └── auth/         ← registration · login · session (me, refresh, logout, sessions) · password (change, forgot, reset) ·
 │   │                        verification (verify, resend, mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
@@ -111,7 +111,7 @@ backend/
 ├── drizzle/              ← migrations 0000–0012
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
-└── http/                 ← 01–25 .http walkthroughs
+└── http/                 ← 01–26 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**

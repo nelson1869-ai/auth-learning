@@ -22,7 +22,8 @@
 
 | Method | Path | Para saan | Auth | `.http` |
 |---|---|---|---|---|
-| GET | `/api/health` | Buhay ba ang server? | — | `01-health.http` |
+| GET | `/api/health` · `/api/health/live` | Buhay ba ang process? (walang database) | — | `01-health.http` · `26-health-checks.http` |
+| GET | `/api/health/ready` | Handa ba? (sinusuri ang database, 3s na limit) — Day 80 | — | `26-health-checks.http` |
 | POST | `/api/echo` | Pang-aral: ibinabalik ang body | — | `02-echo.http` |
 | GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` |
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
@@ -42,11 +43,16 @@
 
 ---
 
-## `GET /api/health`
-**Response 200**
+## `GET /api/health` · `GET /api/health/live`
+**Response 200** (liveness — hindi tumatama sa database, kaya 200 kahit patay ang database)
 ```json
 { "status": "ok", "time": "2026-09-25T10:00:00.000Z" }
 ```
+
+## `GET /api/health/ready` (Day 80)
+**200** `{ "status": "ready", "checks": { "database": "ok" }, "time": "…" }` · **503** `{ "status": "not_ready", "checks": { "database": "down" }, "time": "…" }`
+kapag hindi sumagot ang database sa loob ng 3 segundo o may error. Walang detalye ng error sa sagot (nasa log: `readiness_db_down`).
+**Sino ang gumagamit:** `devops/deploy.sh` (isang beses bawat deploy). **Hindi** ang Docker HEALTHCHECK: gigisingin nito ang Neon bawat 30s.
 
 ## `POST /api/echo`
 **Request:** kahit anong JSON · **Response 200:** `{ "received": <ang body> }`

@@ -65,5 +65,11 @@ export const auditLog = z.strictObject({
 export const auditLogsResponse = z.strictObject({ logs: z.array(auditLog), ...pageInfo });
 
 export const healthResponse = z.strictObject({ status: z.literal('ok'), time: z.iso.datetime() });
+// Day 80: readiness — 200 kapag handa, 503 kapag hindi (walang detalye ng error dito; nasa log)
+export const readyResponse = z.strictObject({
+  status: z.enum(['ready', 'not_ready']),
+  checks: z.strictObject({ database: z.enum(['ok', 'down']) }),
+  time: z.iso.datetime(),
+});
 export const countResponse = z.strictObject({ count: z.int() });
 export const echoResponse = z.strictObject({ received: z.unknown() });

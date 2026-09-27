@@ -776,6 +776,45 @@
         ],
         "additionalProperties": false
       },
+      "Ready": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ]
+          },
+          "checks": {
+            "type": "object",
+            "properties": {
+              "database": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "down"
+                ]
+              }
+            },
+            "required": [
+              "database"
+            ],
+            "additionalProperties": false
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "status",
+          "checks",
+          "time"
+        ],
+        "additionalProperties": false
+      },
       "Count": {
         "type": "object",
         "properties": {
@@ -806,7 +845,7 @@
     "/api/health": {
       "get": {
         "operationId": "getHealth",
-        "summary": "Buhay ba ang server?",
+        "summary": "Buhay ba ang server? (pareho ng /health/live)",
         "tags": [
           "system"
         ],
@@ -818,6 +857,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health/live": {
+      "get": {
+        "operationId": "getHealthLive",
+        "summary": "Liveness: buhay ba ang process? (walang database — para sa Docker HEALTHCHECK)",
+        "tags": [
+          "system"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Buhay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health/ready": {
+      "get": {
+        "operationId": "getHealthReady",
+        "summary": "Readiness: handa ba? (sinusuri ang database, may 3s na limit)",
+        "tags": [
+          "system"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Handa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Buhay pero hindi handa (hal. hindi maabot ang database)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
                 }
               }
             }
