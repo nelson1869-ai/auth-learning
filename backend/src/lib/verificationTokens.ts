@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { verificationTokens } from '../db/schema.ts';
 import { hashToken } from './session.ts';
@@ -12,21 +12,22 @@ type Executor = Pick<typeof db, 'insert' | 'update'>;
 export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 oras
 export const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 oras (Day 60) — mababa ang panganib, kaya mas mahaba
 
-// Bagong token. Ang mga LUMANG hindi pa nagagamit na token ng parehong layunin ay pinapawalang-bisa:
-// isang aktibong link lang bawat user (ang pinakabagong email lang ang gagana)
+// Bagong token — isang aktibong link lang bawat user at layunin (ang pinakabagong email lang ang gagana).
+// Day 69: ISANG statement (upsert). Kung may aktibo na, PINAPALITAN ang hash at expiry nito sa lugar — kaya hindi na gagana ang
+// lumang link. Dati: "UPDATE ang luma, tapos INSERT" — dalawang statement, kaya ang sabay na request ay parehong nag-INSERT.
+// Ang partial UNIQUE index (schema.ts) ang nagpapasya kung may "conflict"; naghihintay ang sabay na request at saka nag-a-update
 export async function createVerificationToken(userId: number, purpose: Purpose, ttlMs: number, executor: Executor = db) {
   const raw = randomBytes(32).toString('base64url');
   const now = new Date();
+  const values = { tokenHash: hashToken(raw), expiresAt: new Date(now.getTime() + ttlMs), createdAt: now };
   await executor
-    .update(verificationTokens)
-    .set({ usedAt: now })
-    .where(and(eq(verificationTokens.userId, userId), eq(verificationTokens.purpose, purpose), isNull(verificationTokens.usedAt)));
-  await executor.insert(verificationTokens).values({
-    userId,
-    tokenHash: hashToken(raw),
-    purpose,
-    expiresAt: new Date(now.getTime() + ttlMs),
-  });
+    .insert(verificationTokens)
+    .values({ userId, purpose, ...values })
+    .onConflictDoUpdate({
+      target: [verificationTokens.userId, verificationTokens.purpose],
+      targetWhere: sql`used_at IS NULL`, // dapat tugma sa WHERE ng index
+      set: values,
+    });
   return raw;
 }
 
