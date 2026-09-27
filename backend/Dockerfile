@@ -29,9 +29,10 @@ USER node
 
 EXPOSE 3000
 
-# Walang curl sa alpine — Node na mismo ang sumusuri kung buhay ang server
+# Walang curl sa alpine — Node na mismo ang sumusuri kung buhay ang server.
+# LIVENESS lang (Day 80): walang database — kung hindi, bawat 30s ay gigisingin ang Neon at hindi na ito makakatulog
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+  CMD node -e "fetch('http://localhost:3000/api/health/live').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 # Mga secret (DATABASE_URL, JWT_SECRET, CLIENT_URL) ay ibinibigay sa pagpapatakbo
 # (docker run --env-file / compose env_file) — HINDI kailanman nasa loob ng image

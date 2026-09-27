@@ -49,6 +49,7 @@ const responses: Record<string, Schema> = {
   AuditLog: r.auditLog,
   AuditLogsResponse: r.auditLogsResponse,
   Health: r.healthResponse,
+  Ready: r.readyResponse,
   Count: r.countResponse,
   Echo: r.echoResponse,
 };
@@ -99,7 +100,17 @@ const paginationQuery = Object.entries((json(paginationSchema, 'input').properti
 );
 
 const paths: Record<string, Record<string, Op>> = {
-  '/api/health': { get: { tag: 'system', summary: 'Buhay ba ang server?', replies: { 200: ['Buhay', 'Health'] } } },
+  '/api/health': { get: { tag: 'system', summary: 'Buhay ba ang server? (pareho ng /health/live)', replies: { 200: ['Buhay', 'Health'] } } },
+  '/api/health/live': {
+    get: { tag: 'system', summary: 'Liveness: buhay ba ang process? (walang database — para sa Docker HEALTHCHECK)', replies: { 200: ['Buhay', 'Health'] } },
+  },
+  '/api/health/ready': {
+    get: {
+      tag: 'system',
+      summary: 'Readiness: handa ba? (sinusuri ang database, may 3s na limit)',
+      replies: { 200: ['Handa', 'Ready'], 503: ['Buhay pero hindi handa (hal. hindi maabot ang database)', 'Ready'] },
+    },
+  },
   '/api/echo': { post: { tag: 'system', summary: 'Ibinabalik ang body (pang-aral, Day 4)', replies: { 200: ['Ang natanggap', 'Echo'], 400: ['Sirang JSON', 'ErrorResponse'] } } },
   '/api/users/count': { get: { tag: 'system', summary: 'Ilan ang users (bilang lang, hindi listahan)', replies: { 200: ['Bilang', 'Count'] } } },
   '/api/auth/register': {
