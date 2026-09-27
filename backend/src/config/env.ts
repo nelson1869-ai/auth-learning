@@ -37,6 +37,9 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().startsWith('re_').optional(),
   // Kanino galing ang email — dapat nasa domain na na-verify sa Resend (SPF/DKIM)
   EMAIL_FROM: z.string().default('auth-learning <no-reply@nelson1869.com>'),
+  // Metrics (Day 81): hiwalay na port para sa /metrics (Prometheus). HINDI ito dinadaanan ng Cloudflare Tunnel (backend:3000 lang),
+  // kaya hindi ito publiko — sa loob lang ng Docker network (at localhost sa dev)
+  METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9464),
 })
   // Sa production, BAWAL walang email provider: kung hindi, tahimik na mawawala ang reset/verification emails
   .refine((env) => env.NODE_ENV !== 'production' || env.RESEND_API_KEY !== undefined, {

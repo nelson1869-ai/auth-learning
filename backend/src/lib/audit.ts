@@ -4,6 +4,7 @@ import { auditLogs, type AuditAction } from '../db/schema.ts';
 import { env } from '../config/env.ts';
 import { clientIp } from './clientIp.ts';
 import { logger } from './logger.ts';
+import { auditEvents } from './metrics.ts';
 
 export type AuditEvent = {
   action: AuditAction;
@@ -21,6 +22,7 @@ export type Audit = (event: AuditEvent) => Promise<void>;
 // Kapag pumalya ang pagtatala (hal. saglit na problema sa database), HINDI ibinabagsak ang request ng user
 // (tulad ng reference) — pero itinatala ito bilang ERROR sa logs, para makita na may nawawalang talaan
 async function writeAudit(source: AuditSource, event: AuditEvent, log: Pick<typeof logger, 'error'> = logger): Promise<void> {
+  auditEvents.add(1, { action: event.action }); // Day 81: bilang para sa metrics/alerts (kahit pumalya ang pagsulat sa ibaba)
   try {
     await db.insert(auditLogs).values({
       action: event.action,
