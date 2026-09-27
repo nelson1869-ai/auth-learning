@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -19,12 +19,14 @@ erDiagram
         text password_hash "NOT NULL · argon2id hash, hindi kailanman ibinabalik sa API"
         user_role role "NOT NULL · DEFAULT 'user' · enum: user | admin"
         timestamptz email_verified_at "NULL = hindi pa verified (soft, Day 60)"
+        integer failed_login_attempts "NOT NULL · DEFAULT 0 · sunod-sunod na maling password (Day 63)"
+        timestamptz locked_until "NULL = hindi naka-lock · 5 mali → now() + 15 min (Day 63)"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
     audit_logs {
         serial id PK
         integer actor_id FK "sino ang gumawa · NULL = hindi kilala o nabura (ON DELETE SET NULL)"
-        text action "NOT NULL · 14 na uri — tingnan ang listahan sa ibaba ng diagram"
+        text action "NOT NULL · 15 na uri — tingnan ang listahan sa ibaba ng diagram"
         integer target_id "ang naapektuhan · walang FK (nananatili kahit mabura)"
         text ip "totoong IP (CF-Connecting-IP sa production)"
         text user_agent "pinutol sa 300 characters"
@@ -59,9 +61,9 @@ erDiagram
 
 ## Paano basahin
 
-**Lahat ng `audit_logs.action` (sinuri Day 62, `grep "action: '" backend/src`):**
+**Lahat ng `audit_logs.action` (15 — sinuri Day 62, + Day 63, `grep "action: '" backend/src`):**
 `register` · `login` · `login_failed` · `logout` · `refresh_reuse` · `session_revoked` · `password_changed` · `password_change_failed` ·
-`password_reset_requested` · `password_reset` · `email_verified` · `access_denied` · `admin_list_users` · `admin_list_audit_logs`
+`password_reset_requested` · `password_reset` · `email_verified` · `account_locked` · `access_denied` · `admin_list_users` · `admin_list_audit_logs`
 
 | Marka | Ibig sabihin |
 |---|---|

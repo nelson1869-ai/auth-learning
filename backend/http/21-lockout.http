@@ -1,0 +1,99 @@
+### =========================================================================
+### 🎓 PER-ACCOUNT LOCKOUT — 5 maling password → naka-lock nang 15 minuto
+### 📅 Day 63 · Phase 13 (Account lockout)
+### =========================================================================
+### POST /api/auth/login  (walang bagong endpoint — nagbago ang ugali ng login)
+###   → 5 SUNOD-SUNOD na maling password sa IISANG account → naka-lock nang 15 minuto
+###   → habang naka-lock: 423 { "error": "Account temporarily locked. Please try again later." }
+###     + Retry-After: <segundo> — KAHIT TAMA ang password (hindi na sinusuri ang hula)
+###   → tamang login (bago ma-lock) → balik sa 0 ang bilang · audit: account_locked (isang beses)
+###
+### Bakit hiwalay sa IP rate limit (08-rate-limit.http)?
+###   Ang rate limit ay bawat IP: ang attacker na may 1000 IP ay 10 hula × 1000 = 10,000 bawat 15 minuto.
+###   Ang lockout ay bawat ACCOUNT: 5 lang, gaano man karami ang IP.
+###
+### ⚠️ Alam nang kahinaan (sinadya — aral ng Day 64 at Day 66–67):
+###   - Kayang i-lock ng KAHIT SINO ang account mo, kung alam nila ang email mo (Day 64 — device cookies).
+###   - SABAY na 20 hula: lahat nasusuri, at hindi na-lock (sinukat: 2–3 lang ang naitala) — Day 66–67.
+###   - Ang 423 ay nagsasabing may account ang email (Phase 15).
+###
+### Sa dev: bagong server bago patakbuhin (ang rate limit ay 10 palpak bawat IP — 7 ang ginagamit dito).
+### Code: backend/src/routes/auth.ts (/auth/login) · db/schema.ts (failed_login_attempts, locked_until)
+### Test: routes/lockout.test.ts · Diagram: docs/diagrams/04-login-flow.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Account (isang beses lang — 409 kung mayroon na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "lockout-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1a–1e. Limang maling password. Ang inaasahan: 401 { "error": "Invalid email or password" } × 5
+###        (pareho ang mensahe sa lahat — walang "3 subok na lang")
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-1" }
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-2" }
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-3" }
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-4" }
+
+### Ang ikalima: 401 pa rin — pero NGAYON na-lock (tingnan sa terminal/audit: account_locked)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-5" }
+
+### -------------------------------------------------------------------------
+### 2. Ikaanim na subok. Ang inaasahan:
+###    423 Locked · Retry-After: 900 (o kaunti pang mas mababa) · walang Set-Cookie
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "mali-6" }
+
+### -------------------------------------------------------------------------
+### 3. TAMANG password habang naka-lock. Ang inaasahan: 423 pa rin
+###    🔐 Kung 200 ito, makakahula ang attacker hanggang tumama — at 423 lang kapag mali (malalaman niya kung tumama!)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "password123" }
+
+### -------------------------------------------------------------------------
+### 4. Email na WALANG account. Ang inaasahan: 401 — kahit ilang beses, hindi kailanman 423 (walang mala-lock)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-ganitong-account@example.com", "password": "mali" }
+
+### -------------------------------------------------------------------------
+### 5. Sa dev lang — "lumipas ang 15 minuto" (sa terminal, hindi na maghihintay):
+###      docker exec auth-learning-postgres-1 psql -U auth -d auth_learning \
+###        -c "update users set locked_until = now() - interval '1 second' where email = 'lockout-demo@example.com'"
+###    Tapos i-send ito. Ang inaasahan: 200 — at 0 ulit ang failed_login_attempts (5 subok ulit)
+###    (Kung hindi pa pinatakbo ang command: 423 pa rin)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "lockout-demo@example.com", "password": "password123" }

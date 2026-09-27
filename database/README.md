@@ -39,7 +39,7 @@ database/
 | | |
 |---|---|
 | **Tables** | `users` (may `role`: enum `user` \| `admin`, Day 45) · `audit_logs` (Day 48) · `refresh_tokens` (Day 51) · `verification_tokens` (Day 59) — tingnan ang [ER diagram](../docs/diagrams/02-er-diagram.md) |
-| **Schema at migrations** | `backend/src/db/schema.ts` → `backend/drizzle/0000`–`0008` (nasa backend, hindi dito — tingnan ang paalala sa itaas) |
+| **Schema at migrations** | `backend/src/db/schema.ts` → `backend/drizzle/0000`–`0009` (nasa backend, hindi dito — tingnan ang paalala sa itaas) |
 | **Mga database** | dev `auth_learning` at test `auth_learning_test` (Docker, `localhost:5435`) · production: **Neon** (Singapore, `verify-full`) |
 | **Backup** | Neon restore — sinubukan ang drill noong Day 35 (ilagay ang oras nang tahasan; 6 na oras sa Free plan) |
 | **Mga script** | `npm run db:migrate` · `db:migrate:test` · `db:studio` · **`db:set-role -- <email> admin`** (Day 45, D-023) |
