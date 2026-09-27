@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### -------------------------------------------------------------------------
-### 1. Login. Ang inaasahan — DALAWANG Set-Cookie sa headers:
+### 1. Login. Ang inaasahan — DALAWANG Set-Cookie sa headers (+ device_token sa unang login mula rito, Day 64 — tingnan ang 22):
 ###    token=eyJ...;         Max-Age=900     (15 minuto)   Path=/
 ###    refresh_token=...;    Max-Age=604800  (7 araw)      Path=/api/auth
 ### 🔍 Sa database (npm run db:studio → refresh_tokens): ang token_hash ay HINDI kapareho ng

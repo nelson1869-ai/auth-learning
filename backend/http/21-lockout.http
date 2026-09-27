@@ -18,6 +18,8 @@
 ###   - Ang 423 ay nagsasabing may account ang email (Phase 15).
 ###
 ### Sa dev: bagong server bago patakbuhin (ang rate limit ay 10 palpak bawat IP — 7 ang ginagamit dito).
+### Day 64: pagkatapos ng #5, may device_token na ang REST Client para sa account na ito. Kaya sa susunod na takbo,
+###   ang #1–#3 ay binibilang sa bilang ng DEVICE — pareho pa rin ang makikita (401 ×5 → 423). Tingnan ang 22-device-cookies.http
 ### Code: backend/src/routes/auth.ts (/auth/login) · db/schema.ts (failed_login_attempts, locked_until)
 ### Test: routes/lockout.test.ts · Diagram: docs/diagrams/04-login-flow.md
 ### =========================================================================

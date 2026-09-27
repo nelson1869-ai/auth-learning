@@ -16,7 +16,7 @@ flowchart TD
     Zod -->|"oo"| Re{"REAUTHENTICATION<br/>argon2.verify(kasalukuyang password)"}
     Re -->|"mali"| R400b["400 · fields.currentPassword<br/>+ audit: password_change_failed<br/>(400, hindi 401 — hindi ito 'hindi naka-login')"]
     Re -->|"tama"| Hash["argon2.hash(bago) — BAGO ang transaction<br/>(mabagal; huwag hawakan ang lock habang naghihintay)"]
-    Hash --> Tx["TRANSACTION — lahat o wala:<br/>1. UPDATE users.password_hash<br/>2. bawiin ang LAHAT ng refresh token (reason: password_change)<br/>3. bagong refresh token para sa device na ito"]
+    Hash --> Tx["TRANSACTION — lahat o wala:<br/>1. UPDATE users.password_hash<br/>2. bawiin ang LAHAT ng refresh token (reason: password_change)<br/>3. bagong refresh token para sa device na ito<br/>4. Day 64: bawiin ang tiwala ng LAHAT ng device + bagong device_token dito"]
     Tx -->|"pumalya sa gitna"| Roll["ROLLBACK → 500<br/>luma pa rin ang password · walang na-logout"]
     Tx -->|"commit"| Ok["PAGKATAPOS ng commit lang:<br/>bagong cookies + audit: password_changed<br/>204"]
 ```

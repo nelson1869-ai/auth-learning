@@ -38,6 +38,8 @@ Content-Type: application/json
 ###    Status:   200 OK
 ###    Headers:  Set-Cookie: token=eyJ...; Max-Age=900; Path=/; Expires=...; HttpOnly; SameSite=Lax
 ###              Set-Cookie: refresh_token=...; Max-Age=604800; Path=/api/auth; ...; HttpOnly; SameSite=Lax
+###              Set-Cookie: device_token=...; Max-Age=15552000; Path=/api/auth/login; ...  (Day 64 — sa UNANG tamang login
+###                          lang mula sa client na ito; sa susunod, ipinapadala na ito ng REST Client, kaya dalawa na lang)
 ###    Body:     { "user": { "id": ..., "email": "login-demo@example.com", "name": "Login Demo" } }
 ###
 ### 🔍 Gawin:
