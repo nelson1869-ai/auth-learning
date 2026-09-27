@@ -1,0 +1,11 @@
+# Grafana (Day 82): kusang nilo-load ang mga dashboard (JSON) mula sa folder na ito pagka-start.
+# Nasa LOOB ng provisioning/ ang json/ — iisang read-only mount lang (ang nested na mount sa loob ng :ro ay pumapalya — aral ng reference)
+apiVersion: 1
+providers:
+  - name: auth-learning
+    folder: auth-learning
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

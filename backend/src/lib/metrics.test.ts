@@ -5,7 +5,7 @@ import request from 'supertest';
 import { inArray } from 'drizzle-orm';
 import app from '../app.ts';
 import { db } from '../db/index.ts';
-import { users } from '../db/schema.ts';
+import { AUDIT_ACTIONS, users } from '../db/schema.ts';
 import { prometheusExporter } from './metrics.ts';
 
 // Metrics (Day 81). Binabasa ang /metrics sa pamamagitan ng handler ng exporter (hindi binubuksan ang totoong port sa tests)
@@ -59,6 +59,14 @@ describe('HTTP metrics', () => {
 });
 
 describe('audit metrics', () => {
+  // Kung wala pa ang serye bago ang unang event, hindi ito makikita ng increase() sa Prometheus (Day 82)
+  it('starts every audit action at 0, so the first event after a restart is visible to increase()', async () => {
+    const text = await scrape();
+    for (const action of AUDIT_ACTIONS) {
+      expect(text).toMatch(new RegExp(`^auth_audit_events_total\\{action="${action}"[^}]*\\} \\d+`, 'm'));
+    }
+  });
+
   it('counts audit actions (e.g. register)', async () => {
     const read = (text: string) => Number(text.match(/^auth_audit_events_total\{action="register"[^}]*\} (\d+)/m)?.[1] ?? 0);
     const before = read(await scrape());

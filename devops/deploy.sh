@@ -53,3 +53,10 @@ fi
 echo "   $ready"
 echo "$SHA" > .deployed-sha
 echo "✅ Live: https://api.nelson1869.com — $SHA"
+
+# 7. Monitoring (Day 82): tiyaking tumatakbo ang Prometheus at Grafana (walang gagawin kung buhay na at walang nagbago
+#    sa compose). HINDI fatal: live na ang app, at hindi dapat magpabagsak ng deploy ang monitoring (parehong aral ng Day 81).
+#    Kapag binago ang prometheus.yml: docker compose -f docker-compose.prod.yml restart prometheus (tingnan ang README)
+if ! IMAGE_TAG="$SHA" docker compose -f docker-compose.prod.yml up -d prometheus grafana; then
+  echo "⚠️ Hindi na-start ang monitoring (live pa rin ang app) — tingnan: docker compose -f docker-compose.prod.yml logs prometheus grafana" >&2
+fi
