@@ -536,9 +536,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit hindi sapat ang IP limit (maraming IP ang attacker) · *Reference: `per-account lockout`*
 
 ### Day 64 — Lockout DoS at device cookies
-- [ ] Kayang i-lock ng kahit sino ang account mo — ayusin gamit ang device cookies (OWASP)
-- [ ] 📝 `backend/http/NN-device-cookies.http`
-- [ ] 📊 I-update ang `04-login-flow.md` at `02-er-diagram.md` (`trusted_devices`)
+- [x] Kayang i-lock ng kahit sino ang account mo — ayusin gamit ang device cookies (OWASP) *(migration 0010; change/reset password: bawiin ang tiwala ng lahat; reset = labasan ng naka-lock; sinubukan sa totoong browser)*
+- [x] 📝 `backend/http/22-device-cookies.http`
+- [x] 📊 I-update ang `04-login-flow.md` at `02-er-diagram.md` (`trusted_devices`) *(+ 16, 18, 00)*
 - **Matututunan:** kapag ang depensa mismo ang nagiging atake · *Reference: `device cookies`*
 
 ### Day 65 — Review day

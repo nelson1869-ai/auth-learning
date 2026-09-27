@@ -4,7 +4,8 @@ import argon2 from 'argon2';
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
-import { users } from '../db/schema.ts';
+import { trustedDevices, users } from '../db/schema.ts';
+import type { TrustedDevice, User } from '../db/schema.ts';
 import {
   registerSchema,
   loginSchema,
@@ -38,6 +39,7 @@ import {
   resendVerificationLimiter,
 } from '../middleware/rateLimiter.ts';
 import { passwordResetEmail, sendEmail, verifyEmailEmail } from '../lib/email.ts';
+import { createTrustedDevice, DEVICE_COOKIE, DEVICE_TTL_MS, findTrustedDevice, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import {
   RESET_TOKEN_TTL_MS,
@@ -82,6 +84,9 @@ const COOKIE_OPTIONS: CookieOptions = {
 // Refresh token (Day 51): ipinapadala LANG sa /api/auth/* (refresh, logout) — hindi sa bawat request.
 // Mas kaunting daan = mas kaunting pagkakataong manakaw
 const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth' };
+
+// Device cookie (Day 64): ipinapadala LANG sa /api/auth/login — iyon lang ang nagbabasa nito. 180 araw
+const DEVICE_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth/login', maxAge: DEVICE_TTL_MS };
 
 function setAccessCookie(res: Response, accessToken: string) {
   res.cookie('token', accessToken, { ...COOKIE_OPTIONS, maxAge: ACCESS_TOKEN_TTL_MS });
@@ -140,6 +145,18 @@ const DUMMY_HASH = await argon2.hash('dummy-password-para-sa-timing');
 export const MAX_FAILED_LOGINS = 5;
 export const LOCKOUT_MS = 15 * 60 * 1000;
 
+// Aling bilang (Day 64): ang sariling bilang ng pinagkakatiwalaang device, o ang bilang ng account (users) na
+// pinaghahatian ng LAHAT ng walang valid na device cookie — kasama ang attacker
+type LockCounter = { scope: 'device'; row: TrustedDevice } | { scope: 'account'; row: User };
+
+async function saveCounter(counter: LockCounter, values: { failedLoginAttempts: number; lockedUntil: Date | null }) {
+  if (counter.scope === 'device') {
+    await db.update(trustedDevices).set(values).where(eq(trustedDevices.id, counter.row.id));
+  } else {
+    await db.update(users).set(values).where(eq(users.id, counter.row.id));
+  }
+}
+
 router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
@@ -152,11 +169,21 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
 
   const [user] = await db.select().from(users).where(eq(users.email, email));
 
+  // Day 64: may valid na device cookie ba ang browser na ito PARA SA ACCOUNT NA ITO? → sariling bilang ng device.
+  // Wala (bagong browser, attacker, cookie ng ibang account) → ang bilang ng account
+  const device = user ? await findTrustedDevice(req.cookies[DEVICE_COOKIE], user.id) : undefined;
+  const counter: LockCounter | undefined = device
+    ? { scope: 'device', row: device }
+    : user
+      ? { scope: 'account', row: user }
+      : undefined;
+
   // Naka-lock (Day 63) → 423 agad, kahit TAMA ang password: hindi na sinusuri ang hula habang naka-lock.
   // Tandaan: ang 423 ay nagsasabing MAY account ang email na ito — aayusin sa Phase 15 (anti-enumeration)
-  if (user?.lockedUntil && user.lockedUntil > new Date()) {
-    await audit(req, { action: 'login_failed', targetId: user.id, metadata: { email, reason: 'locked' } });
-    res.setHeader('Retry-After', String(Math.ceil((user.lockedUntil.getTime() - Date.now()) / 1000)));
+  const lockedUntil = counter?.row.lockedUntil;
+  if (user && counter && lockedUntil && lockedUntil > new Date()) {
+    await audit(req, { action: 'login_failed', targetId: user.id, metadata: { email, reason: 'locked', scope: counter.scope } });
+    res.setHeader('Retry-After', String(Math.ceil((lockedUntil.getTime() - Date.now()) / 1000)));
     return res.status(423).json({ error: 'Account temporarily locked. Please try again later.' });
   }
 
@@ -166,26 +193,37 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
     // Audit (Day 48): target = ang account na sinubukang pasukin (kung mayroon), at ang email na tinype.
     // Itinatala sa DALAWANG kaso (may account o wala) — kaya pareho pa rin ang tagal ng sagot
     await audit(req, { action: 'login_failed', targetId: user?.id ?? null, metadata: { email } });
-    if (user) {
+    if (user && counter) {
       // ⚠️ KILALANG RACE (sinadya — ito ang aral ng Day 66–67): binasa ang bilang, +1 dito sa JS, saka isinulat.
       // Kapag 20 hula ang SABAY, lahat ay nakabasa ng parehong bilang at nakalampas sa lock check sa itaas,
       // kaya higit sa 5 hula ang nasusuri. Ayos: sa database mismo ang +1 (UPDATE ... WHERE ... RETURNING)
-      const attempts = user.failedLoginAttempts + 1;
+      const attempts = counter.row.failedLoginAttempts + 1;
       const lock = attempts >= MAX_FAILED_LOGINS;
-      await db
-        .update(users)
-        // Sa pag-lock, 0 ulit ang bilang: pagkatapos ng 15 minuto, 5 subok ulit (hindi 1 bawat 15 minuto)
-        .set({ failedLoginAttempts: lock ? 0 : attempts, lockedUntil: lock ? new Date(Date.now() + LOCKOUT_MS) : null })
-        .where(eq(users.id, user.id));
-      if (lock) await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts } });
+      // Sa pag-lock, 0 ulit ang bilang: pagkatapos ng 15 minuto, 5 subok ulit (hindi 1 bawat 15 minuto)
+      await saveCounter(counter, {
+        failedLoginAttempts: lock ? 0 : attempts,
+        lockedUntil: lock ? new Date(Date.now() + LOCKOUT_MS) : null,
+      });
+      if (lock) {
+        await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts, scope: counter.scope } });
+      }
     }
     // Iisang mensahe para sa maling email AT maling password — hindi sinasabi kung may account
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  // Tamang password → balik sa 0 ang bilang (sunod-sunod na mali lang ang binibilang, hindi ang kabuuan)
-  if (user.failedLoginAttempts > 0 || user.lockedUntil) {
-    await db.update(users).set({ failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, user.id));
+  // Tamang password → balik sa 0 ang bilang na ginamit (sunod-sunod na mali lang ang binibilang, hindi ang kabuuan)
+  if (device) {
+    await db
+      .update(trustedDevices)
+      .set({ failedLoginAttempts: 0, lockedUntil: null, lastUsedAt: new Date() })
+      .where(eq(trustedDevices.id, device.id));
+  } else {
+    if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+      await db.update(users).set({ failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, user.id));
+    }
+    // Day 64: nakapag-login nang tama mula sa browser na ito → pagkakatiwalaan na ito (sariling bilang sa susunod)
+    res.cookie(DEVICE_COOKIE, await createTrustedDevice(user.id), DEVICE_COOKIE_OPTIONS);
   }
 
   // Dalawang token (Day 51): maikling access token (JWT, 15 min) + mahabang refresh token (7 araw, nasa DB)
@@ -323,15 +361,21 @@ router.post('/auth/change-password', requireAuth, changePasswordLimiter ?? pass,
 
   // LAHAT O WALA: bagong password + bawiin ang LAHAT ng session (pati ang sa magnanakaw) + bagong session para sa
   // device na ito. Kung hiwalay at pumalya sa gitna: bagong password, pero buhay pa ang session ng magnanakaw
-  const refreshToken = await db.transaction(async (tx) => {
+  // Day 64: + alisin ang tiwala ng LAHAT ng device (pati ang sa magnanakaw), at pagkatiwalaan ulit ang browser na ito
+  const { refreshToken, deviceToken } = await db.transaction(async (tx) => {
     await tx.update(users).set({ passwordHash }).where(eq(users.id, userId));
     await revokeAllSessions(userId, tx);
-    return createRefreshToken(userId, deviceOf(req), undefined, tx);
+    await revokeAllTrustedDevices(userId, tx);
+    return {
+      refreshToken: await createRefreshToken(userId, deviceOf(req), undefined, tx),
+      deviceToken: await createTrustedDevice(userId, tx),
+    };
   });
 
   // Pagkatapos ng commit lang ang cookies at audit — kung nag-rollback, walang dapat maipadala
   setAccessCookie(res, signAccessToken(userId));
   res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
+  res.cookie(DEVICE_COOKIE, deviceToken, DEVICE_COOKIE_OPTIONS);
   await audit(req, { action: 'password_changed', actorId: userId, targetId: userId });
   res.status(204).end();
 });
@@ -376,15 +420,20 @@ router.post('/auth/reset-password', async (req, res) => {
 
   // LAHAT O WALA: gamitin ang token (atomic, isang beses lang) + bagong password + i-logout ang LAHAT ng session.
   // Kapag sabay ang dalawang request na may parehong link: isa lang ang mananalo sa claim
-  const userId = await db.transaction(async (tx) => {
+  // Day 64: ang reset ang "labasan" ng biktimang naka-lock sa BAGONG device: tinatanggal ang lock ng account,
+  // binabawi ang tiwala ng lahat ng device, at pinagkakatiwalaan ang browser na nag-reset (napatunayang kanya ang email)
+  const done = await db.transaction(async (tx) => {
     const claimed = await claimVerificationToken(token, 'password_reset', tx);
     if (claimed === undefined) return undefined;
-    await tx.update(users).set({ passwordHash }).where(eq(users.id, claimed));
+    await tx.update(users).set({ passwordHash, failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, claimed));
     await revokeAllSessions(claimed, tx, 'password_reset');
-    return claimed;
+    await revokeAllTrustedDevices(claimed, tx);
+    return { userId: claimed, deviceToken: await createTrustedDevice(claimed, tx) };
   });
-  if (userId === undefined) return invalid();
+  if (done === undefined) return invalid();
+  const { userId } = done;
 
+  res.cookie(DEVICE_COOKIE, done.deviceToken, DEVICE_COOKIE_OPTIONS);
   await audit(req, { action: 'password_reset', actorId: userId, targetId: userId });
   res.status(204).end(); // walang auto-login: mag-login gamit ang bagong password
 });

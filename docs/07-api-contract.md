@@ -98,7 +98,10 @@ Bilang lang — hindi kailanman ang listahan ng users.
 - `token=<JWT>; Max-Age=900; Path=/; HttpOnly; SameSite=Lax` — **access token, 15 minuto**. Payload: `{ "sub": "<user id>", "iat", "exp", "iss": "auth-learning-api", "aud": "auth-learning-web" }`, **RS256** (Day 56; dati HS256).
 - `refresh_token=<random>; Max-Age=604800; Path=/api/auth; HttpOnly; SameSite=Lax` — **refresh token, 7 araw**. SHA-256 hash lang ang nasa database (`refresh_tokens`).
 
-(+ `Secure` kapag `NODE_ENV=production`.) Hindi mababasa ng JavaScript ang dalawa — kusang ipinapadala ng browser.
+- `device_token=<random>; Max-Age=15552000; Path=/api/auth/login; HttpOnly; SameSite=Lax` — **Day 64, 180 araw**, kapag WALA pang valid na
+  device cookie ang browser para sa account na ito. Hindi login: pinipili lang kung aling lockout counter ang gagamitin. SHA-256 lang sa `trusted_devices`.
+
+(+ `Secure` kapag `NODE_ENV=production`.) Hindi mababasa ng JavaScript ang mga ito — kusang ipinapadala ng browser.
 
 ## `GET /api/auth/me`
 **Auth:** kailangan ang cookie na `token` (mula sa login). Walang body.
@@ -155,7 +158,7 @@ Rate limit: 10 palpak bawat 15 minuto.
 
 | Status | Kailan | Body / Headers |
 |---|---|---|
-| **204** | Napalitan | walang body · **bagong** `token` at `refresh_token` (tuloy ka rito) · binawi ang LAHAT ng ibang session · audit `password_changed` |
+| **204** | Napalitan | walang body · **bagong** `token`, `refresh_token` at `device_token` (Day 64) (tuloy ka rito) · binawi ang LAHAT ng ibang session at ang tiwala ng lahat ng ibang device · audit `password_changed` |
 | **400** | Maling kasalukuyang password | `{ "error": "Invalid input", "fields": { "currentPassword": ["Incorrect password"] } }` · audit `password_change_failed` |
 | **400** | Mali ang bagong password (maikli, pareho sa kasalukuyan) | `{ "error": "Invalid input", "fields": { "newPassword": [ … ] } }` |
 | **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
@@ -176,7 +179,7 @@ Kung may account: email na may `<CLIENT_URL>/reset-password#token=…` (1 oras, 
 
 | Status | Kailan | Body |
 |---|---|---|
-| **204** | Napalitan — **na-logout ang LAHAT ng session** · audit `password_reset` | walang body (walang auto-login) |
+| **204** | Napalitan — **na-logout ang LAHAT ng session** · Day 64: tinanggal ang lock ng account, binawi ang tiwala ng lahat ng device, `Set-Cookie: device_token` para sa browser na ito · audit `password_reset` | walang body (walang auto-login) |
 | **400** | Wala, nagamit na, expired, o pekeng token — **iisang mensahe** | `{ "error": "This reset link is invalid or has expired" }` |
 | **400** | Mali ang bagong password | `{ "error": "Invalid input", "fields": { "newPassword": [ … ] } }` |
 

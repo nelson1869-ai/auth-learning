@@ -1,0 +1,110 @@
+### =========================================================================
+### 🎓 DEVICE COOKIES — hindi ka na mala-lock ng iba sa browser na lagi mong ginagamit
+### 📅 Day 64 · Phase 13 (Account lockout) · OWASP "device cookies"
+### =========================================================================
+### Ang problema (Day 63): kahit sino na alam ang email mo ay kayang i-lock ang account mo —
+###   5 maling password bawat 15 minuto, walang katapusan (LOCKOUT DoS).
+### Ang ayos:
+###   → tamang login → Set-Cookie: device_token=…; Path=/api/auth/login; HttpOnly; Max-Age=15552000 (180 araw)
+###   → sa susunod na login mula sa browser na iyon: ang maling password ay binibilang sa SARILING bilang ng device
+###   → ang walang valid na device cookie PARA SA ACCOUNT NA ITO (bagong browser, attacker, pekeng cookie)
+###     ay naghahati sa iisang bilang ng account — kaya ang attacker ay nala-lock pa rin pagkatapos ng 5
+###   → HINDI ito login: kailangan pa rin ang password. Pinipili lang ng cookie kung ALING bilang
+###   → change/reset password: binabawi ang tiwala ng LAHAT ng device · reset: tinatanggal din ang lock (labasan)
+###
+### Sa REST Client: ang file na ito ang "browser mo" (tinatandaan ang cookies). Ang may `# @no-cookie-jar`
+### ay ang ATTACKER — walang cookie na ipinapadala o itinatago.
+### Sa dev: bagong server bago patakbuhin (rate limit: 10 palpak bawat IP — 6 ang ginagamit dito).
+### Code: backend/src/routes/auth.ts (/auth/login) · lib/trustedDevices.ts · db/schema.ts (trusted_devices)
+### Test: routes/device-cookies.test.ts · Diagram: docs/diagrams/04-login-flow.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Account (isang beses lang — 409 kung mayroon na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "device-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. IKAW: tamang login. Ang inaasahan: 200 + TATLONG Set-Cookie sa headers:
+###    token=… · refresh_token=… · device_token=…; Path=/api/auth/login; HttpOnly; Max-Age=15552000
+###    🔍 Path=/api/auth/login: ipinapadala lang ito ng browser sa login — wala nang ibang endpoint na makakatanggap
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "password123" }
+
+### -------------------------------------------------------------------------
+### 2a–2e. ATTACKER (walang cookie): 5 maling password. Ang inaasahan: 401 × 5
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "hula-1" }
+
+###
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "hula-2" }
+
+###
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "hula-3" }
+
+###
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "hula-4" }
+
+###
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "hula-5" }
+
+### -------------------------------------------------------------------------
+### 3. ATTACKER: kahit TAMANG password. Ang inaasahan: 423 — naka-lock ang lahat ng walang device cookie
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "password123" }
+
+### -------------------------------------------------------------------------
+### 4. IKAW (may device_token mula sa #1). Ang inaasahan: 200 — hindi ka apektado ng atake ✅
+###    (Bago ang Day 64: 423 dito — iyon ang lockout DoS)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "device-demo@example.com", "password": "password123" }
+
+### -------------------------------------------------------------------------
+### 5. PEKENG device cookie. Ang inaasahan: 423 — hindi tugma ang hash, kaya "walang cookie" din ang turing
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+Cookie: device_token=gawa-gawa-lang
+
+{ "email": "device-demo@example.com", "password": "password123" }
+
+### -------------------------------------------------------------------------
+### 🔍 Ang biktima sa BAGONG device (hal. bagong phone, walang cookie) ay naka-lock pa rin hanggang 15 minuto.
+###    Ang labasan: "Nakalimutan ang password?" → reset (19-password-reset.http) — tinatanggal ang lock ng account,
+###    binabawi ang tiwala ng lahat ng device, at pinagkakatiwalaan ang browser na nag-reset.
+### 🔍 Hindi binubura ng LOGOUT ang device_token: hindi ito session — "ito ang dati kong browser" lang ang ibig sabihin.
+### 🔍 Sa database (dev):
+###      docker exec auth-learning-postgres-1 psql -U auth -d auth_learning \
+###        -c "select id, user_id, failed_login_attempts, locked_until, expires_at from trusted_devices"
+###    → hash lang ang naka-save (token_hash), hindi ang cookie mismo

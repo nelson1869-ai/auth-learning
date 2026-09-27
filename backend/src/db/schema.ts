@@ -45,7 +45,7 @@ export const AUDIT_ACTIONS = [
   'password_reset_requested', // Day 59 — may humiling ng reset link (target = ang account kung mayroon)
   'password_reset', // Day 59 — napalitan ang password gamit ang reset link
   'email_verified', // Day 60 — napatunayang kanya ang email (binuksan ang link)
-  'account_locked', // Day 63 — 5 sunod-sunod na maling password → naka-lock nang 15 minuto
+  'account_locked', // Day 63 — 5 sunod-sunod na maling password → naka-lock nang 15 minuto (Day 64: metadata.scope)
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -113,3 +113,25 @@ export const verificationTokens = pgTable(
   },
   (table) => [index('verification_tokens_user_id_idx').on(table.userId)],
 );
+
+// Mga pinagkakatiwalaang device (Day 64 — OWASP "device cookies", laban sa lockout DoS).
+// Ang browser na nakapag-login nang TAMA ay may `device_token` cookie; ang maling password mula roon ay binibilang
+// dito (sariling bilang ng device), HINDI sa `users` (ang bilang na pinaghahatian ng lahat ng walang cookie — pati ang attacker).
+// Hindi ito login: kailangan pa rin ang password. Pinipili lang nito kung ALING bilang ang gagamitin
+export const trustedDevices = pgTable(
+  'trusted_devices',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(), // SHA-256 lang, gaya ng refresh token
+    failedLoginAttempts: integer('failed_login_attempts').notNull().default(0),
+    lockedUntil: timestamp('locked_until', { withTimezone: true }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('trusted_devices_user_id_idx').on(table.userId)],
+);
+export type TrustedDevice = typeof trustedDevices.$inferSelect;

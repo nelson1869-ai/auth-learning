@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) at Day 64 (`trusted_devices`, migration 0010) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -19,7 +19,7 @@ erDiagram
         text password_hash "NOT NULL · argon2id hash, hindi kailanman ibinabalik sa API"
         user_role role "NOT NULL · DEFAULT 'user' · enum: user | admin"
         timestamptz email_verified_at "NULL = hindi pa verified (soft, Day 60)"
-        integer failed_login_attempts "NOT NULL · DEFAULT 0 · sunod-sunod na maling password (Day 63)"
+        integer failed_login_attempts "NOT NULL · DEFAULT 0 · bilang ng LAHAT ng walang device cookie (Day 63–64)"
         timestamptz locked_until "NULL = hindi naka-lock · 5 mali → now() + 15 min (Day 63)"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
@@ -45,6 +45,17 @@ erDiagram
         text ip "totoong IP ng huling gamit"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
+    trusted_devices {
+        serial id PK
+        integer user_id FK "NOT NULL · ON DELETE CASCADE · may index"
+        text token_hash UK "SHA-256 ng device_token cookie — hindi ang cookie mismo"
+        integer failed_login_attempts "NOT NULL · DEFAULT 0 · SARILING bilang ng device"
+        timestamptz locked_until "NULL = hindi naka-lock (ang device lang)"
+        timestamptz expires_at "NOT NULL · 180 araw"
+        timestamptz last_used_at "huling tamang login mula rito"
+        timestamptz created_at "NOT NULL · DEFAULT now()"
+    }
+    users |o--o{ trusted_devices : "pinagkakatiwalaang browser (Day 64)"
     users |o--o{ audit_logs : "gumawa (actor_id)"
     verification_tokens {
         serial id PK

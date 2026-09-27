@@ -24,7 +24,7 @@ sequenceDiagram
     U->>A: POST /reset-password { token: XYZ, newPassword }
     A->>D: mabilis na suri (walang argon2 para sa pekeng token)
     Note over A: argon2.hash(bago) — BAGO ang transaction
-    A->>D: TRANSACTION: claim (used_at IS NULL → now, atomic) · bagong password · i-logout ang LAHAT
+    A->>D: TRANSACTION: claim (used_at IS NULL → now, atomic) · bagong password · i-logout ang LAHAT<br/>+ Day 64: tanggalin ang lock ng account · bawiin ang tiwala ng lahat ng device · device_token para sa browser na ito
     A-->>U: 204 → mag-login gamit ang bagong password
 ```
 
