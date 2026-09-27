@@ -8,7 +8,11 @@ import { logger } from '../lib/logger.ts';
 export async function isDatabaseReady(timeoutMs = 3000): Promise<boolean> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<boolean>((resolve) => {
-    timer = setTimeout(() => resolve(false), timeoutMs);
+    timer = setTimeout(() => {
+      // Itala rin ang timeout (hindi lang ang error) — kung hindi, walang bakas kung BAKIT "hindi handa" (nahuli noong Day 80)
+      logger.warn({ event: 'readiness_db_down', reason: 'timeout', timeoutMs }, 'Readiness: database did not answer in time');
+      resolve(false);
+    }, timeoutMs);
   });
   try {
     return await Promise.race([db.execute(sql`select 1`).then(() => true), timeout]);

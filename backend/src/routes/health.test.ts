@@ -3,6 +3,7 @@ import request from 'supertest';
 import app from '../app.ts';
 import { db } from '../db/index.ts';
 import { isDatabaseReady } from '../services/health.service.ts';
+import { logger } from '../lib/logger.ts';
 import { healthResponse, readyResponse } from '../validations/responses.ts';
 
 // Health checks (Day 80): live (buhay ang process) vs ready (handa ang database)
@@ -42,7 +43,10 @@ describe('readiness', () => {
   it('never hangs: a database that does not answer counts as not ready after the timeout', async () => {
     vi.spyOn(db, 'execute').mockReturnValueOnce(new Promise(() => {}) as never); // hindi kailanman sasagot
     const started = Date.now();
+    const warn = vi.spyOn(logger, 'warn');
     expect(await isDatabaseReady(100)).toBe(false);
     expect(Date.now() - started).toBeLessThan(1000);
+    // May bakas sa log kung BAKIT hindi handa (dati: walang log kapag timeout)
+    expect(warn).toHaveBeenCalledWith(expect.objectContaining({ event: 'readiness_db_down', reason: 'timeout' }), expect.any(String));
   });
 });
