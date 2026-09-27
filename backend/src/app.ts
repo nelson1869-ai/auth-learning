@@ -7,6 +7,7 @@ import echoRouter from './routes/echo.ts';
 import usersRouter from './routes/users.ts';
 import authRouter from './routes/auth.ts';
 import adminRouter from './routes/admin.ts';
+import docsRouter from './routes/docs.ts';
 import { env } from './config/env.ts';
 import { requestLogger } from './middleware/requestLogger.ts';
 import { notFound, errorHandler } from './middleware/errorHandler.ts';
@@ -41,6 +42,7 @@ app.use('/api', echoRouter);
 app.use('/api', usersRouter);
 app.use('/api', authRouter);
 app.use('/api', adminRouter); // /api/admin/* — admin lang (Day 46)
+app.use('/api', docsRouter); // /api/openapi.json · /api/docs (Day 78)
 
 // HULI sa lahat (Day 41): walang tumugmang route → 404 JSON · may error saanman sa itaas → errorHandler
 app.use(notFound);
