@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { users, type Role } from '../db/schema.ts';
 import { logger } from '../lib/logger.ts';
-import { audit } from '../lib/audit.ts';
+import { auditFor } from '../lib/audit.ts';
 
 // Authorization (Day 46) — "ANO ang pinapayagan sa iyo?" Laging pagkatapos ng requireAuth ("SINO ka?").
 //   401 = hindi ka kilala (walang login / sirang token / nabura ang account)
@@ -29,7 +29,7 @@ export function requireRole(...allowed: Role[]): RequestHandler {
     if (!allowed.includes(user.role)) {
       // Security event: may naka-login na sumubok pumasok sa admin — itala (makikita sa logs, Day 42)
       (req.log ?? logger).warn({ event: 'forbidden', userId, role: user.role, path: req.originalUrl }, 'Forbidden');
-      await audit(req, { action: 'access_denied', actorId: userId, metadata: { path: req.originalUrl } }); // Day 48
+      await auditFor(req)({ action: 'access_denied', actorId: userId, metadata: { path: req.originalUrl } }); // Day 48
       // Hindi sinasabi kung anong role ang kailangan (ang reference ay sinasabi) — hindi kailangang malaman
       return res.status(403).json({ error: 'Forbidden' });
     }

@@ -5,7 +5,7 @@ import app from '../app.ts';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import { setRole } from '../db/set-role.ts';
-import { listUsers } from './admin.ts';
+import { listUsers } from '../services/admin.service.ts'; // Day 76: inilipat mula sa routes/admin.ts
 
 // Hudyat para i-rollback ang transaction pagkatapos ng test
 class Rollback extends Error {}
