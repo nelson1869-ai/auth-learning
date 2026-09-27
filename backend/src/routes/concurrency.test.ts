@@ -2,10 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import request from 'supertest';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import app from '../app.ts';
 import { db } from '../db/index.ts';
-import { auditLogs, trustedDevices, users } from '../db/schema.ts';
+import { auditLogs, refreshTokens, trustedDevices, users, verificationTokens } from '../db/schema.ts';
+import { createRefreshToken } from '../lib/session.ts';
 import { testOutbox } from '../lib/email.ts';
 import { drainBackground } from '../lib/background.ts';
 
@@ -116,5 +117,51 @@ describe('already race-safe (proof, not a fix)', () => {
     const statuses = responses.map((r) => r.status);
     expect(count(statuses, 204)).toBe(1);
     expect(count(statuses, 400)).toBe(PARALLEL - 1);
+  });
+});
+
+// Day 69 — "DAPAT ISA LANG": ang database ang huling bantay, hindi lang ang code.
+// Ang code ay "UPDATE ang luma, tapos INSERT ang bago" — dalawang statement. Kapag sabay, walang nakikitang luma ang lahat,
+// at lahat ay nag-i-INSERT. Isang partial UNIQUE index lang ang makakagarantiya nito, kahit ano pa ang gawin ng code
+describe('one active X — enforced by the database (Day 69)', () => {
+  const activeTokens = async (userId: number, purpose: 'password_reset' | 'email_verification') =>
+    (
+      await db
+        .select()
+        .from(verificationTokens)
+        .where(and(eq(verificationTokens.userId, userId), eq(verificationTokens.purpose, purpose), isNull(verificationTokens.usedAt)))
+    ).length;
+
+  it('keeps ONE active verification link when "send again" is pressed 20 times at once', async () => {
+    const { email, userId } = await account('race-resend');
+    const login = await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
+    const cookies = (login.get('Set-Cookie') ?? []).map((c) => c.split(';')[0]).join('; ');
+
+    const responses = await Promise.all(
+      Array.from({ length: PARALLEL }, () => request(server).post('/api/auth/resend-verification').set('Cookie', cookies)),
+    );
+    expect(responses.map((r) => r.status)).toEqual(Array(PARALLEL).fill(202)); // walang 500
+    await drainBackground(); // ang token ay ginagawa PAGKATAPOS sumagot — kung hindi hihintayin, nakadepende sa timing ang bilang
+    expect(await activeTokens(userId, 'email_verification')).toBe(1);
+  });
+
+  it('keeps ONE active reset link when "forgot password" is sent 20 times at once', async () => {
+    const { email, userId } = await account('race-forgot');
+    await Promise.all(Array.from({ length: PARALLEL }, () => request(server).post('/api/auth/forgot-password').send({ email })));
+    await drainBackground(); // ang email at token ay ginagawa PAGKATAPOS sumagot
+    expect(await activeTokens(userId, 'password_reset')).toBe(1);
+  });
+
+  it('refuses a second ACTIVE refresh token in the same family, even if some code tried', async () => {
+    const { email, userId } = await account('family-guard');
+    await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
+    const [active] = await db
+      .select({ familyId: refreshTokens.familyId })
+      .from(refreshTokens)
+      .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)));
+    expect(active).toBeDefined(); // precondition
+
+    // Isang "bug" na nakalimutang bawiin ang luma bago gumawa ng bago: dapat tanggihan ng DATABASE
+    await expect(createRefreshToken(userId, { userAgent: null, ip: null }, active!.familyId)).rejects.toThrow();
   });
 });
