@@ -1,6 +1,6 @@
 # 06 — Buong auth flow (sequence)
 
-> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token), Day 52 (rotation) at Day 53 (totoong logout)
+> 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token), Day 52 (rotation), Day 53 (totoong logout) at Day 56 (RS256)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
@@ -33,7 +33,7 @@ sequenceDiagram
     B->>S: POST /api/auth/login { email, password }
     S->>D: SELECT ... WHERE email = ?
     D-->>S: user (o wala → DUMMY_HASH, parehong ~50ms)
-    S->>S: argon2.verify → jwt.sign({ sub: id }, JWT_SECRET, 15m)
+    S->>S: argon2.verify → jwt.sign({ sub: id }, PRIVATE key, RS256, 15m, iss, aud)
     S->>D: INSERT refresh_tokens (SHA-256 ng random na token, 7 araw) — Day 51
     S->>D: INSERT audit_logs (login · o login_failed kapag mali) — Day 48
     S-->>B: 200 { user } + Set-Cookie: token=eyJ... (15 min) · refresh_token=... (7 araw, Path=/api/auth) · HttpOnly · SameSite=Lax
@@ -43,7 +43,7 @@ sequenceDiagram
     rect rgba(128,128,128,0.08)
     Note over U,D: ME — Day 17 (bawat protektadong request)
     B->>S: GET /api/auth/me — Cookie: token=eyJ... (kusang ipinadala)
-    S->>S: requireAuth: jwt.verify (pirma + exp, HS256 lang) → req.userId
+    S->>S: requireAuth: jwt.verify gamit ang PUBLIC key (pirma + exp + iss + aud, RS256 lang) → req.userId
     S->>D: SELECT id, email, name, role WHERE id = ?
     D-->>S: user
     S-->>B: 200 { user } (401 kung walang/mali/expired ang token)

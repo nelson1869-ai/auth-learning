@@ -6,7 +6,8 @@ import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import { registerSchema, loginSchema, changePasswordSchema } from '../validations/auth.ts';
-import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
+import { requireAuth } from '../middleware/requireAuth.ts';
+import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
 import { audit } from '../lib/audit.ts';
 import { clientIp } from '../lib/clientIp.ts';
 import { logger } from '../lib/logger.ts';
@@ -21,7 +22,6 @@ import {
   revokeSession,
   rotateRefreshToken,
   type Device,
-  signAccessToken,
 } from '../lib/session.ts';
 import { changePasswordLimiter, loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
 import { env } from '../config/env.ts';
@@ -200,7 +200,7 @@ router.post('/auth/logout', async (req, res) => {
   const raw: unknown = req.cookies.refresh_token;
   const revokedFor = typeof raw === 'string' ? await revokeFamilyOf(raw) : undefined;
   // Sino ang nag-logout? Mula sa access token kung valid pa, o mula sa binawing refresh token; kung wala, null
-  const userId = userIdFromToken(req.cookies.token) ?? revokedFor ?? null;
+  const userId = userIdFromAccessToken(req.cookies.token) ?? revokedFor ?? null;
   await audit(req, { action: 'logout', actorId: userId, targetId: userId });
   clearSessionCookies(res); // pareho ng access at refresh (Day 51)
   res.status(204).end(); // 204 = nagawa, walang body

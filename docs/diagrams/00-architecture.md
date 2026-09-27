@@ -6,7 +6,7 @@
 
 ## Ngayon: ano na ang totoong mayroon
 
-> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
+> 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · Day 56 (RS256) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
 > **Subukan:** `backend/http/01`–`18`
 
 ```mermaid
@@ -22,7 +22,7 @@ flowchart LR
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
         Routes["routes/<br/>auth.ts: register · login · me · refresh · logout · sessions · change-password<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
-        Auth["middleware/requireAuth.ts<br/>jwt.verify (JWT_SECRET)"]
+        Auth["middleware/requireAuth.ts<br/>lib/jwt.ts: RS256 · PUBLIC key · iss/aud"]
         Role["middleware/requireRole.ts<br/>role mula sa DB → 403 kung hindi admin"]
         Hash["argon2<br/>hash · verify"]
         Audit["lib/audit.ts (Day 48)<br/>sino · ano · kanino · totoong IP"]

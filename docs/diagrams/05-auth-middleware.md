@@ -1,6 +1,6 @@
 # 05 — Auth middleware (`requireAuth`)
 
-> 📅 Day 17 · Phase 4 (Register at login) · in-update sa Day 48 (`userIdFromToken`) at Day 49 (`role` sa `/me`)
+> 📅 Day 17 · Phase 4 (Register at login) · in-update sa Day 48 (`userIdFromToken`), Day 49 (`role` sa `/me`) at Day 56 (RS256, `lib/jwt.ts`)
 >
 > **Code:** `backend/src/middleware/requireAuth.ts` · `backend/src/routes/auth.ts` (`GET /api/auth/me`)
 > **Subukan:** `backend/http/06-me.http`
@@ -12,9 +12,9 @@ flowchart TD
     Req(["GET /api/auth/me<br/>Cookie: token=eyJ... (kusang ipinadala ng browser)"]) --> CP["cookieParser()<br/>→ req.cookies.token"]
     CP --> MW{"requireAuth<br/>may token ba?"}
     MW -->|"wala"| U1["401 Not authenticated"]
-    MW -->|"mayroon"| V{"jwt.verify(token, JWT_SECRET,<br/>{ algorithms: ['HS256'] })"}
-    V -->|"binago · expired · sira ·<br/>alg=none · ibang secret"| U2["401 Not authenticated<br/>(iisang sagot — hindi sinasabi kung bakit)"]
-    V -->|"tama ang pirma at hindi expired"| Set["req.userId = Number(payload.sub)<br/>next() → tuloy sa route<br/>(ang pagbasa ng token: userIdFromToken — ginagamit din ng logout, Day 48)"]
+    MW -->|"mayroon"| V{"jwt.verify(token, PUBLIC key,<br/>{ algorithms: ['RS256'], issuer, audience })<br/>lib/jwt.ts (Day 56)"}
+    V -->|"binago · expired · sira · alg=none ·<br/>HS256 · ibang key · maling iss/aud"| U2["401 Not authenticated<br/>(iisang sagot — hindi sinasabi kung bakit)"]
+    V -->|"tama ang pirma at hindi expired"| Set["req.userId = Number(payload.sub)<br/>next() → tuloy sa route<br/>(userIdFromAccessToken sa lib/jwt.ts — ginagamit din ng logout)"]
     Set --> Route["route: SELECT id, email, name, role<br/>FROM users WHERE id = req.userId"]
     Route --> Found{"May user pa ba?"}
     Found -->|"wala na (nabura)"| U3["401 Not authenticated"]

@@ -173,6 +173,7 @@
     user — kaya hindi ito kailanman naka-commit, at iba ang secret sa production.
   - Wala pang refresh token: pagkalipas ng 1 oras, login ulit (Phase 11, Day 51).
   - **Update (Day 51):** access token = 15 minuto + refresh token (7 araw, naka-hash sa DB); HS256 pa rin (RS256: Day 56).
+  - **Update (Day 56):** RS256 na — tingnan ang D-024.
   - Walang paraan pang bawiin ang isang token bago mag-expire (logout = burahin
     lang ang cookie sa browser) — lulutasin ng refresh tokens sa database (Phase 11, Day 51–52).
   - Lilipat sa RS256 + `iss`/`aud` sa Phase 11 (Day 56), gaya ng reference project.
@@ -440,3 +441,22 @@
   - Hindi mahalaga ang laki ng titik ng email (lowercase ang naka-save).
 - **Kapalit:** kailangang mag-register muna bago maging admin. Sa production, tatakbo ito sa pamamagitan ng
   `docker run`, gamit ang parehong image ng app.
+
+## D-024 · RS256: isang env var (private key, base64), ang public key ay kinukuha mula rito
+
+- **Petsa:** 2026-09-27 (Day 56)
+- **Context:** HS256 (D-012): iisang `JWT_SECRET` ang pumipirma **at** sumusuri. Ang RS256: **private** key ang pumipirma,
+  **public** key ang sumusuri. Mga file ang gamit ng reference (`JWT_PRIVATE_KEY_PATH`, `JWT_PUBLIC_KEY_PATH`).
+- **Pinili:**
+  - **`JWT_PRIVATE_KEY`**: ang PEM, naka-base64 (isang linya), sa `.env`. Kasya ito sa `env_file` ng Docker at sa
+    `docker run --env-file` ng migrate, walang dagdag na volume o file.
+  - Ang **public key ay kinukuha mula sa private key** (`createPublicKey`), kaya hindi puwedeng magkamali ng pares.
+  - Sinusuri ng `env.ts` pagka-start: PEM, RSA, ≥ 2048 bits. Kung mali, ayaw mag-start ng server (hindi ipinapakita ang laman).
+  - `iss: auth-learning-api`, `aud: auth-learning-web`, na sinusuri sa verify.
+  - Iba ang key ng dev, test at production. Ang CI ay gumagawa ng bagong key bawat run.
+- **Rollback:** nandoon pa ang lumang `JWT_SECRET` sa `.env.production`, kailangan pa ito ng image bago ang Day 56.
+  Hindi ito ginagamit ng bagong code (tinatanggal ni Zod ang hindi kilalang variable).
+- **Epekto sa mga naka-login:** ang lumang HS256 access token → 401 → kusang refresh ng frontend (Day 51) → bagong RS256 token.
+  **Walang kailangang mag-login ulit**, dahil nasa database ang refresh token at hindi ito JWT.
+- **Kapalit:** walang "key rotation" pa (iisang key). Sa hinaharap: `kid` sa header at dalawang public key habang nagpapalit.
+

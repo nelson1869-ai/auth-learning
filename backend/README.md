@@ -53,7 +53,7 @@ backend/
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
 ├── http/                 ← 01–07 .http files para subukan ang API
 ├── playground/           ← mga practice script
-├── .env                  ← DATABASE_URL, JWT_SECRET, CLIENT_URL (SECRET — hindi sa Git)
+├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
 ├── .env.example          ← kopya na walang totoong secret
 └── package.json          ← dependencies + scripts (dev, start, db:*)
@@ -95,7 +95,7 @@ curl localhost:3099/api/health
 
 ## Production database (Day 35 — Neon)
 - `backend/.env.production` (gitignored, `600`): `DATABASE_URL` ng Neon (**direct**, walang
-  `-pooler`; `sslmode=verify-full`), ibang `JWT_SECRET` kaysa dev, `CLIENT_URL=https://nelson1869.com`,
+  `-pooler`; `sslmode=verify-full`), ibang `JWT_PRIVATE_KEY` kaysa dev (Day 56; nandoon pa ang lumang `JWT_SECRET` para sa rollback sa lumang image), `CLIENT_URL=https://nelson1869.com`,
   `NODE_ENV=production`
 - Migrations sa production: `node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate`
 - **Admin (Day 45):** `npm run db:set-role -- <email> admin` (dev) — para sa production, tingnan ang `devops/README.md`.
