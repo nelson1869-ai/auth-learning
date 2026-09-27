@@ -80,7 +80,8 @@ docker compose -f docker-compose.prod.yml down            # ihinto (patay ang ap
 # magpadala ng test email mula sa production (Day 58) — tingnan ang Resend → Emails at ang Gmail "Show original"
 docker run --rm --env-file ../backend/.env.production ghcr.io/nelson1869-ai/auth-learning-backend:$IMAGE_TAG node src/scripts/send-test-email.ts <email>
 docker run --rm --env-file ../backend/.env.production ghcr.io/nelson1869-ai/auth-learning-backend:$IMAGE_TAG node src/db/set-role.ts <email> admin
-curl https://api.nelson1869.com/api/health
+curl https://api.nelson1869.com/api/health        # liveness: buhay ba ang process (Day 80: pareho ng /api/health/live)
+curl https://api.nelson1869.com/api/health/ready  # readiness: naaabot ba ang Neon (200 ready · 503 not_ready)
 ```
 - **Named Cloudflare Tunnel** `auth-learning` → `https://api.nelson1869.com` → `http://backend:3000`
   (`cloudflared/config.yml`). Walang bukas na port sa router o sa PC.

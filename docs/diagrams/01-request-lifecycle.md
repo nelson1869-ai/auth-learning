@@ -105,6 +105,6 @@ sequenceDiagram
   50 = error (5xx). Sa dev, pino-pretty ang nagpapaganda (may kulay).
 - **`clientIp`** ay ang totoong IP (`CF-Connecting-IP` sa likod ng tunnel), hindi ang IP ng
   cloudflared container — pareho ng patakaran ng rate limiter (`lib/clientIp.ts`).
-- **Hindi itinatala ang `/api/health`** — tinatawag ito ng Docker HEALTHCHECK nang paulit-ulit.
+- **Hindi itinatala ang `/api/health*`** — tinatawag ito ng Docker HEALTHCHECK nang paulit-ulit. (Day 80: `/live` para sa HEALTHCHECK, `/ready` para sa deploy — `26-health-checks.http`.)
 - **Pareho ang `requestId`** ng lahat ng log ng isang request (hal. `Rate limit hit` + ang 429),
   kaya madaling pagdugtungin.

@@ -630,8 +630,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 17 — Observability · 🚀 *DevOps* · Day 80–86
 
 ### Day 80 — Health checks
-- [ ] `/health/live` (buhay ba ang process) vs `/health/ready` (handa ba ang DB)
-- [ ] 📝 `backend/http/NN-health-checks.http` — `/live` at `/ready`
+- [x] `/health/live` (buhay ba ang process) vs `/health/ready` (handa ba ang DB) *(HEALTHCHECK = live (walang DB — para makatulog ang Neon) · deploy.sh = ready mula sa internet · 3s na limit · nahuli: walang log kapag timeout)*
+- [x] 📝 `backend/http/26-health-checks.http` — `/live` at `/ready`
 - **Matututunan:** bakit dalawa · *Reference: `two-tier health checks`*
 
 ### Day 81 — Metrics

@@ -43,6 +43,13 @@ if [[ "$status" != "healthy" ]]; then
   echo "❌ Hindi naging healthy ang backend (status: $status) — tingnan: docker compose -f docker-compose.prod.yml logs backend" >&2
   exit 1
 fi
-curl -fsS https://api.nelson1869.com/api/health > /dev/null
+# 6. Readiness mula sa internet (Day 80): tunnel → bagong code → Neon. Ang HEALTHCHECK ay liveness lang (walang database),
+#    kaya dito sinusuri — isang beses — na naaabot ng bagong code ang database. 503 = hindi handa → pumalya ang deploy
+if ! ready="$(curl -fsS --max-time 15 https://api.nelson1869.com/api/health/ready)"; then
+  echo "❌ Buhay ang backend pero HINDI handa (database?) — tingnan: docker compose -f docker-compose.prod.yml logs backend" >&2
+  echo "   Para bumalik sa dati: ./deploy.sh \"\$(cat .deployed-sha)\"" >&2
+  exit 1
+fi
+echo "   $ready"
 echo "$SHA" > .deployed-sha
 echo "✅ Live: https://api.nelson1869.com — $SHA"
