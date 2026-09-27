@@ -89,7 +89,7 @@ flowchart LR
 
 ## Kapag naka-deploy na (Phase 8 — hybrid, D-020)
 
-> 📅 in-update sa Day 36b · ✅ domain, Dockerfile, Neon, Tunnel, **Pages (live — https://nelson1869.com)** · **CD (Day 37, manual pull)**
+> 📅 in-update sa Day 36b · Day 82–84 (monitoring sa PC) · ✅ domain, Dockerfile, Neon, Tunnel, **Pages (live — https://nelson1869.com)** · **CD (Day 37, manual pull)**
 > **Subukan:** `backend/http/prod/01-production.http`
 
 ```mermaid
@@ -99,7 +99,9 @@ flowchart LR
     Edge -->|"named Tunnel auth-learning ✅ Day 36<br/>4 koneksyon (Cebu ×2, Hong Kong ×2)<br/>walang bukas na port sa router"| PC
     subgraph PC["🖥️ PC ni Nelson"]
         CFD["cloudflared container<br/>devops/docker-compose.prod.yml"] -->|"http://backend:3000<br/>(Docker network lang)"| BE["backend container<br/>node src/index.ts ✅ Day 34"]
+        Prom["Prometheus · Grafana · Alertmanager<br/>✅ Day 82–84 · 127.0.0.1 lang"] -->|"scrape :9464/metrics"| BE
     end
+    Prom -->|"📧 alert (Resend SMTP)"| Me(["👤 Nelson"])
     BE -->|"TLS · sslmode=verify-full"| Neon[("Neon · Singapore<br/>Postgres 17 · point-in-time restore<br/>✅ Day 35")]
     GH["GitHub<br/>CI ✅ · image → GHCR ✅ Day 37"] -.->|"./devops/deploy.sh:<br/>pull ng image ng berdeng SHA"| BE
     GH -.->|"kusang build + deploy"| Pages
