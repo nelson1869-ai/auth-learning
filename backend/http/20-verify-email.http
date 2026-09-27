@@ -64,5 +64,6 @@ Content-Type: application/json
 ### -------------------------------------------------------------------------
 ### 6. Magpadala ulit ng link. Ang inaasahan:
 ###    202 kung hindi pa verified (bagong email sa terminal; ang luma ay hindi na gagana)
+###    Day 69: kahit 20 beses na sabay — ISANG aktibong link lang (partial UNIQUE index + upsert). Patunay: concurrency.test.ts
 ###    409 { "error": "Email is already verified" } kung verified na (pagkatapos ng #4)
 POST http://localhost:3000/api/auth/resend-verification

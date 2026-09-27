@@ -1,6 +1,6 @@
 # 20 — Race conditions (TOCTOU)
 
-> 📅 Day 66 · Phase 14 (Tama kahit sabay-sabay) · in-update sa Day 67 (ang ayos: atomic SQL)
+> 📅 Day 66 · Phase 14 (Tama kahit sabay-sabay) · in-update sa Day 67 (ang ayos: atomic SQL) at Day 69 (unique constraint bilang huling bantay)
 > **Code:** `backend/src/routes/auth.ts` (`/auth/login`) · `backend/src/lib/loginLockout.ts` (Day 67: reserve-then-verify)
 > **Subukan:** hindi kayang magpadala ng sabay na request ang `.http` — ang **test** ang patunay: `backend/src/routes/concurrency.test.ts`
 
@@ -73,3 +73,35 @@ sequenceDiagram
   magagamit. Ilagay ang kondisyon sa `WHERE`, at gamitin ang `RETURNING` para malaman kung ikaw ang nanalo.
 - **Ang proseso ng test:** sa Day 66, sinukat ng test ang bug (pumasa). Sa Day 67, **bumagsak ito gaya ng inaasahan** ("expected 5 to be
   greater than 5"), at binaligtad. Sinira ulit ang ayos (walang "lampas 5 → 423"; lock na walang "hindi pa naka-lock") → bumagsak ang test.
+
+## Unique constraint bilang huling bantay (Day 69)
+
+Ang "isang aktibo lang" ay dating ginagawa ng **code**: "UPDATE ang luma, tapos INSERT ang bago", dalawang statement.
+
+```mermaid
+flowchart LR
+    subgraph OLD["❌ Code lang ang bantay (Day 59–68)"]
+        A1["20 sabay na 'Ipadala ulit'"] --> A2["bawat isa: UPDATE luma → walang nakita"]
+        A2 --> A3["bawat isa: INSERT bago"]
+        A3 --> A4["18 AKTIBONG link"]
+    end
+    subgraph NEW["✅ Database ang huling bantay (Day 69)"]
+        B1["20 sabay na 'Ipadala ulit'"] --> B2["INSERT … ON CONFLICT (user_id, purpose)<br/>WHERE used_at IS NULL<br/>DO UPDATE token_hash, expires_at"]
+        B2 --> B3["partial UNIQUE index:<br/>naghihintay ang sabay, saka nag-a-update"]
+        B3 --> B4["1 aktibong link · 0 error"]
+    end
+```
+
+| Sinukat (20 sabay na "Ipadala ulit") | Aktibong link | Pumalya sa background | Email |
+|---|---|---|---|
+| Luma, walang index (Day 59–68) | **18** | — (hindi sinukat) | — (hindi sinukat) |
+| Luma, **may index** (eksperimento) | 1 ✅ | **17** (23505) | 3 |
+| **Bago: upsert + index** (Day 69) | 1 ✅ | 0 | 20 (ang huli lang ang gagana) |
+
+- **Ang index lang ay sapat na para sa invariant** (pangalawang row): kahit mali ang code, tumatanggi ang database. Iyon ang "huling bantay".
+  Pero ang tinanggihan ay **error**: 17 background task ang pumalya. Kaya kasama ng index ang **code na tugma** sa patakaran (upsert).
+- **Partial index** (`WHERE used_at IS NULL`): ang mga nagamit o lumang link ay hindi kasama, kaya puwedeng marami.
+- **Refresh family** (`UNIQUE (family_id) WHERE revoked_at IS NULL`): walang binagong code. Ang rotation ay laging binabawi muna ang luma sa
+  parehong transaction. Bantay lang ito para sa bug sa hinaharap (sinubukan: tinatanggihan ang pangalawang aktibo; tinanggal ang index → pumasa ang pangalawa).
+- **Migration 0011:** bago gawin ang index, nililinis ang mga dati nang doble (iniiwan ang pinakabago). Sinubukan gamit ang sadyang doble,
+  sa parehong command ng deploy (`src/db/migrate.ts`): 3 → 1, 2 → 1.

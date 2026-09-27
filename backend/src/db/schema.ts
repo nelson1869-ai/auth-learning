@@ -1,4 +1,5 @@
-import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 
 // Mga role (Day 45) — enum sa Postgres: TUMATANGGI ang database sa ibang value (hal. 'superadmin' o 'Admin'),
 // hindi lang ang app. Tatlong role ang reference; dalawa lang ang kailangan natin ngayon
@@ -93,7 +94,12 @@ export const refreshTokens = pgTable(
     ip: text('ip'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index('refresh_tokens_user_id_idx').on(table.userId)],
+  (table) => [
+    index('refresh_tokens_user_id_idx').on(table.userId),
+    // Huling bantay (Day 69): ISANG aktibong token lang bawat family. Ang rotation (Day 52) ay laging binabawi muna ang luma
+    // sa parehong transaction — pero kung may code na makalimot, ang DATABASE ang tatanggi (23505)
+    uniqueIndex('refresh_tokens_one_active_per_family_idx').on(table.familyId).where(sql`revoked_at IS NULL`),
+  ],
 );
 
 // Mga token na isang beses lang magagamit (Day 59) — ang link sa email: password reset (at email verification sa Day 60).
@@ -111,7 +117,13 @@ export const verificationTokens = pgTable(
     usedAt: timestamp('used_at', { withTimezone: true }), // null = hindi pa nagagamit (single-use)
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index('verification_tokens_user_id_idx').on(table.userId)],
+  (table) => [
+    index('verification_tokens_user_id_idx').on(table.userId),
+    // Huling bantay (Day 69): ISANG aktibong link lang bawat user at layunin. Dati, "UPDATE ang luma, tapos INSERT"
+    // (dalawang statement) — 20 sabay na "ipadala ulit" = 18 aktibong link. Partial index: ang mga nagamit na (used_at)
+    // ay hindi kasama, kaya puwedeng marami ang luma
+    uniqueIndex('verification_tokens_one_active_idx').on(table.userId, table.purpose).where(sql`used_at IS NULL`),
+  ],
 );
 
 // Mga pinagkakatiwalaang device (Day 64 — OWASP "device cookies", laban sa lockout DoS).
