@@ -39,7 +39,14 @@ Hindi ito nagdulot ng bug, dahil walang gumamit ng `role` pagkatapos ng login, p
 | Frontend sa dev: register → profile → sessions | ✅ 0 JS error |
 | Buong suite (backend) · frontend typecheck · lint · build | ✅ 186 · ✅ |
 | 25 `.http` (review script) | ✅ 25/25 |
-| Production | (pagkatapos ng deploy) |
+| Production | ✅ `/api/openapi.json`: 3.1.0, 17 path, 21 schema, **eksaktong kapareho ng naka-commit na file** · Swagger UI sa totoong browser: 17 operation · frontend: login 200 → `/me` 200 → Profile |
+
+**Dalawang bagay sa production check:**
+- **Isang maling "hindi naka-login"** sa unang takbo ng script ko: 2.5 segundo lang ang hinintay nito, mas mabagal ang production. Sa pangalawang takbo (4 na segundo at may network log):
+  200 login, 200 `/me`, Profile. **Ang script ang mali, hindi ang app.**
+- **Hinarang ng CSP ang Cloudflare Web Analytics beacon** sa `/api/docs` (kusang isinisingit ng Cloudflare sa mga HTML page na binubuksan sa browser; wala ito sa curl).
+  **Sinadyang iniwang nakaharang:** walang dahilan para i-track ang mga bumibisita sa docs ng API, at ang tanging epekto ay isang error sa console.
+  Para mawala ang error: alisin ang `api.nelson1869.com` sa Web Analytics sa Cloudflare dashboard (gawain ni Nelson, kung gusto).
 
 ## Kumpara sa reference
 - **Pareho:** OpenAPI mula sa Zod schemas, Swagger UI sa `/api-docs` (dito: `/api/docs`), at isang test ng spec.
