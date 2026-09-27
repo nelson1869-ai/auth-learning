@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------------------------
-  # Monitoring (Day 82): Prometheus (nag-iipon ng metrics) + Grafana (dashboard).
+  # Monitoring (Day 82): Prometheus (nag-iipon ng metrics) + Grafana (dashboard) · Day 84: + Alertmanager (email).
   # 🔐 127.0.0.1 LANG: ang PC lang ang makakapasok — hindi ang LAN, at hindi dinadaanan ng tunnel.
   # Ibang port sa mga default (9090, 3001 ay gamit na sa PC na ito). May limit ng memory: hindi dapat kainin
   # ng monitoring ang kailangan ng app mismo (iisang PC lang ito)
@@ -35,6 +35,7 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=15d # 15 araw lang — hindi lalaki nang walang hangganan
       - --storage.tsdb.retention.size=1GB
+      - --web.external-url=http://127.0.0.1:9091 # para gumana ang mga link sa alert email (sa PC na ito)
     volumes:
       - ./monitoring/prometheus:/etc/prometheus:ro
       - prometheus-data:/prometheus
@@ -72,7 +73,30 @@ services:
           memory: 256M
     restart: unless-stopped
 
+  # Alertmanager (Day 84): tumatanggap ng mga alert mula sa Prometheus → email (Resend SMTP).
+  # Walang secret sa config: ang password at ang recipient ay galing sa devops/.env, at isinusulat ng start.sh
+  # sa isang tmpfs (memory lang) na ang may-ari ay ang user ng alertmanager (nobody, 65534)
+  alertmanager:
+    image: prom/alertmanager:v0.28.1 # naka-pin
+    entrypoint: ["/bin/sh", "/etc/alertmanager/start.sh"]
+    environment:
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:?set ALERT_EMAIL_TO in devops/.env}
+      ALERT_SMTP_PASSWORD: ${ALERT_SMTP_PASSWORD:?set ALERT_SMTP_PASSWORD in devops/.env (Resend API key)}
+    volumes:
+      - ./monitoring/alertmanager:/etc/alertmanager:ro
+      - alertmanager-data:/alertmanager # silences + kung anong naipadala na (para walang dobleng email pagka-restart)
+    tmpfs:
+      - /run/alertmanager:uid=65534,gid=65534,mode=0700,size=1m
+    ports:
+      - "127.0.0.1:9094:9093" # 9093 ay gamit na ng reference
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
 volumes:
   prometheus-data:
   grafana-data:
+  alertmanager-data:
 

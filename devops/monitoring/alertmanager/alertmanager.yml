@@ -1,0 +1,30 @@
+# Alertmanager (Day 84) — tumatanggap ng mga "firing" alert mula sa Prometheus, pinagsasama-sama, at nagpapadala ng email.
+#
+# 🔐 Walang secret dito (naka-commit ang file na ito):
+#   - ang SMTP password (Resend API key) ay galing sa devops/.env → isinusulat ng start.sh sa isang tmpfs file (password_file)
+#   - ang __ALERT_EMAIL_TO__ ay pinapalitan ng start.sh ng ALERT_EMAIL_TO mula sa devops/.env
+global:
+  # Resend SMTP — pareho ng provider at domain ng mga email ng app (Day 58). Username ay literal na "resend"
+  smtp_smarthost: 'smtp.resend.com:587'
+  smtp_from: 'auth-learning alerts <alerts@nelson1869.com>'
+  smtp_auth_username: 'resend'
+  smtp_auth_password_file: '/run/alertmanager/smtp_password'
+  smtp_require_tls: true
+
+route:
+  receiver: email
+  group_by: ['alertname']
+  group_wait: 30s # maghintay nang kaunti para pagsamahin sa isang email ang sabay-sabay na alert
+  group_interval: 5m
+  repeat_interval: 4h # paalala kung hindi pa rin naaayos
+
+# Kapag patay ang app, walang silbi ang "maraming 5xx" o "mabagal" na alert — AppDown lang ang ipadala
+inhibit_rules:
+  - source_matchers: ['alertname="AppDown"']
+    target_matchers: ['alertname=~"HighErrorRate|HighLatency"']
+
+receivers:
+  - name: email
+    email_configs:
+      - to: '__ALERT_EMAIL_TO__'
+        send_resolved: true # may email din kapag naayos na ("RESOLVED")

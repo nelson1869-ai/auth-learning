@@ -1,9 +1,9 @@
 # 22 — Observability: logs, metrics, health, alerts
 
-> 📅 Day 81 · Phase 17 (Observability) · Day 82–83: Prometheus + Grafana · ia-update sa Day 84–85 · **Desisyon:** D-028
+> 📅 Day 81 · Phase 17 (Observability) · Day 82–83: Prometheus + Grafana · Day 84: Alertmanager · **Desisyon:** D-028
 > **Code:** `backend/src/lib/metrics.ts` · `backend/src/middleware/metrics.ts` · `backend/src/lib/audit.ts` (auditEvents) · `backend/src/index.ts`
 > **Config:** `devops/monitoring/` · `devops/docker-compose.prod.yml` (prometheus, grafana)
-> **Subukan:** `backend/http/27-metrics.http` · `backend/http/28-prometheus-queries.http` · test: `backend/src/lib/metrics.test.ts`
+> **Subukan:** `backend/http/27-metrics.http` · `28-prometheus-queries.http` · `29-alerts.http` · rules: `devops/monitoring/prometheus/alerts.test.yml` · test: `backend/src/lib/metrics.test.ts`
 
 ```mermaid
 flowchart LR
@@ -18,11 +18,12 @@ flowchart LR
     Exp -->|"scrape bawat 15s<br/>(sa loob ng Docker network)"| Prom[("Prometheus<br/>127.0.0.1:9091 · 15 araw / 1GB")]
     Prom -->|"PromQL"| Graf["📊 Grafana · 127.0.0.1:3002<br/>app-overview.json (provisioned)"]
     Me["👤 ako, sa PC lang"] --> Graf
-    Prom -.->|"Day 84: alert rules (may for:)"| AM["Alertmanager"] -.-> Mail["📧 email"]
+    Prom -->|"alerts.yml (5 rule, may for:)<br/>bawat 15s"| AM["Alertmanager · 127.0.0.1:9094<br/>group_wait 30s · inhibit"]
+    AM -->|"Resend SMTP<br/>password mula sa tmpfs"| Mail["📧 ALERT_EMAIL_TO<br/>FIRING at RESOLVED"]
     Tunnel["Cloudflare Tunnel<br/>api.nelson1869.com → backend:3000"] --> Req
     Tunnel -. "walang daan papunta sa :9464" .-x Exp
 ```
-*(Putol-putol na linya = gagawin pa sa Day 84.)*
+*(Ang putol-putol na linya: walang daan mula sa tunnel papunta sa metrics.)*
 
 ## Logs vs metrics
 
@@ -64,3 +65,35 @@ flowchart LR
 Ang pangalawa ay mahalaga sa Day 84: kung hindi naayos, ang **unang** `account_locked` pagkatapos ng bawat deploy ay hindi mag-a-alert.
 Hindi ito naayos para sa HTTP metrics (walang hangganan ang kombinasyon ng route × status), kaya ang unang request ng isang
 bagong kombinasyon ay hindi nabibilang sa `rate()`. Ayos lang iyon para sa mga rate na tinitingnan bilang trend.
+
+## Alerts (Day 84)
+
+```mermaid
+stateDiagram-v2
+    [*] --> inactive
+    inactive --> pending: totoo ang expr<br/>(hal. up == 0)
+    pending --> inactive: naayos bago matapos ang for:<br/>(blip — walang email)
+    pending --> firing: totoo pa rin pagkalipas ng for: (1m)
+    firing --> emailed: Alertmanager, group_wait 30s
+    emailed --> resolved: naayos na (up == 1)
+    resolved --> [*]: 📧 RESOLVED (sa susunod na group_interval, 5m)
+    note right of firing
+        Sinukat (Day 84, pinatay ang backend):
+        +52s pending · +117s firing
+        +149s email · RESOLVED ~5m pagkatapos
+    end note
+```
+
+| Alert | Kailan | `for:` | Bakit |
+|---|---|---|---|
+| `AppDown` | `up == 0` | 1m | patay ang backend (o hindi ma-scrape) |
+| `HighErrorRate` | 5xx > 5% | 5m | may bug o down ang database |
+| `HighLatency` | p95 > 1s | 10m | mabagal ang Neon o puno ang CPU |
+| `RefreshTokenReuse` | kahit 1 sa 10m | wala | 🔐 posibleng ninakaw na token (Day 53) |
+| `ManyAccountLockouts` | ≥ 3 sa 15m | wala | 🔐 posibleng password guessing |
+
+- **Inhibit:** kapag `AppDown`, hindi na ipinapadala ang `HighErrorRate`/`HighLatency` (iisang problema, iisang email).
+- **Mga test ng rule (promtool):** ang timing (ang 30s na blip ay hindi dapat mag-alert), ang mga threshold, at ang aral ng Day 82
+  (ang counter na "ipinanganak" sa 1 ay hindi kailanman mag-a-alert). Sinira ang bawat rule, at bumagsak ang tamang test.
+- **⚠️ Hindi nito nakikita:** kapag patay ang **buong PC** (o ang Docker), patay rin ang Prometheus at Alertmanager, kaya **walang email**.
+  At kapag patay ang **tunnel** pero buhay ang backend, `up == 1` pa rin. Kailangan ng bantay na nasa **labas** ng PC para doon (backlog).

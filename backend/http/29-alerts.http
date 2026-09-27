@@ -1,0 +1,64 @@
+### =========================================================================
+### 🎓 ALERTS — email kapag may problema (Prometheus rules → Alertmanager → Resend SMTP)
+### 📅 Day 84 · Phase 17 (Observability)
+### =========================================================================
+### Ang daloy ng isang alert:
+###   inactive ──(totoo ang expr)──▶ PENDING ──(totoo pa rin pagkalipas ng `for:`)──▶ FIRING ──▶ Alertmanager
+###   ──(group_wait 30s)──▶ 📧 email "[FIRING:1] AppDown" … naayos ──▶ 📧 "[RESOLVED] AppDown" (pagkalipas ng group_interval, 5m)
+###
+### Sinukat noong Day 84 (sadyang pinatay ang backend sa production):
+###   +52s pending · +117s firing · +149s email · pinaandar ulit · RESOLVED email ~5 minuto pagkatapos ng unang email
+###
+### Mga rule: devops/monitoring/prometheus/alerts.yml (AppDown · HighErrorRate · HighLatency · RefreshTokenReuse · ManyAccountLockouts)
+### Mga test ng rule: alerts.test.yml (promtool — tingnan ang devops/README.md)
+### Config ng email: devops/monitoring/alertmanager/alertmanager.yml + start.sh · password at recipient: devops/.env
+###
+### ⚠️ Production stack ang kailangan (cd devops && ./deploy.sh). 🔐 127.0.0.1 lang ang 9091 at 9094, walang password.
+### Sa browser: http://127.0.0.1:9091/alerts (Prometheus) · http://127.0.0.1:9094 (Alertmanager: alerts at silences)
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Ang mga rule at ang estado nila. Ang inaasahan: 200 · 5 rule, "state": "inactive" (walang problema), "health": "ok"
+GET http://127.0.0.1:9091/api/v1/rules
+
+### -------------------------------------------------------------------------
+### 2. Mga alert na pending o firing ngayon. Ang inaasahan: 200 · "alerts": [] kapag maayos ang lahat
+GET http://127.0.0.1:9091/api/v1/alerts
+
+### -------------------------------------------------------------------------
+### 3. Nakikita ba ng Prometheus ang Alertmanager? Ang inaasahan: 200 · "activeAlertmanagers": [{ "url": "http://alertmanager:9093/api/v2/alerts" }]
+GET http://127.0.0.1:9091/api/v1/alertmanagers
+
+### -------------------------------------------------------------------------
+### 4. Buhay ba ang Alertmanager? Ang inaasahan: 200 "OK"
+GET http://127.0.0.1:9094/-/ready
+
+### -------------------------------------------------------------------------
+### 5. Ang mga alert na hawak ng Alertmanager (ang ipinadala na, o ipapadala). Ang inaasahan: 200 · [] kapag maayos
+GET http://127.0.0.1:9094/api/v2/alerts
+
+### -------------------------------------------------------------------------
+### 6. SILENCE — "huwag muna akong i-email" habang may planong maintenance (hal. patayin ang PC nang 1 oras).
+###    Halimbawa lang ang alertname dito ("HalimbawaLang"), para hindi mapatahimik ang totoong alert kapag nakalimutan ang #7.
+###    Sa totoong maintenance: "value": "AppDown", at ang endsAt ay kung kailan ka babalik.
+###    Ang inaasahan: 200 { "silenceID": "…" }
+# @name createSilence
+POST http://127.0.0.1:9094/api/v2/silences
+Content-Type: application/json
+
+{
+  "matchers": [{ "name": "alertname", "value": "HalimbawaLang", "isRegex": false, "isEqual": true }],
+  "startsAt": "{{$datetime iso8601}}",
+  "endsAt": "{{$datetime iso8601 10 m}}",
+  "createdBy": "nelson",
+  "comment": "Day 84: pagsubok ng silence mula sa .http"
+}
+
+### -------------------------------------------------------------------------
+### 7. Tapusin ang silence. Ang inaasahan: 200 (walang laman)
+DELETE http://127.0.0.1:9094/api/v2/silence/{{createSilence.response.body.$.silenceID}}
+
+### -------------------------------------------------------------------------
+### 8. 🔐 Ang config na tumatakbo. Ang inaasahan: 200 · ang "original" ay may `smtp_auth_password_file`, WALANG API key
+###    (nasa tmpfs file lang ito sa loob ng container), at ang "to" ay ang ALERT_EMAIL_TO mo
+GET http://127.0.0.1:9094/api/v2/status
