@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token), Day 56 (RS256), Day 63 (per-account lockout), Day 64 (device cookies), Day 67 (atomic na bilang), Day 68 (transaction bago ang cookies) at Day 71 (bilang para sa walang account)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token), Day 56 (RS256), Day 63 (per-account lockout), Day 64 (device cookies), Day 67 (atomic na bilang), Day 68 (transaction bago ang cookies), Day 71 (bilang para sa walang account) at Day 72 (sinukat ulit ang oras)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/src/lib/loginLockout.ts` (Day 67)
 > **Subukan:** `backend/http/05-login.http` · `backend/http/21-lockout.http` (lockout) · `22-device-cookies.http` · `23-user-enumeration.http`
@@ -61,6 +61,21 @@ flowchart TD
   | 401 maling password (may account) | 52.3 ms |
   | 401 walang account (may `DUMMY_HASH`) | 52.3 ms |
   | 400 validation (walang hashing) — ganito kabilis kung WALANG `DUMMY_HASH` | 1.0 ms |
+
+  **Sinukat ulit (Day 72)**, dahil marami nang nadagdag sa login mula Day 15 (lockout, device cookies, bilang para sa walang account).
+  `npm run timing:login` (dev, walang rate limit): salitan, palit ang nauuna bawat round, 80 bawat panig, 3 takbo:
+
+  | Kaso | Median (3 takbo) | Pagkakaiba |
+  |---|---|---|
+  | 401 may account (bilang ng account + argon2) | 109.4 · 103.9 · 101.3 ms | |
+  | 401 walang account (bilang ng walang account + `DUMMY_HASH`) | 109.5 · 103.0 · 101.8 ms | **−0.0 · +0.9 · −0.4 ms** |
+  | 🧪 SADYANG SIRA: walang `DUMMY_HASH` | 47 ms (vs 103) | **56 ms**, kaya nakikita ng pagsukat ang pagkakaiba |
+
+  - **Pareho ang argon2 settings** ng dummy at ng totoong mga password (`argon2id m=65536, t=3, p=4`, sinuri sa dev at production).
+    Kung mas magaan ang dummy, mas mabilis ang walang account.
+  - **Parehong may isang database write** na ang dalawang daan (Day 71: UPDATE ng account vs upsert ng walang account). Dati (Day 63–70),
+    ang totoong account lang ang may UPDATE.
+  - **Forgot-password:** 1.2 vs 1.3 ms (sumasagot muna, saka ang lahat sa background, Day 59).
 
 - **Butas pa rin: ang register.** Ang `409 Email already registered` ay nagsasabi
   kung may account ang email. Sa reference project, sinadya itong iwan (ang tanging

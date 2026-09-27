@@ -14,7 +14,8 @@
     "typecheck": "tsc",
     "db:migrate:prod": "node --env-file=.env.production src/db/migrate.ts",
     "db:set-role": "node --env-file=.env src/db/set-role.ts",
-    "email:test": "node --env-file=.env src/scripts/send-test-email.ts"
+    "email:test": "node --env-file=.env src/scripts/send-test-email.ts",
+    "timing:login": "node --env-file=.env src/scripts/login-timing.ts"
   },
   "keywords": [],
   "author": "",

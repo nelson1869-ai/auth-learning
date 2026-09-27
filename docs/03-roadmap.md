@@ -588,8 +588,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** user enumeration · *Reference: `revealing which emails have accounts`*
 
 ### Day 72 — Pareho ang oras
-- [ ] Dummy password hash para sa walang-account na email; sukatin ang timing
-- [ ] 📊 I-update ang `04-login-flow.md`: ang dummy-hash branch
+- [x] Dummy password hash para sa walang-account na email; sukatin ang timing *(may dummy na mula Day 15 · `npm run timing:login`: ±1ms sa ~100ms, 3 takbo · sadyang walang dummy → 56ms, kaya nakikita ng pagsukat · parehong argon2 settings · forgot: 1.2 vs 1.3ms)*
+- [x] 📊 I-update ang `04-login-flow.md`: ang dummy-hash branch *(+ timing table ng Day 72)*
 - **Matututunan:** timing attacks
 
 ### Day 73 — Review day
