@@ -27,6 +27,7 @@ Tinatawag itong **lockout DoS**: ang depensa mismo ang naging atake. Hindi niya 
 | Dev | 05, 16, 18, 19, 21 ulit (nagbago ang Set-Cookie) + reset gamit ang totoong token | ✅ pareho ang status · may `device_token` ang reset |
 | Browser | unang login → logout → 5 mali mula sa curl → login ulit sa parehong browser · bagong browser | ✅ Profile · "Account temporarily locked" · cookie: `/api/auth/login`, HttpOnly, Lax, 180 araw |
 | DB | `trusted_devices` | ✅ 64-character na hash lang |
+| Production (totoong browser, `delivered+…@resend.dev`) | nelson1869.com → login → logout → 5 mali mula sa curl → login ulit · bagong browser | ✅ Profile · 401 ×5 · **Profile** · "Account temporarily locked" · cookie: `api.nelson1869.com`, `/api/auth/login`, **Secure**, HttpOnly, Lax, 180 araw · DB: account naka-lock, device hindi · 0 JS error · binura (CASCADE: nabura rin ang device) |
 
 ## Nahuling pagkakamali ko (Day 63)
 Hindi ko na-update noong Day 63 ang "migrations 0000–0008" sa diagram 00 at ang ".http 01–20" sa `06-architecture.md`.
