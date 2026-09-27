@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import {
-  registerSchema,
   loginSchema,
   changePasswordSchema,
   forgotPasswordSchema,
@@ -34,19 +33,13 @@ import {
   registerLimiter,
   resendVerificationLimiter,
 } from '../middleware/rateLimiter.ts';
-import { passwordResetEmail, sendEmail, verifyEmailEmail } from '../lib/email.ts';
 import { lockCounter, lockedUntilOf, MAX_FAILED_LOGINS, reserveAttempt, resetCounter, unknownEmailCounter } from '../lib/loginLockout.ts';
 import type { LockCounter } from '../lib/loginLockout.ts';
 import { createTrustedDevice, DEVICE_COOKIE, findTrustedDevice, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
-import {
-  RESET_TOKEN_TTL_MS,
-  VERIFY_TOKEN_TTL_MS,
-  claimVerificationToken,
-  createVerificationToken,
-  isVerificationTokenUsable,
-} from '../lib/verificationTokens.ts';
-import { env } from '../config/env.ts';
+import { claimVerificationToken, isVerificationTokenUsable } from '../lib/verificationTokens.ts';
+import { register } from '../controllers/auth.controller.ts';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../services/auth/verification.service.ts';
 import {
   DEVICE_COOKIE_OPTIONS,
   REFRESH_COOKIE_OPTIONS,
@@ -67,50 +60,7 @@ router.use('/auth', (_req, res, next) => {
   next();
 });
 
-// Sa catch, `unknown` ang error — suriin muna ang hugis bago basahin (nahuli ng TypeScript)
-function isUniqueViolation(err: unknown): boolean {
-  return (
-    err instanceof Error &&
-    typeof err.cause === 'object' &&
-    err.cause !== null &&
-    'code' in err.cause &&
-    err.cause.code === '23505'
-  );
-}
-
-router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
-  // Suriin at linisin ang input BAGO gamitin — maling input = 400, hindi 500
-  const result = registerSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({
-      error: 'Invalid input',
-      fields: z.flattenError(result.error).fieldErrors,
-    });
-  }
-  const { email, password, name } = result.data; // ang NALINIS na data, hindi req.body
-
-  // Hash BAGO i-save — hindi kailanman plain text sa database
-  const passwordHash = await argon2.hash(password);
-
-  try {
-    // INSERT agad, walang "SELECT muna" — ang UNIQUE ng database ang huling bantay (kahit sabay ang 2 request)
-    const [user] = await db
-      .insert(users)
-      .values({ email, name, passwordHash })
-      // Piling column lang — hindi dapat lumabas ang password_hash kahit hash pa
-      .returning({ id: users.id, email: users.email, name: users.name });
-    await audit(req, { action: 'register', actorId: user.id, targetId: user.id });
-    res.status(201).json({ user });
-    // Day 60: email na may verification link — pagkatapos sumagot (hindi naghihintay ang register sa Resend)
-    runInBackground('verify_email', () => sendVerificationEmail(user.id, user.email));
-  } catch (err) {
-    // 23505 = unique violation ng Postgres. Nasa err.cause, hindi err.code (binabalot ni Drizzle)
-    if (isUniqueViolation(err)) {
-      return res.status(409).json({ error: 'Email already registered' });
-    }
-    throw err; // ibang error → hayaan si Express (500)
-  }
-});
+router.post('/auth/register', registerLimiter ?? pass, register);
 
 // Pang-verify kapag walang account — para pareho ang tagal (~50ms) ng sagot, may account man o wala.
 // Kung wala ito, mas mabilis ang 401 ng email na walang account → malalaman ng attacker kung sino ang may account.
@@ -359,10 +309,9 @@ router.post('/auth/forgot-password', forgotPasswordLimiter ?? pass, async (req, 
     const [user] = await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.email, email));
     await audit(req, { action: 'password_reset_requested', targetId: user?.id ?? null, metadata: { email } });
     if (!user) return;
-    const token = await createVerificationToken(user.id, 'password_reset', RESET_TOKEN_TTL_MS);
     // Token sa #fragment, hindi sa ?query: hindi ipinapadala ng browser ang fragment sa kahit anong server —
     // kaya hindi ito lalabas sa logs ng Cloudflare Pages, sa Referer, o sa analytics
-    await sendEmail(passwordResetEmail(user.email, `${env.CLIENT_URL}/reset-password#token=${token}`));
+    await sendPasswordResetEmail(user.id, user.email);
   });
 });
 
@@ -402,12 +351,6 @@ router.post('/auth/reset-password', async (req, res) => {
 // ---------------------------------------------------------------------------------------------
 // Email verification (Day 60) — "soft": makakapag-login pa rin ang hindi pa verified (D-026)
 
-// Gumawa ng link at ipadala (tinatawag sa background: pagka-register, at sa resend)
-async function sendVerificationEmail(userId: number, email: string): Promise<void> {
-  const token = await createVerificationToken(userId, 'email_verification', VERIFY_TOKEN_TTL_MS);
-  // #fragment (Day 59): hindi napupunta sa kahit anong server ang token
-  await sendEmail(verifyEmailEmail(email, `${env.CLIENT_URL}/verify-email#token=${token}`));
-}
 
 // POST /api/auth/verify-email { token } — hindi kailangang naka-login: puwedeng buksan ang link sa ibang device
 router.post('/auth/verify-email', async (req, res) => {
