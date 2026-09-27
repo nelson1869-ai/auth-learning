@@ -511,9 +511,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** single-use tokens · *Reference: `password reset and email verification`*
 
 ### Day 60 — Email verification
-- [ ] Link sa email pagka-register; markahan ang `email_verified_at`
-- [ ] 📝 `backend/http/NN-verify-email.http`
-- [ ] 📊 `docs/diagrams/NN-verify-email.md`
+- [x] Link sa email pagka-register; markahan ang `email_verified_at` *(soft — D-026; + resend-verification; `emailVerified` sa `/me`)*
+- [x] 📝 `backend/http/20-verify-email.http`
+- [x] 📊 `docs/diagrams/19-verify-email.md`
 
 ### Day 61 — Frontend pages
 - [ ] Forgot password, reset password, at verify email pages

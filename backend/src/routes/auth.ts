@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { CookieOptions, Request, RequestHandler, Response } from 'express';
 import argon2 from 'argon2';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
@@ -11,6 +11,7 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  verifyEmailSchema,
 } from '../validations/auth.ts';
 import { requireAuth } from '../middleware/requireAuth.ts';
 import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
@@ -29,11 +30,18 @@ import {
   rotateRefreshToken,
   type Device,
 } from '../lib/session.ts';
-import { changePasswordLimiter, forgotPasswordLimiter, loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
-import { passwordResetEmail, sendEmail } from '../lib/email.ts';
+import {
+  changePasswordLimiter,
+  forgotPasswordLimiter,
+  loginLimiter,
+  registerLimiter,
+  resendVerificationLimiter,
+} from '../middleware/rateLimiter.ts';
+import { passwordResetEmail, sendEmail, verifyEmailEmail } from '../lib/email.ts';
 import { runInBackground } from '../lib/background.ts';
 import {
   RESET_TOKEN_TTL_MS,
+  VERIFY_TOKEN_TTL_MS,
   claimVerificationToken,
   createVerificationToken,
   isVerificationTokenUsable,
@@ -112,6 +120,8 @@ router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
       .returning({ id: users.id, email: users.email, name: users.name });
     await audit(req, { action: 'register', actorId: user.id, targetId: user.id });
     res.status(201).json({ user });
+    // Day 60: email na may verification link — pagkatapos sumagot (hindi naghihintay ang register sa Resend)
+    runInBackground('verify_email', () => sendVerificationEmail(user.id, user.email));
   } catch (err) {
     // 23505 = unique violation ng Postgres. Nasa err.cause, hindi err.code (binabalot ni Drizzle)
     if (isUniqueViolation(err)) {
@@ -167,7 +177,7 @@ router.get('/auth/me', requireAuth, async (req, res) => {
   const [user] = await db
     // + role (Day 49): para malaman ng frontend kung ipapakita ang Admin link. UX lang iyon —
     // ang requireRole ng backend pa rin ang tunay na bantay sa /api/admin/*
-    .select({ id: users.id, email: users.email, name: users.name, role: users.role })
+    .select({ id: users.id, email: users.email, name: users.name, role: users.role, emailVerifiedAt: users.emailVerifiedAt })
     .from(users)
     .where(eq(users.id, userId));
 
@@ -175,8 +185,10 @@ router.get('/auth/me', requireAuth, async (req, res) => {
     // tama ang token, pero nabura na ang user
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name)
-  res.json({ user });
+  // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name).
+  // Day 60: emailVerified (true/false) — para sa paalala sa frontend ("soft" verification)
+  const { emailVerifiedAt, ...rest } = user;
+  res.json({ user: { ...rest, emailVerified: emailVerifiedAt !== null } });
 });
 
 // Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
@@ -344,6 +356,48 @@ router.post('/auth/reset-password', async (req, res) => {
 
   await audit(req, { action: 'password_reset', actorId: userId, targetId: userId });
   res.status(204).end(); // walang auto-login: mag-login gamit ang bagong password
+});
+
+// ---------------------------------------------------------------------------------------------
+// Email verification (Day 60) — "soft": makakapag-login pa rin ang hindi pa verified (D-026)
+
+// Gumawa ng link at ipadala (tinatawag sa background: pagka-register, at sa resend)
+async function sendVerificationEmail(userId: number, email: string): Promise<void> {
+  const token = await createVerificationToken(userId, 'email_verification', VERIFY_TOKEN_TTL_MS);
+  // #fragment (Day 59): hindi napupunta sa kahit anong server ang token
+  await sendEmail(verifyEmailEmail(email, `${env.CLIENT_URL}/verify-email#token=${token}`));
+}
+
+// POST /api/auth/verify-email { token } — hindi kailangang naka-login: puwedeng buksan ang link sa ibang device
+router.post('/auth/verify-email', async (req, res) => {
+  const result = verifyEmailSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Invalid input', fields: z.flattenError(result.error).fieldErrors });
+  }
+  // LAHAT O WALA: gamitin ang token (atomic, isang beses lang) + markahang verified
+  const userId = await db.transaction(async (tx) => {
+    const claimed = await claimVerificationToken(result.data.token, 'email_verification', tx);
+    if (claimed === undefined) return undefined;
+    await tx.update(users).set({ emailVerifiedAt: new Date() }).where(and(eq(users.id, claimed), isNull(users.emailVerifiedAt)));
+    return claimed;
+  });
+  if (userId === undefined) return res.status(400).json({ error: 'This verification link is invalid or has expired' });
+  await audit(req, { action: 'email_verified', actorId: userId, targetId: userId });
+  res.status(204).end();
+});
+
+// POST /api/auth/resend-verification — naka-login; bagong link (ang luma ay mawawalan ng bisa)
+router.post('/auth/resend-verification', requireAuth, resendVerificationLimiter ?? pass, async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
+  const [user] = await db
+    .select({ email: users.email, emailVerifiedAt: users.emailVerifiedAt })
+    .from(users)
+    .where(eq(users.id, userId));
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (user.emailVerifiedAt !== null) return res.status(409).json({ error: 'Email is already verified' });
+  res.status(202).json({ message: 'A new verification link has been sent.' });
+  runInBackground('verify_email', () => sendVerificationEmail(userId, user.email));
 });
 
 export default router;

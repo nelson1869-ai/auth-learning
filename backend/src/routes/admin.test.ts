@@ -70,7 +70,7 @@ describe('admin routes', () => {
     await setRole(db, { email, role: 'admin' });
     const me = await agent.get('/api/auth/me');
     expect(me.body.user).toMatchObject({ email, role: 'admin' });
-    expect(Object.keys(me.body.user).sort()).toEqual(['email', 'id', 'name', 'role']); // walang password_hash
+    expect(Object.keys(me.body.user).sort()).toEqual(['email', 'emailVerified', 'id', 'name', 'role']); // walang password_hash (+ emailVerified, Day 60)
   });
 
   it('401 (not 404) for an unknown admin path without login — does not reveal what exists', async () => {

@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -18,6 +18,7 @@ erDiagram
         text name "optional"
         text password_hash "NOT NULL · argon2id hash, hindi kailanman ibinabalik sa API"
         user_role role "NOT NULL · DEFAULT 'user' · enum: user | admin"
+        timestamptz email_verified_at "NULL = hindi pa verified (soft, Day 60)"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
     audit_logs {

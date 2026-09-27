@@ -31,6 +31,8 @@
 | POST | `/api/auth/change-password` | Palitan ang password (Day 55) | 🍪 cookie `token` | `18-change-password.http` |
 | POST | `/api/auth/forgot-password` | Humingi ng reset link sa email (Day 59) | — | `19-password-reset.http` |
 | POST | `/api/auth/reset-password` | Bagong password gamit ang link (Day 59) | — (ang token) | `19-password-reset.http` |
+| POST | `/api/auth/verify-email` | I-verify ang email gamit ang link (Day 60) | — (ang token) | `20-verify-email.http` |
+| POST | `/api/auth/resend-verification` | Bagong verification link (Day 60) | 🍪 cookie `token` | `20-verify-email.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 | GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
@@ -101,7 +103,7 @@ Bilang lang — hindi kailanman ang listahan ng users.
 
 | Status | Kailan | Body |
 |---|---|---|
-| **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana", "role": "user" } }` — `role` mula Day 49, galing sa database (hindi sa token) |
+| **200** | Tama ang token at may user pa | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana", "role": "user" } }` — `role` mula Day 49, galing sa database (hindi sa token) · **`emailVerified`** (true/false) mula Day 60 |
 | **401** | Walang cookie, binago/sira/expired ang token, o nabura na ang user — **iisang sagot** | `{ "error": "Not authenticated" }` |
 
 ## `POST /api/auth/logout`
@@ -176,6 +178,23 @@ Kung may account: email na may `<CLIENT_URL>/reset-password#token=…` (1 oras, 
 | **400** | Wala, nagamit na, expired, o pekeng token — **iisang mensahe** | `{ "error": "This reset link is invalid or has expired" }` |
 | **400** | Mali ang bagong password | `{ "error": "Invalid input", "fields": { "newPassword": [ … ] } }` |
 
+## `POST /api/auth/verify-email` (Day 60)
+**Body:** `{ "token": "…" }` — mula sa link sa email pagka-register (`…/verify-email#token=…`, 24 oras). Hindi kailangang naka-login.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **204** | Na-verify · audit `email_verified` | walang body |
+| **400** | Wala, nagamit na, expired, pekeng token, o token ng ibang layunin (hal. reset) — **iisang mensahe** | `{ "error": "This verification link is invalid or has expired" }` |
+
+## `POST /api/auth/resend-verification` (Day 60)
+**Auth:** cookie `token`. Rate limit: 5 bawat 15 minuto bawat IP.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **202** | Hindi pa verified — bagong link (ang luma ay hindi na gagana) | `{ "message": "A new verification link has been sent." }` |
+| **409** | Verified na — walang email | `{ "error": "Email is already verified" }` |
+| **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
+
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
 kaya agad tumatalab ang pagbabago ng role. Walang body.
@@ -215,6 +234,7 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `POST /api/auth/change-password` (Day 55) | `password_changed` · `password_change_failed` | ang user · siya rin · — |
 | `POST /api/auth/forgot-password` (Day 59) | `password_reset_requested` | `null` · ang account kung mayroon · `{ email }` |
 | `POST /api/auth/reset-password` (Day 59) | `password_reset` | ang user · siya rin · — |
+| `POST /api/auth/verify-email` (Day 60) | `email_verified` | ang user · siya rin · — |
 
 Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
 

@@ -1,0 +1,66 @@
+### =========================================================================
+### 🎓 EMAIL VERIFICATION — "sa iyo ba talaga ang email na ito?"
+### 📅 Day 60 · Phase 12 (Email) · Desisyon: D-026 (soft)
+### =========================================================================
+### Pagka-register: email na may link  <CLIENT_URL>/verify-email#token=...   (24 oras, isang beses lang)
+### POST /api/auth/verify-email { token }        → 204 (hindi kailangang naka-login)
+### POST /api/auth/resend-verification            → 202 (naka-login) · ang lumang link ay mawawalan ng bisa
+### GET  /api/auth/me                             → { user: { ..., emailVerified: true/false } }
+###
+### "SOFT": makakapag-login pa rin ang hindi pa verified — may paalala lang sa frontend (Day 61).
+###
+### Sa dev: WALANG totoong email — ang email ay nasa terminal ng `npm run dev`:
+###   📧 Email … "Confirm your auth-learning email address" … /verify-email#token=XXXX ← kopyahin
+###
+### Code: backend/src/routes/auth.ts · lib/verificationTokens.ts · lib/email.ts (verifyEmailEmail)
+### Test: backend/src/routes/verify-email.test.ts · Diagram: docs/diagrams/19-verify-email.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Register. Ang inaasahan: 201 — at sa terminal: 📧 "Confirm your auth-learning email address" … #token=
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "verify-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Login (makakapag-login kahit hindi pa verified — soft). Ang inaasahan: 200
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "verify-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 3. /me. Ang inaasahan: 200 · "emailVerified": false
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 4. I-verify — palitan ang PASTE-DITO ng token mula sa terminal (#1).
+###    Ang inaasahan: 204 — at ang #3 ay magiging "emailVerified": true
+POST http://localhost:3000/api/auth/verify-email
+Content-Type: application/json
+
+{
+  "token": "PASTE-DITO"
+}
+
+### -------------------------------------------------------------------------
+### 5. Pekeng token. Ang inaasahan: 400 { "error": "This verification link is invalid or has expired" }
+POST http://localhost:3000/api/auth/verify-email
+Content-Type: application/json
+
+{
+  "token": "gawa-gawa-lang"
+}
+
+### -------------------------------------------------------------------------
+### 6. Magpadala ulit ng link. Ang inaasahan:
+###    202 kung hindi pa verified (bagong email sa terminal; ang luma ay hindi na gagana)
+###    409 { "error": "Email is already verified" } kung verified na (pagkatapos ng #4)
+POST http://localhost:3000/api/auth/resend-verification

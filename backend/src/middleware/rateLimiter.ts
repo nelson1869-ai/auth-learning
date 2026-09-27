@@ -71,6 +71,11 @@ export const forgotPasswordLimiter = skip
   ? undefined
   : createAuthLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES, trustCloudflare: env.TRUST_CLOUDFLARE });
 
+// Resend verification (Day 60): 5 bawat 15 minuto bawat IP — nagpapadala ng email, pareho ng forgot-password
+export const resendVerificationLimiter = skip
+  ? undefined
+  : createAuthLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES, trustCloudflare: env.TRUST_CLOUDFLARE });
+
 // Register: 10 bawat 15 minuto bawat IP (lahat binibilang) — pananggalang laban sa pekeng accounts
 export const registerLimiter = skip
   ? undefined

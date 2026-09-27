@@ -33,6 +33,9 @@ export const resetPasswordSchema = z.object({
   newPassword: registerSchema.shape.password,
 });
 
+// Email verification (Day 60)
+export const verifyEmailSchema = z.object({ token: z.string().min(1).max(200) });
+
 // Ang TypeScript type ay galing mismo sa schema (z.infer) — iisang source of truth:
 // kapag binago ang schema, kusang nagbabago ang type
 export type RegisterInput = z.infer<typeof registerSchema>;
