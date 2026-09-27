@@ -53,3 +53,26 @@ const transport: Transport = env.RESEND_API_KEY ? createResendTransport(env.RESE
 export function sendEmail(email: Email): Promise<void> {
   return transport(email);
 }
+
+// ---------------------------------------------------------------------------------------------
+// Mga email ng app (Day 59). Malinaw na transactional: kanino, bakit, ano ang gagawin, at "kung hindi ikaw…"
+// (Day 58: ang "test", emoji at hindi malinaw na laman ay itinuring na spam)
+export function passwordResetEmail(to: string, link: string): Email {
+  return {
+    to,
+    subject: 'Reset your auth-learning password',
+    text: [
+      'Hi,',
+      '',
+      'Someone asked to reset the password for your auth-learning account.',
+      'To choose a new password, open this link (it works once and expires in 1 hour):',
+      '',
+      link,
+      '',
+      'If you did not ask for this, you can ignore this email. Your password will not change.',
+      '',
+      '— auth-learning',
+    ].join('\n'),
+  };
+}
+

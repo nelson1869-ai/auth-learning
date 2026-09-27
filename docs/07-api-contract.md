@@ -29,6 +29,8 @@
 | GET | `/api/auth/sessions` | Mga naka-login kong device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
 | DELETE | `/api/auth/sessions/:id` | I-logout ang isang device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
 | POST | `/api/auth/change-password` | Palitan ang password (Day 55) | 🍪 cookie `token` | `18-change-password.http` |
+| POST | `/api/auth/forgot-password` | Humingi ng reset link sa email (Day 59) | — | `19-password-reset.http` |
+| POST | `/api/auth/reset-password` | Bagong password gamit ang link (Day 59) | — (ang token) | `19-password-reset.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 | GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
@@ -155,6 +157,25 @@ Rate limit: 10 palpak bawat 15 minuto.
 | **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
 | **429** | ≥ 10 palpak sa 15 minuto | `{ "error": "Too many attempts. Please try again later." }` |
 
+## `POST /api/auth/forgot-password` (Day 59)
+**Body:** `{ "email": "…" }`. Rate limit: 5 bawat 15 minuto bawat IP.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **202** | **Palagi** (kahit walang account) — parehong sagot at tagal | `{ "message": "If an account exists for that email, a reset link has been sent." }` |
+| **400** | Hindi email | `{ "error": "Invalid input", "fields": { "email": [ … ] } }` |
+
+Kung may account: email na may `<CLIENT_URL>/reset-password#token=…` (1 oras, isang beses lang; pinapawalang-bisa ang mas lumang link).
+
+## `POST /api/auth/reset-password` (Day 59)
+**Body:** `{ "token": "…", "newPassword": "…" }` (8–128).
+
+| Status | Kailan | Body |
+|---|---|---|
+| **204** | Napalitan — **na-logout ang LAHAT ng session** · audit `password_reset` | walang body (walang auto-login) |
+| **400** | Wala, nagamit na, expired, o pekeng token — **iisang mensahe** | `{ "error": "This reset link is invalid or has expired" }` |
+| **400** | Mali ang bagong password | `{ "error": "Invalid input", "fields": { "newPassword": [ … ] } }` |
+
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
 kaya agad tumatalab ang pagbabago ng role. Walang body.
@@ -192,6 +213,8 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |
 | `DELETE /api/auth/sessions/:id` (Day 54) | `session_revoked` | ang user · siya rin · `{ session }` |
 | `POST /api/auth/change-password` (Day 55) | `password_changed` · `password_change_failed` | ang user · siya rin · — |
+| `POST /api/auth/forgot-password` (Day 59) | `password_reset_requested` | `null` · ang account kung mayroon · `{ email }` |
+| `POST /api/auth/reset-password` (Day 59) | `password_reset` | ang user · siya rin · — |
 
 Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
 

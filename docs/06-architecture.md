@@ -89,17 +89,18 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password)
+│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password/forgot/reset)
 │   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
 │   │                        users.ts (count) · health.ts · echo.ts
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
+│   │                        · verificationTokens.ts · background.ts (Day 59)
 │   ├── scripts/          ← send-test-email.ts (Day 58 — script, hindi endpoint)
-│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens) · migrate.ts · set-role.ts
+│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
-├── drizzle/              ← migrations 0000–0006
-└── http/                 ← 01–18 .http walkthroughs
+├── drizzle/              ← migrations 0000–0007
+└── http/                 ← 01–19 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**

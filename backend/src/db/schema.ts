@@ -37,6 +37,8 @@ export const AUDIT_ACTIONS = [
   'session_revoked', // Day 54 — nag-logout ng isang device mula sa "Mga device ko"
   'password_changed', // Day 55 — napalitan ang password; binawi ang LAHAT ng session
   'password_change_failed', // Day 55 — maling kasalukuyang password (posibleng nakaw na session na nanghuhula)
+  'password_reset_requested', // Day 59 — may humiling ng reset link (target = ang account kung mayroon)
+  'password_reset', // Day 59 — napalitan ang password gamit ang reset link
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -77,7 +79,7 @@ export const refreshTokens = pgTable(
     revokedAt: timestamp('revoked_at', { withTimezone: true }), // null = aktibo pa
     // Bakit binawi (Day 52): 'rotated' = napalitan ng bago (normal) · 'reuse' = ginamit ulit ang luma (nakaw!) ·
     // 'logout' = nag-logout (Day 53). Kailangan para malaman kung sabay na refresh lang o pagnanakaw
-    revokeReason: text('revoke_reason').$type<'rotated' | 'reuse' | 'logout' | 'password_change'>(),
+    revokeReason: text('revoke_reason').$type<'rotated' | 'reuse' | 'logout' | 'password_change' | 'password_reset'>(),
     // Ang device (Day 54) — para sa "Mga device ko". Ina-update sa bawat rotation, kaya ang pinakabagong token
     // ng family ang nagsasabi ng HULING gamit: anong browser at saang IP
     userAgent: text('user_agent'),
@@ -85,4 +87,22 @@ export const refreshTokens = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('refresh_tokens_user_id_idx').on(table.userId)],
+);
+
+// Mga token na isang beses lang magagamit (Day 59) — ang link sa email: password reset (at email verification sa Day 60).
+// Pareho ng refresh token: SHA-256 hash lang ang naka-save, kaya kapag na-leak ang database, walang magagamit na link
+export const verificationTokens = pgTable(
+  'verification_tokens',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    purpose: text('purpose').$type<'password_reset' | 'email_verification'>().notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }), // null = hindi pa nagagamit (single-use)
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('verification_tokens_user_id_idx').on(table.userId)],
 );

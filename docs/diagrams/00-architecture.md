@@ -7,7 +7,7 @@
 ## Ngayon: ano na ang totoong mayroon
 
 > 📅 in-update sa Day 32b · Phase 7 (TypeScript na ang frontend at backend) · Day 39 (`helmet()`) · Day 42 (logging) · Day 44 (CSRF) · Day 46–49 (admin, audit log, admin page) · Day 51 (refresh token) · Day 56 (RS256) · Day 58 (email) · **Code:** `frontend/src/`, `backend/src/`, `devops/docker-compose.yml`
-> **Subukan:** `backend/http/01`–`18`
+> **Subukan:** `backend/http/01`–`19`
 
 ```mermaid
 flowchart LR
@@ -20,7 +20,7 @@ flowchart LR
     subgraph BE["backend/ · Express + TypeScript (node src/index.ts)"]
         MW["requestLogger — log + X-Request-Id<br/>helmet() — security headers<br/>cors({ origin: env.CLIENT_URL, credentials })<br/>requireSameOrigin — CSRF (Day 44)<br/>express.json() · cookieParser()"]
         Env["config/env.ts<br/>sinusuri ang env pagka-start (Zod)"]
-        Routes["routes/<br/>auth.ts: register · login · me · refresh · logout · sessions · change-password<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
+        Routes["routes/<br/>auth.ts: register · login · me · refresh · logout · sessions ·<br/>change-password · forgot/reset-password<br/>admin.ts: /admin/users · /admin/audit-logs (Day 46–48)<br/>users.ts: count · health.ts · echo.ts"]
         Val["validations/auth.ts<br/>Zod: registerSchema · loginSchema"]
         Auth["middleware/requireAuth.ts<br/>lib/jwt.ts: RS256 · PUBLIC key · iss/aud"]
         Role["middleware/requireRole.ts<br/>role mula sa DB → 403 kung hindi admin"]
@@ -45,7 +45,7 @@ flowchart LR
     DB -->|"SQL · localhost:5435"| PG
     Mail -->|"HTTPS · Resend API<br/>SPF · DKIM · DMARC"| Resend(["📧 Resend (Tokyo)<br/>no-reply@nelson1869.com"])
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens<br/>migrations 0000–0006")]
+        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens ·<br/>verification_tokens · migrations 0000–0007")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end

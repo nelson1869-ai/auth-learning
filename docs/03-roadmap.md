@@ -504,10 +504,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** transactional email, deliverability (bakit napupunta sa spam)
 
 ### Day 59 — Password reset
-- [ ] Single-use na token (hashed, may expiry); laging "kung may account, may email na"
-- [ ] 📝 `backend/http/NN-password-reset.http`
-- [ ] 📊 `docs/diagrams/NN-password-reset.md`
-- [ ] 📊 I-update ang `02-er-diagram.md` (`verification_tokens` table)
+- [x] Single-use na token (hashed, may expiry); laging "kung may account, may email na" *(+ token sa `#fragment`; sumasagot muna, email sa background; isang aktibong link lang; rate limit 5/15 min)*
+- [x] 📝 `backend/http/19-password-reset.http`
+- [x] 📊 `docs/diagrams/18-password-reset.md`
+- [x] 📊 I-update ang `02-er-diagram.md` (`verification_tokens` table)
 - **Matututunan:** single-use tokens · *Reference: `password reset and email verification`*
 
 ### Day 60 — Email verification

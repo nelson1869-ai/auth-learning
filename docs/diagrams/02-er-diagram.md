@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -37,13 +37,23 @@ erDiagram
         uuid family_id "isang family bawat login — lahat ng rotation ay parehong family"
         timestamptz expires_at "NOT NULL · 7 araw"
         timestamptz revoked_at "NULL = aktibo · may oras = binawi"
-        text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout · password_change"
+        text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout · password_change · password_reset"
         text user_agent "ang device (Day 54) — ina-update bawat rotation"
         text ip "totoong IP ng huling gamit"
         timestamptz created_at "NOT NULL · DEFAULT now()"
     }
     users |o--o{ audit_logs : "gumawa (actor_id)"
+    verification_tokens {
+        serial id PK
+        integer user_id FK "NOT NULL · ON DELETE CASCADE"
+        text token_hash UK "SHA-256 ng token sa email link"
+        text purpose "password_reset (Day 59) · email_verification (Day 60)"
+        timestamptz expires_at "NOT NULL · 1 oras (reset)"
+        timestamptz used_at "NULL = hindi pa nagagamit · single-use"
+        timestamptz created_at "NOT NULL · DEFAULT now()"
+    }
     users ||--o{ refresh_tokens : "may session (user_id)"
+    users ||--o{ verification_tokens : "may email link (user_id)"
 ```
 
 ## Paano basahin
