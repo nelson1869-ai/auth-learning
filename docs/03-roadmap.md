@@ -530,9 +530,9 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 13 — Account lockout · 🔐 *Security* · Day 63–65
 
 ### Day 63 — Per-account lockout
-- [ ] 5 maling password → 15 minutong lock (hiwalay sa IP rate limit)
-- [ ] 📝 `backend/http/NN-lockout.http` — 5 maling password → 423
-- [ ] 📊 I-update ang `04-login-flow.md`: idagdag ang lockout branch
+- [x] 5 maling password → 15 minutong lock (hiwalay sa IP rate limit) *(423 + Retry-After kahit tama ang password; migration 0009; audit `account_locked`; sinadyang iniwan ang race para sa Day 66–67 — sinukat: 20 sabay → 20 nasuri, hindi na-lock)*
+- [x] 📝 `backend/http/21-lockout.http` — 5 maling password → 423
+- [x] 📊 I-update ang `04-login-flow.md`: idagdag ang lockout branch *(+ `02-er-diagram.md`)*
 - **Matututunan:** bakit hindi sapat ang IP limit (maraming IP ang attacker) · *Reference: `per-account lockout`*
 
 ### Day 64 — Lockout DoS at device cookies

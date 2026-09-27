@@ -16,6 +16,9 @@ export const users = pgTable('users', {
   role: roleEnum('role').notNull().default('user'),
   // Kailan napatunayang kanya ang email (Day 60). NULL = hindi pa — "soft": makakapag-login pa rin, may paalala
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
+  // Per-account lockout (Day 63): ilang sunod-sunod na maling password, at hanggang kailan naka-lock (NULL = hindi)
+  failedLoginAttempts: integer('failed_login_attempts').notNull().default(0),
+  lockedUntil: timestamp('locked_until', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -42,6 +45,7 @@ export const AUDIT_ACTIONS = [
   'password_reset_requested', // Day 59 — may humiling ng reset link (target = ang account kung mayroon)
   'password_reset', // Day 59 — napalitan ang password gamit ang reset link
   'email_verified', // Day 60 — napatunayang kanya ang email (binuksan ang link)
+  'account_locked', // Day 63 — 5 sunod-sunod na maling password → naka-lock nang 15 minuto
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 

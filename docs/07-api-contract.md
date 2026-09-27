@@ -91,6 +91,8 @@ Bilang lang — hindi kailanman ang listahan ng users.
 | **200** | Tama ang email at password — **may `Set-Cookie: token`** | `{ "user": { "id": 1, "email": "ana@example.com", "name": "Ana" } }` |
 | **400** | Mali ang hugis ng input | `{ "error": "Invalid input", "fields": { ... } }` |
 | **401** | Maling password **o** walang account — **iisang sagot, parehong tagal** | `{ "error": "Invalid email or password" }` |
+| **423** | Day 63: naka-lock ang account (5 sunod-sunod na maling password → 15 minuto) — **kahit tama ang password** · header `Retry-After: <segundo>` · walang cookie | `{ "error": "Account temporarily locked. Please try again later." }` |
+| **429** | Day 43: 10 palpak na login bawat IP bawat 15 minuto | `{ "error": "Too many attempts. Please try again later." }` |
 
 **Mga cookie (sa 200 lang, Day 51):**
 - `token=<JWT>; Max-Age=900; Path=/; HttpOnly; SameSite=Lax` — **access token, 15 minuto**. Payload: `{ "sub": "<user id>", "iat", "exp", "iss": "auth-learning-api", "aud": "auth-learning-web" }`, **RS256** (Day 56; dati HS256).
@@ -227,6 +229,7 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `POST /api/auth/register` (201) | `register` | ang bagong user · siya rin |
 | `POST /api/auth/login` (200) | `login` | ang user · siya rin |
 | `POST /api/auth/login` (401) | `login_failed` | `null` · ang account kung mayroon · `{ email }` — **hindi** ang password |
+| `POST /api/auth/login` (423, Day 63) | `login_failed` · `account_locked` (isang beses, sa ika-5 mali) | `null` · ang account · `{ email, reason: 'locked' }` · `{ email, attempts }` |
 | `POST /api/auth/logout` | `logout` | mula sa token kung valid pa, kung hindi `null` |
 | `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
 | `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |

@@ -135,6 +135,11 @@ router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
 // Kung wala ito, mas mabilis ang 401 ng email na walang account → malalaman ng attacker kung sino ang may account.
 const DUMMY_HASH = await argon2.hash('dummy-password-para-sa-timing');
 
+// Per-account lockout (Day 63) — hiwalay sa IP rate limit: ang attacker na may maraming IP ay
+// makakahula pa rin ng 10 bawat IP, pero 5 lang bawat ACCOUNT bago ma-lock
+export const MAX_FAILED_LOGINS = 5;
+export const LOCKOUT_MS = 15 * 60 * 1000;
+
 router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
@@ -147,14 +152,40 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
 
   const [user] = await db.select().from(users).where(eq(users.email, email));
 
+  // Naka-lock (Day 63) → 423 agad, kahit TAMA ang password: hindi na sinusuri ang hula habang naka-lock.
+  // Tandaan: ang 423 ay nagsasabing MAY account ang email na ito — aayusin sa Phase 15 (anti-enumeration)
+  if (user?.lockedUntil && user.lockedUntil > new Date()) {
+    await audit(req, { action: 'login_failed', targetId: user.id, metadata: { email, reason: 'locked' } });
+    res.setHeader('Retry-After', String(Math.ceil((user.lockedUntil.getTime() - Date.now()) / 1000)));
+    return res.status(423).json({ error: 'Account temporarily locked. Please try again later.' });
+  }
+
   // Laging may verify — totoong hash kung may user, DUMMY_HASH kung wala
   const ok = await argon2.verify(user ? user.passwordHash : DUMMY_HASH, password);
   if (!user || !ok) {
     // Audit (Day 48): target = ang account na sinubukang pasukin (kung mayroon), at ang email na tinype.
     // Itinatala sa DALAWANG kaso (may account o wala) — kaya pareho pa rin ang tagal ng sagot
     await audit(req, { action: 'login_failed', targetId: user?.id ?? null, metadata: { email } });
+    if (user) {
+      // ⚠️ KILALANG RACE (sinadya — ito ang aral ng Day 66–67): binasa ang bilang, +1 dito sa JS, saka isinulat.
+      // Kapag 20 hula ang SABAY, lahat ay nakabasa ng parehong bilang at nakalampas sa lock check sa itaas,
+      // kaya higit sa 5 hula ang nasusuri. Ayos: sa database mismo ang +1 (UPDATE ... WHERE ... RETURNING)
+      const attempts = user.failedLoginAttempts + 1;
+      const lock = attempts >= MAX_FAILED_LOGINS;
+      await db
+        .update(users)
+        // Sa pag-lock, 0 ulit ang bilang: pagkatapos ng 15 minuto, 5 subok ulit (hindi 1 bawat 15 minuto)
+        .set({ failedLoginAttempts: lock ? 0 : attempts, lockedUntil: lock ? new Date(Date.now() + LOCKOUT_MS) : null })
+        .where(eq(users.id, user.id));
+      if (lock) await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts } });
+    }
     // Iisang mensahe para sa maling email AT maling password — hindi sinasabi kung may account
     return res.status(401).json({ error: 'Invalid email or password' });
+  }
+
+  // Tamang password → balik sa 0 ang bilang (sunod-sunod na mali lang ang binibilang, hindi ang kabuuan)
+  if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+    await db.update(users).set({ failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, user.id));
   }
 
   // Dalawang token (Day 51): maikling access token (JWT, 15 min) + mahabang refresh token (7 araw, nasa DB)
