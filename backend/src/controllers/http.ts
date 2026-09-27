@@ -10,7 +10,7 @@ import { DEVICE_COOKIE, DEVICE_TTL_MS } from '../lib/trustedDevices.ts';
 
 // Iisang settings para sa pag-set (login) AT pag-clear (logout) ng cookie — dapat magkapareho,
 // kung hindi, may mga browser na hindi magbubura ng cookie
-export const COOKIE_OPTIONS: CookieOptions = {
+const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true, // hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
   sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
   secure: env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
@@ -18,10 +18,10 @@ export const COOKIE_OPTIONS: CookieOptions = {
 
 // Refresh token (Day 51): ipinapadala LANG sa /api/auth/* (refresh, logout) — hindi sa bawat request.
 // Mas kaunting daan = mas kaunting pagkakataong manakaw
-export const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth' };
+const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth' };
 
 // Device cookie (Day 64): ipinapadala LANG sa /api/auth/login — iyon lang ang nagbabasa nito. 180 araw
-export const DEVICE_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth/login', maxAge: DEVICE_TTL_MS };
+const DEVICE_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth/login', maxAge: DEVICE_TTL_MS };
 
 export function setAccessCookie(res: Response, accessToken: string) {
   res.cookie('token', accessToken, { ...COOKIE_OPTIONS, maxAge: ACCESS_TOKEN_TTL_MS });

@@ -28,7 +28,7 @@ export async function listUsers(database: Reader, { page, limit }: Pagination) {
 
 // Isang page ng audit log (Day 48), pinakabago muna. May email ng gumawa (LEFT JOIN: kahit walang actor
 // o nabura na ang user, kasama pa rin ang row — null lang ang email)
-export async function listAuditLogs(database: Reader, { page, limit }: Pagination) {
+async function listAuditLogs(database: Reader, { page, limit }: Pagination) {
   const [logs, total] = await Promise.all([
     database
       .select({

@@ -1,0 +1,15 @@
+{
+  // knip (Day 79): naghahanap ng mga hindi ginagamit na file, export at dependency. Tumatakbo sa `npm run lint` (kaya pati sa CI).
+  // Bawat pagbubukod dito ay may DAHILAN. Huwag magdagdag para lang tumahimik ang knip — alisin ang patay na code
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Ang drizzle.config.ts ay sinadyang tumatanggi kapag walang DATABASE_URL (fail-fast), kaya hindi ito makarga ng knip
+  // plugin. Ginagamit ito ng drizzle-kit (npm run db:generate / db:migrate) — kaya entry na lang
+  "drizzle": false,
+  "entry": ["drizzle.config.ts"],
+  // playground/: mga practice script noong nag-aaral (Day 12), hindi bahagi ng app
+  "ignore": ["playground/**"],
+  // pino-pretty: ginagamit bilang STRING sa lib/logger.ts ({ target: 'pino-pretty' }), hindi import — hindi ito nakikita ng knip
+  "ignoreDependencies": ["pino-pretty"],
+  // Ang type na ginagamit sa loob ng sariling file (hal. AuditEvent sa lib/audit.ts) ay ayos lang na naka-export
+  "ignoreExportsUsedInFile": { "type": true, "interface": true }
+}

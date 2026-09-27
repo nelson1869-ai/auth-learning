@@ -1,7 +1,7 @@
 import type { MeUser, PublicUser, Session as SessionFromApi } from './openapi.generated.ts';
 // Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
 // sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
-export const API_URL: string =
+const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api' : '');
 
 // Sa production build na walang VITE_API_URL: tumanggi agad, huwag tahimik na tumawag sa localhost

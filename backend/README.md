@@ -64,7 +64,7 @@ backend/
 └── package.json          ← dependencies + scripts (dev, start, db:*)
 ```
 
-**Mga command:** `npm run typecheck` (TypeScript) · `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
+**Mga command:** `npm run typecheck` (TypeScript) · `npm run lint` (Oxlint + knip, Day 79 — mga pagbubukod sa `knip.jsonc`, bawat isa may dahilan) · `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
 `npm run db:migrate:test` · `npm run db:generate` ·
 `npm run db:migrate` · `npm run db:studio` · `npm run openapi` (Day 78: ang spec + frontend types — patakbuhin kapag binago ang schema o endpoint) · `npm run timing:login` (sukatin ang oras ng login: may account vs wala — tingnan ang script)
 

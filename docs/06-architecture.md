@@ -110,6 +110,7 @@ backend/
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
 ├── drizzle/              ← migrations 0000–0012
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
+├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
 └── http/                 ← 01–25 .http walkthroughs
 ```
 

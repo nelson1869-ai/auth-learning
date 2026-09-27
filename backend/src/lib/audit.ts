@@ -20,7 +20,7 @@ export type Audit = (event: AuditEvent) => Promise<void>;
 // Itala sa audit_logs (Day 48).
 // Kapag pumalya ang pagtatala (hal. saglit na problema sa database), HINDI ibinabagsak ang request ng user
 // (tulad ng reference) — pero itinatala ito bilang ERROR sa logs, para makita na may nawawalang talaan
-export async function writeAudit(source: AuditSource, event: AuditEvent, log: Pick<typeof logger, 'error'> = logger): Promise<void> {
+async function writeAudit(source: AuditSource, event: AuditEvent, log: Pick<typeof logger, 'error'> = logger): Promise<void> {
   try {
     await db.insert(auditLogs).values({
       action: event.action,
