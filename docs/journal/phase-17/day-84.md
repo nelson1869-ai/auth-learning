@@ -68,9 +68,20 @@ Naghintay ako ng **#4**, at dumating ito sa 15:52:59, eksaktong 5 minuto pagkata
 | 49 diagram | ✅ 49/49 |
 | Deploy ng `e59d90e` gamit ang bagong `deploy.sh` | ✅ pre-flight tumuloy · Live · step 7: alertmanager/grafana Running, prometheus na-recreate (bagong flag) at buo pa ang data · **walang maling AppDown** sa pag-restart ng backend (`up` = 1 sa lahat ng sample, 4 na email pa rin) |
 
-## ⚠️ Hindi pa tapos: ang email sa sarili kong inbox
-Sa **`delivered+alerts@resend.dev`** pa lang ipinadala ang lahat (test address ng Resend), dahil hindi nagpapadala ang AI sa totoong address nang walang pahintulot ko.
-Ang checkpoint ng Phase 17 ay "nakatanggap **ako**". Kailangan kong palitan ang `ALERT_EMAIL_TO` sa `devops/.env` ng address ko at ulitin ang pagsubok (o payagan ang AI na gawin ito).
+## 📧 Ang email sa sarili kong inbox
+Ang unang pagsubok ay sa **`delivered+alerts@resend.dev`** (test address ng Resend), dahil hindi nagpapadala ang AI sa totoong address nang walang pahintulot ko.
+Pumayag ako ("Gmail ko + ulitin"), kaya pinalitan ang `ALERT_EMAIL_TO` sa `devops/.env` ng Gmail ko, at **pinatay ulit ang backend**:
+
+| Oras (UTC) | Nangyari |
+|---|---|
+| 16:07:58 | stop backend |
+| +29s · +94s | pending · firing |
+| **16:10:05** (+127s) | 📧 **FIRING** → Gmail ko |
+| +135s | buhay ulit, 200 |
+| **16:15:29** | 📧 **RESOLVED** → Gmail ko |
+
+0 WARN, kaya **tinanggap ng Resend ang dalawa**. Ang hindi nakikita ng AI: kung pumasok ba talaga sa inbox ko (o sa Spam).
+**☐ Kukumpirmahin ko:** hanapin ang "[FIRING:1] AppDown" at "[RESOLVED] AppDown" mula sa `alerts@nelson1869.com`. Iyan ang checkpoint ng Phase 17 (Day 86).
 
 ## Ano ang HINDI kayang makita ng setup na ito
 - **Patay ang buong PC o ang Docker:** kasama nitong namamatay ang Prometheus at Alertmanager, kaya **walang email**. Ang pinaka-karaniwang dahilan ng pagka-down
