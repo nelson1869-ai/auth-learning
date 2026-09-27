@@ -101,7 +101,7 @@ backend/
 │   ├── scripts/          ← send-test-email.ts (Day 58 — script, hindi endpoint)
 │   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
-├── drizzle/              ← migrations 0000–0010
+├── drizzle/              ← migrations 0000–0011
 └── http/                 ← 01–22 .http walkthroughs
 ```
 

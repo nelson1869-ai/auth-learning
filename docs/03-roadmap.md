@@ -569,7 +569,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** atomicity · *Reference: `atomic with transactions`*
 
 ### Day 69 — Unique constraint bilang huling bantay
-- [ ] Sabay na register ng parehong email → 409, hindi 500
+- [x] Sabay na register ng parehong email → 409, hindi 500 *(ligtas na mula Day 13 — INSERT agad + 23505 → 409; patunay: Day 66 test · 🐛 nahuli: "isang aktibong link" at "isang aktibong token bawat family" ay code lang ang bantay → 20 sabay = 18 aktibong link · ayos: partial UNIQUE indexes (migration 0011) + upsert)*
 - **Matututunan:** bakit ang DB constraint ang tunay na garantiya
 
 ### Day 70 — Review day

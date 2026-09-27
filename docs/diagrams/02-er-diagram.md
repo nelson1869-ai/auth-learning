@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) at Day 64 (`trusted_devices`, migration 0010) · ia-update tuwing may bagong table o column
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) at Day 64 (`trusted_devices`, migration 0010) at Day 69 (partial UNIQUE indexes, migration 0011) · ia-update tuwing may bagong table o column
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -37,7 +37,7 @@ erDiagram
         serial id PK
         integer user_id FK "NOT NULL · ON DELETE CASCADE (burado kasama ng user)"
         text token_hash UK "SHA-256 ng random na token — hindi ang token mismo"
-        uuid family_id "isang family bawat login — lahat ng rotation ay parehong family"
+        uuid family_id "isang family bawat login · Day 69: UNIQUE WHERE revoked_at IS NULL (isang aktibo bawat family)"
         timestamptz expires_at "NOT NULL · 7 araw"
         timestamptz revoked_at "NULL = aktibo · may oras = binawi"
         text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout · password_change · password_reset"
@@ -61,7 +61,7 @@ erDiagram
         serial id PK
         integer user_id FK "NOT NULL · ON DELETE CASCADE"
         text token_hash UK "SHA-256 ng token sa email link"
-        text purpose "password_reset (Day 59) · email_verification (Day 60)"
+        text purpose "password_reset (Day 59) · email_verification (Day 60) · Day 69: UNIQUE (user_id, purpose) WHERE used_at IS NULL"
         timestamptz expires_at "NOT NULL · 1 oras (reset)"
         timestamptz used_at "NULL = hindi pa nagagamit · single-use"
         timestamptz created_at "NOT NULL · DEFAULT now()"
@@ -80,6 +80,7 @@ erDiagram
 |---|---|
 | **PK** | Primary key — ang "ID card" ng row: natatangi at hindi puwedeng walang laman |
 | **UK** | Unique key — bawal ang doble |
+| **Partial UNIQUE** (Day 69) | Bawal ang doble **sa mga row lang na tumutugma sa WHERE** — hal. isang AKTIBONG link bawat user at layunin; ang mga nagamit na ay hindi kasama. Ang database ang huling bantay, kahit sabay-sabay ang request o may bug ang code |
 | `serial` / `text` / `timestamptz` | ang type ng column |
 | **FK** | Foreign key — tumuturo sa `id` ng ibang table (Day 48: `audit_logs.actor_id` → `users.id`) |
 | `\|o--o{` | "zero o isa" sa "zero o marami": ang user ay puwedeng may maraming audit row; ang row ay puwedeng walang user (hindi kilala o nabura) |
