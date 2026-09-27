@@ -1,11 +1,11 @@
 import { useActionState } from 'react';
 import { Link } from 'react-router';
 import { register, errorMessage, ApiError } from '../api/auth.ts';
-import type { User, FieldErrors } from '../api/auth.ts';
+import type { PublicUser, FieldErrors } from '../api/auth.ts';
 
 // Lahat ng puwedeng laman ng state — ang ibinabalik ng action (tagumpay o error)
 type RegisterState = {
-  user?: User;
+  user?: PublicUser; // Day 78: { id, email, name } lang ang sagot ng register (nahuli ng generated types — dati `User` ang nakasulat)
   error?: string;
   fields?: FieldErrors;
   email?: string;

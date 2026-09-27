@@ -1,3 +1,4 @@
+import type { MeUser, PublicUser, Session as SessionFromApi } from './openapi.generated.ts';
 // Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
 // sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
 export const API_URL: string =
@@ -8,15 +9,14 @@ if (!API_URL) {
   throw new Error('VITE_API_URL is not set — add it to the Cloudflare Pages build settings');
 }
 
-// Ang hugis ng user na ibinabalik ng backend (docs/07-api-contract.md).
-// ⚠️ Kopya ito — kapag binago ng backend ang sagot, HINDI ito malalaman dito (tingnan ang D-019)
-export type User = {
-  id: number;
-  email: string;
-  name: string | null;
-  role: 'user' | 'admin'; // Day 49 — para ipakita/itago ang Admin link (UX lang; ang backend ang bantay)
-  emailVerified: boolean; // Day 60 — para sa paalalang "i-verify ang email mo" (soft)
-};
+// Ang mga hugis ng sagot ng backend — GINAWA mula sa OpenAPI spec (Day 78, D-027), hindi na kopya (D-019).
+// Kapag binago ng backend ang sagot at `npm run openapi`: kusang nagbabago ang mga type na ito, at ang tsc ang magsasabi
+// kung saan nasira ang frontend
+
+// Ang user mula sa /me: + role (Day 49, para sa Admin link — UX lang) at emailVerified (Day 60, para sa paalala)
+export type User = MeUser;
+// Ang user mula sa login at register: { id, email, name } LANG (walang role at emailVerified — gamitin ang /me)
+export type { PublicUser };
 
 // Mga error bawat field mula sa Zod ng backend (400), hal. { password: ['Too small ...'] }
 export type FieldErrors = Record<string, string[] | undefined>;
@@ -33,7 +33,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function login(email: string, password: string): Promise<User> {
+export async function login(email: string, password: string): Promise<PublicUser> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -46,7 +46,7 @@ export async function login(email: string, password: string): Promise<User> {
   return data.user;
 }
 
-export async function register(email: string, password: string, name?: string): Promise<User> {
+export async function register(email: string, password: string, name?: string): Promise<PublicUser> {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -96,15 +96,8 @@ export async function getMe(): Promise<User | null> {
   return data.user;
 }
 
-// Mga device ko (Day 54) — ⚠️ kopya ng hugis ng sagot ng backend (docs/07-api-contract.md)
-export type Session = {
-  id: string;
-  userAgent: string | null;
-  ip: string | null;
-  since: string; // kailan nag-login
-  lastUsedAt: string; // huling refresh
-  current: boolean; // ito ang device na gamit ko ngayon
-};
+// Mga device ko (Day 54) — mula sa OpenAPI spec: id, userAgent, ip, since (kailan nag-login), lastUsedAt (huling refresh), current
+export type Session = SessionFromApi;
 
 export async function getSessions(): Promise<Session[]> {
   const res = await apiFetch('/auth/sessions');
