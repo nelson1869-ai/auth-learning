@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { CookieOptions, Request, RequestHandler, Response } from 'express';
+import type { RequestHandler } from 'express';
 import argon2 from 'argon2';
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
@@ -16,10 +16,8 @@ import {
 import { requireAuth } from '../middleware/requireAuth.ts';
 import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
 import { audit } from '../lib/audit.ts';
-import { clientIp } from '../lib/clientIp.ts';
 import { logger } from '../lib/logger.ts';
 import {
-  ACCESS_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_MS,
   createRefreshToken,
   familyOf,
@@ -28,7 +26,6 @@ import {
   revokeFamilyOf,
   revokeSession,
   rotateRefreshToken,
-  type Device,
 } from '../lib/session.ts';
 import {
   changePasswordLimiter,
@@ -40,7 +37,7 @@ import {
 import { passwordResetEmail, sendEmail, verifyEmailEmail } from '../lib/email.ts';
 import { lockCounter, lockedUntilOf, MAX_FAILED_LOGINS, reserveAttempt, resetCounter, unknownEmailCounter } from '../lib/loginLockout.ts';
 import type { LockCounter } from '../lib/loginLockout.ts';
-import { createTrustedDevice, DEVICE_COOKIE, DEVICE_TTL_MS, findTrustedDevice, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
+import { createTrustedDevice, DEVICE_COOKIE, findTrustedDevice, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import {
   RESET_TOKEN_TTL_MS,
@@ -50,6 +47,13 @@ import {
   isVerificationTokenUsable,
 } from '../lib/verificationTokens.ts';
 import { env } from '../config/env.ts';
+import {
+  DEVICE_COOKIE_OPTIONS,
+  REFRESH_COOKIE_OPTIONS,
+  clearSessionCookies,
+  deviceOf,
+  setAccessCookie,
+} from '../controllers/http.ts';
 
 const router = Router();
 
@@ -72,35 +76,6 @@ function isUniqueViolation(err: unknown): boolean {
     'code' in err.cause &&
     err.cause.code === '23505'
   );
-}
-
-// Iisang settings para sa pag-set (login) AT pag-clear (logout) ng cookie — dapat magkapareho,
-// kung hindi, may mga browser na hindi magbubura ng cookie
-const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true, // hindi mababasa ng JavaScript sa browser — hindi manakaw ng XSS
-  sameSite: 'lax', // hindi ipinapadala sa POST mula sa ibang website
-  secure: env.NODE_ENV === 'production', // HTTPS lang kapag naka-deploy
-};
-
-// Refresh token (Day 51): ipinapadala LANG sa /api/auth/* (refresh, logout) — hindi sa bawat request.
-// Mas kaunting daan = mas kaunting pagkakataong manakaw
-const REFRESH_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth' };
-
-// Device cookie (Day 64): ipinapadala LANG sa /api/auth/login — iyon lang ang nagbabasa nito. 180 araw
-const DEVICE_COOKIE_OPTIONS: CookieOptions = { ...COOKIE_OPTIONS, path: '/api/auth/login', maxAge: DEVICE_TTL_MS };
-
-function setAccessCookie(res: Response, accessToken: string) {
-  res.cookie('token', accessToken, { ...COOKIE_OPTIONS, maxAge: ACCESS_TOKEN_TTL_MS });
-}
-
-// Ang device ng request (Day 54): anong browser (pinutol — galing sa client) at ang totoong IP
-function deviceOf(req: Request): Device {
-  return { userAgent: req.headers['user-agent']?.slice(0, 300) ?? null, ip: clientIp(req, env.TRUST_CLOUDFLARE) };
-}
-
-function clearSessionCookies(res: Response) {
-  res.clearCookie('token', COOKIE_OPTIONS);
-  res.clearCookie('refresh_token', REFRESH_COOKIE_OPTIONS); // parehong path, kung hindi hindi mabubura
 }
 
 router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
