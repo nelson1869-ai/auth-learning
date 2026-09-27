@@ -32,6 +32,7 @@
 | 3 takbo + 2 takbo sa iisang core | ✅ stable |
 | Lahat ng 22 `.http` (review script, bagong server bawat isa) | ✅ 22/22 — pareho ang ugali ng sunod-sunod na login |
 | Buong suite · tsc · lint | ✅ 163 |
+| Production (`delivered+…@resend.dev`): **8** sabay na maling password — hindi 20, para hindi maabot ang IP rate limit (10) at hindi ma-block ang login ko mula sa parehong IP | ✅ 5 × 401 · 3 × 423 · naka-lock · 1 `account_locked` (noong may bug: 8 × 401) · binura ang account |
 
 ## Kumpara sa reference
 - **Pareho:** reserve-then-verify, "numero > 5 → walang argon2", `lock()` na nagsasabi kung ito ang nag-lock (isang audit), reset sa tamang login.
