@@ -38,6 +38,7 @@ ay may 10 × 1000 = **10,000 hula** sa isang account bawat 15 minuto. Kaya kaila
 | Dev | `21-lockout.http` sa bagong server | ✅ 201 · 401 ×5 · 423 · 423 (tamang password) · 401 (walang account) · 423 → SQL "lumipas ang 15 min" → 200 · `Retry-After: 900` |
 | Audit | sa dev DB | ✅ 5 × login_failed → account_locked ×1 → login_failed (locked) → login |
 | Browser | Login page | ✅ lumalabas ang mensahe ng 423 |
+| Production (`delivered+…@resend.dev`) | register → 6 maling password → tamang password | ✅ 201 · 401 ×5 · 423 · 423 + `Retry-After: 899` · audit: `account_locked` ×1 · migration 0009 pumasok (10 na) · binura ang account |
 
 ## Kumpara sa reference
 - **Pareho:** 5 subok, 15 minuto, 423, 0 ulit ang bilang pagka-lock, `account_locked` sa audit.
