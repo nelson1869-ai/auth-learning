@@ -66,6 +66,7 @@ Naghintay ako ng **#4**, at dumating ito sa 15:52:59, eksaktong 5 minuto pagkata
 | Mga secret | ✅ tmpfs 0600 `nobody` · wala sa env ng process · wala sa `/api/v2/status` |
 | `.http` 29 laban sa totoong stack | ✅ 8/8 (kasama ang gumawa at nagtapos ng silence) |
 | 49 diagram | ✅ 49/49 |
+| Deploy ng `e59d90e` gamit ang bagong `deploy.sh` | ✅ pre-flight tumuloy · Live · step 7: alertmanager/grafana Running, prometheus na-recreate (bagong flag) at buo pa ang data · **walang maling AppDown** sa pag-restart ng backend (`up` = 1 sa lahat ng sample, 4 na email pa rin) |
 
 ## ⚠️ Hindi pa tapos: ang email sa sarili kong inbox
 Sa **`delivered+alerts@resend.dev`** pa lang ipinadala ang lahat (test address ng Resend), dahil hindi nagpapadala ang AI sa totoong address nang walang pahintulot ko.
