@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { auditFor } from '../lib/audit.ts';
 import { runInBackground } from '../lib/background.ts';
 import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
-import { loginSchema, registerSchema } from '../validations/auth.ts';
+import { changePasswordSchema, loginSchema, registerSchema } from '../validations/auth.ts';
 import { login as loginService } from '../services/auth/login.service.ts';
+import { changePassword as changePasswordService } from '../services/auth/password.service.ts';
 import { registerUser } from '../services/auth/registration.service.ts';
 import { getMe, listMySessions, logout as logoutService, refreshSession, revokeMySession } from '../services/auth/session.service.ts';
 import { sendVerificationEmail } from '../services/auth/verification.service.ts';
@@ -129,4 +130,32 @@ export const logout: RequestHandler = async (req, res) => {
   await logoutService(req.cookies.refresh_token, req.cookies.token, auditFor(req));
   clearSessionCookies(res); // pareho ng access at refresh (Day 51)
   res.status(204).end(); // 204 = nagawa, walang body
+};
+
+// POST /api/auth/change-password (requireAuth + rate limit sa route)
+export const changePassword: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  const input = parseOr400(changePasswordSchema, req.body, res);
+  if (!input) return;
+  // Server-derived na mga field sa HULI — hindi mapapalitan ng body ang userId (Day 77: mass assignment)
+  const result = await changePasswordService({ ...input, userId, device: deviceOf(req) }, auditFor(req));
+  if (result.status === 'no_user') {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  if (result.status === 'wrong_password') {
+    // 400 (hindi 401): hindi ito "hindi ka naka-login" — at ang 401 ay magpapa-refresh at magpapaulit ng request
+    // sa frontend (apiFetch), dodoble ang bilang ng subok
+    res.status(400).json({ error: 'Invalid input', fields: { currentPassword: ['Incorrect password'] } });
+    return;
+  }
+  // Nai-commit na — ngayon lang ang cookies (kung nag-rollback, walang dapat maipadala)
+  setAccessCookie(res, result.accessToken);
+  setRefreshCookie(res, result.refreshToken);
+  setDeviceCookie(res, result.deviceToken);
+  res.status(204).end();
 };
