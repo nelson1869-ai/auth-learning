@@ -2,7 +2,7 @@
 
 > 📅 Day 12 · Phase 4 (Register at login) · in-update sa Day 13 (`POST /api/auth/register`) Day 14 (validation) at Day 48 (audit log)
 >
-> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/playground/01-hash.js` (practice)
+> **Code:** `backend/src/controllers/auth.controller.ts` (HTTP) · `backend/src/services/auth/registration.service.ts` (logic, Day 74) · `backend/src/validations/auth.ts` · `backend/playground/01-hash.js` (practice)
 > **Subukan:** `backend/http/04-register.http` · **Library:** `argon2` (Argon2id)
 
 ## `POST /api/auth/register`
@@ -10,16 +10,29 @@
 ```mermaid
 flowchart TD
     Req(["POST /api/auth/register<br/>{ email, password, name? }"]) --> JSON["express.json()<br/>→ req.body"]
-    JSON --> Zod{"Zod: registerSchema.safeParse(req.body)<br/>validations/auth.ts"}
+    JSON --> Zod
+    subgraph CTRL["🌐 CONTROLLER — controllers/auth.controller.ts (HTTP lang, Day 74)"]
+        Zod{"parseOr400(registerSchema, req.body)<br/>validations/auth.ts"}
+        C400
+        C409
+        C201
+        Mail
+    end
+    subgraph SVC["⚙️ SERVICE — services/auth/registration.service.ts (walang Express)"]
+        Hash
+        ONE
+        Aud
+    end
     Zod -->|"mali ang input<br/>(walang field, hindi email,<br/>password &lt;8 o &gt;128)"| C400["400 Bad Request<br/>{ error: 'Invalid input',<br/>fields: { email: [...], password: [...] } }"]
     Zod -->|"tama → result.data<br/>email: trim + lowercase<br/>ibang field (hal. role): tinanggal"| Hash["argon2.hash(password)<br/>~50ms"]
     subgraph ONE["🔒 IISANG statement = atomic na (Day 68: walang kailangang transaction)"]
         Insert["db.insert(users).values({ email, name, passwordHash })<br/>.returning({ id, email, name })<br/>INSERT agad — walang SELECT muna"]
         Insert --> DB{"Postgres: UNIQUE email?"}
     end
-    DB -->|"oo"| Aud["PAGKATAPOS: audit(req, register)<br/>→ audit_logs: actor = bagong id · IP · device<br/>lib/audit.ts (Day 48)"]
+    Hash --> Insert
+    DB -->|"oo"| Aud["PAGKATAPOS: audit({ action: register })<br/>→ audit_logs: actor = bagong id · IP · device<br/>(ang IP at device ay galing sa auditFor(req)<br/>ng controller — lib/audit.ts, Day 48 → 74)"]
     Aud --> C201["✅ 201 Created<br/>{ user: { id, email, name } }<br/>walang password_hash · walang session (mag-login pa)"]
-    C201 --> Mail["PAGKATAPOS sumagot: runInBackground<br/>verification email (Day 60) — diagram 19"]
+    C201 --> Mail["PAGKATAPOS sumagot: runInBackground<br/>verification email (Day 60) — diagram 19<br/>services/auth/verification.service.ts"]
     DB -->|"doble<br/>err.cause.code = '23505'"| C409["409 Conflict<br/>{ error: 'Email already registered' }"]
 ```
 
