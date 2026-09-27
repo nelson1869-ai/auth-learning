@@ -36,7 +36,7 @@ Tiningnan ko ang test DB: **50 row sa `unknown_login_attempts`, at naka-lock ang
 | Bawat hakbang: tsc · lint · buong suite | ✅ 175/175, **walang binagong test** |
 | Sinira ang login service | ✅ bumagsak ang 6 na test, kaya ang bagong code talaga ang tinatakbo |
 | 23 `.http` (review script) | ✅ 23/23 |
-| Production | (pagkatapos ng deploy) |
+| Production (totoong browser, `delivered+…@resend.dev`) | ✅ register 201 → maling password 401 → tamang 200, Profile, 3 cookie → logout · audit: register, login_failed, login, logout — **lahat may IP** (gumagana ang `auditFor(req)` sa likod ng Cloudflare) · 0 JS error · binura |
 
 ## Mga diagram
 - **03 (register):** may kahon na ang **CONTROLLER** at ang **SERVICE**. **Nahuling sira mula Day 68:** nawala ang arrow mula sa `argon2.hash`
