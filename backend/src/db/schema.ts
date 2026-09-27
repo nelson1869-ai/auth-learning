@@ -147,3 +147,14 @@ export const trustedDevices = pgTable(
   (table) => [index('trusted_devices_user_id_idx').on(table.userId)],
 );
 export type TrustedDevice = typeof trustedDevices.$inferSelect;
+
+// Mga maling login sa email na WALANG account (Day 71 — anti-enumeration). Dati: laging 401 ang walang account, pero 423
+// ang totoong account pagkatapos ng 5 → 6 na maling password lang at alam na ng attacker kung sino ang may account.
+// Ngayon: may sariling bilang din ang walang account, kaya pareho ang sagot (401 ×5 → 423). SHA-256 lang ng email ang
+// naka-save — hindi ang mga email na sinubukan ng attacker (hal. listahan ng mga email ng ibang tao)
+export const unknownLoginAttempts = pgTable('unknown_login_attempts', {
+  emailHash: text('email_hash').primaryKey(),
+  failedLoginAttempts: integer('failed_login_attempts').notNull().default(0),
+  lockedUntil: timestamp('locked_until', { withTimezone: true }),
+  lastAttemptAt: timestamp('last_attempt_at', { withTimezone: true }).notNull().defaultNow(),
+});

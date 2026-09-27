@@ -91,6 +91,15 @@ describe('per-account lockout under concurrency (fixed on Day 67)', () => {
   });
 });
 
+describe('no-account counter under concurrency (Day 71)', () => {
+  it('checks exactly 5 guesses for an email with NO account too (same as a real one)', async () => {
+    const email = uniqueEmail('race-unknown');
+    const statuses = await parallelWrongLogins(email);
+    expect(count(statuses, 401)).toBe(5);
+    expect(count(statuses, 423)).toBe(PARALLEL - 5);
+  });
+});
+
 describe('already race-safe (proof, not a fix)', () => {
   it('registers exactly one account when the same email is registered 20 times at once (409s, never 500)', async () => {
     const email = uniqueEmail('race-register');
