@@ -1,0 +1,10 @@
+# Prometheus (Day 82): kinukuha ("scrape") ang /metrics ng backend bawat 15 segundo, at iniimbak bilang time series.
+# Ang backend:9464 ay nasa loob ng Docker network — hindi publiko (Day 81)
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s # gaano kadalas susuriin ang mga alert rule (Day 84)
+
+scrape_configs:
+  - job_name: auth-learning-backend
+    static_configs:
+      - targets: ['backend:9464']
