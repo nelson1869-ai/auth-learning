@@ -94,20 +94,23 @@ backend/
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
 │   ├── routes/           ← ROUTING LANG: auth.ts · admin.ts (+ ang bantay: requireAuth + requireRole) · users.ts · health.ts · echo.ts
+│   │                        · docs.ts (/api/openapi.json, /api/docs — Day 78)
 │   ├── controllers/      ← HTTP lang (Day 74–76): http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts · admin.controller.ts ·
 │   │                        users.controller.ts
 │   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts
 │   │   └── auth/         ← registration · login · session (me, refresh, logout, sessions) · password (change, forgot, reset) ·
 │   │                        verification (verify, resend, mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
-│   ├── validations/      ← auth.ts · pagination.ts (Zod)
+│   ├── validations/      ← auth.ts · pagination.ts (Zod, input) · responses.ts (Zod, mga sagot — Day 78)
+│   ├── openapi/          ← Day 78: document.ts (OpenAPI 3.1 mula sa Zod) · typescript.ts (generator ng frontend types) · openapi.test.ts
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
 │   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67)
-│   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) — mga script, hindi endpoint
+│   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) — mga script, hindi endpoint
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
 ├── drizzle/              ← migrations 0000–0012
-└── http/                 ← 01–24 .http walkthroughs
+├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
+└── http/                 ← 01–25 .http walkthroughs
 ```
 
 > 🔍 **Review finding (Day 50) — utang sa arkitektura, sinadyang iwan hanggang Phase 16:**

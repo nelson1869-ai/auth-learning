@@ -353,6 +353,9 @@
     ay iisang source ng types (shared package o OpenAPI → generated types) —
     Phase 16 (OpenAPI). Hanggang doon: kapag binago ang sagot ng backend, i-update
     ang `docs/07-api-contract.md` AT ang `User` type nang sabay.
+  - **✅ Nalutas (Day 78, D-027):** ang mga type ay galing na sa OpenAPI spec (`frontend/src/api/openapi.generated.ts`).
+    Sa paglipat, nahuli ang isang maling kopya: ang `login()` at `register()` ay naka-type na `User` (may `role`, `emailVerified`),
+    pero `{ id, email, name }` lang ang ibinabalik ng backend.
   - Isang language na ang buong project.
 
 ---
@@ -499,4 +502,27 @@
   isang beses lang. `POST /verify-email` (walang login), `POST /resend-verification` (naka-login, 5/15 min). `emailVerified` sa `/me`.
 - **Mga production test mula ngayon:** `delivered+<label>@resend.dev` sa halip na `@example.com`. Nagpapadala na ng email ang bawat register,
   at hindi nakakasira ng reputasyon ang mga test address ng Resend.
+
+---
+
+## D-027 · API docs: OpenAPI mula sa `z.toJSONSchema` + sariling generator ng TypeScript
+
+- **Petsa:** 2026-09-27 (Day 78)
+- **Context:** nakaplano ang "OpenAPI + Swagger UI mula sa Zod schemas" (tech stack), at ang mga type ng frontend mula sa spec (D-019). Hindi pa napipili ang mga library.
+- **Mga pagpipilian para sa spec:**
+  - `@asteasolutions/zod-to-openapi` (gamit ng reference): isa pang library, `.openapi()` sa bawat schema;
+  - **`z.toJSONSchema()`, built-in na sa Zod 4**, at ang mga path ay isinusulat nang kamay.
+- **Mga pagpipilian para sa mga type ng frontend:**
+  - `openapi-typescript`: **kailangan ng TypeScript 5** (peer), pero TypeScript 7 ang project. Ang `--legacy-peer-deps` ay malamang masira (iba ang compiler API ng TS 7).
+    Ang `npx` na may TS 5 sa bawat CI at Pages build ay nagda-download ng mga package na walang lockfile (supply-chain risk);
+  - **maliit na sariling generator** (`backend/src/openapi/typescript.ts`, ~70 linya): sapat para sa mga hugis na ginagamit natin, at **pumapalya sa hindi kilalang keyword**.
+- **Pinili:** `z.toJSONSchema` + sariling generator, at `swagger-ui-express` para sa UI (rekomendasyon ng AI; sinabi ni Nelson na "continue").
+- **Bakit:** walang dagdag na library para sa schemas; walang pagbabago sa CI workflow o sa Pages build (naka-commit ang dalawang ginawang file,
+  at backend test ang nagbabantay sa kanila); makikita kung ano talaga ang OpenAPI.
+- **Consequences:**
+  - `npm run openapi` (backend) ay sumusulat ng `backend/openapi.json` at `frontend/src/api/openapi.generated.ts`. **Kailangang patakbuhin ito** tuwing may binago sa schema o endpoint.
+    Kapag nakalimutan, babagsak ang `openapi.test.ts`.
+  - Hindi naisasalin ang `.refine()` at ang mga transform (trim, lowercase): nasa `description` na lang.
+  - Kapag gumamit ng bagong JSON Schema keyword ang isang schema (hal. `oneOf`), kailangang dagdagan ang generator. Sasabihin ng error kung alin.
+  - **Hindi na kailangang luwagan ang CSP** para sa Swagger UI (hindi tulad ng reference): ang `swagger-ui-express` v5 ay gumagamit ng hiwalay na script file.
 

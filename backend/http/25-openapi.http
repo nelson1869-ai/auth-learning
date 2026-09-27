@@ -1,0 +1,29 @@
+### =========================================================================
+### 🎓 API DOCUMENTATION — OpenAPI 3.1 + Swagger UI (ginagawa mula sa Zod schemas)
+### 📅 Day 78 · Phase 16 (Malinis na architecture) · Desisyon: D-027
+### =========================================================================
+### Ang docs na isinusulat nang kamay ay nagiging luma. Dito, GINAGAWA ang docs mula sa parehong Zod schemas na
+### ginagamit ng code (z.toJSONSchema, built-in sa Zod 4). Tatlong test ang nagbabantay (openapi.test.ts):
+###   - ang naka-commit na backend/openapi.json = ang ginagawa ng code
+###   - bawat route sa Express ay nasa spec, at kabaligtaran
+###   - ang TOTOONG mga sagot ay tugma sa response schemas (strict — babagsak kapag may tumagas na field, hal. passwordHash)
+### At ang frontend: ang mga type nito (frontend/src/api/openapi.generated.ts) ay galing sa spec (D-019 → D-027).
+###
+### 🌐 Sa browser: http://localhost:3000/api/docs/  (Swagger UI — mababasa, at masusubukan ang mga GET)
+### Kapag binago ang schema o ang endpoint:  cd backend && npm run openapi   (at i-commit ang dalawang file)
+### Code: backend/src/openapi/document.ts · typescript.ts · src/validations/responses.ts · src/routes/docs.ts
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Ang spec. Ang inaasahan: 200 · "openapi": "3.1.0" · 17 path · components.schemas (RegisterInput, MeUser, …)
+GET http://localhost:3000/api/openapi.json
+
+### -------------------------------------------------------------------------
+### 2. Ang Swagger UI. Ang inaasahan: 200 · text/html (buksan sa browser para makita)
+GET http://localhost:3000/api/docs/
+
+### -------------------------------------------------------------------------
+### 3. Walang login — pero public ang docs. Ang inaasahan: 200
+###    🔍 Walang lihim sa spec: ang mga endpoint ay nakikita na rin sa frontend. Ang mga password, token at cookie ay HINDI kasama
+GET http://localhost:3000/api/openapi.json
+Cookie: token=wala

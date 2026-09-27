@@ -10,6 +10,10 @@
 > Base URL — dev: `http://localhost:3000` · **production: `https://api.nelson1869.com`** · Lahat ng body ay JSON
 > (`Content-Type: application/json`).
 >
+> **📖 Mula Day 78: ang GINAWANG docs** — `/api/docs` (Swagger UI) at `/api/openapi.json` (OpenAPI 3.1), mula sa parehong Zod schemas ng code,
+> at may test na babagsak kapag hindi na tugma (diagram 21, D-027). Ang dokumentong ito ang **paliwanag** (bakit, mga panganib, audit);
+> ang spec ang **eksaktong hugis**. Kapag nagkaiba sila, ang spec ang tama.
+>
 > **CORS (Day 22):** pinapayagan lang ang `CLIENT_URL` (dev: `http://localhost:5173`, production: `https://nelson1869.com`),
 > may `credentials: true`. Sa frontend: `fetch(..., { credentials: 'include' })` —
 > kung wala ito, hindi maipapadala o maitatago ang cookie na `token`.

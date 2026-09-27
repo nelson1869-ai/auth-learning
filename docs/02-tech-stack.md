@@ -126,7 +126,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **express-rate-limit** | Limitahan ang dami ng request (brute force) | Security | 9 · ✅ ginagamit na (Day 43, inagahan bago ang launch) |
 | ~~**csrf-csrf**~~ | CSRF protection (double-submit cookie) | Security | 9 · ❌ hindi ginamit — Origin check na sariling middleware (D-022) |
 | **Resend** o **Brevo** | Totoong pagpapadala ng email | Backend | 12 · ✅ Resend (Day 58, D-025) — HTTP API, walang library |
-| **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas | Backend | 16 |
+| **OpenAPI** + **Swagger UI** | API documentation mula sa Zod schemas — `z.toJSONSchema` (Zod 4) + `swagger-ui-express` + sariling generator ng frontend types (D-027) | Backend | 16 ✅ Day 78 |
 | **knip** | Paghahanap ng unused code at dependencies | QA | 16 |
 | **OpenTelemetry** | Metrics at tracing | DevOps | 17 |
 | **Prometheus** + **Grafana** | Pag-iipon ng metrics at dashboards | DevOps | 17 |
