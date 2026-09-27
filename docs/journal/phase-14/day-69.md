@@ -38,6 +38,7 @@ Pareho ito sa register: ang `UNIQUE` ang bantay, at ang `catch 23505 → 409` an
 | Tinanggal ang family index sa test DB | ✅ bumagsak ang family test · ibinalik |
 | Rehearsal ng migration: sadyang doble (3 link, 2 token) · sa **parehong command ng deploy** (`src/db/migrate.ts`) | ✅ 3 → 1, 2 → 1 (ang pinakabago) · nagawa ang 2 index |
 | 22 `.http` (review script) | ✅ 22/22 |
+| Production (deploy: "Migrations applied") · `delivered+…@resend.dev`: register → login → 3 × resend → 2 × forgot | ✅ 2 index · 12 migration · 202 lahat · **1** aktibong verify link at **1** aktibong reset link · binura |
 
 ## Mga pagkakamali ko ngayon (at paano nahuli)
 1. **Unang resend test ay pumalya sa maling dahilan:** nagbilang ako BAGO matapos ang background task (sumasagot muna ang resend, saka gumagawa ng token).
