@@ -76,3 +76,22 @@ export function passwordResetEmail(to: string, link: string): Email {
   };
 }
 
+export function verifyEmailEmail(to: string, link: string): Email {
+  return {
+    to,
+    subject: 'Confirm your auth-learning email address',
+    text: [
+      'Hi,',
+      '',
+      'Thanks for creating an auth-learning account.',
+      'To confirm that this email address is yours, open this link (it works once and expires in 24 hours):',
+      '',
+      link,
+      '',
+      'If you did not create this account, you can ignore this email.',
+      '',
+      '— auth-learning',
+    ].join('\n'),
+  };
+}
+

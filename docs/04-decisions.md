@@ -481,3 +481,21 @@
 - **Natutunan (deliverability):** PASS ang SPF, DKIM at DMARC, pero **Spam** pa rin sa Gmail (dalawang email, pati ang maayos na
   transactional na laman). Bagong domain ito na walang reputasyon, kaya kailangan ng warm-up. Hindi ito maaayos ng code.
 
+## D-026 · Email verification: "soft" (makakapag-login pa rin ang hindi pa verified)
+
+- **Petsa:** 2026-09-27 (Day 60)
+- **Context:** walang sumusuri kung totoo ang email sa register. Kaya puwedeng i-register ng iba ang email ko, at magba-bounce ang mga email
+  sa pekeng address, na nakakasira sa reputasyon ng domain (Day 58).
+- **Mga pagpipilian:**
+  - **soft**: makakapag-login pa rin, may paalala at "ipadala ulit";
+  - **hard**: bawal mag-login hangga't hindi verified.
+- **Pinili:** **soft**, pinili ni Nelson (rekomendasyon).
+- **Bakit:**
+  - walang nasisira sa mga dating account na hindi pa verified (kasama ang admin);
+  - hindi nala-lock ang mga account na may pekeng email;
+  - puwedeng gawing mas mahigpit sa hinaharap (hal. verified lang ang makakagawa ng mahahalagang bagay).
+- **Detalye:** `users.email_verified_at` (NULL = hindi pa). Token sa `verification_tokens` na may `purpose = email_verification`, 24 oras, `#fragment`,
+  isang beses lang. `POST /verify-email` (walang login), `POST /resend-verification` (naka-login, 5/15 min). `emailVerified` sa `/me`.
+- **Mga production test mula ngayon:** `delivered+<label>@resend.dev` sa halip na `@example.com`. Nagpapadala na ng email ang bawat register,
+  at hindi nakakasira ng reputasyon ang mga test address ng Resend.
+

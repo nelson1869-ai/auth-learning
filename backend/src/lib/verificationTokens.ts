@@ -10,6 +10,7 @@ type Purpose = 'password_reset' | 'email_verification';
 type Executor = Pick<typeof db, 'insert' | 'update'>;
 
 export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 oras
+export const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 oras (Day 60) — mababa ang panganib, kaya mas mahaba
 
 // Bagong token. Ang mga LUMANG hindi pa nagagamit na token ng parehong layunin ay pinapawalang-bisa:
 // isang aktibong link lang bawat user (ang pinakabagong email lang ang gagana)

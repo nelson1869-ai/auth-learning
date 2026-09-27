@@ -14,6 +14,8 @@ export const users = pgTable('users', {
   // Default 'user': ang bawat bagong account (at ang mga dati na) ay user. Hindi ito kailanman
   // galing sa request — script lang ang nagtatakda ng admin (src/db/set-role.ts)
   role: roleEnum('role').notNull().default('user'),
+  // Kailan napatunayang kanya ang email (Day 60). NULL = hindi pa — "soft": makakapag-login pa rin, may paalala
+  emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -39,6 +41,7 @@ export const AUDIT_ACTIONS = [
   'password_change_failed', // Day 55 — maling kasalukuyang password (posibleng nakaw na session na nanghuhula)
   'password_reset_requested', // Day 59 — may humiling ng reset link (target = ang account kung mayroon)
   'password_reset', // Day 59 — napalitan ang password gamit ang reset link
+  'email_verified', // Day 60 — napatunayang kanya ang email (binuksan ang link)
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
