@@ -57,5 +57,6 @@ mga device ko, change password, RS256. **✅ Phase 12 — email tapos (2026-09-2
 password reset (email sa Inbox), email verification (soft), mga page sa frontend. **✅ Phase 13 — account lockout tapos (2026-09-27)**, tag `checkpoint-phase-13`:
 per-account lockout, device cookies laban sa lockout DoS. **✅ Phase 14 — tama kahit sabay-sabay tapos (2026-09-27)**, tag `checkpoint-phase-14`: race tests, atomic na lockout,
 transaction bago ang cookies sa login, partial UNIQUE indexes. **✅ Phase 15 — huwag ibunyag kung sino ang may account tapos (2026-09-27)**, tag `checkpoint-phase-15`:
-pareho ang sagot at ang oras ng login, may account man o wala (natitira: register 409). **Ngayon: Phase 16 — malinis na architecture** (✅ Day 74–76 service layer: routes → controllers (HTTP) → services (logic) · ✅ Day 77 mass-assignment guard · ✅ Day 78 OpenAPI + Swagger UI + frontend types mula sa spec).
+pareho ang sagot at ang oras ng login, may account man o wala (natitira: register 409). **✅ Phase 16 — malinis na architecture tapos (2026-09-27)**, tag `checkpoint-phase-16`: routes → controllers (HTTP) → services (logic),
+mass-assignment guard, OpenAPI + Swagger UI + frontend types mula sa spec, knip. **Susunod: Phase 17 — observability.**
 Tingnan ang [roadmap](docs/03-roadmap.md).

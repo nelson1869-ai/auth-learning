@@ -620,10 +620,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
 
 ### Day 79 — Walang naiwang unused code
-- [ ] knip sa CI (unused files, exports, dependencies) — *naka-on na ang `noUnusedLocals` mula Phase 7*
+- [x] knip sa CI (unused files, exports, dependencies) — *naka-on na ang `noUnusedLocals` mula Phase 7* *(bahagi ng `npm run lint`, kaya tumatakbo sa CI nang hindi binabago ang workflow · 12 unused na export/type ang inalis · napatunayang exit 1 sa unused export, file at dependency)*
 - **Matututunan:** bakit nakakalito ang patay na code · *Reference: `remove unused code`*
 
-**✅ Checkpoint (`checkpoint-phase-16`):** *Ano ang dapat at HINDI dapat nasa loob ng isang controller?*
+**✅ Checkpoint (`checkpoint-phase-16`):** *Ano ang dapat at HINDI dapat nasa loob ng isang controller?* — **TAPOS ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-16/day-79.md`
 
 ---
 

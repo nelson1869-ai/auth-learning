@@ -74,4 +74,4 @@ forgot/reset password at verify email (Day 61).
 Tingnan ang [roadmap](../docs/03-roadmap.md).
 
 **Mga command** (sa `frontend/`): `npm run dev` (http://localhost:5173) ·
-`npm run lint` (Oxlint) · `npm run build`
+`npm run lint` (Oxlint + knip — Day 79: walang unused na file, export o dependency; mga pagbubukod sa `knip.jsonc`, may dahilan) · `npm run build`
