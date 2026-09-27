@@ -33,8 +33,8 @@ flowchart LR
   `node_modules`, walang naiwang data. Kaya ito ang tunay na patunay, hindi ang
   "gumagana sa PC ko".
 - **Walang `.env.test` sa CI** (gitignored). Galing sa `env:` ng workflow ang
-  `DATABASE_URL`, `JWT_SECRET`, `CLIENT_URL` — mga halagang pang-CI lang, hindi
-  totoong secret. Kaya `try { process.loadEnvFile(...) } catch {}` sa `setup.js`
+  `DATABASE_URL`, `CLIENT_URL` — mga halagang pang-CI lang, hindi
+  totoong secret. Ang `JWT_PRIVATE_KEY` (Day 56) ay bagong RSA key sa BAWAT run (`openssl genpkey` → `$GITHUB_ENV`). Kaya `try { process.loadEnvFile(...) } catch {}` sa `setup.js`
   (nahuli bago pa mag-push: `ENOENT ... '.env.test'` → lahat ng test ay pumalya).
 - **Pananggalang pa rin:** tumatanggi ang tests kapag hindi `*_test` ang database.
 - **`npm ci`**, hindi `npm install` — eksaktong versions mula sa `package-lock.json`.

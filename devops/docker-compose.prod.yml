@@ -6,7 +6,7 @@ services:
     # Galing sa CI (GHCR), hindi binubuo dito — ang EKSAKTONG image na pumasa sa tests (Day 37).
     # IMAGE_TAG = commit SHA; itinatakda ng devops/deploy.sh
     image: ghcr.io/nelson1869-ai/auth-learning-backend:${IMAGE_TAG:?run ./deploy.sh (sets IMAGE_TAG)}
-    # Secrets (Neon DATABASE_URL, JWT_SECRET, …) — gitignored, hindi kailanman nasa image
+    # Secrets (Neon DATABASE_URL, JWT_PRIVATE_KEY, …) — gitignored, hindi kailanman nasa image
     env_file: ../backend/.env.production
     restart: unless-stopped
     # Walang `ports:` — hindi kailangang buksan sa PC; si cloudflared lang ang kumakausap dito

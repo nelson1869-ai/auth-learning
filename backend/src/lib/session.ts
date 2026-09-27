@@ -1,9 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import jwt from 'jsonwebtoken';
 import { and, desc, eq, gt, inArray, isNull, min } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { refreshTokens } from '../db/schema.ts';
-import { env } from '../config/env.ts';
 
 // Session (Day 51) — DALAWANG token:
 //   access token  = JWT, 15 minuto, hindi naka-save. Sinusuri sa bawat request (mabilis, walang database).
@@ -13,11 +11,6 @@ import { env } from '../config/env.ts';
 
 export const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minuto
 export const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 araw
-
-export function signAccessToken(userId: number): string {
-  // Id lang (sub) ang laman — nababasa ng KAHIT SINO ang payload ng JWT
-  return jwt.sign({ sub: String(userId) }, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '15m' });
-}
 
 // SHA-256, hindi argon2: ang refresh token ay 32 random bytes (256 bits), kaya imposibleng hulaan kahit
 // mabilis ang hash. Ang argon2 ay para sa PASSWORD — maikli at hinuhulaan ng tao, kaya kailangang mabagal

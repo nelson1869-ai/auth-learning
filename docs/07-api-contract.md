@@ -89,7 +89,7 @@ Bilang lang — hindi kailanman ang listahan ng users.
 | **401** | Maling password **o** walang account — **iisang sagot, parehong tagal** | `{ "error": "Invalid email or password" }` |
 
 **Mga cookie (sa 200 lang, Day 51):**
-- `token=<JWT>; Max-Age=900; Path=/; HttpOnly; SameSite=Lax` — **access token, 15 minuto**. Payload: `{ "sub": "<user id>", "iat", "exp" }`, HS256.
+- `token=<JWT>; Max-Age=900; Path=/; HttpOnly; SameSite=Lax` — **access token, 15 minuto**. Payload: `{ "sub": "<user id>", "iat", "exp", "iss": "auth-learning-api", "aud": "auth-learning-web" }`, **RS256** (Day 56; dati HS256).
 - `refresh_token=<random>; Max-Age=604800; Path=/api/auth; HttpOnly; SameSite=Lax` — **refresh token, 7 araw**. SHA-256 hash lang ang nasa database (`refresh_tokens`).
 
 (+ `Secure` kapag `NODE_ENV=production`.) Hindi mababasa ng JavaScript ang dalawa — kusang ipinapadala ng browser.

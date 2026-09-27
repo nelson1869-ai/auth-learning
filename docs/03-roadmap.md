@@ -484,8 +484,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** high-risk events · *Reference: `change-password with reauthentication`*
 
 ### Day 56 — RS256 at JWT claims
-- [ ] Asymmetric keys (private para mag-sign, public para mag-verify); `iss` at `aud`
-- [ ] 📝 I-update ang `05-login.http`: i-decode ang JWT (jwt.io) at tingnan ang `alg`, `iss`, `aud`
+- [x] Asymmetric keys (private para mag-sign, public para mag-verify); `iss` at `aud` *(D-024: `JWT_PRIVATE_KEY` base64 sa env, public mula rito; fail-fast ≥ 2048-bit RSA)*
+- [x] 📝 I-update ang `05-login.http`: i-decode ang JWT (jwt.io) at tingnan ang `alg`, `iss`, `aud`
 - **Matututunan:** HS256 vs RS256 · *Reference: `HS256 to RS256`, `iss/aud claim validation`*
 
 ### Day 57 — Review day + session flow diagram

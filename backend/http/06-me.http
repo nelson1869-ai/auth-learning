@@ -63,7 +63,8 @@ GET http://localhost:3000/api/auth/me
 ###
 ### 🔐 Sinubukan din (Day 17), lahat ay 401: binagong `sub` sa payload, expired na
 ###    token, `alg: none` (walang pirma), at token na pinirmahan ng ibang secret.
-###    Ang `algorithms: ['HS256']` sa jwt.verify ang humaharang sa pagpalit ng alg.
+###    Ang `algorithms: [...]` sa jwt.verify ang humaharang sa pagpalit ng alg — HS256 noon, RS256 mula Day 56
+###    (at iss/aud; tingnan ang lib/jwt.test.ts: algorithm confusion, ibang key, maling iss/aud)
 # @no-cookie-jar
 GET http://localhost:3000/api/auth/me
 Cookie: token=hindi-ito-totoong-jwt

@@ -1,6 +1,6 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log) at Day 51 (refresh token)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token) at Day 56 (RS256)
 >
 > **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
 > **Subukan:** `backend/http/05-login.http`
@@ -18,7 +18,7 @@ flowchart TD
     Has -->|"oo"| VReal["argon2.verify(user.passwordHash, password)<br/>~50ms"]
     Has -->|"wala"| VDummy["argon2.verify(DUMMY_HASH, password)<br/>~50ms — laging false<br/>para PAREHO ang tagal"]
     VReal --> Ok{"Tugma ba?"}
-    Ok -->|"oo"| Sign["access token: jwt.sign({ sub },<br/>JWT_SECRET, { expiresIn: '15m' })<br/>id lang — nababasa ng kahit sino ang payload"]
+    Ok -->|"oo"| Sign["access token: jwt.sign({ sub }, PRIVATE key,<br/>{ RS256, 15m, iss, aud }) — lib/jwt.ts (Day 56)<br/>id lang — nababasa ng kahit sino ang payload"]
     Sign --> Cookie["res.cookie('token', …, 15 min)<br/>+ refresh token: 32 random bytes → SHA-256 sa refresh_tokens<br/>res.cookie('refresh_token', …, 7 araw, Path=/api/auth)<br/>(lib/session.ts, Day 51)"]
     Cookie --> AudOk["audit(req, login)<br/>→ audit_logs (Day 48)"]
     AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ... · refresh_token=...<br/>HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
@@ -46,19 +46,21 @@ flowchart TD
   kung may account ang email. Sa reference project, sinadya itong iwan (ang tanging
   tunay na ayos ay "email-first signup" na nagbabago ng UX), at nililimitahan na lang
   ng rate limiter (Phase 9).
-## Ang JWT (Day 16)
+## Ang JWT (Day 16 · RS256 mula Day 56)
 
 ```
-eyJhbGciOiJIUzI1NiIs...  .  eyJzdWIiOiIzMiIsImlhdCI6...  .  Xk3f9aB...
- header                      payload                        signature
- {"alg":"HS256"}             {"sub":"32","iat":…,"exp":…}   pirma gamit ang JWT_SECRET
+eyJhbGciOiJSUzI1NiIs...  .  eyJzdWIiOiIzMiIsImlhdCI6...  .  Xk3f9aB...
+ header                      payload                                              signature
+ {"alg":"RS256"}             {"sub":"32","iat","exp","iss":"auth-learning-api",   pirma gamit ang PRIVATE key
+                              "aud":"auth-learning-web"}                          (sinusuri gamit ang PUBLIC key)
 ```
+*(Day 16–55: `{"alg":"HS256"}`, pirma gamit ang iisang `JWT_SECRET`. Tingnan ang D-012 at D-024.)*
 
 - **Nababasa ng kahit sino** ang header at payload (base64 lang). Kaya `sub` (id)
   lang — walang email, password o hash.
 - **Hindi mapepeke:** sinubukan (Day 16) palitan ang `sub` ng `"999"` → `invalid
-  signature`. Kailangan ang `JWT_SECRET` para makagawa ng tamang pirma — kaya kapag
-  nanakaw ang secret, kaya nang gumawa ng token para sa kahit sinong user.
+  signature`. Kailangan ang PRIVATE key para makagawa ng tamang pirma (Day 56; dati ang `JWT_SECRET`) — kaya kapag
+  nanakaw ito, kaya nang gumawa ng token para sa kahit sinong user. Ang public key ay pang-suri lang.
 - **`httpOnly` cookie, hindi `localStorage`:** hindi ito mababasa ng JavaScript sa
   browser, kaya hindi manakaw ng XSS; kusa rin itong ipinapadala ng browser.
 - ⏳ **Day 17:** babasahin ng middleware ang cookie at `jwt.verify` para sa
