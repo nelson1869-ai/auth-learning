@@ -60,12 +60,14 @@ sequenceDiagram
 - **Bakit nakakalusot ang lahat?** Mabilis ang SELECT (~1ms), pero mabagal ang `argon2.verify` (~50ms). Kaya natatapos ang lahat ng SELECT bago pa
   may makapagsulat. Ang mabagal na hakbang sa gitna ang nagpapalaki sa puwang.
 - **Bakit hindi nahuli ng Day 63 tests?** Sunod-sunod ang mga iyon: isang request, sagot, saka ang susunod. Walang puwang na maabot.
-- **Ang test ay tahasang sumusukat sa bug** ("higit sa 5 ang nasuri"): pumapasa ito habang may bug, at **babagsak kapag naayos na**.
-  Sinubukan: kapag sunod-sunod ang 20 request, bumagsak ito ("expected 5 to be greater than 5"). Kaya ang race lang ang makakapagpapasa rito.
+- **Day 66: tahasang sinukat ng test ang bug** ("higit sa 5 ang nasuri"). Pumasa ito habang may bug, at bumagsak noong naayos (Day 67).
+  Sinubukan noon: kapag sunod-sunod ang 20 request, bumagsak ito ("expected 5 to be greater than 5"). Kaya ang race lang ang nakapagpapasa rito.
 - **Hindi `it.fails`:** pumapasa iyon sa KAHIT ANONG error (hal. bumagsak ang register o nag-ECONNRESET), kaya puwedeng pumasa sa maling dahilan.
-- **Mga ligtas na (patunay, hindi ayos):** register (INSERT agad, ang UNIQUE ang bantay → 1 × 201, 19 × 409), mga link sa email
+- **Mga ligtas na noong Day 66 (patunay, hindi ayos):** register (INSERT agad, ang UNIQUE ang bantay → 1 × 201, 19 × 409), ang PAGGAMIT ng link sa email
   (`UPDATE … WHERE used_at IS NULL … RETURNING` → 1 × 204), refresh rotation (Day 52). Sinira ang bawat isa → bumagsak ang test.
-- **Sa production ngayon:** ang IP rate limit (10 bawat IP) pa rin ang humaharang sa sabay na hula mula sa iisang IP. Ang panganib ay mula sa maraming IP.
+  Pero ang PAGGAWA ng link ("isa lang ang aktibo") ay hindi ligtas. Nahuli noong Day 69 (tingnan sa ibaba).
+- **Sa production bago ang Day 67:** ang IP rate limit (10 bawat IP) lang ang humaharang sa sabay na hula mula sa iisang IP, at bukas ito sa maraming IP.
+  Ngayon: 5 bawat account, gaano man karami ang IP (sinukat sa production: 8 sabay → 5 × 401, 3 × 423).
 - **Ang ayos (Day 67):** ang "+1" at ang "naka-lock ba?" ay nasa **iisang SQL statement**, at ginagawa ito **BAGO** ang argon2.
   Ang database ang pumipili ng pagkakasunod: naka-lock ang row habang ina-update, kaya ang bawat request ay may sariling numero.
   Hindi sapat na ilipat lang ang +1 sa SQL: kung pagkatapos pa rin ng argon2, 20 pa rin ang masusuri (bawat isa ay nakalampas na sa check).
