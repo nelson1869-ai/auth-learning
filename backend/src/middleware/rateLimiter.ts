@@ -64,6 +64,13 @@ export const changePasswordLimiter = skip
       trustCloudflare: env.TRUST_CLOUDFLARE,
     });
 
+// Forgot password (Day 59): 5 bawat 15 minuto bawat IP (lahat binibilang) — bawat request ay puwedeng
+// magpadala ng email; kung walang limit, kayang gamitin ang app para mag-spam ng inbox ng iba, at masisira ang
+// reputasyon ng domain (Day 58)
+export const forgotPasswordLimiter = skip
+  ? undefined
+  : createAuthLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES, trustCloudflare: env.TRUST_CLOUDFLARE });
+
 // Register: 10 bawat 15 minuto bawat IP (lahat binibilang) — pananggalang laban sa pekeng accounts
 export const registerLimiter = skip
   ? undefined

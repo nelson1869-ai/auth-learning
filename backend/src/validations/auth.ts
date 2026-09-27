@@ -26,6 +26,13 @@ export const changePasswordSchema = z
     message: 'New password must be different from the current one',
   });
 
+// Password reset (Day 59)
+export const forgotPasswordSchema = z.object({ email: z.string().trim().toLowerCase().pipe(z.email()) });
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1).max(200),
+  newPassword: registerSchema.shape.password,
+});
+
 // Ang TypeScript type ay galing mismo sa schema (z.infer) — iisang source of truth:
 // kapag binago ang schema, kusang nagbabago ang type
 export type RegisterInput = z.infer<typeof registerSchema>;

@@ -181,9 +181,13 @@ export async function revokeSession(userId: number, familyId: string): Promise<b
 
 // Bawiin ang LAHAT ng session ng user (Day 55: pagpalit ng password — lahat ng device, pati ang magnanakaw).
 // Tumatanggap ng transaction para kasama ito sa "lahat o wala" ng pagpalit ng password
-export async function revokeAllSessions(userId: number, executor: Pick<typeof db, 'update'> = db): Promise<void> {
+export async function revokeAllSessions(
+  userId: number,
+  executor: Pick<typeof db, 'update'> = db,
+  reason: 'password_change' | 'password_reset' = 'password_change',
+): Promise<void> {
   await executor
     .update(refreshTokens)
-    .set({ revokedAt: new Date(), revokeReason: 'password_change' })
+    .set({ revokedAt: new Date(), revokeReason: reason })
     .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)));
 }

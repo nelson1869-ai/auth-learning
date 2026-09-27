@@ -5,7 +5,13 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
-import { registerSchema, loginSchema, changePasswordSchema } from '../validations/auth.ts';
+import {
+  registerSchema,
+  loginSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../validations/auth.ts';
 import { requireAuth } from '../middleware/requireAuth.ts';
 import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
 import { audit } from '../lib/audit.ts';
@@ -23,7 +29,15 @@ import {
   rotateRefreshToken,
   type Device,
 } from '../lib/session.ts';
-import { changePasswordLimiter, loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
+import { changePasswordLimiter, forgotPasswordLimiter, loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
+import { passwordResetEmail, sendEmail } from '../lib/email.ts';
+import { runInBackground } from '../lib/background.ts';
+import {
+  RESET_TOKEN_TTL_MS,
+  claimVerificationToken,
+  createVerificationToken,
+  isVerificationTokenUsable,
+} from '../lib/verificationTokens.ts';
 import { env } from '../config/env.ts';
 
 const router = Router();
@@ -277,6 +291,59 @@ router.post('/auth/change-password', requireAuth, changePasswordLimiter ?? pass,
   res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
   await audit(req, { action: 'password_changed', actorId: userId, targetId: userId });
   res.status(204).end();
+});
+
+// ---------------------------------------------------------------------------------------------
+// Password reset (Day 59)
+
+// POST /api/auth/forgot-password { email } — LAGING parehong sagot, may account man o wala (hindi malalaman
+// ng attacker kung sino ang may account). Sumasagot MUNA, tapos saka hinahanap ang account at nagpapadala ng
+// email — kung hindi, mas matagal ang sagot kapag may account (database + Resend), at iyon ang magsasabi
+router.post('/auth/forgot-password', forgotPasswordLimiter ?? pass, async (req, res) => {
+  const result = forgotPasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Invalid input', fields: z.flattenError(result.error).fieldErrors });
+  }
+  const { email } = result.data;
+  res.status(202).json({ message: 'If an account exists for that email, a reset link has been sent.' });
+
+  runInBackground('password_reset_email', async () => {
+    const [user] = await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.email, email));
+    await audit(req, { action: 'password_reset_requested', targetId: user?.id ?? null, metadata: { email } });
+    if (!user) return;
+    const token = await createVerificationToken(user.id, 'password_reset', RESET_TOKEN_TTL_MS);
+    // Token sa #fragment, hindi sa ?query: hindi ipinapadala ng browser ang fragment sa kahit anong server —
+    // kaya hindi ito lalabas sa logs ng Cloudflare Pages, sa Referer, o sa analytics
+    await sendEmail(passwordResetEmail(user.email, `${env.CLIENT_URL}/reset-password#token=${token}`));
+  });
+});
+
+// POST /api/auth/reset-password { token, newPassword }
+router.post('/auth/reset-password', async (req, res) => {
+  const result = resetPasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Invalid input', fields: z.flattenError(result.error).fieldErrors });
+  }
+  const { token, newPassword } = result.data;
+  const invalid = () => res.status(400).json({ error: 'This reset link is invalid or has expired' });
+
+  // Mabilis na suri muna — walang argon2 para sa pekeng token (CPU abuse)
+  if (!(await isVerificationTokenUsable(token, 'password_reset'))) return invalid();
+  const passwordHash = await argon2.hash(newPassword); // BAGO ang transaction (Day 55)
+
+  // LAHAT O WALA: gamitin ang token (atomic, isang beses lang) + bagong password + i-logout ang LAHAT ng session.
+  // Kapag sabay ang dalawang request na may parehong link: isa lang ang mananalo sa claim
+  const userId = await db.transaction(async (tx) => {
+    const claimed = await claimVerificationToken(token, 'password_reset', tx);
+    if (claimed === undefined) return undefined;
+    await tx.update(users).set({ passwordHash }).where(eq(users.id, claimed));
+    await revokeAllSessions(claimed, tx, 'password_reset');
+    return claimed;
+  });
+  if (userId === undefined) return invalid();
+
+  await audit(req, { action: 'password_reset', actorId: userId, targetId: userId });
+  res.status(204).end(); // walang auto-login: mag-login gamit ang bagong password
 });
 
 export default router;
