@@ -7,6 +7,21 @@
 
 ## `POST /api/auth/login`
 
+### Sino ang gumagawa ng ano (Day 74 — controller at service)
+
+```mermaid
+flowchart LR
+    R["routes/auth.ts<br/>URL → loginLimiter → controller"] --> C["🌐 CONTROLLER<br/>controllers/auth.controller.ts: login<br/>parseOr400 · device_token cookie · deviceOf(req)<br/>→ 401 / 423 + Retry-After / 200 + cookies"]
+    C -->|"parsed na input + auditFor(req)"| S["⚙️ SERVICE<br/>services/auth/login.service.ts<br/>aling bilang · reserve · argon2 · transaction<br/>→ invalid / locked / ok (tokens)"]
+    S --> L["lib/: loginLockout · trustedDevices ·<br/>session · jwt · audit"]
+```
+
+- **Walang `req` o `res` ang service.** Tumatanggap ito ng plain na input at ng `audit` function, at nagbabalik ng maliit na resulta.
+  Kaya kayang subukan ang logic nang walang Express, at hindi ito makapagse-set ng cookie nang maaga (ang bug ng Day 68).
+- **Ang controller ang nagsasalin** ng resulta sa HTTP: status, body, `Retry-After`, at cookies, **pagkatapos** bumalik ang service (nai-commit na ang lahat).
+
+### Ang buong daloy
+
 ```mermaid
 flowchart TD
     Req(["POST /api/auth/login<br/>{ email, password }"]) --> RL{"loginLimiter<br/>≥10 PALPAK sa 15 min<br/>mula sa IP na ito?<br/>(CF-Connecting-IP sa production)"}

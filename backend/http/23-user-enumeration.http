@@ -16,7 +16,7 @@
 ### Sa dev: bagong server (10 palpak na login bawat IP — 7 ang ginagamit dito). Ang #2–#6 ay gumagawa ng row sa
 ###   unknown_login_attempts: sa loob ng 15 minuto, 423 na agad ang ulit. Para ulitin agad:
 ###     docker exec auth-learning-postgres-1 psql -U auth -d auth_learning -c "delete from unknown_login_attempts"  (dev lang)
-### Code: backend/src/routes/auth.ts (/auth/login) · lib/loginLockout.ts (unknownEmailCounter) · db/schema.ts
+### Code: backend/src/services/auth/login.service.ts (Day 74; dati routes/auth.ts) · lib/loginLockout.ts (unknownEmailCounter) · db/schema.ts
 ### Test: routes/enumeration.test.ts · Diagram: docs/diagrams/04-login-flow.md
 ### ⏱️ Ang ORAS (Day 72): hindi ito masusukat nang maayos sa REST Client (isa-isa, may ingay). Gamitin ang
 ###   `npm run timing:login` (tingnan ang backend/src/scripts/login-timing.ts) — sinukat: halos walang pagkakaiba (±1ms)

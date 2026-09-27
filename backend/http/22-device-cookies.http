@@ -15,7 +15,7 @@
 ### Sa REST Client: ang file na ito ang "browser mo" (tinatandaan ang cookies). Ang may `# @no-cookie-jar`
 ### ay ang ATTACKER — walang cookie na ipinapadala o itinatago.
 ### Sa dev: bagong server bago patakbuhin (rate limit: 10 palpak bawat IP — 6 ang ginagamit dito).
-### Code: backend/src/routes/auth.ts (/auth/login) · lib/trustedDevices.ts · db/schema.ts (trusted_devices)
+### Code: backend/src/services/auth/login.service.ts (Day 74; dati routes/auth.ts) · lib/trustedDevices.ts · db/schema.ts (trusted_devices)
 ### Test: routes/device-cookies.test.ts · Diagram: docs/diagrams/04-login-flow.md
 ### =========================================================================
 

@@ -1,7 +1,7 @@
 # 20 — Race conditions (TOCTOU)
 
 > 📅 Day 66 · Phase 14 (Tama kahit sabay-sabay) · in-update sa Day 67 (ang ayos: atomic SQL) at Day 69 (unique constraint bilang huling bantay)
-> **Code:** `backend/src/routes/auth.ts` (`/auth/login`) · `backend/src/lib/loginLockout.ts` (Day 67: reserve-then-verify)
+> **Code:** `backend/src/services/auth/login.service.ts` (Day 74; dati `routes/auth.ts`) · `backend/src/lib/loginLockout.ts` (Day 67: reserve-then-verify)
 > **Subukan:** hindi kayang magpadala ng sabay na request ang `.http` — ang **test** ang patunay: `backend/src/routes/concurrency.test.ts`
 
 ## Ang bug: "basahin → +1 sa JavaScript → isulat" (lockout, Day 63–66)

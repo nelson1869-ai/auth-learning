@@ -85,7 +85,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 15** (sinuri Day 73, tugma sa totoong folders):
+**Ngayon — Phase 16, habang inililipat** (Day 74: register at login na ang nasa controller + service; tugma sa totoong folders):
 ```
 backend/
 ├── src/
@@ -93,15 +93,17 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (register/login/me/refresh/logout/sessions/change-password/forgot/reset/verify/resend-verification)
+│   ├── routes/           ← auth.ts (URL → middleware → handler; register/login → controller na, ang iba ay nasa route pa — Day 75–76)
 │   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
 │   │                        users.ts (count) · health.ts · echo.ts
+│   ├── controllers/      ← Day 74 · HTTP lang: http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts (register, login)
+│   ├── services/auth/    ← Day 74 · logic, WALANG Express: registration.service.ts · login.service.ts · verification.service.ts (mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
 │   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67)
 │   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) — mga script, hindi endpoint
-│   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · set-role.ts
+│   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
 ├── drizzle/              ← migrations 0000–0012
 └── http/                 ← 01–23 .http walkthroughs
@@ -115,6 +117,7 @@ backend/
 > Gumagana at may tests ang lahat, pero habang dumarami ang features, mahirap nang subukan ang logic nang walang Express.
 > **Ayos sa Phase 16:** `controllers/` (HTTP) + `services/` (logic, walang `req`). Ang `audit` ay tatanggap na lang ng plain na
 > `{ ip, userAgent }` (katulad ng `auditFor(req)` ng reference).
+> *(Day 74: ✅ `writeAudit(source, event)` na walang `req` + `auditFor(req)` bilang adapter · ✅ register at login · ⏳ ang iba sa Day 75–76.)*
 
 **Phase 16 — ang huling hugis (katulad ng reference):**
 ```
