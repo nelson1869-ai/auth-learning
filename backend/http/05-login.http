@@ -18,6 +18,9 @@
 ###   2. I-send ang #0 (gagawa ng account), tapos ang iba mula taas pababa
 ###
 ### Code: backend/src/routes/auth.ts · backend/src/validations/auth.ts
+### 🔒 Lahat o wala (Day 68): hindi kayang "pumalyahin sa gitna" ng .http ang database — ang patunay ay ang test:
+###   routes/transactions.test.ts — kapag pumalya ang pag-save ng refresh token o device: 500 at WALANG Set-Cookie
+###   (dati: may token cookie kahit 500 — "nabigo" ang login pero naka-login ka)
 ### Diagram: docs/diagrams/04-login-flow.md
 ### =========================================================================
 

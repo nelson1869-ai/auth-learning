@@ -203,15 +203,21 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
 
   // Tamang password → balik sa 0 ang bilang na ginamit (sunod-sunod na mali lang ang binibilang, hindi ang kabuuan)
   await resetCounter(counter);
-  if (!device) {
-    // Day 64: nakapag-login nang tama mula sa browser na ito → pagkakatiwalaan na ito (sariling bilang sa susunod)
-    res.cookie(DEVICE_COOKIE, await createTrustedDevice(user.id), DEVICE_COOKIE_OPTIONS);
-  }
 
-  // Dalawang token (Day 51): maikling access token (JWT, 15 min) + mahabang refresh token (7 araw, nasa DB)
+  // Day 68 — LAHAT NG PAGSULAT MUNA, SAKA ANG COOKIES. Dati: naka-set na ang `token` cookie BAGO i-save ang refresh token.
+  // Kapag pumalya ang pag-save → 500, pero dala ng sagot ang cookie: "nabigo" ang login pero naka-login ka nang 15 minuto,
+  // at walang `login` sa audit (nahuli ng transactions.test.ts). Ngayon: iisang transaction ang dalawang row (lahat o wala)
+  const { refreshToken, deviceToken } = await db.transaction(async (tx) => ({
+    // Dalawang token (Day 51): maikling access token (JWT, 15 min, walang row) + mahabang refresh token (7 araw, nasa DB)
+    refreshToken: await createRefreshToken(user.id, deviceOf(req), undefined, tx),
+    // Day 64: nakapag-login nang tama mula sa browser na ito → pagkakatiwalaan na ito (sariling bilang sa susunod)
+    deviceToken: device ? undefined : await createTrustedDevice(user.id, tx),
+  }));
+
+  // Pagkatapos ng commit lang ang cookies at audit
   setAccessCookie(res, signAccessToken(user.id));
-  const refreshToken = await createRefreshToken(user.id, deviceOf(req));
   res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
+  if (deviceToken) res.cookie(DEVICE_COOKIE, deviceToken, DEVICE_COOKIE_OPTIONS);
   await audit(req, { action: 'login', actorId: user.id, targetId: user.id });
 
   // Piling field lang — hindi kasama ang passwordHash
