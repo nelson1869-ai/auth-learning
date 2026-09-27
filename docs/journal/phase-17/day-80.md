@@ -34,7 +34,7 @@ Error lang ang itinatala noon; ang timeout ay tahimik na nagbabalik ng `false`. 
 | Sadyang sira: walang log sa timeout | ✅ bumagsak |
 | Pinatay ang dev database | ✅ live 200 · ready 503 (3.2s) · binuhay → ready 200 |
 | 26 `.http` · buong suite · lint (oxlint + knip) · tsc | ✅ 26/26 · 190 tests · ✅ |
-| Production | (pagkatapos ng deploy: gagamitin ng `deploy.sh` ang bagong readiness check) |
+| Production | ✅ ang unang deploy na may readiness step: `{"status":"ready","checks":{"database":"ok"}}` bago ang "Live" · HEALTHCHECK ng container: `/api/health/live`, healthy · `/health`, `/live`, `/ready` → 200 · hindi itinatala sa request log |
 
 ## Mga tanong ko pa / hindi pa malinaw
 
