@@ -18,6 +18,8 @@
 ###     docker exec auth-learning-postgres-1 psql -U auth -d auth_learning -c "delete from unknown_login_attempts"  (dev lang)
 ### Code: backend/src/routes/auth.ts (/auth/login) · lib/loginLockout.ts (unknownEmailCounter) · db/schema.ts
 ### Test: routes/enumeration.test.ts · Diagram: docs/diagrams/04-login-flow.md
+### ⏱️ Ang ORAS (Day 72): hindi ito masusukat nang maayos sa REST Client (isa-isa, may ingay). Gamitin ang
+###   `npm run timing:login` (tingnan ang backend/src/scripts/login-timing.ts) — sinukat: halos walang pagkakaiba (±1ms)
 ### =========================================================================
 
 ### -------------------------------------------------------------------------
