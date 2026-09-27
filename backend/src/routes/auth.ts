@@ -6,25 +6,13 @@ import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import {
-  changePasswordSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   verifyEmailSchema,
 } from '../validations/auth.ts';
 import { requireAuth } from '../middleware/requireAuth.ts';
-import { signAccessToken, userIdFromAccessToken } from '../lib/jwt.ts';
 import { audit } from '../lib/audit.ts';
-import { logger } from '../lib/logger.ts';
-import {
-  REFRESH_TOKEN_TTL_MS,
-  createRefreshToken,
-  familyOf,
-  listSessions,
-  revokeAllSessions,
-  revokeFamilyOf,
-  revokeSession,
-  rotateRefreshToken,
-} from '../lib/session.ts';
+import { revokeAllSessions } from '../lib/session.ts';
 import {
   changePasswordLimiter,
   forgotPasswordLimiter,
@@ -35,15 +23,9 @@ import {
 import { createTrustedDevice, DEVICE_COOKIE, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import { claimVerificationToken, isVerificationTokenUsable } from '../lib/verificationTokens.ts';
-import { login, register } from '../controllers/auth.controller.ts';
+import { changePassword, login, logout, me, refresh, register, revokeSessionById, sessions } from '../controllers/auth.controller.ts';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../services/auth/verification.service.ts';
-import {
-  DEVICE_COOKIE_OPTIONS,
-  REFRESH_COOKIE_OPTIONS,
-  clearSessionCookies,
-  deviceOf,
-  setAccessCookie,
-} from '../controllers/http.ts';
+import { DEVICE_COOKIE_OPTIONS } from '../controllers/http.ts';
 
 const router = Router();
 
@@ -61,149 +43,22 @@ router.post('/auth/register', registerLimiter ?? pass, register);
 
 router.post('/auth/login', loginLimiter ?? pass, login);
 
-// requireAuth muna: kung walang tamang token, hindi na aabot dito (401)
-router.get('/auth/me', requireAuth, async (req, res) => {
-  // Nilagay ng requireAuth — pero `number | undefined` ang type, kaya suriin (walang `!` na hula)
-  const userId = req.userId;
-  if (userId === undefined) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  const [user] = await db
-    // + role (Day 49): para malaman ng frontend kung ipapakita ang Admin link. UX lang iyon —
-    // ang requireRole ng backend pa rin ang tunay na bantay sa /api/admin/*
-    .select({ id: users.id, email: users.email, name: users.name, role: users.role, emailVerifiedAt: users.emailVerifiedAt })
-    .from(users)
-    .where(eq(users.id, userId));
+router.get('/auth/me', requireAuth, me);
 
-  if (!user) {
-    // tama ang token, pero nabura na ang user
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-  // Galing sa database, hindi sa token — laging bago (hal. kung pinalitan ang name).
-  // Day 60: emailVerified (true/false) — para sa paalala sa frontend ("soft" verification)
-  const { emailVerifiedAt, ...rest } = user;
-  res.json({ user: { ...rest, emailVerified: emailVerifiedAt !== null } });
-});
-
-// Bagong access token gamit ang refresh token (Day 51). Tinatawag ng frontend kapag 401 ang isang request.
-// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala).
-// Day 52: bawat refresh ay may BAGONG refresh token (rotation); ang paggamit ulit ng luma = nakaw
-router.post('/auth/refresh', async (req, res) => {
-  const raw: unknown = req.cookies.refresh_token;
-  const result = typeof raw === 'string' ? await rotateRefreshToken(raw, deviceOf(req)) : ({ status: 'invalid' } as const);
-
-  if (result.status === 'rotated') {
-    setAccessCookie(res, signAccessToken(result.userId));
-    res.cookie('refresh_token', result.refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
-    return res.status(204).end();
-  }
-  if (result.status === 'grace') {
-    // Sabay na refresh (hal. dalawang tab): access token lang — ang bagong refresh token ay nasa cookie na
-    // mula sa unang request. HINDI ginagalaw ang refresh_token cookie
-    setAccessCookie(res, signAccessToken(result.userId));
-    return res.status(204).end();
-  }
-  if (result.status === 'reused') {
-    // Security event: sa logs (Day 42) at sa audit log (Day 48)
-    (req.log ?? logger).warn({ event: 'refresh_reuse', userId: result.userId }, 'Refresh token reuse — family revoked');
-    await audit(req, { action: 'refresh_reuse', targetId: result.userId });
-  }
-  // Wala, binawi, expired, pekeng token, o nakaw — burahin ang mga cookie para hindi na subukan ulit ng browser
-  clearSessionCookies(res);
-  res.status(401).json({ error: 'Not authenticated' });
-});
-
-// Walang requireAuth: laging gumagana ang logout, kahit expired na ang access token.
-// Day 53 — totoong logout: binabawi ang refresh token sa DATABASE. Kahit may nakakopya nito, hindi na ito gagana.
-// ⚠️ Ang access token (JWT) ay valid pa hanggang mag-expire (≤ 15 min) — hindi ito naka-save, kaya hindi mababawi
-router.post('/auth/logout', async (req, res) => {
-  const raw: unknown = req.cookies.refresh_token;
-  const revokedFor = typeof raw === 'string' ? await revokeFamilyOf(raw) : undefined;
-  // Sino ang nag-logout? Mula sa access token kung valid pa, o mula sa binawing refresh token; kung wala, null
-  const userId = userIdFromAccessToken(req.cookies.token) ?? revokedFor ?? null;
-  await audit(req, { action: 'logout', actorId: userId, targetId: userId });
-  clearSessionCookies(res); // pareho ng access at refresh (Day 51)
-  res.status(204).end(); // 204 = nagawa, walang body
-});
+router.post('/auth/refresh', refresh);
+// Walang requireAuth: laging gumagana ang logout, kahit expired na ang access token
+router.post('/auth/logout', logout);
 
 // ---------------------------------------------------------------------------------------------
 // Mga device ko (Day 54)
 
-// GET /api/auth/sessions — ang mga naka-login kong session. Ang "current" = ang device na nagtatanong
-// (ang refresh_token cookie ay ipinapadala rito dahil /api/auth ang path nito)
-router.get('/auth/sessions', requireAuth, async (req, res) => {
-  const userId = req.userId;
-  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
-  const raw: unknown = req.cookies.refresh_token;
-  const current = typeof raw === 'string' ? await familyOf(raw) : undefined;
-  const sessions = await listSessions(userId);
-  res.json({ sessions: sessions.map((session) => ({ ...session, current: session.id === current })) });
-});
-
-// DELETE /api/auth/sessions/:id — i-logout ang isang device.
-// 🔐 IDOR (Insecure Direct Object Reference): ang id ay galing sa URL, kaya kayang palitan ng kahit sino.
-// Kaya: (1) naka-scope sa naka-login na user ang pagbawi (revokeSession), at (2) 404 — hindi 403 — sa session
-// ng ibang user, sa id na wala, at sa id na hindi UUID. Iisang sagot: hindi nalalaman kung totoo ang id
-const sessionId = z.uuid();
-router.delete('/auth/sessions/:id', requireAuth, async (req, res) => {
-  const userId = req.userId;
-  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
-  // Hindi UUID → hindi na tinatanong ang database (kung hindi: error ng Postgres sa maling uuid → 500)
-  const parsed = sessionId.safeParse(req.params.id);
-  if (!parsed.success || !(await revokeSession(userId, parsed.data))) {
-    return res.status(404).json({ error: 'Not found' });
-  }
-  await audit(req, { action: 'session_revoked', actorId: userId, targetId: userId, metadata: { session: parsed.data } });
-  // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
-  const raw: unknown = req.cookies.refresh_token;
-  if (typeof raw === 'string' && (await familyOf(raw)) === parsed.data) clearSessionCookies(res);
-  res.status(204).end();
-});
+router.get('/auth/sessions', requireAuth, sessions);
+// 🔐 IDOR: tingnan ang controller at ang session.service (404 sa session na hindi iyo)
+router.delete('/auth/sessions/:id', requireAuth, revokeSessionById);
 
 // ---------------------------------------------------------------------------------------------
 // Change password (Day 55) — isang "high-risk event": dito nauuwi ang account kapag may nakanakaw
-router.post('/auth/change-password', requireAuth, changePasswordLimiter ?? pass, async (req, res) => {
-  const userId = req.userId;
-  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
-  const result = changePasswordSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ error: 'Invalid input', fields: z.flattenError(result.error).fieldErrors });
-  }
-  const { currentPassword, newPassword } = result.data;
-
-  const [user] = await db.select({ passwordHash: users.passwordHash }).from(users).where(eq(users.id, userId));
-  if (!user) return res.status(401).json({ error: 'Not authenticated' }); // nabura ang account
-
-  // Reauthentication: patunayan ulit na ikaw talaga. 400 (hindi 401): hindi ito "hindi ka naka-login" —
-  // at ang 401 ay magpapa-refresh at magpapaulit ng request sa frontend (apiFetch), dodoble ang bilang ng subok
-  if (!(await argon2.verify(user.passwordHash, currentPassword))) {
-    await audit(req, { action: 'password_change_failed', actorId: userId, targetId: userId });
-    return res.status(400).json({ error: 'Invalid input', fields: { currentPassword: ['Incorrect password'] } });
-  }
-
-  // I-hash muna BAGO ang transaction: mabagal ang argon2 (~50ms) — huwag hawakan ang koneksyon at ang lock habang naghihintay
-  const passwordHash = await argon2.hash(newPassword);
-
-  // LAHAT O WALA: bagong password + bawiin ang LAHAT ng session (pati ang sa magnanakaw) + bagong session para sa
-  // device na ito. Kung hiwalay at pumalya sa gitna: bagong password, pero buhay pa ang session ng magnanakaw
-  // Day 64: + alisin ang tiwala ng LAHAT ng device (pati ang sa magnanakaw), at pagkatiwalaan ulit ang browser na ito
-  const { refreshToken, deviceToken } = await db.transaction(async (tx) => {
-    await tx.update(users).set({ passwordHash }).where(eq(users.id, userId));
-    await revokeAllSessions(userId, tx);
-    await revokeAllTrustedDevices(userId, tx);
-    return {
-      refreshToken: await createRefreshToken(userId, deviceOf(req), undefined, tx),
-      deviceToken: await createTrustedDevice(userId, tx),
-    };
-  });
-
-  // Pagkatapos ng commit lang ang cookies at audit — kung nag-rollback, walang dapat maipadala
-  setAccessCookie(res, signAccessToken(userId));
-  res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
-  res.cookie(DEVICE_COOKIE, deviceToken, DEVICE_COOKIE_OPTIONS);
-  await audit(req, { action: 'password_changed', actorId: userId, targetId: userId });
-  res.status(204).end();
-});
+router.post('/auth/change-password', requireAuth, changePasswordLimiter ?? pass, changePassword);
 
 // ---------------------------------------------------------------------------------------------
 // Password reset (Day 59)

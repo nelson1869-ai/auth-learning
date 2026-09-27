@@ -8,7 +8,7 @@
 ### 🔐 IDOR (Insecure Direct Object Reference): ang :id ay galing sa URL — kayang palitan ng kahit sino.
 ###    Ang session ng IBANG user → 404 (hindi 403): pareho ng id na wala, kaya hindi nalalaman kung totoo ito.
 ###
-### Code: backend/src/lib/session.ts (listSessions, revokeSession) · backend/src/routes/auth.ts
+### Code: backend/src/lib/session.ts (listSessions, revokeSession) · services/auth/session.service.ts (listMySessions, revokeMySession, Day 75) · controllers/auth.controller.ts (404 sa hindi UUID)
 ### Test: backend/src/routes/sessions.test.ts · Diagram: docs/diagrams/15-sessions.md
 ### Frontend: /sessions ("📱 Mga device ko" sa Profile)
 ### =========================================================================

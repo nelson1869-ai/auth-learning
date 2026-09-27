@@ -2,7 +2,7 @@
 
 > 📅 Day 18 · Phase 4 (Register at login) · in-update sa Day 48 (audit log), Day 49 (`role`), Day 51 (refresh token), Day 52 (rotation), Day 53 (totoong logout) at Day 56 (RS256)
 >
-> **Code:** `backend/src/routes/auth.ts` · `backend/src/middleware/requireAuth.ts`
+> **Code:** `backend/src/routes/auth.ts` → `controllers/auth.controller.ts` → `services/auth/*` (Day 74–75) · `backend/src/middleware/requireAuth.ts`
 > **Subukan:** `04-register.http` → `05-login.http` → `06-me.http` → `07-logout.http`
 
 **Sequence diagram** = sino ang nakikipag-usap kanino, at sa anong pagkakasunod —
@@ -14,7 +14,7 @@ sequenceDiagram
     autonumber
     actor U as 👤 User
     participant B as 🌐 Browser / REST Client<br/>(may cookie jar)
-    participant S as ⚙️ Express<br/>routes/auth.ts
+    participant S as ⚙️ Express<br/>route → controller → service
     participant D as 🗄️ Postgres<br/>users · audit_logs
 
     rect rgba(128,128,128,0.08)

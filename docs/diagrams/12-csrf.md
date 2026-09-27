@@ -1,7 +1,7 @@
 # 12 — CSRF (Cross-Site Request Forgery)
 
 > 📅 Day 44 · Phase 9 (Pangunahing hardening) · **Desisyon:** D-022
-> **Code:** `backend/src/middleware/csrf.ts` · `backend/src/app.ts` · cookie: `backend/src/routes/auth.ts` (`COOKIE_OPTIONS`)
+> **Code:** `backend/src/middleware/csrf.ts` · `backend/src/app.ts` · cookie: `backend/src/controllers/http.ts` (`COOKIE_OPTIONS`, mula Day 74)
 > **Subukan:** `backend/http/12-csrf.http` · test: `backend/src/middleware/csrf.test.ts`
 
 ## Ang atake

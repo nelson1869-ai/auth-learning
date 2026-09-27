@@ -603,7 +603,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 16 — Malinis na architecture · 🏗️ *Architect* + ⚙️ *Backend* · Day 74–79
 
 ### Day 74–76 — Service layer
-- [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express) *(Day 74 ✅ pundasyon — `auditFor(req)`, `controllers/http.ts` — + register + login · Day 75–76: ang iba)*
+- [ ] Hatiin: controller (HTTP lang) → service (business logic, walang Express) *(Day 74 ✅ pundasyon — `auditFor(req)`, `controllers/http.ts` — + register + login · Day 75 ✅ me, refresh, logout, sessions, change-password · Day 76: ang iba)*
 - [ ] Isang flow bawat araw; **pumapasa pa rin ang lahat ng tests** pagkatapos ng bawat hakbang
 - [ ] 📊 I-update ang LAHAT ng diagram: hiwalay na banggitin ang controller (HTTP) at service (logic)
 - [ ] 🏗️ Ang huling hugis: `controllers/` + `services/` — i-update ang `docs/06-architecture.md` at LAHAT ng diagram

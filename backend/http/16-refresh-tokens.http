@@ -9,7 +9,7 @@
 ### Kapag expired ang access token → 401 → POST /api/auth/refresh → bagong access token → ulitin.
 ### (Ginagawa ito ng frontend nang kusa — api/auth.ts, apiFetch.)
 ###
-### Code: backend/src/lib/session.ts · backend/src/routes/auth.ts (/auth/refresh)
+### Code: backend/src/lib/session.ts (rotateRefreshToken) · services/auth/session.service.ts (refreshSession, Day 75) · controllers/auth.controller.ts (refresh — cookies)
 ### Test: backend/src/routes/refresh.test.ts · Diagram: docs/diagrams/06-auth-sequence.md (REFRESH)
 ### =========================================================================
 

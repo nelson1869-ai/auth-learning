@@ -1,12 +1,15 @@
 import type { RequestHandler } from 'express';
+import { z } from 'zod';
 import { auditFor } from '../lib/audit.ts';
 import { runInBackground } from '../lib/background.ts';
 import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
-import { loginSchema, registerSchema } from '../validations/auth.ts';
+import { changePasswordSchema, loginSchema, registerSchema } from '../validations/auth.ts';
 import { login as loginService } from '../services/auth/login.service.ts';
+import { changePassword as changePasswordService } from '../services/auth/password.service.ts';
 import { registerUser } from '../services/auth/registration.service.ts';
+import { getMe, listMySessions, logout as logoutService, refreshSession, revokeMySession } from '../services/auth/session.service.ts';
 import { sendVerificationEmail } from '../services/auth/verification.service.ts';
-import { deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
+import { clearSessionCookies, deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
 
 // Auth controllers (Day 74) — HTTP LANG: suriin ang input → tawagin ang service → isalin ang resulta sa status, body at cookies.
 // Walang SQL, walang argon2, walang patakaran ng negosyo dito — nasa services/auth/* ang mga iyon
@@ -48,4 +51,111 @@ export const login: RequestHandler = async (req, res) => {
   setRefreshCookie(res, result.refreshToken);
   if (result.newDeviceToken) setDeviceCookie(res, result.newDeviceToken);
   res.json({ user: result.user });
+};
+
+// requireAuth muna sa route: kung walang tamang token, hindi na aabot dito (401)
+export const me: RequestHandler = async (req, res) => {
+  // Nilagay ng requireAuth — pero `number | undefined` ang type, kaya suriin (walang `!` na hula)
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  const user = await getMe(userId);
+  if (!user) {
+    // tama ang token, pero nabura na ang user
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  res.json({ user });
+};
+
+// GET /api/auth/sessions — ang refresh_token cookie ay ipinapadala rito dahil /api/auth ang path nito
+export const sessions: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  res.json({ sessions: await listMySessions(userId, req.cookies.refresh_token) });
+};
+
+// DELETE /api/auth/sessions/:id — 404 (hindi 403) sa session ng ibang user, sa id na wala, at sa id na hindi UUID
+const sessionIdSchema = z.uuid();
+export const revokeSessionById: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  // Hindi UUID → hindi na tinatanong ang database (kung hindi: error ng Postgres sa maling uuid → 500)
+  const parsed = sessionIdSchema.safeParse(req.params.id);
+  const result = parsed.success ? await revokeMySession(userId, parsed.data, req.cookies.refresh_token, auditFor(req)) : undefined;
+  if (!result || result.status === 'not_found') {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
+  // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
+  if (result.wasCurrent) clearSessionCookies(res);
+  res.status(204).end();
+};
+
+// POST /api/auth/refresh — tinatawag ng frontend kapag 401 ang isang request.
+// Walang body — ang refresh_token cookie lang (Path=/api/auth, kaya dito lang ito ipinapadala)
+export const refresh: RequestHandler = async (req, res) => {
+  const result = await refreshSession(req.cookies.refresh_token, deviceOf(req), auditFor(req));
+  if (result.status === 'rotated') {
+    setAccessCookie(res, result.accessToken);
+    setRefreshCookie(res, result.refreshToken);
+    res.status(204).end();
+    return;
+  }
+  if (result.status === 'grace') {
+    // Ang bagong refresh token ay nasa cookie na mula sa unang request — HINDI ginagalaw ang refresh_token cookie
+    setAccessCookie(res, result.accessToken);
+    res.status(204).end();
+    return;
+  }
+  if (result.status === 'reused') {
+    // Security event: sa logs (Day 42, kasama ang requestId) — ang audit ay itinala na ng service (Day 48)
+    req.log.warn({ event: 'refresh_reuse', userId: result.userId }, 'Refresh token reuse — family revoked');
+  }
+  // Wala, binawi, expired, pekeng token, o nakaw — burahin ang mga cookie para hindi na subukan ulit ng browser
+  clearSessionCookies(res);
+  res.status(401).json({ error: 'Not authenticated' });
+};
+
+// POST /api/auth/logout — walang requireAuth: laging gumagana, kahit expired na ang access token
+export const logout: RequestHandler = async (req, res) => {
+  await logoutService(req.cookies.refresh_token, req.cookies.token, auditFor(req));
+  clearSessionCookies(res); // pareho ng access at refresh (Day 51)
+  res.status(204).end(); // 204 = nagawa, walang body
+};
+
+// POST /api/auth/change-password (requireAuth + rate limit sa route)
+export const changePassword: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  const input = parseOr400(changePasswordSchema, req.body, res);
+  if (!input) return;
+  // Server-derived na mga field sa HULI — hindi mapapalitan ng body ang userId (Day 77: mass assignment)
+  const result = await changePasswordService({ ...input, userId, device: deviceOf(req) }, auditFor(req));
+  if (result.status === 'no_user') {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  if (result.status === 'wrong_password') {
+    // 400 (hindi 401): hindi ito "hindi ka naka-login" — at ang 401 ay magpapa-refresh at magpapaulit ng request
+    // sa frontend (apiFetch), dodoble ang bilang ng subok
+    res.status(400).json({ error: 'Invalid input', fields: { currentPassword: ['Incorrect password'] } });
+    return;
+  }
+  // Nai-commit na — ngayon lang ang cookies (kung nag-rollback, walang dapat maipadala)
+  setAccessCookie(res, result.accessToken);
+  setRefreshCookie(res, result.refreshToken);
+  setDeviceCookie(res, result.deviceToken);
+  res.status(204).end();
 };

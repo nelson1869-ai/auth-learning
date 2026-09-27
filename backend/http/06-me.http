@@ -14,7 +14,7 @@
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
 ###   2. I-send mula taas pababa (#0 → #1 → #2 ...)
 ###
-### Code: backend/src/middleware/requireAuth.ts · backend/src/routes/auth.ts
+### Code: backend/src/middleware/requireAuth.ts · backend/src/controllers/auth.controller.ts (me) · services/auth/session.service.ts (getMe, Day 75)
 ### Diagram: docs/diagrams/05-auth-middleware.md
 ### =========================================================================
 
