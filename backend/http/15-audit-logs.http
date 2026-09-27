@@ -22,7 +22,7 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "nelson_dev@1869.com",
+  "email": "nelson1869ai@gmail.com",
   "password": "mali-muna-ito"
 }
 
@@ -43,7 +43,7 @@ POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "nelson_dev@1869.com",
+  "email": "nelson1869ai@gmail.com",
   "password": "PALITAN-NG-PASSWORD-MO"
 }
 
