@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
-import { registerSchema, loginSchema } from '../validations/auth.ts';
+import { registerSchema, loginSchema, changePasswordSchema } from '../validations/auth.ts';
 import { requireAuth, userIdFromToken } from '../middleware/requireAuth.ts';
 import { audit } from '../lib/audit.ts';
 import { clientIp } from '../lib/clientIp.ts';
@@ -16,13 +16,14 @@ import {
   createRefreshToken,
   familyOf,
   listSessions,
+  revokeAllSessions,
   revokeFamilyOf,
   revokeSession,
   rotateRefreshToken,
   type Device,
   signAccessToken,
 } from '../lib/session.ts';
-import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
+import { changePasswordLimiter, loginLimiter, registerLimiter } from '../middleware/rateLimiter.ts';
 import { env } from '../config/env.ts';
 
 const router = Router();
@@ -236,6 +237,45 @@ router.delete('/auth/sessions/:id', requireAuth, async (req, res) => {
   // Kung ang device na ito mismo ang ni-logout — burahin din ang mga cookie nito
   const raw: unknown = req.cookies.refresh_token;
   if (typeof raw === 'string' && (await familyOf(raw)) === parsed.data) clearSessionCookies(res);
+  res.status(204).end();
+});
+
+// ---------------------------------------------------------------------------------------------
+// Change password (Day 55) — isang "high-risk event": dito nauuwi ang account kapag may nakanakaw
+router.post('/auth/change-password', requireAuth, changePasswordLimiter ?? pass, async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) return res.status(401).json({ error: 'Not authenticated' });
+  const result = changePasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Invalid input', fields: z.flattenError(result.error).fieldErrors });
+  }
+  const { currentPassword, newPassword } = result.data;
+
+  const [user] = await db.select({ passwordHash: users.passwordHash }).from(users).where(eq(users.id, userId));
+  if (!user) return res.status(401).json({ error: 'Not authenticated' }); // nabura ang account
+
+  // Reauthentication: patunayan ulit na ikaw talaga. 400 (hindi 401): hindi ito "hindi ka naka-login" —
+  // at ang 401 ay magpapa-refresh at magpapaulit ng request sa frontend (apiFetch), dodoble ang bilang ng subok
+  if (!(await argon2.verify(user.passwordHash, currentPassword))) {
+    await audit(req, { action: 'password_change_failed', actorId: userId, targetId: userId });
+    return res.status(400).json({ error: 'Invalid input', fields: { currentPassword: ['Incorrect password'] } });
+  }
+
+  // I-hash muna BAGO ang transaction: mabagal ang argon2 (~50ms) — huwag hawakan ang koneksyon at ang lock habang naghihintay
+  const passwordHash = await argon2.hash(newPassword);
+
+  // LAHAT O WALA: bagong password + bawiin ang LAHAT ng session (pati ang sa magnanakaw) + bagong session para sa
+  // device na ito. Kung hiwalay at pumalya sa gitna: bagong password, pero buhay pa ang session ng magnanakaw
+  const refreshToken = await db.transaction(async (tx) => {
+    await tx.update(users).set({ passwordHash }).where(eq(users.id, userId));
+    await revokeAllSessions(userId, tx);
+    return createRefreshToken(userId, deviceOf(req), undefined, tx);
+  });
+
+  // Pagkatapos ng commit lang ang cookies at audit — kung nag-rollback, walang dapat maipadala
+  setAccessCookie(res, signAccessToken(userId));
+  res.cookie('refresh_token', refreshToken, { ...REFRESH_COOKIE_OPTIONS, maxAge: REFRESH_TOKEN_TTL_MS });
+  await audit(req, { action: 'password_changed', actorId: userId, targetId: userId });
   res.status(204).end();
 });
 

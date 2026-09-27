@@ -33,7 +33,7 @@ frontend/
 ├── src/
 │   ├── main.tsx        ← simula ng app (StrictMode)
 │   ├── App.tsx         ← aling page ang ipapakita (React Router)
-│   ├── pages/          ← Login, Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54)
+│   ├── pages/          ← Login, Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54), ChangePassword (Day 55)
 │   ├── components/     ← maliliit na pirasong ginagamit ng marami
 │   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar
 │   └── index.css       ← plain CSS

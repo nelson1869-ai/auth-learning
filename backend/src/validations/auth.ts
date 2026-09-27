@@ -14,6 +14,18 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 
+// Change password (Day 55): kailangan ang KASALUKUYANG password (reauthentication) — kahit may nakanakaw ng
+// session ko, hindi niya mapapalitan ang password kung hindi niya ito alam. Ang bago: parehong patakaran ng register
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1).max(128),
+    newPassword: registerSchema.shape.password,
+  })
+  .refine((input) => input.newPassword !== input.currentPassword, {
+    path: ['newPassword'],
+    message: 'New password must be different from the current one',
+  });
+
 // Ang TypeScript type ay galing mismo sa schema (z.infer) — iisang source of truth:
 // kapag binago ang schema, kusang nagbabago ang type
 export type RegisterInput = z.infer<typeof registerSchema>;

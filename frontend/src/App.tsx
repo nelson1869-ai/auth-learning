@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
 import AdminPage from './pages/AdminPage.tsx';
 import SessionsPage from './pages/SessionsPage.tsx';
+import ChangePasswordPage from './pages/ChangePasswordPage.tsx';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           {/* Walang proteksyon dito — ang backend ang humaharang (401/403). Tingnan ang AdminPage */}
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
           {/* Kahit anong ibang URL → profile (na magpapasa sa login kung hindi naka-login) */}
           <Route path="*" element={<Navigate to="/profile" replace />} />
         </Routes>

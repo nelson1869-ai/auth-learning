@@ -37,7 +37,7 @@ erDiagram
         uuid family_id "isang family bawat login — lahat ng rotation ay parehong family"
         timestamptz expires_at "NOT NULL · 7 araw"
         timestamptz revoked_at "NULL = aktibo · may oras = binawi"
-        text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout"
+        text revoke_reason "rotated (napalitan) · reuse (nakaw!) · logout · password_change"
         text user_agent "ang device (Day 54) — ina-update bawat rotation"
         text ip "totoong IP ng huling gamit"
         timestamptz created_at "NOT NULL · DEFAULT now()"
