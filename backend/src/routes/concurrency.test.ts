@@ -1,0 +1,114 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { createServer } from 'node:http';
+import type { Server } from 'node:http';
+import request from 'supertest';
+import { eq, inArray } from 'drizzle-orm';
+import app from '../app.ts';
+import { db } from '../db/index.ts';
+import { trustedDevices, users } from '../db/schema.ts';
+import { testOutbox } from '../lib/email.ts';
+import { drainBackground } from '../lib/background.ts';
+
+// Race conditions (Day 66) — "check then act" (TOCTOU): gumagana ang lahat sa ISANG request, pero kapag N ang SABAY,
+// lahat sila ay nakakabasa ng parehong lumang estado bago pa may makapagsulat. Dito, pinapaputok nang sabay ang parehong
+// request (Promise.all) at sinusuri ang patakaran ("5 hula lang", "isang account lang", "isang beses lang ang link").
+// Ang ibang race test: routes/rotation.test.ts (refresh, Day 52) · routes/password-reset.test.ts (reset link, Day 59)
+
+const PARALLEL = 20;
+const PASSWORD = 'Race-Test-2026!';
+const created: string[] = [];
+
+// ISANG server para sa lahat ng request (aral ng reference): ang `request(app)` ay gumagawa ng bagong server BAWAT request —
+// 20 sabay = 20 server na sabay nagbubukas at nagsasara, na paminsan-minsang nagbibigay ng ECONNRESET sa mabagal na CI
+let server: Server;
+beforeAll(async () => {
+  server = createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+});
+afterAll(async () => {
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  await db.delete(users).where(inArray(users.email, created));
+});
+
+function uniqueEmail(prefix: string) {
+  const email = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.com`;
+  created.push(email);
+  return email;
+}
+async function account(prefix: string) {
+  const email = uniqueEmail(prefix);
+  const res = await request(server).post('/api/auth/register').send({ email, password: PASSWORD });
+  expect(res.status).toBe(201); // precondition: kung hindi nagawa ang account, walang saysay ang sukat (aral ng reference)
+  return { email, userId: res.body.user.id as number };
+}
+function count(statuses: number[], status: number) {
+  return statuses.filter((s) => s === status).length;
+}
+async function parallelWrongLogins(email: string, cookie?: string) {
+  const responses = await Promise.all(
+    Array.from({ length: PARALLEL }, () => {
+      const req = request(server).post('/api/auth/login');
+      if (cookie) req.set('Cookie', cookie);
+      return req.send({ email, password: 'wrong-password' });
+    }),
+  );
+  return responses.map((r) => r.status);
+}
+
+// ⚠️ KILALANG BUG (Day 63): basahin ang bilang → +1 sa JS → isulat. Ang dalawang test sa ibaba ay TAHASANG sinusukat ang bug
+// ("higit sa 5 ang nasuring hula"), kaya pumapasa ang CI habang may bug. Sa Day 67 (ang ayos), BABAGSAK sila → baligtarin
+// ang assertion (≤ 5, at naka-lock). Bakit hindi `it.fails`? Pumapasa iyon sa KAHIT ANONG error — pati kapag bumagsak ang
+// register o nag-ECONNRESET. Iyon ang "test na pumapasa sa maling dahilan". Dito, ang bug LANG ang makakapagpapasa
+describe('per-account lockout under concurrency — KNOWN BUG until Day 67', () => {
+  it('BUG: checks MORE than 5 guesses when 20 wrong passwords arrive at once, and does not lock', async () => {
+    const { email } = await account('race-account');
+    const statuses = await parallelWrongLogins(email);
+
+    expect(count(statuses, 401) + count(statuses, 423)).toBe(PARALLEL); // walang 500 o iba pa
+    expect(count(statuses, 401)).toBeGreaterThan(5); // BUG — dapat ≤ 5
+    const after = await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
+    expect(after.status).toBe(200); // BUG — dapat 423 (naka-lock)
+  });
+
+  it("BUG: the trusted device's own counter has the same race", async () => {
+    const { email, userId } = await account('race-device');
+    const login = await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
+    const deviceCookie = login.get('Set-Cookie')?.find((c) => c.startsWith('device_token='))?.split(';')[0];
+    expect(deviceCookie).toBeDefined(); // precondition: may device cookie talaga
+
+    const statuses = await parallelWrongLogins(email, deviceCookie);
+    expect(count(statuses, 401) + count(statuses, 423)).toBe(PARALLEL);
+    expect(count(statuses, 401)).toBeGreaterThan(5); // BUG — dapat ≤ 5
+    const [device] = await db.select().from(trustedDevices).where(eq(trustedDevices.userId, userId));
+    expect(device?.lockedUntil).toBeNull(); // BUG — dapat naka-lock ang device
+  });
+});
+
+describe('already race-safe (proof, not a fix)', () => {
+  it('registers exactly one account when the same email is registered 20 times at once (409s, never 500)', async () => {
+    const email = uniqueEmail('race-register');
+    const responses = await Promise.all(
+      Array.from({ length: PARALLEL }, () => request(server).post('/api/auth/register').send({ email, password: PASSWORD })),
+    );
+    const statuses = responses.map((r) => r.status);
+    expect(count(statuses, 201)).toBe(1);
+    expect(count(statuses, 409)).toBe(PARALLEL - 1);
+    const rows = await db.select().from(users).where(eq(users.email, email));
+    expect(rows).toHaveLength(1);
+  });
+
+  it('uses an email verification link exactly once when it is opened 20 times at once', async () => {
+    const { email } = await account('race-verify');
+    await drainBackground();
+    const mail = [...testOutbox].reverse().find((m) => m.to === email && m.subject.startsWith('Confirm'));
+    const token = mail?.text.match(/\/verify-email#token=([\w-]+)/)?.[1];
+    expect(token).toBeDefined(); // precondition
+
+    const responses = await Promise.all(
+      Array.from({ length: PARALLEL }, () => request(server).post('/api/auth/verify-email').send({ token })),
+    );
+    const statuses = responses.map((r) => r.status);
+    expect(count(statuses, 204)).toBe(1);
+    expect(count(statuses, 400)).toBe(PARALLEL - 1);
+  });
+});
