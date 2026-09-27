@@ -1,0 +1,59 @@
+# Alert rules (Day 84) — sinusuri ng Prometheus bawat 15s (evaluation_interval). Kapag totoo ang `expr` nang tuloy-tuloy
+# sa loob ng `for:`, "firing" → ipinapasa sa Alertmanager → email.
+#
+# Bakit may `for:`: para hindi mag-alert sa isang saglit na blip (hal. isang scrape na pumalya habang nagde-deploy).
+# Ang alert na madalas tumunog nang walang dahilan ay natututunang balewalain ("alert fatigue") — mas masama pa sa walang alert.
+#
+# Mga unit test: alerts.test.yml (promtool — tingnan ang devops/README.md)
+groups:
+  - name: auth-learning
+    rules:
+      # Hindi ma-scrape ang backend:9464 — patay ang container, o sira ang app
+      - alert: AppDown
+        expr: up{job="auth-learning-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Patay ang auth-learning backend'
+          description: 'Hindi maabot ng Prometheus ang backend:9464 nang higit 1 minuto. Tingnan: docker compose -f docker-compose.prod.yml ps / logs backend'
+
+      # Higit 5% ng request ay 5xx. `clamp_min` para hindi hatiin sa 0 kapag walang traffic
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_server_request_duration_count{http_response_status_code=~"5.."}[5m]))
+            / clamp_min(sum(rate(http_server_request_duration_count[5m])), 1e-9) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Maraming 5xx ang backend ({{ $value | humanizePercentage }})'
+          description: 'Higit 5% ng request sa huling 5 minuto ay server error. Hanapin ang requestId sa logs: docker compose -f docker-compose.prod.yml logs backend | grep "\"level\":50"'
+
+      # p95 > 1s nang 10 minuto (ang login na may argon2 ay ~100ms, kaya malayo pa ito sa normal)
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_bucket[5m]))) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Mabagal ang backend (p95 {{ $value | humanizeDuration }})'
+          description: 'Ang p95 ay higit 1 segundo nang 10 minuto. Madalas: mabagal ang database (Neon) o puno ang CPU ng PC.'
+
+      # 🔐 Security: ninakaw na refresh token (Day 53). Kahit ISA ay dapat malaman agad, kaya walang `for:`
+      - alert: RefreshTokenReuse
+        expr: sum(increase(auth_audit_events_total{action="refresh_reuse"}[10m])) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: 'May ginamit ulit na refresh token (posibleng ninakaw)'
+          description: 'Na-revoke na ang buong session family. Tingnan ang audit log (action=refresh_reuse) sa /admin: sino ang user, anong IP.'
+
+      # 🔐 Security: maraming na-lock na account → posibleng password guessing sa maraming account
+      - alert: ManyAccountLockouts
+        expr: sum(increase(auth_audit_events_total{action="account_locked"}[15m])) >= 3
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Maraming na-lock na account ({{ $value | printf "%.0f" }} sa 15 minuto)'
+          description: 'Posibleng may nanghuhula ng password. Tingnan ang audit log (account_locked, login_failed): pare-pareho ba ang IP?'

@@ -1,0 +1,104 @@
+# Mga unit test ng alert rules (Day 84) — pinapatakbo ng promtool gamit ang pekeng data (walang totoong Prometheus o app):
+#   docker run --rm -v "$PWD/devops/monitoring/prometheus:/p:ro" --entrypoint promtool prom/prometheus:v3.7.3 test rules /p/alerts.test.yml
+# Ang `values` ay isang sample bawat `interval` (15s): '1x4' = 1 nang 5 beses (0s…60s) · '0+9x60' = 0, 9, 18, … · '_' = walang sample
+rule_files:
+  - alerts.yml
+evaluation_interval: 15s
+
+tests:
+  # 1. Patay ang app mula 75s → pending muna (for: 1m), firing lang pagkalipas ng 1 minuto
+  - interval: 15s
+    input_series:
+      - series: 'up{job="auth-learning-backend", instance="backend:9464"}'
+        values: '1x4 0x20'
+    alert_rule_test:
+      - eval_time: 2m # 45s pa lang na patay → pending pa, walang email
+        alertname: AppDown
+        exp_alerts: []
+      - eval_time: 2m30s
+        alertname: AppDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: auth-learning-backend, instance: 'backend:9464' }
+            exp_annotations:
+              summary: 'Patay ang auth-learning backend'
+              description: 'Hindi maabot ng Prometheus ang backend:9464 nang higit 1 minuto. Tingnan: docker compose -f docker-compose.prod.yml ps / logs backend'
+
+  # 2. Saglit na blip (30s na patay, hal. habang nagde-deploy) → WALANG alert. Ito ang silbi ng `for:`
+  - interval: 15s
+    input_series:
+      - series: 'up{job="auth-learning-backend", instance="backend:9464"}'
+        values: '1x4 0x1 1x20'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: AppDown
+        exp_alerts: []
+
+  # 3. Isang refresh_reuse → alert agad (walang for:)
+  - interval: 15s
+    input_series:
+      - series: 'auth_audit_events_total{action="refresh_reuse"}'
+        values: '0x8 1x20'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: RefreshTokenReuse
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: 'May ginamit ulit na refresh token (posibleng ninakaw)'
+              description: 'Na-revoke na ang buong session family. Tingnan ang audit log (action=refresh_reuse) sa /admin: sino ang user, anong IP.'
+
+  # 4. Ang aral ng Day 82: kapag ang serye ay "ipinanganak" sa 1 (walang 0 bago nito), HINDI ito nakikita ng increase()
+  #    → walang alert. Kaya sinisimulan sa 0 ng lib/metrics.ts ang bawat audit action
+  - interval: 15s
+    input_series:
+      - series: 'auth_audit_events_total{action="refresh_reuse"}'
+        values: '_x8 1x20'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: RefreshTokenReuse
+        exp_alerts: []
+
+  # 5. 2 na-lock na account → wala pa · 3 → alert
+  - interval: 15s
+    input_series:
+      - series: 'auth_audit_events_total{action="account_locked"}'
+        values: '0x4 1 2x10 3x20'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: ManyAccountLockouts
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: ManyAccountLockouts
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: 'Maraming na-lock na account (3 sa 15 minuto)'
+              description: 'Posibleng may nanghuhula ng password. Tingnan ang audit log (account_locked, login_failed): pare-pareho ba ang IP?'
+
+  # 6. 10% na 5xx nang tuloy-tuloy → alert pagkalipas ng for: 5m
+  - interval: 15s
+    input_series:
+      - series: 'http_server_request_duration_count{http_response_status_code="200"}'
+        values: '0+9x60'
+      - series: 'http_server_request_duration_count{http_response_status_code="500"}'
+        values: '0+1x60'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: HighErrorRate
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: 'Maraming 5xx ang backend (10%)'
+              description: 'Higit 5% ng request sa huling 5 minuto ay server error. Hanapin ang requestId sa logs: docker compose -f docker-compose.prod.yml logs backend | grep "\"level\":50"'
+
+  # 7. 1% na 5xx → WALANG alert (mas mababa sa 5%)
+  - interval: 15s
+    input_series:
+      - series: 'http_server_request_duration_count{http_response_status_code="200"}'
+        values: '0+99x60'
+      - series: 'http_server_request_duration_count{http_response_status_code="500"}'
+        values: '0+1x60'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: HighErrorRate
+        exp_alerts: []

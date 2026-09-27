@@ -8,3 +8,11 @@ scrape_configs:
   - job_name: auth-learning-backend
     static_configs:
       - targets: ['backend:9464']
+
+# Day 84: mga alert rule, at kung saan ipapadala ang mga "firing" (Alertmanager, sa loob ng Docker network)
+rule_files:
+  - alerts.yml
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
