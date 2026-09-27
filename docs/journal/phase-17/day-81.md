@@ -33,6 +33,7 @@ Kung URL ang label, bawat session id at bawat random na path ng attacker ay magi
 | Totoong server (dev) | ✅ `/api/auth/me` 401 · `unmatched` 404 · CSRF 403 (`unmatched`) · walang raw na URL |
 | Okupadong metrics port | ✅ tuloy ang app (200), may ERROR log |
 | 27 `.http` · production `https://api.nelson1869.com/metrics` | ✅ 27/27 · 404 (walang /metrics sa publiko) |
+| Production (pagkatapos ng deploy) | ✅ sa loob ng container `:9464/metrics`: `service_name="auth-learning-backend"`, at makikita pa ang readiness check ng deploy (`/api/health/ready` 200) · mula sa internet: 404 · "Metrics at /metrics" sa log, walang "failed" |
 
 ## Kumpara sa reference
 - **Pareho:** OpenTelemetry, Prometheus exporter, hiwalay na port.
