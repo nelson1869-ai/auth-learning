@@ -36,7 +36,7 @@ const requests: Record<string, Schema> = {
   VerifyEmailInput: verifyEmailSchema,
 };
 const responses: Record<string, Schema> = {
-  Error: r.errorResponse,
+  ErrorResponse: r.errorResponse,
   Message: r.messageResponse,
   PublicUser: r.publicUser,
   UserResponse: r.userResponse,
@@ -91,16 +91,16 @@ function operation(method: string, path: string, op: Op) {
   };
 }
 
-const invalid: Reply = ['Mali ang input (Zod) — may `fields` bawat field', 'Error'];
-const unauthenticated: Reply = ['Hindi naka-login (walang tama o expired na `token` cookie)', 'Error'];
-const tooMany: Reply = ['Rate limit: masyadong maraming subok mula sa IP na ito', 'Error'];
+const invalid: Reply = ['Mali ang input (Zod) — may `fields` bawat field', 'ErrorResponse'];
+const unauthenticated: Reply = ['Hindi naka-login (walang tama o expired na `token` cookie)', 'ErrorResponse'];
+const tooMany: Reply = ['Rate limit: masyadong maraming subok mula sa IP na ito', 'ErrorResponse'];
 const paginationQuery = Object.entries((json(paginationSchema, 'input').properties ?? {}) as Record<string, Json>).map(
   ([name, schema]) => ({ name, in: 'query', required: false, schema }),
 );
 
 const paths: Record<string, Record<string, Op>> = {
   '/api/health': { get: { tag: 'system', summary: 'Buhay ba ang server?', replies: { 200: ['Buhay', 'Health'] } } },
-  '/api/echo': { post: { tag: 'system', summary: 'Ibinabalik ang body (pang-aral, Day 4)', replies: { 200: ['Ang natanggap', 'Echo'], 400: ['Sirang JSON', 'Error'] } } },
+  '/api/echo': { post: { tag: 'system', summary: 'Ibinabalik ang body (pang-aral, Day 4)', replies: { 200: ['Ang natanggap', 'Echo'], 400: ['Sirang JSON', 'ErrorResponse'] } } },
   '/api/users/count': { get: { tag: 'system', summary: 'Ilan ang users (bilang lang, hindi listahan)', replies: { 200: ['Bilang', 'Count'] } } },
   '/api/auth/register': {
     post: {
@@ -108,7 +108,7 @@ const paths: Record<string, Record<string, Op>> = {
       summary: 'Gumawa ng account',
       description: 'Ang email ay tina-trim at ginagawang lowercase. Hindi naglo-login (walang cookie). May verification email sa background (Day 60).',
       body: 'RegisterInput',
-      replies: { 201: ['Nagawa', 'UserResponse'], 400: invalid, 409: ['May account na ang email (ang natitirang butas ng enumeration — Day 71)', 'Error'], 429: tooMany },
+      replies: { 201: ['Nagawa', 'UserResponse'], 400: invalid, 409: ['May account na ang email (ang natitirang butas ng enumeration — Day 71)', 'ErrorResponse'], 429: tooMany },
     },
   },
   '/api/auth/login': {
@@ -122,8 +122,8 @@ const paths: Record<string, Record<string, Op>> = {
       replies: {
         200: ['Naka-login (+ Set-Cookie)', 'UserResponse'],
         400: invalid,
-        401: ['Maling email o password — iisang mensahe', 'Error'],
-        423: ['Naka-lock: 5 sunod-sunod na mali (15 min) — may `Retry-After` header', 'Error'],
+        401: ['Maling email o password — iisang mensahe', 'ErrorResponse'],
+        423: ['Naka-lock: 5 sunod-sunod na mali (15 min) — may `Retry-After` header', 'ErrorResponse'],
         429: tooMany,
       },
     },
@@ -133,7 +133,7 @@ const paths: Record<string, Record<string, Op>> = {
     post: {
       tag: 'auth',
       summary: 'Bagong access token gamit ang `refresh_token` cookie (rotation)',
-      replies: { 204: ['Bagong cookies'], 401: ['Wala, binawi, expired o ginamit ulit (nakaw) — binura ang cookies', 'Error'] },
+      replies: { 204: ['Bagong cookies'], 401: ['Wala, binawi, expired o ginamit ulit (nakaw) — binura ang cookies', 'ErrorResponse'] },
     },
   },
   '/api/auth/logout': { post: { tag: 'auth', summary: 'Mag-logout (binabawi sa database ang refresh token)', replies: { 204: ['Laging nagtatagumpay'] } } },
@@ -144,7 +144,7 @@ const paths: Record<string, Record<string, Op>> = {
       auth: true,
       summary: 'I-logout ang isang device',
       description: '404 sa session ng ibang user, sa id na wala, at sa hindi UUID (IDOR — Day 54).',
-      replies: { 204: ['Na-logout'], 401: unauthenticated, 404: ['Walang ganitong session MO', 'Error'] },
+      replies: { 204: ['Na-logout'], 401: unauthenticated, 404: ['Walang ganitong session MO', 'ErrorResponse'] },
     },
   },
   '/api/auth/change-password': {
@@ -154,7 +154,7 @@ const paths: Record<string, Record<string, Op>> = {
       summary: 'Palitan ang password',
       description: 'Kailangan ang kasalukuyang password; ang bago ay dapat iba rito. Nala-logout ang lahat ng ibang session at device.',
       body: 'ChangePasswordInput',
-      replies: { 204: ['Napalitan (+ bagong cookies)'], 400: ['Mali ang input o ang kasalukuyang password', 'Error'], 401: unauthenticated, 429: tooMany },
+      replies: { 204: ['Napalitan (+ bagong cookies)'], 400: ['Mali ang input o ang kasalukuyang password', 'ErrorResponse'], 401: unauthenticated, 429: tooMany },
     },
   },
   '/api/auth/forgot-password': {
@@ -171,25 +171,25 @@ const paths: Record<string, Record<string, Op>> = {
       tag: 'auth',
       summary: 'Bagong password gamit ang link',
       body: 'ResetPasswordInput',
-      replies: { 204: ['Napalitan (+ device_token cookie); walang auto-login'], 400: ['Mali ang input, o invalid/expired ang link', 'Error'] },
+      replies: { 204: ['Napalitan (+ device_token cookie); walang auto-login'], 400: ['Mali ang input, o invalid/expired ang link', 'ErrorResponse'] },
     },
   },
   '/api/auth/verify-email': {
-    post: { tag: 'auth', summary: 'I-verify ang email gamit ang link', body: 'VerifyEmailInput', replies: { 204: ['Na-verify'], 400: ['Mali ang input, o invalid/expired ang link', 'Error'] } },
+    post: { tag: 'auth', summary: 'I-verify ang email gamit ang link', body: 'VerifyEmailInput', replies: { 204: ['Na-verify'], 400: ['Mali ang input, o invalid/expired ang link', 'ErrorResponse'] } },
   },
   '/api/auth/resend-verification': {
     post: {
       tag: 'auth',
       auth: true,
       summary: 'Ipadala ulit ang verification link',
-      replies: { 202: ['Naipadala (ang luma ay hindi na gagana)', 'Message'], 401: unauthenticated, 409: ['Verified na', 'Error'], 429: tooMany },
+      replies: { 202: ['Naipadala (ang luma ay hindi na gagana)', 'Message'], 401: unauthenticated, 409: ['Verified na', 'ErrorResponse'], 429: tooMany },
     },
   },
   '/api/admin/users': {
-    get: { tag: 'admin', auth: true, summary: 'Listahan ng users (admin lang)', replies: { 200: ['Isang page', 'AdminUsersResponse'], 400: invalid, 401: unauthenticated, 403: ['Hindi admin', 'Error'] } },
+    get: { tag: 'admin', auth: true, summary: 'Listahan ng users (admin lang)', replies: { 200: ['Isang page', 'AdminUsersResponse'], 400: invalid, 401: unauthenticated, 403: ['Hindi admin', 'ErrorResponse'] } },
   },
   '/api/admin/audit-logs': {
-    get: { tag: 'admin', auth: true, summary: 'Audit log (admin lang)', replies: { 200: ['Isang page', 'AuditLogsResponse'], 400: invalid, 401: unauthenticated, 403: ['Hindi admin', 'Error'] } },
+    get: { tag: 'admin', auth: true, summary: 'Audit log (admin lang)', replies: { 200: ['Isang page', 'AuditLogsResponse'], 400: invalid, 401: unauthenticated, 403: ['Hindi admin', 'ErrorResponse'] } },
   },
 };
 

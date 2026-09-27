@@ -8,6 +8,7 @@ import app from '../app.ts';
 import { db } from '../db/index.ts';
 import { users } from '../db/schema.ts';
 import { buildOpenApiDocument } from './document.ts';
+import { componentsToTypeScript, schemaToType } from './typescript.ts';
 import * as r from '../validations/responses.ts';
 import authRouter from '../routes/auth.ts';
 import adminRouter from '../routes/admin.ts';
@@ -26,6 +27,11 @@ describe('the spec cannot drift from the code', () => {
   it('backend/openapi.json is exactly what the code generates (run `npm run openapi` after changing a schema or route)', () => {
     const committed = JSON.parse(readFileSync(new URL('../../openapi.json', import.meta.url), 'utf8'));
     expect(committed).toEqual(document);
+  });
+
+  it('frontend/src/api/openapi.generated.ts is exactly what the spec generates (run `npm run openapi`)', () => {
+    const committed = readFileSync(new URL('../../../frontend/src/api/openapi.generated.ts', import.meta.url), 'utf8');
+    expect(committed).toBe(componentsToTypeScript(document.components.schemas));
   });
 
   it('every Express route is in the spec, and every spec path is a real route', () => {
@@ -106,5 +112,25 @@ describe('real responses match the documented schemas', () => {
     check(r.healthResponse, (await request(app).get('/api/health')).body);
     check(r.countResponse, (await request(app).get('/api/users/count')).body);
     check(r.echoResponse, (await request(app).post('/api/echo').send({ a: 1 })).body);
+  });
+});
+
+// Ang maliit na generator ng TypeScript (D-027): tama ang mga hugis, at PUMAPALYA sa hindi kilalang keyword
+describe('JSON Schema → TypeScript generator', () => {
+  it('handles the shapes our schemas use', () => {
+    expect(schemaToType({ type: ['string', 'null'] })).toBe('string | null');
+    expect(schemaToType({ type: 'string', enum: ['user', 'admin'] })).toBe('"user" | "admin"');
+    expect(schemaToType({ const: 'ok' })).toBe('"ok"');
+    expect(schemaToType({ type: 'array', items: { type: ['string', 'null'] } })).toBe('(string | null)[]');
+    expect(schemaToType({ type: 'object', additionalProperties: { type: 'array', items: { type: 'string' } } })).toBe('Record<string, string[]>');
+    expect(schemaToType({})).toBe('unknown');
+    expect(schemaToType({ type: 'object', properties: { a: { type: 'integer' }, b: { type: 'boolean' } }, required: ['a'] })).toBe(
+      '{\n  a: number;\n  b?: boolean;\n}',
+    );
+  });
+
+  it('refuses keywords it does not understand instead of guessing', () => {
+    expect(() => schemaToType({ oneOf: [{ type: 'string' }] })).toThrow(/oneOf/);
+    expect(() => schemaToType({ $ref: '#/components/schemas/X' })).toThrow(/\$ref/);
   });
 });
