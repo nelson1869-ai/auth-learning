@@ -32,12 +32,14 @@ Docker · Docker Compose · GitHub Actions · Cloudflare (domain + Tunnel) · Pr
 ```
 devops/
 ├── docker-compose.yml       ← dev: Postgres (project `auth-learning`)
-├── docker-compose.prod.yml  ← production: backend + cloudflared + prometheus + grafana (project `auth-learning-prod`)
+├── docker-compose.prod.yml  ← production: backend + cloudflared + prometheus + grafana + alertmanager (project `auth-learning-prod`)
 ├── cloudflared/config.yml   ← tunnel → api.nelson1869.com
 ├── deploy.sh                ← pull ng image mula GHCR → migrate → restart → health (Day 37)
 ├── deploy/             ← mga script at dokumentasyon ng deploy
 └── monitoring/              ← Day 82: Prometheus + Grafana (lahat ng config ay naka-commit, walang click sa UI)
     ├── prometheus/prometheus.yml                       ← scrape ng backend:9464 bawat 15s
+    ├── prometheus/alerts.yml · alerts.test.yml         ← Day 84: 5 alert rule + ang mga unit test nila (promtool)
+    ├── alertmanager/alertmanager.yml · start.sh        ← Day 84: email (Resend SMTP); walang secret sa file
     └── grafana/provisioning/
         ├── datasources/prometheus.yml                  ← Grafana → http://prometheus:9090
         └── dashboards/{dashboards.yml, json/app-overview.json}   ← ang dashboard ng app
@@ -105,7 +107,8 @@ curl https://api.nelson1869.com/api/health/ready  # readiness: naaabot ba ang Ne
 | | URL (sa PC lang) | Login |
 |---|---|---|
 | Grafana dashboard | http://127.0.0.1:3002/d/auth-learning-app | `admin` + `GRAFANA_ADMIN_PASSWORD` sa `devops/.env` |
-| Prometheus | http://127.0.0.1:9091 (Status → Targets: dapat **UP**) | wala (kaya 127.0.0.1 lang) |
+| Prometheus | http://127.0.0.1:9091 (Status → Targets: dapat **UP** · Alerts: ang 5 rule) | wala (kaya 127.0.0.1 lang) |
+| Alertmanager | http://127.0.0.1:9094 (mga alert na naipadala · **silences**) | wala (127.0.0.1 lang) |
 
 ```bash
 cd devops && export IMAGE_TAG=$(cat .deployed-sha)
@@ -124,6 +127,27 @@ docker compose -f docker-compose.prod.yml exec grafana sh -c 'for p in grafana-e
   para palitan: `docker compose -f docker-compose.prod.yml exec grafana grafana cli admin reset-admin-password <bago>`.
 - **May memory limit** (512M / 256M) at retention (15 araw o 1GB): hindi puwedeng kainin ng monitoring ang PC na nagpapatakbo ng app.
 - Ang mga query ay nasa `backend/http/28-prometheus-queries.http`. Diagram: `docs/diagrams/22-observability.md`.
+
+## Alerts (Day 84) — email kapag may problema
+```bash
+# devops/.env (gitignored): kung kanino ang email, at ang Resend API key (SMTP password)
+#   ALERT_EMAIL_TO=...  ALERT_SMTP_PASSWORD=re_...     ← tingnan ang .env.example
+# Mga unit test ng rules (walang kailangang tumatakbo — pekeng data lang). Patakbuhin mula sa root ng repo, bago i-commit ang alerts.yml:
+docker run --rm -v "$PWD/devops/monitoring/prometheus:/p:ro" --entrypoint promtool prom/prometheus:v3.7.3 test rules /p/alerts.test.yml
+# Pagkatapos baguhin ang alerts.yml → restart prometheus · ang alertmanager.yml o ALERT_* sa .env → up -d alertmanager
+docker compose -f docker-compose.prod.yml restart prometheus
+docker compose -f docker-compose.prod.yml up -d alertmanager
+# Naipadala ba ang email? (walang log kapag tagumpay; WARN kapag pumalya, hal. "535" = maling password)
+curl -s http://127.0.0.1:9094/metrics | grep 'alertmanager_notifications.*email'
+docker compose -f docker-compose.prod.yml logs alertmanager | grep WARN
+```
+- **Planong maintenance** (hal. papatayin ang PC): gumawa ng **silence** sa http://127.0.0.1:9094 (o `backend/http/29-alerts.http` #6),
+  para hindi ka ma-email nang walang dahilan. Kapag hindi mo pinapatay nang sadya pero dumating ang email, **iyan ang silbi nito.**
+- **🔐 Walang secret sa Git:** ang `start.sh` ang nagsusulat ng password sa isang tmpfs file (0600, user ng alertmanager) at pumapalit sa
+  `__ALERT_EMAIL_TO__`. Hindi gumana ang Compose `secrets:` dahil hindi nito sinusunod ang `uid`/`mode` sa labas ng swarm.
+- **⚠️ Kapag kulang ang `devops/.env`**, tumatanggi ang BUONG compose (pati ang backend), kaya may pre-flight check ang `deploy.sh`.
+- **⚠️ Hindi nito nakikita ang pagkamatay ng buong PC** (kasama nitong namamatay ang Prometheus at Alertmanager), o ng tunnel lang.
+  Kailangan ng bantay mula sa labas (backlog).
 
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit

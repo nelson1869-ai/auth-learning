@@ -647,7 +647,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** "nakikita mo ba ang problema bago pa magreklamo ang user?"
 
 ### Day 84 — Alerts
-- [ ] Alertmanager: email kapag down ang app — **subukan talaga** (patayin ang app)
+- [x] Alertmanager: email kapag down ang app — **subukan talaga** (patayin ang app) *(pinatay ang backend sa production: +117s firing, +149s email, RESOLVED ~5m pagkatapos · 5 rule, may promtool tests · Resend SMTP, walang secret sa Git · ⚠️ sa `resend.dev` na test address pa lang; ang email sa sarili kong inbox ay hinihintay ang pahintulot ko)*
+- [x] 📝 `backend/http/29-alerts.http` — rules, alerts, silences
+- [x] 📊 diagram 22 — Alertmanager + ang buhay ng isang alert
 - **Matututunan:** alert na may `for:` delay · *Reference: `monitoring stack`*
 
 ### Day 85 — Graceful shutdown
