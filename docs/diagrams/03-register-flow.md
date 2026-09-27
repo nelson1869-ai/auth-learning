@@ -13,10 +13,13 @@ flowchart TD
     JSON --> Zod{"Zod: registerSchema.safeParse(req.body)<br/>validations/auth.ts"}
     Zod -->|"mali ang input<br/>(walang field, hindi email,<br/>password &lt;8 o &gt;128)"| C400["400 Bad Request<br/>{ error: 'Invalid input',<br/>fields: { email: [...], password: [...] } }"]
     Zod -->|"tama → result.data<br/>email: trim + lowercase<br/>ibang field (hal. role): tinanggal"| Hash["argon2.hash(password)<br/>~50ms"]
-    Hash --> Insert["db.insert(users).values({ email, name, passwordHash })<br/>.returning({ id, email, name })<br/>INSERT agad — walang SELECT muna"]
-    Insert --> DB{"Postgres: UNIQUE email?"}
-    DB -->|"oo"| Aud["audit(req, register)<br/>→ audit_logs: actor = bagong id · IP · device<br/>lib/audit.ts (Day 48)"]
-    Aud --> C201["✅ 201 Created<br/>{ user: { id, email, name } }<br/>walang password_hash"]
+    subgraph ONE["🔒 IISANG statement = atomic na (Day 68: walang kailangang transaction)"]
+        Insert["db.insert(users).values({ email, name, passwordHash })<br/>.returning({ id, email, name })<br/>INSERT agad — walang SELECT muna"]
+        Insert --> DB{"Postgres: UNIQUE email?"}
+    end
+    DB -->|"oo"| Aud["PAGKATAPOS: audit(req, register)<br/>→ audit_logs: actor = bagong id · IP · device<br/>lib/audit.ts (Day 48)"]
+    Aud --> C201["✅ 201 Created<br/>{ user: { id, email, name } }<br/>walang password_hash · walang session (mag-login pa)"]
+    C201 --> Mail["PAGKATAPOS sumagot: runInBackground<br/>verification email (Day 60) — diagram 19"]
     DB -->|"doble<br/>err.cause.code = '23505'"| C409["409 Conflict<br/>{ error: 'Email already registered' }"]
 ```
 

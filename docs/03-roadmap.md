@@ -563,9 +563,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** hayaang ang database ang magpasya kung sino ang mananalo
 
 ### Day 68 — Transactions
-- [ ] Change/reset password: lahat o wala; side effects (email, cookies) PAGKATAPOS ng commit
-- [ ] 📊 I-update ang `03-register-flow.md`, `NN-change-password.md`, `NN-password-reset.md`: markahan ang transaction boundary (`subgraph`)
-- [ ] 📝 Hindi kayang magpadala ng sabay na request ang `.http` — dito, ang **tests** ang patunay
+- [x] Change/reset password: lahat o wala; side effects (email, cookies) PAGKATAPOS ng commit *(tapos na mula Day 55/59; + rollback tests para sa mga device (Day 64) · 🐛 nahuli: LOGIN ay nagse-set ng cookie BAGO i-save ang refresh token → 500 pero naka-login · inayos: transaction, saka cookies)*
+- [x] 📊 I-update ang `03-register-flow.md`, `16-change-password.md`, `18-password-reset.md`: markahan ang transaction boundary (`subgraph`) *(+ `04-login-flow.md`; ang register ay walang email noon sa diagram — naidagdag)*
+- [x] 📝 Hindi kayang magpadala ng sabay na request ang `.http` — dito, ang **tests** ang patunay *(note sa 05, 18, 19 → `transactions.test.ts`)*
 - **Matututunan:** atomicity · *Reference: `atomic with transactions`*
 
 ### Day 69 — Unique constraint bilang huling bantay

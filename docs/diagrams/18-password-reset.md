@@ -24,7 +24,15 @@ sequenceDiagram
     U->>A: POST /reset-password { token: XYZ, newPassword }
     A->>D: mabilis na suri (walang argon2 para sa pekeng token)
     Note over A: argon2.hash(bago) — BAGO ang transaction
-    A->>D: TRANSACTION: claim (used_at IS NULL → now, atomic) · bagong password · i-logout ang LAHAT<br/>+ Day 64: tanggalin ang lock ng account · bawiin ang tiwala ng lahat ng device · device_token para sa browser na ito
+    rect rgba(80,140,220,0.12)
+    Note over A,D: 🔒 TRANSACTION — lahat o wala
+    A->>D: 1. claim ang token (UPDATE … WHERE used_at IS NULL … RETURNING — atomic)
+    A->>D: 2. bagong password · Day 64: tanggalin ang lock ng account
+    A->>D: 3. i-logout ang LAHAT (bawiin ang refresh tokens)
+    A->>D: 4. Day 64: bawiin ang tiwala ng lahat ng device · bagong trusted device para rito
+    Note over A,D: pumalya ang kahit anong hakbang → ROLLBACK → 500, walang cookie,<br/>at HINDI nasayang ang link (magagamit ulit) — transactions.test.ts (Day 68)
+    end
+    Note over A: PAGKATAPOS ng commit lang: Set-Cookie device_token + audit: password_reset
     A-->>U: 204 → mag-login gamit ang bagong password
 ```
 
