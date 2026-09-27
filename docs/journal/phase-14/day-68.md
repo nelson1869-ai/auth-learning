@@ -39,6 +39,7 @@ Hindi lang change at reset password ang sinuri (tapos na iyon noong Day 55/59). 
 | Sadyang sira 2: walang transaction | ✅ bumagsak ang "walang naiwang refresh token" (at nahuli rin ng tsc ang hindi nagamit na `tx`) |
 | 22 `.http` (review script) | ✅ 22/22 |
 | Buong suite · tsc · lint | ✅ 167 |
+| Production (totoong browser, `delivered+…@resend.dev`): login → logout → login | ✅ Profile ×2 · 3 cookie bawat login · DB: **1** device (ginamit ulit ang cookie), 2 refresh token, 2 `login` audit · 0 JS error · binura |
 
 ## Isang pagkakamali ko sa pagpapatakbo, at ang bantay na idinagdag
 Dalawang beses kong pinatakbo nang sunod ang review script. `exit=1` ang pangalawa. **Hindi ang code ang mali:** hindi ko binura ang mga account
