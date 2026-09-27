@@ -43,8 +43,9 @@ describe('POST /api/auth/login', () => {
       .post('/api/auth/login')
       .send({ email: 'ana@example.com', password: 'password123' });
     expect(res.status).toBe(200);
-    const cookie = res.get('Set-Cookie')?.[0]; // puwedeng walang Set-Cookie — nahuli ng TypeScript
-    expect(cookie).toMatch(/^token=/);
+    // Hanapin ayon sa pangalan, hindi sa puwesto: may device_token na rin (Day 64), at walang halaga ang pagkakasunod
+    const cookie = res.get('Set-Cookie')?.find((c) => c.startsWith('token=')); // puwedeng wala — nahuli ng TypeScript
+    expect(cookie).toBeDefined();
     expect(cookie).toContain('HttpOnly');
   });
 
