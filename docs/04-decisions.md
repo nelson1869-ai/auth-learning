@@ -526,3 +526,19 @@
   - Kapag gumamit ng bagong JSON Schema keyword ang isang schema (hal. `oneOf`), kailangang dagdagan ang generator. Sasabihin ng error kung alin.
   - **Hindi na kailangang luwagan ang CSP** para sa Swagger UI (hindi tulad ng reference): ang `swagger-ui-express` v5 ay gumagamit ng hiwalay na script file.
 
+---
+
+## D-028 · Metrics: OpenTelemetry metrics SDK + sariling middleware (walang auto-instrumentation)
+
+- **Petsa:** 2026-09-27 (Day 81)
+- **Context:** "OpenTelemetry + `/metrics`" ang nasa roadmap. Ang reference ay gumagamit ng `NodeSDK` + `auto-instrumentations-node`.
+- **Mga pagpipilian:**
+  - **auto-instrumentation** (reference): daan-daang package, nagpa-patch ng mga module habang nilo-load (kaya kailangang ito ang unang import; may mga caveat sa ESM), at may traces sa console;
+  - **metrics SDK + Prometheus exporter + isang maliit na middleware** na nagtatala ng `http.server.request.duration` (OTel semantic conventions).
+- **Pinili:** ang pangalawa (rekomendasyon ng AI; "go" ni Nelson).
+- **Bakit:** 6 na package lang; walang pag-patch ng module; malinaw kung saan galing ang bawat numero; OpenTelemetry pa rin (puwedeng lumipat sa OTLP exporter o magdagdag ng tracing sa hinaharap nang hindi binabago ang mga metric).
+- **Consequences:**
+  - Walang kusang metric para sa database o sa labas na HTTP calls (hal. Resend). Kung kailangan, idagdag nang tahasan.
+  - `/metrics` sa hiwalay na port (`METRICS_PORT`, default 9464), hindi publiko (hindi dinadaanan ng tunnel).
+  - Ang pagpalya ng metrics server ay hindi nagpapabagsak sa app.
+

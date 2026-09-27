@@ -635,9 +635,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit dalawa · *Reference: `two-tier health checks`*
 
 ### Day 81 — Metrics
-- [ ] OpenTelemetry + `/metrics` (ilang request, gaano kabilis, ilang error)
-- [ ] 📝 `backend/http/NN-metrics.http`
-- [ ] 📊 `docs/diagrams/NN-observability.md` — app → Prometheus → Grafana/Alertmanager
+- [x] OpenTelemetry + `/metrics` (ilang request, gaano kabilis, ilang error) *(metrics SDK + sariling middleware, D-028 · hiwalay na port, hindi publiko · route template, hindi URL · + bilang ng audit actions · nahuli: ang pagpalya ng metrics port ay nagpapabagsak sa app → hindi na)*
+- [x] 📝 `backend/http/27-metrics.http`
+- [x] 📊 `docs/diagrams/22-observability.md` — app → Prometheus → Grafana/Alertmanager *(+ diagram 11: recordMetrics)*
 - **Matututunan:** metrics vs logs · *Reference: `metrics + distributed tracing`*
 
 ### Day 82–83 — Dashboards

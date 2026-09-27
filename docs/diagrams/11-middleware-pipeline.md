@@ -1,6 +1,6 @@
 # 11 — Middleware pipeline (ang pagkakasunod sa `app.ts`)
 
-> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit), Day 44 (CSRF) · sinuri Day 62 (limiter at audit, Phase 11–12)
+> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit), Day 44 (CSRF) · sinuri Day 62 (limiter at audit, Phase 11–12) · Day 81 (recordMetrics sa unahan)
 > **Code:** `backend/src/app.ts` · `backend/src/middleware/errorHandler.ts` · `backend/src/db/index.ts` (timeout)
 > **Subukan:** `backend/http/11-errors.http` · test: `backend/src/routes/errors.test.ts`
 
@@ -10,7 +10,8 @@ Mahalaga ang **pagkakasunod**: dinadaanan ang bawat `app.use(...)` mula itaas pa
 
 ```mermaid
 flowchart TD
-    Req(["Request"]) --> Log["1 · requestLogger (Day 42)<br/>requestId → X-Request-Id<br/>(log kapag tapos na ang sagot)"]
+    Req(["Request"]) --> Met["0 · recordMetrics (Day 81)<br/>tagal · route template · status → Prometheus<br/>(una, para kasama pati ang mga hinarang)"]
+    Met --> Log["1 · requestLogger (Day 42)<br/>requestId → X-Request-Id<br/>(log kapag tapos na ang sagot)"]
     Log --> Helmet["2 · helmet() (Day 39)<br/>security headers"]
     Helmet --> Cors["3 · cors() (Day 22)<br/>sagot sa OPTIONS preflight"]
     Cors --> Csrf{"3b · requireSameOrigin (Day 44)<br/>POST/PUT/DELETE: Origin = frontend?"}
