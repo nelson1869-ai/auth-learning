@@ -52,6 +52,7 @@ flowchart TD
 - **Iisang mensahe, iisang status (401)** para sa maling password at sa walang
   account. Kung magkaiba, malalaman ng attacker kung sino ang may account
   (**user enumeration**) — at iyon lang ang aatakihin, o gagamitin sa phishing.
+  **Mula Day 71, pati ang 423** (at ang `Retry-After`): may sariling bilang na rin ang email na walang account (`23-user-enumeration.http`).
 - **Pareho rin ang ORAS.** Kahit pareho ang mensahe, ang bilis ng sagot ay
   nagsasabi ng totoo. Kaya may `DUMMY_HASH`: laging may isang `argon2.verify`.
   Sinukat (Day 15, 20× bawat isa, salitan):
@@ -80,7 +81,7 @@ flowchart TD
 - **Butas pa rin: ang register.** Ang `409 Email already registered` ay nagsasabi
   kung may account ang email. Sa reference project, sinadya itong iwan (ang tanging
   tunay na ayos ay "email-first signup" na nagbabago ng UX), at nililimitahan na lang
-  ng rate limiter (Phase 9).
+  ng rate limiter (Phase 9). Pareho ang desisyon dito (Day 71, `23-user-enumeration.http` #9).
 ## Per-account lockout (Day 63)
 
 - **Bakit hindi sapat ang IP rate limit?** Bawat IP ang bilang nito. Ang attacker na may 1000 IP (botnet, proxy) ay may
@@ -88,13 +89,13 @@ flowchart TD
 - **423 kahit tama ang password.** Kung 200 ang tamang password habang naka-lock, malalaman ng attacker kung tumama siya
   (200 vs 423), kaya walang silbi ang lock.
 - **Sunod-sunod lang ang binibilang:** balik sa 0 sa tamang login. At 0 ulit pagka-lock, para 5 subok ulit pagkatapos ng 15 minuto (hindi 1).
-- **⚠️ Tatlong alam na kahinaan, bawat isa ay may nakaplanong araw:**
+- **Ang tatlong kahinaan ng Day 63, at kung kailan naayos ang bawat isa:**
   1. ~~**Kayang i-lock ng kahit sino ang account mo**~~ → **naayos sa Day 64** (device cookies, tingnan sa ibaba).
   2. ~~**Sabay na hula**~~ → **naayos sa Day 67** (reserve-then-verify, `lib/loginLockout.ts`). Dati: 20 sabay na maling password → 20 nasuri,
      hindi na-lock. Ngayon: **eksaktong 5 × 401, 15 × 423, isang `account_locked`** (`concurrency.test.ts`, diagram 20).
   3. ~~**Ang 423 ay nagsasabing may account ang email**~~ → **naayos sa Day 71**: may sariling bilang na rin ang email na walang account
      (`unknown_login_attempts`, hash lang), kaya pareho ang 401 ×5 → 423 at ang `Retry-After` (`enumeration.test.ts`, `23-user-enumeration.http`).
-     Ang ORAS ay susukatin sa Day 72. Ang natitirang butas: register → 409.
+     Nasukat din ang ORAS noong Day 72: ±1 ms (tingnan ang timing table sa itaas). Ang natitirang butas: register → 409.
 
 ## Device cookies — laban sa lockout DoS (Day 64)
 

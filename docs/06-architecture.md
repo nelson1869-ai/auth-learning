@@ -48,6 +48,7 @@ nang hindi nasisira ang iba.
 | **12** | `lib/email.ts` (Resend) + `lib/verificationTokens.ts` + `lib/background.ts`, `verification_tokens` table (0007), `email_verified_at` (0008) · frontend: 3 page + `hooks/` | Totoong email: password reset (Day 59) at email verification (Day 60), mga page mula sa link (Day 61) |
 | **13** | `lib/trustedDevices.ts`, `trusted_devices` table (0010), `users.failed_login_attempts`/`locked_until` (0009) | Per-account lockout (Day 63) at device cookies laban sa lockout DoS (Day 64). Walang `req` ang bagong lib, gaya ng `session.ts` |
 | **14** | `lib/loginLockout.ts` (Day 67), partial UNIQUE indexes (0011), `routes/concurrency.test.ts` + `transactions.test.ts` | Tama kahit sabay-sabay: atomic na bilang (reserve-then-verify), transaction bago ang cookies sa login, ang database bilang huling bantay ng "isang aktibo" |
+| **15** | `unknown_login_attempts` (0012) + `unknownEmailCounter` sa `lib/loginLockout.ts` · `scripts/login-timing.ts` | Hindi malaman kung sino ang may account: pareho ang sagot (Day 71) at ang oras (Day 72) sa login |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto
@@ -84,7 +85,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 14** (sinuri Day 70, tugma sa totoong folders):
+**Ngayon — Phase 15** (sinuri Day 73, tugma sa totoong folders):
 ```
 backend/
 ├── src/
