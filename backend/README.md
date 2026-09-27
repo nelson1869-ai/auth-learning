@@ -52,10 +52,11 @@ backend/
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
 │   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67)
 │   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang)
-│   ├── validations/      ← Zod schemas — "tama ba ang input?"
+│   ├── validations/      ← Zod schemas — "tama ba ang input?" (+ responses.ts: ang hugis ng mga sagot, Day 78)
+│   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–24 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–25 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
@@ -65,7 +66,7 @@ backend/
 
 **Mga command:** `npm run typecheck` (TypeScript) · `npm run dev` (server, kusang nagre-restart — nodemon) · `npm test` (Vitest + Supertest) ·
 `npm run db:migrate:test` · `npm run db:generate` ·
-`npm run db:migrate` · `npm run db:studio` · `npm run timing:login` (sukatin ang oras ng login: may account vs wala — tingnan ang script)
+`npm run db:migrate` · `npm run db:studio` · `npm run openapi` (Day 78: ang spec + frontend types — patakbuhin kapag binago ang schema o endpoint) · `npm run timing:login` (sukatin ang oras ng login: may account vs wala — tingnan ang script)
 
 Tingnan ang [architecture](../docs/06-architecture.md) at ang [API contract](../docs/07-api-contract.md).
 

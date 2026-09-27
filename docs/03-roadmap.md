@@ -614,9 +614,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** mass assignment · *Reference: `mass-assignment guard`*
 
 ### Day 78 — API documentation
-- [ ] OpenAPI + Swagger UI mula sa parehong Zod schemas
-- [ ] **Gumawa ng types ng frontend mula sa OpenAPI spec** — para hindi na kopya ang `User` type sa `frontend/src/api/auth.ts` (D-019)
-- [ ] 📝 `backend/http/NN-openapi.http` — kunin ang spec
+- [x] OpenAPI + Swagger UI mula sa parehong Zod schemas *(`z.toJSONSchema` ng Zod 4 · `/api/docs` · Redocly: valid · 3 test na bantay laban sa lumang docs — D-027)*
+- [x] **Gumawa ng types ng frontend mula sa OpenAPI spec** — para hindi na kopya ang `User` type sa `frontend/src/api/auth.ts` (D-019) *(sariling generator: kailangan ng openapi-typescript ang TS 5 · nahuli: ang login/register ay hindi nagbabalik ng role/emailVerified)*
+- [x] 📝 `backend/http/25-openapi.http` — kunin ang spec *(+ 📊 `docs/diagrams/21-openapi.md`)*
 - **Matututunan:** docs na hindi naiiba sa code · *Reference: `OpenAPI 3.1 spec`*
 
 ### Day 79 — Walang naiwang unused code

@@ -37,7 +37,8 @@ frontend/
 │   │                     ForgotPassword · ResetPassword · VerifyEmail (Day 61 — mula sa mga link sa email)
 │   ├── hooks/          ← useHashToken (Day 61): token mula sa #fragment, tinatanggal agad sa address bar
 │   ├── components/     ← maliliit na pirasong ginagamit ng marami
-│   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar
+│   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar · openapi.generated.ts: ang mga type mula sa OpenAPI spec
+│   │                     (Day 78 — GINAWA ng `npm run openapi` sa backend/; huwag i-edit)
 │   └── index.css       ← plain CSS
 ├── index.html
 ├── vite.config.js
