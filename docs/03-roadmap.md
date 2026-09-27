@@ -593,8 +593,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** timing attacks
 
 ### Day 73 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(23/23 · prod 8/8 · 43 diagram · ER/contract/links/bilang ✅ · 4 na lumang pangungusap sa diagram 04)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(oo; + Phase 15 row)*
+
+**🏁 Tapos ang Phase 15 (tag `checkpoint-phase-15`, 2026-09-27)** — walang checkpoint question ang phase na ito sa roadmap; ang buod ay nasa `journal/phase-15/day-73.md`
 
 ---
 
