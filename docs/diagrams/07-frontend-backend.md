@@ -1,6 +1,6 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check), Day 49 (admin page) at Day 51 (refresh)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check), Day 49 (admin page), Day 51 (refresh) at Day 61 (mga page mula sa email)
 >
 > **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
@@ -163,3 +163,37 @@ flowchart TD
   - admin → may link, 2 table, Next → "Page 2 of 6", 0 JS error;
   - user → walang link, `/admin` → "⛔ 403";
   - walang login → `/login`.
+
+## Mga page mula sa link sa email (Day 61)
+
+> 📅 Day 61 · Phase 12 · **Code:** `frontend/src/pages/ForgotPasswordPage.tsx` · `ResetPasswordPage.tsx` · `VerifyEmailPage.tsx` ·
+> `ProfilePage.tsx` (paalala) · `hooks/useHashToken.ts` · `api/auth.ts` · backend: diagram 18 at 19
+
+```mermaid
+flowchart TD
+    Login["LoginPage"] -->|"'Nakalimutan ang password?'"| Forgot["/forgot-password<br/>email → POST /forgot-password"]
+    Forgot --> Same["LAGING 'Kung may account…'<br/>(may account man o wala)"]
+    Same -.->|"📧 …/reset-password#token=XYZ"| Open(["Binuksan ang link"])
+    Prof["ProfilePage · emailVerified: false"] --> Banner["⚠️ Hindi pa verified<br/>'Ipadala ulit' → POST /resend-verification<br/>202 · 409 = verified na pala"]
+    Banner -.->|"📧 …/verify-email#token=XYZ"| Open
+    Open --> Hook["useHashToken: basahin ang token<br/>→ history.replaceState: WALA na ang # sa address bar<br/>+ bantayan ang hashchange"]
+    Hook -->|"walang token"| None["❌ Walang link → humingi ng bago"]
+    Hook -->|"reset"| RForm["key={token} → form ng bagong password<br/>POST /reset-password"]
+    Hook -->|"verify"| VBtn["key={token} → button 'Kumpirmahin'<br/>POST /verify-email"]
+    RForm -->|"204"| RDone["✅ Na-logout ang lahat → Login"]
+    RForm -->|"400"| RErr["❌ invalid/expired → /forgot-password"]
+    VBtn -->|"204"| VDone["✅ Na-verify → Profile (wala na ang paalala)"]
+    VBtn -->|"400"| VErr["❌ → Profile → Ipadala ulit"]
+```
+
+- **Tinatanggal ang token sa address bar** pagkabasa: hindi ito mapupunta sa history, sa screenshot, o sa Referer.
+  Nasa `#` ito kaya hindi rin umaabot sa server logs ng Cloudflare Pages (Day 59).
+- **Button ang verify, hindi kusa pagbukas ng page.** Sa dev, dalawang beses tumatakbo ang `useEffect` (StrictMode):
+  magtatagumpay ang una, 400 ang pangalawa, at magulo ang ipapakita. May mga email scanner din na nagbubukas ng link bago pa ang tao.
+- **`hashchange` + `key={token}`** (nahanap ng browser test): kapag nag-paste ng bagong link sa tab na bukas pa ang page,
+  `#` lang ang nagbago, walang reload. Kung wala ang pagbabantay, ang LUMANG token pa rin ang ginagamit, kaya lumang error ang lumalabas.
+  Ang `key` ang nagbibigay ng bagong form (malinis na state) sa bawat bagong token. Sinubukan: tinanggal ang listener → bumagsak ang test.
+- **Soft (D-026):** paalala lang ang banner. Walang page na humaharang sa hindi pa verified.
+- Sinubukan (Day 61, Playwright, dev): 15 check — banner · resend → bagong link · lumang link → error · walang # sa URL ·
+  verify → wala na ang banner · parehong mensahe kahit walang account · maikling password → error · bagong password → login OK ·
+  gamit na ang link → error · page na walang token.

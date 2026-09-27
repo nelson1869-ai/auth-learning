@@ -2,6 +2,7 @@
 
 > 📅 Day 60 · Phase 12 (Email) · **Desisyon:** D-026
 > **Code:** `backend/src/routes/auth.ts` (`/auth/verify-email`, `/auth/resend-verification`, register) · `lib/verificationTokens.ts` · `lib/email.ts`
+> **Frontend (Day 61):** paalala sa Profile · `/verify-email` — diagram 07
 > **Subukan:** `backend/http/20-verify-email.http` · test: `backend/src/routes/verify-email.test.ts`
 
 ```mermaid
@@ -15,7 +16,7 @@ sequenceDiagram
     Note over A: sa background (pagkatapos sumagot)
     A->>D: token (email_verification, SHA-256, 24 oras)
     A->>R: "Confirm your auth-learning email address" · …/verify-email#token=XYZ
-    Note over U: /me → emailVerified: false → paalala sa Profile (Day 61)
+    Note over U: /me → emailVerified: false → paalala sa Profile + 'Ipadala ulit' (Day 61)
     U->>A: POST /verify-email { token: XYZ } (kahit sa ibang device, walang login)
     A->>D: TRANSACTION: claim (atomic, purpose = email_verification) · email_verified_at = now()
     A-->>U: 204 · audit: email_verified → /me: emailVerified: true

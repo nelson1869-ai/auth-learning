@@ -53,5 +53,5 @@ Isinusuot mo ang "sombrero" nila sa bawat feature:
 at rate limiting. **✅ Phase 9 — hardening tapos (2026-09-27)**, tag `checkpoint-phase-9`: secure headers, error handler,
 logging, rate limiting, CSRF. **✅ Phase 10 — roles at admin tapos (2026-09-27)**, tag `checkpoint-phase-10`: roles, 401 vs 403, pagination, audit log,
 admin page. **✅ Phase 11 — mas ligtas na sessions tapos (2026-09-27)**, tag `checkpoint-phase-11`: refresh tokens + rotation, totoong logout,
-mga device ko, change password, RS256. **Ngayon: Phase 12 — email** (✅ Day 58 Resend: SPF/DKIM/DMARC PASS · ✅ Day 59 password reset — email sa Inbox · ✅ Day 60 email verification).
+mga device ko, change password, RS256. **Ngayon: Phase 12 — email** (✅ Day 58 Resend: SPF/DKIM/DMARC PASS · ✅ Day 59 password reset — email sa Inbox · ✅ Day 60 email verification · ✅ Day 61 mga page sa frontend).
 Tingnan ang [roadmap](docs/03-roadmap.md).

@@ -8,6 +8,8 @@
 ### GET  /api/auth/me                             → { user: { ..., emailVerified: true/false } }
 ###
 ### "SOFT": makakapag-login pa rin ang hindi pa verified — may paalala lang sa frontend (Day 61).
+### 🎨 Sa browser (Day 61): Profile → "⚠️ Hindi pa verified…" + "Ipadala ulit ang link" (= resend-verification)
+###    → buksan ang link mula sa terminal → pindutin ang "Kumpirmahin ang email" (hindi kusa — tingnan ang diagram 07)
 ###
 ### Sa dev: WALANG totoong email — ang email ay nasa terminal ng `npm run dev`:
 ###   📧 Email … "Confirm your auth-learning email address" … /verify-email#token=XXXX ← kopyahin

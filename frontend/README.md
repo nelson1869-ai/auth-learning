@@ -33,7 +33,9 @@ frontend/
 ├── src/
 │   ├── main.tsx        ← simula ng app (StrictMode)
 │   ├── App.tsx         ← aling page ang ipapakita (React Router)
-│   ├── pages/          ← Login, Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54), ChangePassword (Day 55)
+│   ├── pages/          ← Login, Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54), ChangePassword (Day 55),
+│   │                     ForgotPassword · ResetPassword · VerifyEmail (Day 61 — mula sa mga link sa email)
+│   ├── hooks/          ← useHashToken (Day 61): token mula sa #fragment, tinatanggal agad sa address bar
 │   ├── components/     ← maliliit na pirasong ginagamit ng marami
 │   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar
 │   └── index.css       ← plain CSS
@@ -66,7 +68,8 @@ frontend/
 
 ## Unang gawain
 **Phase 5** ✅ — Login, Register at protektadong Profile page, kausap ang backend
-(Day 20–24). Susunod para sa frontend: Phase 10 (admin page).
+(Day 20–24). Sumunod: admin page (Day 49), mga device ko (Day 54), change password (Day 55),
+forgot/reset password at verify email (Day 61).
 Tingnan ang [roadmap](../docs/03-roadmap.md).
 
 **Mga command** (sa `frontend/`): `npm run dev` (http://localhost:5173) ·

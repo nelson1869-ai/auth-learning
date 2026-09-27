@@ -3,6 +3,7 @@
 > 📅 Day 59 · Phase 12 (Email)
 > **Code:** `backend/src/routes/auth.ts` (`/auth/forgot-password`, `/auth/reset-password`) · `lib/verificationTokens.ts` ·
 > `lib/background.ts` · `lib/email.ts` (`passwordResetEmail`)
+> **Frontend (Day 61):** `/forgot-password` · `/reset-password` — diagram 07
 > **Subukan:** `backend/http/19-password-reset.http` · test: `backend/src/routes/password-reset.test.ts`
 
 ## Ang buong daloy
