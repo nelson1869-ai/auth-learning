@@ -24,7 +24,7 @@ erDiagram
     audit_logs {
         serial id PK
         integer actor_id FK "sino ang gumawa · NULL = hindi kilala o nabura (ON DELETE SET NULL)"
-        text action "NOT NULL · register, login, login_failed, logout, access_denied, admin_…"
+        text action "NOT NULL · 14 na uri — tingnan ang listahan sa ibaba ng diagram"
         integer target_id "ang naapektuhan · walang FK (nananatili kahit mabura)"
         text ip "totoong IP (CF-Connecting-IP sa production)"
         text user_agent "pinutol sa 300 characters"
@@ -58,6 +58,10 @@ erDiagram
 ```
 
 ## Paano basahin
+
+**Lahat ng `audit_logs.action` (sinuri Day 62, `grep "action: '" backend/src`):**
+`register` · `login` · `login_failed` · `logout` · `refresh_reuse` · `session_revoked` · `password_changed` · `password_change_failed` ·
+`password_reset_requested` · `password_reset` · `email_verified` · `access_denied` · `admin_list_users` · `admin_list_audit_logs`
 
 | Marka | Ibig sabihin |
 |---|---|

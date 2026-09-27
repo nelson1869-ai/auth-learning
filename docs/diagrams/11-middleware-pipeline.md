@@ -1,6 +1,6 @@
 # 11 — Middleware pipeline (ang pagkakasunod sa `app.ts`)
 
-> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit), Day 44 (CSRF)
+> 📅 Day 41 · Phase 9 (Pangunahing hardening) · kasama ang Day 39 (helmet), Day 42 (logging), Day 43 (rate limit), Day 44 (CSRF) · sinuri Day 62 (limiter at audit, Phase 11–12)
 > **Code:** `backend/src/app.ts` · `backend/src/middleware/errorHandler.ts` · `backend/src/db/index.ts` (timeout)
 > **Subukan:** `backend/http/11-errors.http` · test: `backend/src/routes/errors.test.ts`
 
@@ -20,13 +20,13 @@ flowchart TD
     Json -->|"lampas 100kb"| Err
     Json -->|"ok"| Cookie["5 · cookieParser()<br/>req.cookies"]
     Cookie --> Routes{"6 · routers sa /api<br/>health · echo · users · auth · admin"}
-    Routes -->|"login / register"| Limit{"rateLimiter (Day 43)<br/>sobra na ang subok?"}
+    Routes -->|"login · register · change-password<br/>forgot-password · resend-verification"| Limit{"rateLimiter (Day 43, 55, 59, 60)<br/>sobra na ang subok?"}
     Limit -->|"oo"| R429["429 Too many attempts"]
     Limit -->|"hindi"| Handler["route handler<br/>(Zod · argon2 · db)"]
     Routes -->|"/admin/* (Day 46)"| Admin{"requireAuth → requireRole('admin')<br/>401 · 403 (+ audit: access_denied)"}
     Admin -->|"admin"| Handler
     Routes -->|"ibang route"| Handler
-    Handler -->|"ok"| OK["200 / 201 / 204 JSON<br/>(may audit row ang register, login, logout, admin — Day 48)"]
+    Handler -->|"ok"| OK["200 / 201 / 202 / 204 JSON<br/>(audit row: 14 na action — login, logout, password, session, admin… Day 48+)"]
     Handler -->|"400 · 401 · 409<br/>(sinadyang sagot)"| R4xx["4xx JSON"]
     Handler -->|"throw / nabigong await<br/>hal. patay ang DB (5s timeout)"| Err
     Routes -->|"walang tumugma<br/>hal. GET /"| NotFound["7 · notFound (Day 41)<br/>404 { error: 'Not found' }"]

@@ -29,11 +29,13 @@ GET http://localhost:3000/api/users/count
 ### -------------------------------------------------------------------------
 ### 2. Kapag PATAY ang database. Gawin muna:  cd devops && docker compose stop postgres
 ###    Ang inaasahan:
-###    Status:  500 Internal Server Error
-###    Body:    HTML na may "Failed query: select count(*) ..."
+###    Status:  500 Internal Server Error — pagkalipas ng ~5 segundo (connection timeout)
+###    Body:    { "error": "Internal server error", "requestId": "..." }   (mula Day 41)
+###    🔐 Dati: HTML na may "Failed query: select count(*) ..." — nakikita ng kahit sino ang SQL.
+###       Ngayon, nasa logs lang ang detalye (hanapin ang requestId) — tingnan ang 11-errors.http.
 ###
 ### 🔍 Pansinin:
-###   - Awtomatikong sinalo ng Express 5 ang error mula sa `async` route → 500.
+###   - Awtomatikong sinalo ng Express 5 ang error mula sa `async` route → 500 (sa errorHandler).
 ###     (Sa Express 4, kailangan pa ng try/catch, kung hindi nakabitin ang request.)
 ###   - BUHAY pa rin ang server — i-send ang 01-health.http, 200 pa rin.
 ###     Dahil iyan sa `pool.on('error')` sa db/index.ts; kung wala iyon, nagka-crash

@@ -43,6 +43,7 @@ GET http://localhost:3000/api/auth/me
 ### 3. Logout. Ang inaasahan:
 ###    Status:   204 No Content (walang body)
 ###    Headers:  Set-Cookie: token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax
+###              Set-Cookie: refresh_token=; Path=/api/auth; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax  (Day 51)
 ###
 ### 🔍 Ang petsa sa NAKARAAN (1970) = "burahin ang cookie na ito". Pareho ang
 ###    HttpOnly at SameSite sa login — dahil iisang COOKIE_OPTIONS ang gamit.

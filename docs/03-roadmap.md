@@ -92,7 +92,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 🏗️ Unang hati: `src/routes/` — bakit ngayon? (dumarami na ang URLs)
 - **Matututunan:** request body, middleware (unang silip), pag-organisa ng files
 
-**✅ Checkpoint (`checkpoint-phase-2`):** `GET /api/health` gumagana, may `.http`.
+**✅ Checkpoint (`checkpoint-phase-2`):** `GET /api/health` gumagana, may `.http`. — **TAPOS ✅ (2026-09-24)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 *Ano ang nangyayari mula sa pag-send ng request hanggang sa pagdating ng response?*
 
 ---
@@ -127,7 +127,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 📊 `docs/diagrams/02-er-diagram.md` — ER diagram ng database (`erDiagram`); ia-update tuwing may bagong table
 - **Matututunan:** bakit dumadaan sa migration ang pagbabago ng table
 
-**✅ Checkpoint (`checkpoint-phase-3`):** May `users` table na ginawa ng migration.
+**✅ Checkpoint (`checkpoint-phase-3`):** May `users` table na ginawa ng migration. — **TAPOS ✅ (2026-09-25)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 *Bakit hindi natin binabago nang manual ang table? Ano ang silbi ng `UNIQUE`?*
 
 ---
@@ -188,7 +188,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
 - **Matututunan:** refactoring — pagpapaganda nang hindi binabago ang behavior
 
-**✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`.
+**✅ Checkpoint (`checkpoint-phase-4`):** Register → login → me → logout gumagana sa `.http`. — **TAPOS ✅ (2026-09-25)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 > ✅ **Tapos: 2026-09-25**, tag sa `3c09ea0`. **Buhay na plano — pagsusuri:** natapos ang
 > Day 12–19 sa loob ng isang araw. Ang madalas na nakakaligtaan: imports, mga
 > placeholder na naiwan sa code, at ang merge bago magsimula ng bagong araw. Ang
@@ -235,7 +235,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] Logout button → `/api/auth/logout` → `/login`
 - **Matututunan:** routing, protektadong page, paggamit ng cookie session mula sa browser
 
-**✅ Checkpoint (`checkpoint-phase-5`):** Buong auth mula sa browser.
+**✅ Checkpoint (`checkpoint-phase-5`):** Buong auth mula sa browser. — **TAPOS ✅ (2026-09-25)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 > ✅ **Tapos: 2026-09-25**, tag sa `2c424d6`. **Buhay na plano:** isang araw para sa Day 20–24.
 > Mga natuklasan: binubura ng React 19 ang form kahit may error; namamatay ang
 > `node --watch` sa `git checkout` → nodemon (D-014); ang tanong ng checkpoint
@@ -266,7 +266,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] Branch protection: hindi puwedeng mag-merge kung pula ang CI
 - **Matututunan:** "never break main"
 
-**✅ Checkpoint (`checkpoint-phase-6`):** Berdeng ✅ sa bawat PR.
+**✅ Checkpoint (`checkpoint-phase-6`):** Berdeng ✅ sa bawat PR. — **TAPOS ✅ (2026-09-26)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 *Ano ang nahuhuli ng test na hindi mahuhuli ng `.http` file?*
 
 > ✅ **Tapos: 2026-09-26.** **Buhay na plano:** ginawang public ang repo (D-016) dahil
@@ -290,7 +290,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] Pansinin: 17 error nang pinalitan lang ang pangalan; `User` ay kopya ng sagot ng backend (D-019)
 - **Matututunan:** types sa React (`useState<User | null>`, `FormEvent`, `useActionState<State, FormData>`)
 
-**✅ Checkpoint (`checkpoint-phase-7`):** `npm run typecheck` malinis sa backend AT frontend (at sa CI), at pumapasa pa rin ang tests.
+**✅ Checkpoint (`checkpoint-phase-7`):** `npm run typecheck` malinis sa backend AT frontend (at sa CI), at pumapasa pa rin ang tests. — **TAPOS ✅ (2026-09-26)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 
 ---
 
@@ -347,7 +347,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] Isulat sa journal: ano ang pinakamahirap, ano ang pinakanatutunan
 - **Matututunan:** ang saya ng "gumagana para sa totoong tao"
 
-**✅ Checkpoint (`checkpoint-mvp`):** Tapos na ang MVP (tingnan ang [project brief](01-project-brief.md)).
+**✅ Checkpoint (`checkpoint-mvp`):** Tapos na ang MVP (tingnan ang [project brief](01-project-brief.md)). — **TAPOS ✅ (2026-09-26)** *(may tag na; idinagdag ang marka noong Day 62 review)*
 > ✅ **Tapos: 2026-09-26.** Live: `https://nelson1869.com` + `https://api.nelson1869.com`.
 > **Buhay na plano:** inagahan ang rate limiting (Day 43) bago ang launch; ang automate ng
 > pull sa Day 37 ay pagkatapos ng Phase 9. **Susunod:** Phase 9 habang **bukas ang production**
@@ -519,10 +519,11 @@ direktang nagtatrabaho sa `main`?*
 - [x] Forgot password, reset password, at verify email pages *(+ paalala at "Ipadala ulit" sa Profile; button ang verify, hindi kusa; `useHashToken`: tinatanggal ang token sa address bar)*
 
 ### Day 62 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(20 `.http` + prod, bagong server bawat isa, pati ang mga PASTE-DITO na hakbang · 40 diagram · 5 `.http` at 2 diagram ang naayos)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(oo; + Phase 12 row)*
+- [x] 📚 Sa hiling ko: suriin ang LAHAT ng `.md`, `.html` at `.http` *(115 file: links, paths, endpoints, ER, AGENTS.md, how-we-work)*
 
-**✅ Checkpoint (`checkpoint-phase-12`):** Nakatanggap ka ng totoong reset email sa sarili mong inbox.
+**✅ Checkpoint (`checkpoint-phase-12`):** Nakatanggap ka ng totoong reset email sa sarili mong inbox. — **TAPOS ✅ (2026-09-27)**; nasa Inbox (hindi Spam) ang reset email, tingnan ang `journal/phase-12/day-62.md`
 
 ---
 
