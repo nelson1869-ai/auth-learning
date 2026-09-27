@@ -12,8 +12,9 @@
 ###   Ang rate limit ay bawat IP: ang attacker na may 1000 IP ay 10 hula × 1000 = 10,000 bawat 15 minuto.
 ###   Ang lockout ay bawat ACCOUNT: 5 lang, gaano man karami ang IP.
 ###
-### ⚠️ Alam nang kahinaan (sinadya — aral ng Day 64 at Day 66–67):
-###   - Kayang i-lock ng KAHIT SINO ang account mo, kung alam nila ang email mo (Day 64 — device cookies).
+### ⚠️ Alam nang kahinaan (sinadya — aral ng Day 66–67):
+###   - ✅ Naayos sa Day 64: "kayang i-lock ng KAHIT SINO ang account mo" — hindi na sa browser na dati mo nang ginamit
+###     (device cookies, 22-device-cookies.http). Ang BAGONG browser mo ay naka-lock pa rin → labasan: reset password.
 ###   - SABAY na 20 hula: lahat nasusuri, at hindi na-lock (sinukat: 2–3 lang ang naitala) — Day 66–67.
 ###   - Ang 423 ay nagsasabing may account ang email (Phase 15).
 ###

@@ -542,10 +542,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** kapag ang depensa mismo ang nagiging atake · *Reference: `device cookies`*
 
 ### Day 65 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(22 `.http` gamit ang review script na ikinukumpara ang bawat status — sinubukan muna kung nakakahuli ng mali · 40 diagram · 3 lumang teksto)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(oo; + Phase 13 row)*
 
-**✅ Checkpoint (`checkpoint-phase-13`):** *Paano naaabuso ng attacker ang lockout, at paano ito naayos?*
+**✅ Checkpoint (`checkpoint-phase-13`):** *Paano naaabuso ng attacker ang lockout, at paano ito naayos?* — **TAPOS ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-13/day-65.md`
 
 ---
 

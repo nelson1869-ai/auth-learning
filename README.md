@@ -54,5 +54,6 @@ at rate limiting. **✅ Phase 9 — hardening tapos (2026-09-27)**, tag `checkpo
 logging, rate limiting, CSRF. **✅ Phase 10 — roles at admin tapos (2026-09-27)**, tag `checkpoint-phase-10`: roles, 401 vs 403, pagination, audit log,
 admin page. **✅ Phase 11 — mas ligtas na sessions tapos (2026-09-27)**, tag `checkpoint-phase-11`: refresh tokens + rotation, totoong logout,
 mga device ko, change password, RS256. **✅ Phase 12 — email tapos (2026-09-27)**, tag `checkpoint-phase-12`: Resend (SPF/DKIM/DMARC PASS),
-password reset (email sa Inbox), email verification (soft), mga page sa frontend. **Ngayon: Phase 13 — account lockout** (✅ Day 63 per-account lockout · ✅ Day 64 device cookies laban sa lockout DoS).
+password reset (email sa Inbox), email verification (soft), mga page sa frontend. **✅ Phase 13 — account lockout tapos (2026-09-27)**, tag `checkpoint-phase-13`:
+per-account lockout, device cookies laban sa lockout DoS. **Susunod: Phase 14 — tama kahit sabay-sabay** (ang race ng lockout).
 Tingnan ang [roadmap](docs/03-roadmap.md).
