@@ -41,4 +41,6 @@ flowchart TD
 - **Ang mga sagot ay may schema na rin** (`responses.ts`, `z.strictObject`), kaya sinusubok ang **totoong** sagot, hindi lang ang nakasulat.
 - **Bakit sariling generator?** Kailangan ng `openapi-typescript` ang TypeScript 5, pero TypeScript 7 ang project (D-027). Pumapalya ang generator sa hindi kilalang keyword, sa halip na manghula.
 - **Mga limitasyon:** hindi naisasalin ang `.refine()` (hal. "iba ang bagong password") at ang mga transform (trim, lowercase). Nasa `description` ang mga iyon.
+- **Sa production, may isang error sa console ng `/api/docs`:** hinarang ng CSP ang Cloudflare Web Analytics beacon (kusang isinisingit ng Cloudflare).
+  Sinadya: walang tracking sa docs ng API. Para mawala: alisin ang `api.nelson1869.com` sa Web Analytics sa Cloudflare dashboard.
 - **Public ang docs.** Walang lihim dito: ang mga endpoint ay nakikita na rin sa frontend. Ang "Try it out" na POST mula sa `/api/docs` sa production ay 403, dahil iba ang Origin (Day 44).
