@@ -18,7 +18,7 @@
 ###   - ✅ Naayos sa Day 67: SABAY na 20 hula (dati: lahat nasuri, hindi na-lock). Ngayon: eksaktong 5 ang nasusuri —
 ###     ang +1 ay nasa database, BAGO ang argon2 (lib/loginLockout.ts). Hindi ito kayang ipakita ng .http (isa-isa ang
 ###     pagpapadala) — ang patunay ay routes/concurrency.test.ts at ang diagram 20-race-conditions.md
-###   - Ang 423 ay nagsasabing may account ang email (Phase 15).
+###   - ✅ Naayos sa Day 71: "ang 423 ay nagsasabing may account" — ang email na walang account ay 401 ×5 → 423 na rin (23-user-enumeration.http).
 ###
 ### Sa dev: bagong server bago patakbuhin (ang rate limit ay 10 palpak bawat IP — 7 ang ginagamit dito).
 ### Day 64: pagkatapos ng #5, may device_token na ang REST Client para sa account na ito. Kaya sa susunod na takbo,
@@ -86,7 +86,8 @@ Content-Type: application/json
 { "email": "lockout-demo@example.com", "password": "password123" }
 
 ### -------------------------------------------------------------------------
-### 4. Email na WALANG account. Ang inaasahan: 401 — kahit ilang beses, hindi kailanman 423 (walang mala-lock)
+### 4. Email na WALANG account. Ang inaasahan: 401 (isang subok lang dito). Mula Day 71: pagkatapos ng 5 mali, 423 din —
+###    pareho ng totoong account, para hindi malaman kung sino ang may account (tingnan ang 23-user-enumeration.http)
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 

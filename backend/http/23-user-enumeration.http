@@ -1,0 +1,103 @@
+### =========================================================================
+### 🎓 USER ENUMERATION — "may account ba ang email na ito?" (dapat HINDI malaman ng attacker)
+### 📅 Day 71 · Phase 15 (Huwag ibunyag kung sino ang may account)
+### =========================================================================
+### Bakit mahalaga: ang listahan ng mga email na MAY account ang unang hakbang ng attacker —
+###   iyon lang ang huhulaan ng password, o padadalhan ng pekeng "i-reset ang password mo" (phishing).
+###
+### Paano ikumpara: ang bawat pares sa ibaba ay parehong request — isa sa email na MAY account, isa sa WALA.
+###   Dapat PAREHO ang status, ang body, at ang headers (hal. Retry-After).
+###
+### Day 71: ang email na walang account ay may sariling bilang na rin (unknown_login_attempts, hash lang ng email),
+###   kaya pareho na ang 401 ×5 → 423. Dati: laging 401 ang walang account → 6 na mali lang, alam na kung sino ang may account.
+### ⚠️ Natitirang butas (alam, hindi inayos): ang REGISTER ay 409 "Email already registered" (#9). Ang tanging tunay na ayos ay
+###   "email-first signup" (laging "tingnan ang email mo", account lang pagkatapos ng link) — pagbabago ng UX. Nililimitahan ng rate limit.
+###
+### Sa dev: bagong server (10 palpak na login bawat IP — 7 ang ginagamit dito). Ang #2–#6 ay gumagawa ng row sa
+###   unknown_login_attempts: sa loob ng 15 minuto, 423 na agad ang ulit. Para ulitin agad:
+###     docker exec auth-learning-postgres-1 psql -U auth -d auth_learning -c "delete from unknown_login_attempts"  (dev lang)
+### Code: backend/src/routes/auth.ts (/auth/login) · lib/loginLockout.ts (unknownEmailCounter) · db/schema.ts
+### Test: routes/enumeration.test.ts · Diagram: docs/diagrams/04-login-flow.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0. Account (isang beses lang — 409 kung mayroon na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "enum-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. MAY account, maling password. Ang inaasahan: 401 { "error": "Invalid email or password" }
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "enum-demo@example.com", "password": "mali" }
+
+### -------------------------------------------------------------------------
+### 2. WALANG account. Ang inaasahan: 401 — EKSAKTONG parehong body ng #1
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali" }
+
+### -------------------------------------------------------------------------
+### 3–5. WALANG account, tatlo pa. Ang inaasahan: 401 × 3
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali-2" }
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali-3" }
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali-4" }
+
+### -------------------------------------------------------------------------
+### 6. WALANG account, ang ikalima. Ang inaasahan: 401 (at ngayon "naka-lock" na ang email na ito)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali-5" }
+
+### -------------------------------------------------------------------------
+### 7. WALANG account, ikaanim. Ang inaasahan: 423 { "error": "Account temporarily locked. Please try again later." }
+###    + Retry-After: 900 — PAREHO ng totoong account sa 21-lockout.http #2 (dati: 401 dito → nabubunyag)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com", "password": "mali-6" }
+
+### -------------------------------------------------------------------------
+### 8a/8b. Forgot password — may account at wala. Ang inaasahan: 202 at PAREHONG mensahe (mula Day 59)
+POST http://localhost:3000/api/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "enum-demo@example.com" }
+
+###
+POST http://localhost:3000/api/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "walang-account-enum-demo@example.com" }
+
+### -------------------------------------------------------------------------
+### 9. ⚠️ Ang natitirang butas: register ng email na MAY account. Ang inaasahan: 409 { "error": "Email already registered" }
+###    (walang account → 201). Tingnan ang paliwanag sa itaas.
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "enum-demo@example.com",
+  "password": "password123"
+}

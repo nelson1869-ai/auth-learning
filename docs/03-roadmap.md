@@ -583,8 +583,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 15 — Huwag ibunyag kung sino ang may account · 🔐 *Security* · Day 71–73
 
 ### Day 71 — Pareho ang sagot
-- [ ] Login, forgot-password: pareho ang status at mensahe kahit may account o wala
-- [ ] 📝 `backend/http/NN-user-enumeration.http` — ikumpara ang sagot para sa may account at wala
+- [x] Login, forgot-password: pareho ang status at mensahe kahit may account o wala *(login: bilang para sa walang account (`unknown_login_attempts`, hash lang) → pareho ang 401 ×5 → 423 + Retry-After · forgot: pareho na mula Day 59 · natitira: register 409)*
+- [x] 📝 `backend/http/23-user-enumeration.http` — ikumpara ang sagot para sa may account at wala
 - **Matututunan:** user enumeration · *Reference: `revealing which emails have accounts`*
 
 ### Day 72 — Pareho ang oras

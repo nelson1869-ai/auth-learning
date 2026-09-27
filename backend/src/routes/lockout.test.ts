@@ -94,8 +94,10 @@ describe('per-account lockout', () => {
     expect((await login(other.email, PASSWORD)).status).toBe(200);
   });
 
-  it('an email with no account never returns 423 (nothing to lock)', async () => {
+  // Day 63–70: "ang walang account ay hindi kailanman 423" — iyon mismo ang butas (malalaman kung sino ang may account).
+  // Day 71: pareho na ang ugali — tingnan ang enumeration.test.ts
+  it('an email with no account ALSO locks after 5 (same answers as a real account — Day 71)', async () => {
     const email = `nobody-${Date.now()}@example.com`;
-    expect(await statuses(email, 'wrong-password', 7)).toEqual([401, 401, 401, 401, 401, 401, 401]);
+    expect(await statuses(email, 'wrong-password', 7)).toEqual([401, 401, 401, 401, 401, 423, 423]);
   });
 });
