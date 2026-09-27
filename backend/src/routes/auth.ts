@@ -4,8 +4,7 @@ import argon2 from 'argon2';
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/index.ts';
-import { trustedDevices, users } from '../db/schema.ts';
-import type { TrustedDevice, User } from '../db/schema.ts';
+import { users } from '../db/schema.ts';
 import {
   registerSchema,
   loginSchema,
@@ -39,6 +38,8 @@ import {
   resendVerificationLimiter,
 } from '../middleware/rateLimiter.ts';
 import { passwordResetEmail, sendEmail, verifyEmailEmail } from '../lib/email.ts';
+import { lockCounter, lockedUntilOf, MAX_FAILED_LOGINS, reserveAttempt, resetCounter } from '../lib/loginLockout.ts';
+import type { LockCounter } from '../lib/loginLockout.ts';
 import { createTrustedDevice, DEVICE_COOKIE, DEVICE_TTL_MS, findTrustedDevice, revokeAllTrustedDevices } from '../lib/trustedDevices.ts';
 import { runInBackground } from '../lib/background.ts';
 import {
@@ -140,23 +141,6 @@ router.post('/auth/register', registerLimiter ?? pass, async (req, res) => {
 // Kung wala ito, mas mabilis ang 401 ng email na walang account → malalaman ng attacker kung sino ang may account.
 const DUMMY_HASH = await argon2.hash('dummy-password-para-sa-timing');
 
-// Per-account lockout (Day 63) — hiwalay sa IP rate limit: ang attacker na may maraming IP ay
-// makakahula pa rin ng 10 bawat IP, pero 5 lang bawat ACCOUNT bago ma-lock
-export const MAX_FAILED_LOGINS = 5;
-export const LOCKOUT_MS = 15 * 60 * 1000;
-
-// Aling bilang (Day 64): ang sariling bilang ng pinagkakatiwalaang device, o ang bilang ng account (users) na
-// pinaghahatian ng LAHAT ng walang valid na device cookie — kasama ang attacker
-type LockCounter = { scope: 'device'; row: TrustedDevice } | { scope: 'account'; row: User };
-
-async function saveCounter(counter: LockCounter, values: { failedLoginAttempts: number; lockedUntil: Date | null }) {
-  if (counter.scope === 'device') {
-    await db.update(trustedDevices).set(values).where(eq(trustedDevices.id, counter.row.id));
-  } else {
-    await db.update(users).set(values).where(eq(users.id, counter.row.id));
-  }
-}
-
 router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
@@ -173,55 +157,53 @@ router.post('/auth/login', loginLimiter ?? pass, async (req, res) => {
   // Wala (bagong browser, attacker, cookie ng ibang account) → ang bilang ng account
   const device = user ? await findTrustedDevice(req.cookies[DEVICE_COOKIE], user.id) : undefined;
   const counter: LockCounter | undefined = device
-    ? { scope: 'device', row: device }
+    ? { scope: 'device', id: device.id }
     : user
-      ? { scope: 'account', row: user }
+      ? { scope: 'account', id: user.id }
       : undefined;
 
-  // Naka-lock (Day 63) → 423 agad, kahit TAMA ang password: hindi na sinusuri ang hula habang naka-lock.
+  // 423 (Day 63): kahit TAMA ang password — hindi na sinusuri ang hula habang naka-lock.
   // Tandaan: ang 423 ay nagsasabing MAY account ang email na ito — aayusin sa Phase 15 (anti-enumeration)
-  const lockedUntil = counter?.row.lockedUntil;
-  if (user && counter && lockedUntil && lockedUntil > new Date()) {
-    await audit(req, { action: 'login_failed', targetId: user.id, metadata: { email, reason: 'locked', scope: counter.scope } });
-    res.setHeader('Retry-After', String(Math.ceil((lockedUntil.getTime() - Date.now()) / 1000)));
+  async function locked(lockedCounter: LockCounter, userId: number) {
+    await audit(req, { action: 'login_failed', targetId: userId, metadata: { email, reason: 'locked', scope: lockedCounter.scope } });
+    const until = await lockedUntilOf(lockedCounter);
+    if (until) res.setHeader('Retry-After', String(Math.max(1, Math.ceil((until.getTime() - Date.now()) / 1000))));
     return res.status(423).json({ error: 'Account temporarily locked. Please try again later.' });
+  }
+
+  // Day 67 — RESERVE-THEN-VERIFY: kunin muna ang numero ng subok (atomic, sa database), BAGO ang argon2
+  let attempt = 0;
+  if (user && counter) {
+    const reserved = await reserveAttempt(counter);
+    if (reserved === null) return locked(counter, user.id); // naka-lock na
+    if (reserved > MAX_FAILED_LOGINS) {
+      // Sabay-sabay na hula na lampas sa 5: hindi na sinusuri ang password. Siguraduhing naka-lock
+      // (kung sakaling pumalya ang request na dapat mag-lock)
+      if (await lockCounter(counter)) {
+        await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts: reserved, scope: counter.scope } });
+      }
+      return locked(counter, user.id);
+    }
+    attempt = reserved;
   }
 
   // Laging may verify — totoong hash kung may user, DUMMY_HASH kung wala
   const ok = await argon2.verify(user ? user.passwordHash : DUMMY_HASH, password);
-  if (!user || !ok) {
+  if (!user || !counter || !ok) {
     // Audit (Day 48): target = ang account na sinubukang pasukin (kung mayroon), at ang email na tinype.
     // Itinatala sa DALAWANG kaso (may account o wala) — kaya pareho pa rin ang tagal ng sagot
     await audit(req, { action: 'login_failed', targetId: user?.id ?? null, metadata: { email } });
-    if (user && counter) {
-      // ⚠️ KILALANG RACE (sinadya — ito ang aral ng Day 66–67): binasa ang bilang, +1 dito sa JS, saka isinulat.
-      // Kapag 20 hula ang SABAY, lahat ay nakabasa ng parehong bilang at nakalampas sa lock check sa itaas,
-      // kaya higit sa 5 hula ang nasusuri. Ayos: sa database mismo ang +1 (UPDATE ... WHERE ... RETURNING)
-      const attempts = counter.row.failedLoginAttempts + 1;
-      const lock = attempts >= MAX_FAILED_LOGINS;
-      // Sa pag-lock, 0 ulit ang bilang: pagkatapos ng 15 minuto, 5 subok ulit (hindi 1 bawat 15 minuto)
-      await saveCounter(counter, {
-        failedLoginAttempts: lock ? 0 : attempts,
-        lockedUntil: lock ? new Date(Date.now() + LOCKOUT_MS) : null,
-      });
-      if (lock) {
-        await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts, scope: counter.scope } });
-      }
+    // Ang ika-5 maling hula ang nagla-lock (isang beses lang ang audit, kahit sabay)
+    if (user && counter && attempt >= MAX_FAILED_LOGINS && (await lockCounter(counter))) {
+      await audit(req, { action: 'account_locked', targetId: user.id, metadata: { email, attempts: attempt, scope: counter.scope } });
     }
     // Iisang mensahe para sa maling email AT maling password — hindi sinasabi kung may account
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
   // Tamang password → balik sa 0 ang bilang na ginamit (sunod-sunod na mali lang ang binibilang, hindi ang kabuuan)
-  if (device) {
-    await db
-      .update(trustedDevices)
-      .set({ failedLoginAttempts: 0, lockedUntil: null, lastUsedAt: new Date() })
-      .where(eq(trustedDevices.id, device.id));
-  } else {
-    if (user.failedLoginAttempts > 0 || user.lockedUntil) {
-      await db.update(users).set({ failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, user.id));
-    }
+  await resetCounter(counter);
+  if (!device) {
     // Day 64: nakapag-login nang tama mula sa browser na ito → pagkakatiwalaan na ito (sariling bilang sa susunod)
     res.cookie(DEVICE_COOKIE, await createTrustedDevice(user.id), DEVICE_COOKIE_OPTIONS);
   }

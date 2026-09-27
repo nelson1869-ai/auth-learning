@@ -1,8 +1,8 @@
 # 04 — Login flow
 
-> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token), Day 56 (RS256), Day 63 (per-account lockout) at Day 64 (device cookies)
+> 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token), Day 56 (RS256), Day 63 (per-account lockout), Day 64 (device cookies) at Day 67 (atomic na bilang)
 >
-> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts`
+> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/src/lib/loginLockout.ts` (Day 67)
 > **Subukan:** `backend/http/05-login.http` · `backend/http/21-lockout.http` (lockout) · `22-device-cookies.http`
 
 ## `POST /api/auth/login`
@@ -18,10 +18,12 @@ flowchart TD
     Has -->|"oo"| Which{"Day 64: may valid na device_token<br/>PARA SA ACCOUNT NA ITO?<br/>(hash tugma · user_id tugma · hindi expired)"}
     Which -->|"oo"| DevC["bilang = trusted_devices<br/>(sariling bilang ng browser na ito)"]
     Which -->|"wala · peke · ibang account"| AccC["bilang = users<br/>(pinaghahatian ng LAHAT ng walang cookie — pati ang attacker)"]
-    DevC --> Locked{"Naka-lock ba ang bilang na iyon? (Day 63)<br/>locked_until > now()"}
-    AccC --> Locked
-    Locked -->|"oo"| C423["🔒 423 Locked · Retry-After: segundo<br/>{ error: 'Account temporarily locked…' }<br/>KAHIT TAMA ang password — hindi na sinusuri<br/>audit: login_failed (reason: locked)"]
-    Locked -->|"hindi (o lumipas na)"| VReal["argon2.verify(user.passwordHash, password)<br/>~50ms"]
+    DevC --> Reserve{"Day 67 — RESERVE (atomic, BAGO ang argon2):<br/>UPDATE bilang = bilang + 1<br/>WHERE hindi naka-lock RETURNING bilang"}
+    AccC --> Reserve
+    Reserve -->|"walang row → naka-lock"| C423["🔒 423 Locked · Retry-After: segundo<br/>{ error: 'Account temporarily locked…' }<br/>KAHIT TAMA ang password — hindi na sinusuri<br/>audit: login_failed (reason: locked)"]
+    Reserve -->|"numero &gt; 5<br/>(sabay-sabay na hula)"| Over["i-lock (kung hindi pa) — walang argon2"]
+    Over --> C423
+    Reserve -->|"numero 1–5"| VReal["argon2.verify(user.passwordHash, password)<br/>~50ms"]
     Has -->|"wala"| VDummy["argon2.verify(DUMMY_HASH, password)<br/>~50ms — laging false<br/>para PAREHO ang tagal"]
     VReal --> Ok{"Tugma ba?"}
     Ok -->|"oo"| Reset["bilang na ginamit = 0 · locked_until = NULL<br/>(sunod-sunod na mali lang ang binibilang)<br/>walang device cookie? → gumawa (Day 64):<br/>Set-Cookie: device_token · Path=/api/auth/login · 180 araw"]
@@ -31,9 +33,9 @@ flowchart TD
     AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ... · refresh_token=...<br/>HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
     Ok -->|"hindi"| AudFail["audit(req, login_failed)<br/>target = ang account (kung mayroon) · metadata: email<br/>HINDI ang password · sa DALAWANG kaso → pareho pa rin ang tagal"]
     VDummy --> AudFail
-    AudFail --> Count{"May account? (Day 63)<br/>bilang na pinili + 1 (⚠️ sa JS — race, Day 66–67)"}
-    Count -->|"wala · o &lt; 5"| C401
-    Count -->|"ika-5"| Lock["locked_until = now() + 15 min · bilang = 0<br/>audit: account_locked (isang beses)"]
+    AudFail --> Count{"Ang numero mula sa reserve"}
+    Count -->|"walang account · o &lt; 5"| C401
+    Count -->|"ika-5"| Lock["locked_until = now() + 15 min · bilang = 0<br/>WHERE hindi pa naka-lock → audit: account_locked<br/>(isang beses lang, kahit sabay)"]
     Lock --> C401["401 Unauthorized<br/>{ error: 'Invalid email or password' }<br/>walang cookie"]
 ```
 
@@ -65,8 +67,8 @@ flowchart TD
 - **Sunod-sunod lang ang binibilang:** balik sa 0 sa tamang login. At 0 ulit pagka-lock, para 5 subok ulit pagkatapos ng 15 minuto (hindi 1).
 - **⚠️ Tatlong alam na kahinaan, bawat isa ay may nakaplanong araw:**
   1. ~~**Kayang i-lock ng kahit sino ang account mo**~~ → **naayos sa Day 64** (device cookies, tingnan sa ibaba).
-  2. **Sabay na hula** (tingnan ang diagram 20 at `concurrency.test.ts`, Day 66): binabasa ang bilang, +1 sa JavaScript, saka isinusulat. Sinukat: 20 sabay na maling password → **20 × 401, lahat
-     nasuri, bilang = 2–3, hindi na-lock.** → Day 66 (test na huhuli) at Day 67 (`UPDATE … WHERE … RETURNING`).
+  2. ~~**Sabay na hula**~~ → **naayos sa Day 67** (reserve-then-verify, `lib/loginLockout.ts`). Dati: 20 sabay na maling password → 20 nasuri,
+     hindi na-lock. Ngayon: **eksaktong 5 × 401, 15 × 423, isang `account_locked`** (`concurrency.test.ts`, diagram 20).
   3. **Ang 423 ay nagsasabing may account ang email** (ang walang account ay laging 401). Mayroon ding isang dagdag na UPDATE sa
      maling password ng totoong account (hindi pa muling sinukat ang oras) → Phase 15.
 

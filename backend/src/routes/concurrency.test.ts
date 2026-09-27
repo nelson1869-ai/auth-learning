@@ -2,10 +2,10 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import request from 'supertest';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import app from '../app.ts';
 import { db } from '../db/index.ts';
-import { trustedDevices, users } from '../db/schema.ts';
+import { auditLogs, trustedDevices, users } from '../db/schema.ts';
 import { testOutbox } from '../lib/email.ts';
 import { drainBackground } from '../lib/background.ts';
 
@@ -55,32 +55,38 @@ async function parallelWrongLogins(email: string, cookie?: string) {
   return responses.map((r) => r.status);
 }
 
-// ⚠️ KILALANG BUG (Day 63): basahin ang bilang → +1 sa JS → isulat. Ang dalawang test sa ibaba ay TAHASANG sinusukat ang bug
-// ("higit sa 5 ang nasuring hula"), kaya pumapasa ang CI habang may bug. Sa Day 67 (ang ayos), BABAGSAK sila → baligtarin
-// ang assertion (≤ 5, at naka-lock). Bakit hindi `it.fails`? Pumapasa iyon sa KAHIT ANONG error — pati kapag bumagsak ang
-// register o nag-ECONNRESET. Iyon ang "test na pumapasa sa maling dahilan". Dito, ang bug LANG ang makakapagpapasa
-describe('per-account lockout under concurrency — KNOWN BUG until Day 67', () => {
-  it('BUG: checks MORE than 5 guesses when 20 wrong passwords arrive at once, and does not lock', async () => {
-    const { email } = await account('race-account');
+// Day 66: ang dalawang test sa ibaba ay TAHASANG sumusukat sa bug ("higit sa 5 ang nasuri, hindi na-lock") — pumasa habang
+// may bug. Day 67 (reserve-then-verify, lib/loginLockout.ts): bumagsak sila gaya ng inaasahan ("expected 5 to be greater
+// than 5"), at binaligtad dito. Hindi `it.fails` ang ginamit: pumapasa iyon sa KAHIT ANONG error (maling dahilan)
+describe('per-account lockout under concurrency (fixed on Day 67)', () => {
+  it('checks exactly 5 guesses when 20 wrong passwords arrive at once, locks the account, and audits the lock once', async () => {
+    const { email, userId } = await account('race-account');
     const statuses = await parallelWrongLogins(email);
 
-    expect(count(statuses, 401) + count(statuses, 423)).toBe(PARALLEL); // walang 500 o iba pa
-    expect(count(statuses, 401)).toBeGreaterThan(5); // BUG — dapat ≤ 5
+    expect(count(statuses, 401)).toBe(5); // 5 hula lang ang nasuri (argon2)
+    expect(count(statuses, 423)).toBe(PARALLEL - 5); // ang iba: hindi na umabot sa argon2
     const after = await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
-    expect(after.status).toBe(200); // BUG — dapat 423 (naka-lock)
+    expect(after.status).toBe(423); // naka-lock, kahit tamang password
+    const locks = await db
+      .select()
+      .from(auditLogs)
+      .where(and(eq(auditLogs.action, 'account_locked'), eq(auditLogs.targetId, userId)));
+    expect(locks).toHaveLength(1); // isang beses lang, kahit maraming sabay na umabot sa limit
   });
 
-  it("BUG: the trusted device's own counter has the same race", async () => {
+  it("checks exactly 5 guesses on a trusted device's own counter too, and locks only that device", async () => {
     const { email, userId } = await account('race-device');
     const login = await request(server).post('/api/auth/login').send({ email, password: PASSWORD });
     const deviceCookie = login.get('Set-Cookie')?.find((c) => c.startsWith('device_token='))?.split(';')[0];
     expect(deviceCookie).toBeDefined(); // precondition: may device cookie talaga
 
     const statuses = await parallelWrongLogins(email, deviceCookie);
-    expect(count(statuses, 401) + count(statuses, 423)).toBe(PARALLEL);
-    expect(count(statuses, 401)).toBeGreaterThan(5); // BUG — dapat ≤ 5
+    expect(count(statuses, 401)).toBe(5);
+    expect(count(statuses, 423)).toBe(PARALLEL - 5);
     const [device] = await db.select().from(trustedDevices).where(eq(trustedDevices.userId, userId));
-    expect(device?.lockedUntil).toBeNull(); // BUG — dapat naka-lock ang device
+    expect(device?.lockedUntil).not.toBeNull(); // naka-lock ang device
+    // …pero hindi ang account: ang ibang browser (walang cookie) ay makakapag-login pa rin
+    expect((await request(server).post('/api/auth/login').send({ email, password: PASSWORD })).status).toBe(200);
   });
 });
 

@@ -47,7 +47,7 @@ backend/
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
-│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64)
+│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67)
 │   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?"
 │   └── db/               ← koneksyon + schema ng tables
