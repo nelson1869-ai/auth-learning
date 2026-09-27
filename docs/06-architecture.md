@@ -97,7 +97,7 @@ backend/
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
-│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64)
+│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67)
 │   ├── scripts/          ← send-test-email.ts (Day 58 — script, hindi endpoint)
 │   ├── db/               ← index.ts (Pool, 5s timeout) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices) · migrate.ts · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test

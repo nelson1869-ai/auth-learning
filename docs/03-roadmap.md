@@ -559,7 +559,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** TOCTOU ("check then act") · *Reference: `race-safe`*
 
 ### Day 67 — Atomic SQL
-- [ ] `UPDATE ... WHERE ... RETURNING` sa halip na "hanapin muna, tapos baguhin"
+- [x] `UPDATE ... WHERE ... RETURNING` sa halip na "hanapin muna, tapos baguhin" *(reserve-then-verify sa `lib/loginLockout.ts` — 5 × 401, 15 × 423, isang audit; binaligtad ang mga Day 66 test pagkatapos nilang bumagsak gaya ng inaasahan)*
 - **Matututunan:** hayaang ang database ang magpasya kung sino ang mananalo
 
 ### Day 68 — Transactions
