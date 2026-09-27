@@ -77,6 +77,8 @@ docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | ../back
 docker compose -f docker-compose.prod.yml logs --no-log-prefix backend | grep <X-Request-Id>                       # isang request
 docker compose -f docker-compose.prod.yml down            # ihinto (patay ang api.nelson1869.com)
 # gawing admin ang account na NAKA-REGISTER na (Day 45) — user para ibalik
+# magpadala ng test email mula sa production (Day 58) — tingnan ang Resend → Emails at ang Gmail "Show original"
+docker run --rm --env-file ../backend/.env.production ghcr.io/nelson1869-ai/auth-learning-backend:$IMAGE_TAG node src/scripts/send-test-email.ts <email>
 docker run --rm --env-file ../backend/.env.production ghcr.io/nelson1869-ai/auth-learning-backend:$IMAGE_TAG node src/db/set-role.ts <email> admin
 curl https://api.nelson1869.com/api/health
 ```
