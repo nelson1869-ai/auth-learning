@@ -12,7 +12,7 @@ type LimiterOptions = {
 };
 
 // Kanino ang "bilang"? Sa totoong IP ng client — tingnan ang lib/clientIp.ts (CF-Connecting-IP)
-export function clientKey(req: Request, trustCloudflare: boolean): string {
+function clientKey(req: Request, trustCloudflare: boolean): string {
   return ipKeyGenerator(clientIp(req, trustCloudflare)); // IPv6: isang /56 na bloke = isang user (hindi makakaiwas sa bagong address)
 }
 

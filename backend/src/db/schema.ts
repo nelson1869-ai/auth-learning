@@ -23,8 +23,6 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Ang type ng isang row, galing mismo sa schema — hindi na kailangang isulat nang dalawang beses
-export type User = typeof users.$inferSelect;
 export type Role = (typeof roleEnum.enumValues)[number]; // 'user' | 'admin'
 
 // Audit log (Day 48) — talaan ng mahahalagang pangyayari: SINO, ANO, KANINO, SAAN, KAILAN.
@@ -146,7 +144,6 @@ export const trustedDevices = pgTable(
   },
   (table) => [index('trusted_devices_user_id_idx').on(table.userId)],
 );
-export type TrustedDevice = typeof trustedDevices.$inferSelect;
 
 // Mga maling login sa email na WALANG account (Day 71 — anti-enumeration). Dati: laging 401 ang walang account, pero 423
 // ang totoong account pagkatapos ng 5 → 6 na maling password lang at alam na ng attacker kung sino ang may account.

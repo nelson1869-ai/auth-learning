@@ -13,7 +13,7 @@ import { hashToken } from './session.ts';
 // kanya-kanyang numero (1, 2, 3 … 20). Ang lampas sa 5 ay hindi na umaabot sa argon2. Walang `req` dito (gaya ng session.ts)
 
 export const MAX_FAILED_LOGINS = 5;
-export const LOCKOUT_MS = 15 * 60 * 1000;
+const LOCKOUT_MS = 15 * 60 * 1000;
 
 // Aling bilang: ang sariling bilang ng pinagkakatiwalaang device, o ang bilang ng account (users) na pinaghahatian
 // ng LAHAT ng walang valid na device cookie — kasama ang attacker. Day 71: + ang bilang ng email na WALANG account

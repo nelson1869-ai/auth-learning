@@ -1,0 +1,7 @@
+{
+  // knip (Day 79): tumatakbo sa `npm run lint` (kaya pati sa CI). Bawat pagbubukod ay may DAHILAN
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // GINAWA ng backend (`npm run openapi`, Day 78): ang BUONG set ng mga type mula sa spec — hindi lahat ay ginagamit ng frontend
+  "ignore": ["src/api/openapi.generated.ts"],
+  "ignoreExportsUsedInFile": { "type": true, "interface": true }
+}
