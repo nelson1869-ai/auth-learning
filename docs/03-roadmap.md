@@ -573,10 +573,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit ang DB constraint ang tunay na garantiya
 
 ### Day 70 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(22/22 · PASTE-DITO ng 19/20 · 43 diagram · ER kasama ang mga index · 4 na lumang teksto)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(oo; + Phase 14 row)*
 
-**✅ Checkpoint (`checkpoint-phase-14`):** *Bakit hindi sapat ang "hanapin muna ang user, tapos i-update"?*
+**✅ Checkpoint (`checkpoint-phase-14`):** *Bakit hindi sapat ang "hanapin muna ang user, tapos i-update"?* — **TAPOS ✅ (2026-09-27)**; ang sagot ay nasa `journal/phase-14/day-70.md`
 
 ---
 

@@ -47,6 +47,7 @@ nang hindi nasisira ang iba.
 | **11** | `lib/session.ts` + `lib/jwt.ts`, `refresh_tokens` table (migrations 0004–0006) | Mas ligtas na sessions: refresh tokens na kayang bawiin (Day 51–53), mga device (Day 54), change password (Day 55), RS256 (Day 56) — at walang `req` ang dalawang bagong lib file (tingnan ang review finding) |
 | **12** | `lib/email.ts` (Resend) + `lib/verificationTokens.ts` + `lib/background.ts`, `verification_tokens` table (0007), `email_verified_at` (0008) · frontend: 3 page + `hooks/` | Totoong email: password reset (Day 59) at email verification (Day 60), mga page mula sa link (Day 61) |
 | **13** | `lib/trustedDevices.ts`, `trusted_devices` table (0010), `users.failed_login_attempts`/`locked_until` (0009) | Per-account lockout (Day 63) at device cookies laban sa lockout DoS (Day 64). Walang `req` ang bagong lib, gaya ng `session.ts` |
+| **14** | `lib/loginLockout.ts` (Day 67), partial UNIQUE indexes (0011), `routes/concurrency.test.ts` + `transactions.test.ts` | Tama kahit sabay-sabay: atomic na bilang (reserve-then-verify), transaction bago ang cookies sa login, ang database bilang huling bantay ng "isang aktibo" |
 | **16** | `src/controllers/` + `src/services/` | Masyadong mahaba na ang routes — hatiin ang HTTP sa business logic |
 
 ### Ang backend sa bawat yugto
@@ -83,7 +84,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 13** (sinuri Day 65, tugma sa totoong folders):
+**Ngayon — Phase 14** (sinuri Day 70, tugma sa totoong folders):
 ```
 backend/
 ├── src/

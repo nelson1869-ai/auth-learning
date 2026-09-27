@@ -18,7 +18,7 @@ sequenceDiagram
     A-->>U: 202 "If an account exists…" — AGAD, parehong sagot kahit walang account
     Note over A: sa background (pagkatapos sumagot) — kaya pareho ang tagal
     A->>D: may account ba? → audit: password_reset_requested
-    A->>D: bawiin ang lumang link · INSERT token (SHA-256, 1 oras)
+    A->>D: upsert ng token (SHA-256, 1 oras) — pinapalitan ang aktibong link, kaya hindi na gagana ang luma<br/>(Day 69: ISANG statement + partial UNIQUE index — isa lang ang aktibo kahit sabay)
     A->>R: "Reset your auth-learning password" · …/reset-password#token=XYZ
     R-->>U: email (ang token ay nasa #fragment — hindi napupunta sa kahit anong server)
     U->>A: POST /reset-password { token: XYZ, newPassword }
