@@ -23,7 +23,7 @@
 | Sinira ang bawat bagong service: refresh laging invalid · getMe laging undefined · laging maling password | ✅ bumagsak ang 14, 8 at 5 test, kaya ang bagong code talaga ang tinatakbo |
 | Rollback tests (Day 55, 68) na may `vi.mock` ng `lib/` | ✅ pumasa pa rin: ang service ay gumagamit ng parehong mga module |
 | 23 `.http` (review script) | ✅ 23/23 |
-| Production | (pagkatapos ng deploy) |
+| Production (**dalawang** totoong browser, `delivered+…@resend.dev`) | ✅ login A at B → "Mga device ko" ng A: **2 session**, may "ito ang device mo" → A: change-password 204 → A naka-login pa rin · **B: refresh 401** (na-logout) → A logout · DB: `password_change` ×2, `logout` ×1 · 0 JS error · binura |
 
 ## Mga diagram at docs
 - **16 (change password):** may kahon na ang **CONTROLLER** at **SERVICE**, at nasa loob ng service ang transaction.
