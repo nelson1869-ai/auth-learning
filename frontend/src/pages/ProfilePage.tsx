@@ -28,7 +28,7 @@ export default function ProfilePage() {
       <h2>Profile</h2>
       <p>Hello, {user.name ?? user.email}!</p>
       <p>
-        <Link to="/sessions">📱 Mga device ko</Link>
+        <Link to="/sessions">📱 Mga device ko</Link> · <Link to="/change-password">🔑 Palitan ang password</Link>
       </p>
       {/* Admin lang ang makakakita ng link (Day 49). UX lang ito — kahit i-type ang /admin, 403 ang backend */}
       {user.role === 'admin' && (

@@ -28,6 +28,7 @@
 | POST | `/api/auth/refresh` | Bagong access token (Day 51) | 🍪 cookie `refresh_token` | `16-refresh-tokens.http` |
 | GET | `/api/auth/sessions` | Mga naka-login kong device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
 | DELETE | `/api/auth/sessions/:id` | I-logout ang isang device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
+| POST | `/api/auth/change-password` | Palitan ang password (Day 55) | 🍪 cookie `token` | `18-change-password.http` |
 | GET | `/api/admin/users?page=&limit=` | Listahan ng users, isang page (admin) | 🍪 cookie + **role `admin`** | `13-admin-rbac.http` · `14-pagination.http` |
 | GET | `/api/admin/audit-logs?page=&limit=` | Audit log, pinakabago muna (admin) | 🍪 cookie + **role `admin`** | `15-audit-logs.http` |
 
@@ -142,6 +143,18 @@ Hindi ito itinuturing na nakaw (walang `refresh_reuse`). Ang "sino" sa audit ay 
 | **404** | Walang ganito, **session ng ibang user**, o hindi UUID ang `:id` — **iisang sagot** | `{ "error": "Not found" }` |
 | **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
 
+## `POST /api/auth/change-password` (Day 55)
+**Auth:** cookie `token`. **Body:** `{ "currentPassword": "…", "newPassword": "…" }` (bago: 8–128, iba sa kasalukuyan).
+Rate limit: 10 palpak bawat 15 minuto.
+
+| Status | Kailan | Body / Headers |
+|---|---|---|
+| **204** | Napalitan | walang body · **bagong** `token` at `refresh_token` (tuloy ka rito) · binawi ang LAHAT ng ibang session · audit `password_changed` |
+| **400** | Maling kasalukuyang password | `{ "error": "Invalid input", "fields": { "currentPassword": ["Incorrect password"] } }` · audit `password_change_failed` |
+| **400** | Mali ang bagong password (maikli, pareho sa kasalukuyan) | `{ "error": "Invalid input", "fields": { "newPassword": [ … ] } }` |
+| **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
+| **429** | ≥ 10 palpak sa 15 minuto | `{ "error": "Too many attempts. Please try again later." }` |
+
 ## `GET /api/admin/users`
 **Auth:** cookie `token` **at** role `admin` (Day 46). Binabasa ang role sa database sa bawat request,
 kaya agad tumatalab ang pagbabago ng role. Walang body.
@@ -178,6 +191,7 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
 | `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |
 | `DELETE /api/auth/sessions/:id` (Day 54) | `session_revoked` | ang user · siya rin · `{ session }` |
+| `POST /api/auth/change-password` (Day 55) | `password_changed` · `password_change_failed` | ang user · siya rin · — |
 
 Tingnan: `GET /api/admin/audit-logs` at `backend/http/15-audit-logs.http`.
 

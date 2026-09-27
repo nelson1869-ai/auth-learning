@@ -477,10 +477,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** IDOR · *Reference: `session management`*
 
 ### Day 55 — Change password
-- [ ] Kailangan ang kasalukuyang password (reauthentication); i-revoke ang LAHAT ng session
-- [ ] Frontend: change-password form
-- [ ] 📝 `backend/http/NN-change-password.http`
-- [ ] 📊 `docs/diagrams/NN-change-password.md`
+- [x] Kailangan ang kasalukuyang password (reauthentication); i-revoke ang LAHAT ng session *(isang transaction + bagong session para rito; 400 sa maling password; rate limit; audit)*
+- [x] Frontend: change-password form *(`/change-password`)*
+- [x] 📝 `backend/http/18-change-password.http`
+- [x] 📊 `docs/diagrams/16-change-password.md`
 - **Matututunan:** high-risk events · *Reference: `change-password with reauthentication`*
 
 ### Day 56 — RS256 at JWT claims

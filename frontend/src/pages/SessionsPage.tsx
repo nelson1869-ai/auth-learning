@@ -81,7 +81,7 @@ export default function SessionsPage() {
       <Link to="/profile">← Profile</Link>
       <p>
         <small className="note">
-          Hindi mo kilala ang isang device? I-logout ito. (Hula lang ang pangalan ng device, mula sa browser.)
+          Hindi mo kilala ang isang device? I-logout ito, at <Link to="/change-password">palitan ang password</Link> (nala-logout ang LAHAT). Hula lang ang pangalan ng device, mula sa browser.
         </small>
       </p>
       <ul className="sessions">

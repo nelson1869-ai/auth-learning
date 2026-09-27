@@ -35,6 +35,8 @@ export const AUDIT_ACTIONS = [
   'admin_list_audit_logs',
   'refresh_reuse', // Day 52 — ginamit ulit ang lumang refresh token: posibleng nakaw → binawi ang buong family
   'session_revoked', // Day 54 — nag-logout ng isang device mula sa "Mga device ko"
+  'password_changed', // Day 55 — napalitan ang password; binawi ang LAHAT ng session
+  'password_change_failed', // Day 55 — maling kasalukuyang password (posibleng nakaw na session na nanghuhula)
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -75,7 +77,7 @@ export const refreshTokens = pgTable(
     revokedAt: timestamp('revoked_at', { withTimezone: true }), // null = aktibo pa
     // Bakit binawi (Day 52): 'rotated' = napalitan ng bago (normal) · 'reuse' = ginamit ulit ang luma (nakaw!) ·
     // 'logout' = nag-logout (Day 53). Kailangan para malaman kung sabay na refresh lang o pagnanakaw
-    revokeReason: text('revoke_reason').$type<'rotated' | 'reuse' | 'logout'>(),
+    revokeReason: text('revoke_reason').$type<'rotated' | 'reuse' | 'logout' | 'password_change'>(),
     // Ang device (Day 54) — para sa "Mga device ko". Ina-update sa bawat rotation, kaya ang pinakabagong token
     // ng family ang nagsasabi ng HULING gamit: anong browser at saang IP
     userAgent: text('user_agent'),

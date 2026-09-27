@@ -53,6 +53,17 @@ export const loginLimiter = skip
       trustCloudflare: env.TRUST_CLOUDFLARE,
     });
 
+// Change password (Day 55): 10 PALPAK bawat 15 minuto — kahit may nakanakaw ng session, hindi niya
+// mahuhulaan nang paulit-ulit ang kasalukuyang password dito (hindi binibilang ang matagumpay)
+export const changePasswordLimiter = skip
+  ? undefined
+  : createAuthLimiter({
+      limit: 10,
+      windowMs: FIFTEEN_MINUTES,
+      skipSuccessfulRequests: true,
+      trustCloudflare: env.TRUST_CLOUDFLARE,
+    });
+
 // Register: 10 bawat 15 minuto bawat IP (lahat binibilang) — pananggalang laban sa pekeng accounts
 export const registerLimiter = skip
   ? undefined

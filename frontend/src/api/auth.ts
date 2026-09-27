@@ -117,6 +117,18 @@ export async function revokeSession(id: string): Promise<void> {
   if (!res.ok) throw new ApiError('Request failed', {}, res.status);
 }
 
+// Change password (Day 55). 204 = napalitan; 400 = may `fields` (hal. maling kasalukuyang password)
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const res = await apiFetch('/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (res.ok) return;
+  const data = await res.json();
+  throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+}
+
 export async function logout(): Promise<void> {
   await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
 }
