@@ -1,6 +1,6 @@
 # 09 — CD pipeline (pull-based deploy)
 
-> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
+> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · Day 82–84 (monitoring, pre-flight) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
 > `devops/docker-compose.prod.yml` · `backend/src/db/migrate.ts` · **Desisyon:** D-020
 
 ## Mula merge hanggang live
@@ -14,7 +14,9 @@ flowchart TD
     Img --> Wait(["⏳ naghihintay sa PC"])
     Wait --> Deploy["🖥️ PC: ./devops/deploy.sh<br/>(manual — Day 37)"]
     Deploy --> Pick["gh run list … --status success<br/>→ SHA ng huling BERDENG main"]
-    Pick --> Pull["docker pull …:&lt;SHA&gt;<br/>ang EKSAKTONG image na pumasa"]
+    Pick --> Pre{"Day 84 — pre-flight:<br/>docker compose config -q<br/>(kumpleto ba ang devops/.env?)"}
+    Pre -->|"kulang"| Abort0["❌ huminto — walang ginalaw"]
+    Pre -->|"OK"| Pull["docker pull …:&lt;SHA&gt;<br/>ang EKSAKTONG image na pumasa"]
     Pull --> Mig["docker run … node src/db/migrate.ts<br/>migrations MUNA (Neon)"]
     Mig -->|"pumalya"| Abort["❌ huminto — hindi nagalaw ang tumatakbong app"]
     Mig -->|"OK"| Up["IMAGE_TAG=&lt;SHA&gt; docker compose up -d backend<br/>(hindi ginagalaw ang cloudflared)"]
@@ -22,6 +24,7 @@ flowchart TD
     Health -->|"oo"| Ready{"Day 80 — READINESS mula sa internet (isang beses):<br/>https://api.nelson1869.com/api/health/ready<br/>tunnel → bagong code → Neon"}
     Health -->|"hindi"| Fail["❌ tingnan ang logs<br/>rollback: ./deploy.sh &lt;lumang SHA&gt;"]
     Ready -->|"200 ready"| Live["✅ Live — .deployed-sha"]
+    Live --> Mon["Day 82–84 — step 7: up -d prometheus grafana alertmanager<br/>HINDI fatal (⚠️ babala lang — live na ang app)"]
     Ready -->|"503 · walang sagot"| Fail
 ```
 
@@ -33,6 +36,8 @@ flowchart TD
   hindi "kung ano ang nasa working copy". Parehong prinsipyo sa reference (item 22), ibang paraan.
 - **Migrations sa loob ng image** (`drizzle-orm` migrator, prod dependency) — walang hiwalay
   na "migrate" image na puwedeng maging luma (aral ng reference: stale migrate image, #21).
+- **Pre-flight (Day 84):** binabasa ng Compose ang BUONG file, kaya ang kulang na variable ng monitoring sa `devops/.env`
+  ay magpapapalya pati sa `up backend`. Kaya sinusuri ito bago mag-pull at mag-migrate.
 - **Rollback:** `./devops/deploy.sh <lumang SHA>` — nasa GHCR pa ang lumang image.
   ⚠️ Hindi binabawi ang migration — ang schema ay dapat laging tugma sa luma AT bagong code.
 - **Manual muna, tapos automate:** isang command ngayon; sa susunod, timer na nagpapatakbo nito.
