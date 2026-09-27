@@ -11,7 +11,7 @@
 ###   1. cd devops && docker compose up -d   ·   cd backend && npm run dev
 ###   2. I-send mula taas pababa (#0 → #5)
 ###
-### Code: backend/src/routes/auth.ts (COOKIE_OPTIONS, /auth/logout)
+### Code: backend/src/controllers/http.ts (COOKIE_OPTIONS, clearSessionCookies) · controllers/auth.controller.ts (logout) · services/auth/session.service.ts (logout, Day 75)
 ### Diagram: docs/diagrams/06-auth-sequence.md
 ### =========================================================================
 

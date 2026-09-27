@@ -22,7 +22,7 @@ flowchart TD
     Match -->|"GET /health<br/>routes/health.ts"| Health["res.json({ status, time })"]
     Match -->|"POST /echo<br/>routes/echo.ts"| Echo["res.json({ received: req.body })"]
     Match -->|"GET /users/count<br/>routes/users.ts"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
-    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts → controllers (Day 74)"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
+    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts → controllers (Day 74–75)"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
     Match -->|"wala (hal. GET /api/echo)"| NotFound["404 { error: 'Not found' }<br/>(notFound, Day 41 · dati: HTML 'Cannot GET ...')"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK

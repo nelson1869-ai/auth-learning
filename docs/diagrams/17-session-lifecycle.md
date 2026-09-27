@@ -1,7 +1,7 @@
 # 17 — Ang buhay ng isang session (Phase 11 sa isang tingin)
 
 > 📅 Day 57 · Phase 11 review (buod ng Day 51–56)
-> **Code:** `backend/src/lib/session.ts` · `backend/src/lib/jwt.ts` · `backend/src/routes/auth.ts` · `frontend/src/api/auth.ts` (`apiFetch`)
+> **Code:** `backend/src/lib/session.ts` · `backend/src/lib/jwt.ts` · `services/auth/session.service.ts` + `controllers/auth.controller.ts` (Day 75) · `frontend/src/api/auth.ts` (`apiFetch`)
 > **Subukan:** `backend/http/16`–`18` · detalye: diagram 14 (rotation), 15 (mga device), 16 (change password)
 
 ## Isang refresh token: mula sa login hanggang sa katapusan

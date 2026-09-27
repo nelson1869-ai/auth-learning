@@ -2,7 +2,7 @@
 
 > 📅 Day 17 · Phase 4 (Register at login) · in-update sa Day 48 (`userIdFromToken`), Day 49 (`role` sa `/me`) at Day 56 (RS256, `lib/jwt.ts`)
 >
-> **Code:** `backend/src/middleware/requireAuth.ts` · `backend/src/routes/auth.ts` (`GET /api/auth/me`)
+> **Code:** `backend/src/middleware/requireAuth.ts` · `backend/src/controllers/auth.controller.ts` (`me`) · `services/auth/session.service.ts` (`getMe`, Day 75)
 > **Subukan:** `backend/http/06-me.http`
 
 ## Paano sinusuri ang bawat protektadong request

@@ -2,7 +2,7 @@
 
 > 📅 Day 15 · Phase 4 (Register at login) · in-update sa Day 16 (JWT + httpOnly cookie) Day 43 (rate limiting), Day 48 (audit log), Day 51 (refresh token), Day 56 (RS256), Day 63 (per-account lockout), Day 64 (device cookies), Day 67 (atomic na bilang), Day 68 (transaction bago ang cookies), Day 71 (bilang para sa walang account) at Day 72 (sinukat ulit ang oras)
 >
-> **Code:** `backend/src/routes/auth.ts` · `backend/src/validations/auth.ts` · `backend/src/lib/loginLockout.ts` (Day 67)
+> **Code:** `backend/src/controllers/auth.controller.ts` (login — HTTP) · `backend/src/services/auth/login.service.ts` (logic, Day 74) · `backend/src/validations/auth.ts` · `backend/src/lib/loginLockout.ts` (Day 67)
 > **Subukan:** `backend/http/05-login.http` · `backend/http/21-lockout.http` (lockout) · `22-device-cookies.http` · `23-user-enumeration.http`
 
 ## `POST /api/auth/login`

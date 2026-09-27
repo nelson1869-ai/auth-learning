@@ -1,7 +1,7 @@
 # 15 — Mga device ko (sessions) at IDOR
 
 > 📅 Day 54 · Phase 11 (Mas ligtas na sessions)
-> **Code:** `backend/src/lib/session.ts` (`listSessions`, `revokeSession`) · `backend/src/routes/auth.ts` ·
+> **Code:** `backend/src/lib/session.ts` (`listSessions`, `revokeSession`) · `services/auth/session.service.ts` (Day 75) · `controllers/auth.controller.ts` ·
 > `frontend/src/pages/SessionsPage.tsx`
 > **Subukan:** `backend/http/17-sessions.http` · test: `backend/src/routes/sessions.test.ts`
 

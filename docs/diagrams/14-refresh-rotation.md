@@ -1,7 +1,7 @@
 # 14 — Refresh token rotation at reuse detection
 
 > 📅 Day 52 · Phase 11 (Mas ligtas na sessions) · in-update sa Day 53 (logout)
-> **Code:** `backend/src/lib/session.ts` (`rotateRefreshToken`) · `backend/src/routes/auth.ts` (`/auth/refresh`)
+> **Code:** `backend/src/lib/session.ts` (`rotateRefreshToken`) · `services/auth/session.service.ts` (`refreshSession`, Day 75) · `controllers/auth.controller.ts` (`refresh` — cookies)
 > **Subukan:** `backend/http/16-refresh-tokens.http` · test: `backend/src/routes/rotation.test.ts`
 
 ## Normal: bawat refresh ay may BAGONG refresh token

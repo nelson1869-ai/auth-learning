@@ -44,8 +44,9 @@ backend/
 │   ├── types/            ← dagdag na types (hal. req.userId sa Express)
 │   ├── routes/           ← auth.ts (lahat ng /api/auth/*: register, login, me, refresh, logout, sessions, change-password, forgot/reset,
 │   │                        verify-email, resend-verification), admin.ts (Day 46), users.ts, health.ts, echo.ts
-│   ├── controllers/      ← Day 74: HTTP lang — http.ts (cookies, parseOr400) · auth.controller.ts (register, login; ang iba sa Day 75–76)
-│   ├── services/auth/    ← Day 74: logic na walang Express — registration · login · verification (mga email)
+│   ├── controllers/      ← Day 74–75: HTTP lang — http.ts (cookies, parseOr400) · auth.controller.ts (register, login, me, refresh, logout,
+│   │                        sessions, change-password; forgot/reset/verify sa Day 76)
+│   ├── services/auth/    ← Day 74–75: logic na walang Express — registration · login · session · password · verification (mga email)
 │   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?" (401) · requireRole.ts — "admin ka ba?" (403, Day 46) · rateLimiter.ts — "sobra na ang subok?" (Day 43)
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)

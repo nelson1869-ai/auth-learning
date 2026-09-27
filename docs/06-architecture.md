@@ -85,7 +85,7 @@ backend/
 └── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 ```
 
-**Ngayon — Phase 16, habang inililipat** (Day 74: register at login na ang nasa controller + service; tugma sa totoong folders):
+**Ngayon — Phase 16, habang inililipat** (Day 74–75: register, login, me, refresh, logout, sessions, change-password na ang nasa controller + service; tugma sa totoong folders):
 ```
 backend/
 ├── src/
@@ -93,11 +93,13 @@ backend/
 │   ├── index.ts          ← app.listen lang
 │   ├── config/env.ts     ← sinusuri ang env pagka-start (Zod, fail-fast)
 │   ├── types/            ← express.d.ts (req.userId)
-│   ├── routes/           ← auth.ts (URL → middleware → handler; register/login → controller na, ang iba ay nasa route pa — Day 75–76)
+│   ├── routes/           ← auth.ts (URL → middleware → handler; forgot/reset/verify/resend ay nasa route pa — Day 76)
 │   │                        admin.ts (users, audit-logs + listUsers/listAuditLogs)
 │   │                        users.ts (count) · health.ts · echo.ts
-│   ├── controllers/      ← Day 74 · HTTP lang: http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts (register, login)
-│   ├── services/auth/    ← Day 74 · logic, WALANG Express: registration.service.ts · login.service.ts · verification.service.ts (mga email)
+│   ├── controllers/      ← Day 74–75 · HTTP lang: http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts (register, login, me,
+│   │                        refresh, logout, sessions, revokeSessionById, changePassword)
+│   ├── services/auth/    ← Day 74–75 · logic, WALANG Express: registration · login · session (me, refresh, logout, sessions) ·
+│   │                        password (change) · verification (mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler
 │   ├── validations/      ← auth.ts · pagination.ts (Zod)
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
@@ -117,7 +119,7 @@ backend/
 > Gumagana at may tests ang lahat, pero habang dumarami ang features, mahirap nang subukan ang logic nang walang Express.
 > **Ayos sa Phase 16:** `controllers/` (HTTP) + `services/` (logic, walang `req`). Ang `audit` ay tatanggap na lang ng plain na
 > `{ ip, userAgent }` (katulad ng `auditFor(req)` ng reference).
-> *(Day 74: ✅ `writeAudit(source, event)` na walang `req` + `auditFor(req)` bilang adapter · ✅ register at login · ⏳ ang iba sa Day 75–76.)*
+> *(Day 74: ✅ `writeAudit(source, event)` na walang `req` + `auditFor(req)` bilang adapter · ✅ register at login · Day 75: ✅ me, refresh, logout, sessions, change-password · ⏳ forgot/reset/verify/resend at admin sa Day 76.)*
 
 **Phase 16 — ang huling hugis (katulad ng reference):**
 ```
