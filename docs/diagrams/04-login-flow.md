@@ -52,9 +52,9 @@ flowchart TD
     LTX -.->|"pumalya"| C500["500 · WALANG Set-Cookie · hindi naka-login<br/>(dati: may token cookie kahit 500 — nahuli ng transactions.test.ts)"]
     TxD -->|"commit"| Sign["access token: jwt.sign({ sub }, PRIVATE key,<br/>{ RS256, 15m, iss, aud }) — lib/jwt.ts (Day 56)<br/>id lang — nababasa ng kahit sino ang payload"]
     Sign --> Cookie["PAGKATAPOS ng commit: res.cookie('token', …, 15 min)<br/>res.cookie('refresh_token', …, 7 araw, Path=/api/auth) (Day 51)<br/>+ device_token (Path=/api/auth/login, 180 araw) kung bago"]
-    Cookie --> AudOk["audit(req, login)<br/>→ audit_logs (Day 48)"]
+    Cookie --> AudOk["audit({ action: login }) sa service<br/>(IP/device mula sa auditFor(req) ng controller)<br/>→ audit_logs (Day 48 → 74)"]
     AudOk --> C200["✅ 200 OK<br/>Set-Cookie: token=eyJ... · refresh_token=...<br/>HttpOnly; SameSite=Lax<br/>{ user: { id, email, name } }"]
-    Ok -->|"hindi"| AudFail["audit(req, login_failed)<br/>target = ang account (kung mayroon) · metadata: email<br/>HINDI ang password · sa DALAWANG kaso → pareho pa rin ang tagal"]
+    Ok -->|"hindi"| AudFail["audit({ action: login_failed })<br/>target = ang account (kung mayroon) · metadata: email<br/>HINDI ang password · sa DALAWANG kaso → pareho pa rin ang tagal"]
     VDummy --> AudFail
     AudFail --> Count{"Ang numero mula sa reserve"}
     Count -->|"&lt; 5"| C401

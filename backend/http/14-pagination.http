@@ -11,7 +11,7 @@
 ### Kailangan: naka-login bilang ADMIN (tingnan ang 13-admin-rbac.http). Palitan ang email/password
 ### sa #1 ng dev admin mo (hal. ginawa gamit ang `npm run db:set-role -- <email> admin`).
 ###
-### Code: backend/src/validations/pagination.ts · backend/src/routes/admin.ts (listUsers)
+### Code: backend/src/validations/pagination.ts · backend/src/services/admin.service.ts (listUsers, Day 76)
 ### Test: validations/pagination.test.ts · routes/pagination.test.ts
 ### =========================================================================
 

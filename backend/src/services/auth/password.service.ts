@@ -6,8 +6,10 @@ import { users } from '../../db/schema.ts';
 import type { Audit } from '../../lib/audit.ts';
 import { signAccessToken } from '../../lib/jwt.ts';
 import { createRefreshToken, revokeAllSessions, type Device } from '../../lib/session.ts';
+import { claimVerificationToken, isVerificationTokenUsable } from '../../lib/verificationTokens.ts';
+import { sendPasswordResetEmail } from './verification.service.ts';
 import { createTrustedDevice, revokeAllTrustedDevices } from '../../lib/trustedDevices.ts';
-import type { changePasswordSchema } from '../../validations/auth.ts';
+import type { changePasswordSchema, resetPasswordSchema } from '../../validations/auth.ts';
 
 // Mga password (Day 55, 59) — business logic lang: walang req/res, walang cookies (Day 75)
 
@@ -50,4 +52,41 @@ export async function changePassword(input: ChangePasswordInput, audit: Audit): 
   // Pagkatapos ng commit lang ang audit (at ang cookies — sa controller)
   await audit({ action: 'password_changed', actorId: userId, targetId: userId });
   return { status: 'changed', accessToken: signAccessToken(userId), refreshToken, deviceToken };
+}
+
+// Password reset (Day 59) — hakbang 1: humingi ng link. Tinatawag ng controller PAGKATAPOS sumagot (sa background):
+// laging parehong sagot at parehong tagal, may account man o wala (hindi malalaman kung sino ang may account)
+export async function requestPasswordReset(email: string, audit: Audit): Promise<void> {
+  const [user] = await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.email, email));
+  await audit({ action: 'password_reset_requested', targetId: user?.id ?? null, metadata: { email } });
+  if (!user) return;
+  // Token sa #fragment, hindi sa ?query: hindi ipinapadala ng browser ang fragment sa kahit anong server —
+  // kaya hindi ito lalabas sa logs ng Cloudflare Pages, sa Referer, o sa analytics
+  await sendPasswordResetEmail(user.id, user.email);
+}
+
+// Password reset — hakbang 2: gamitin ang link
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordResult = { status: 'invalid' } | { status: 'reset'; deviceToken: string };
+
+export async function resetPassword(input: ResetPasswordInput, audit: Audit): Promise<ResetPasswordResult> {
+  // Mabilis na suri muna — walang argon2 para sa pekeng token (CPU abuse)
+  if (!(await isVerificationTokenUsable(input.token, 'password_reset'))) return { status: 'invalid' };
+  const passwordHash = await argon2.hash(input.newPassword); // BAGO ang transaction (Day 55)
+
+  // LAHAT O WALA: gamitin ang token (atomic, isang beses lang) + bagong password + i-logout ang LAHAT ng session.
+  // Kapag sabay ang dalawang request na may parehong link: isa lang ang mananalo sa claim
+  // Day 64: ang reset ang "labasan" ng biktimang naka-lock sa BAGONG device: tinatanggal ang lock ng account,
+  // binabawi ang tiwala ng lahat ng device, at pinagkakatiwalaan ang browser na nag-reset (napatunayang kanya ang email)
+  const done = await db.transaction(async (tx) => {
+    const claimed = await claimVerificationToken(input.token, 'password_reset', tx);
+    if (claimed === undefined) return undefined;
+    await tx.update(users).set({ passwordHash, failedLoginAttempts: 0, lockedUntil: null }).where(eq(users.id, claimed));
+    await revokeAllSessions(claimed, tx, 'password_reset');
+    await revokeAllTrustedDevices(claimed, tx);
+    return { userId: claimed, deviceToken: await createTrustedDevice(claimed, tx) };
+  });
+  if (done === undefined) return { status: 'invalid' };
+  await audit({ action: 'password_reset', actorId: done.userId, targetId: done.userId });
+  return { status: 'reset', deviceToken: done.deviceToken };
 }

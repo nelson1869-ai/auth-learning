@@ -42,11 +42,10 @@ backend/
 │   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
 │   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
 │   ├── types/            ← dagdag na types (hal. req.userId sa Express)
-│   ├── routes/           ← auth.ts (lahat ng /api/auth/*: register, login, me, refresh, logout, sessions, change-password, forgot/reset,
+│   ├── routes/           ← ROUTING LANG (Day 76) · auth.ts (lahat ng /api/auth/*: register, login, me, refresh, logout, sessions, change-password, forgot/reset,
 │   │                        verify-email, resend-verification), admin.ts (Day 46), users.ts, health.ts, echo.ts
-│   ├── controllers/      ← Day 74–75: HTTP lang — http.ts (cookies, parseOr400) · auth.controller.ts (register, login, me, refresh, logout,
-│   │                        sessions, change-password; forgot/reset/verify sa Day 76)
-│   ├── services/auth/    ← Day 74–75: logic na walang Express — registration · login · session · password · verification (mga email)
+│   ├── controllers/      ← Day 74–76: HTTP lang — http.ts (cookies, parseOr400) · auth · admin · users controllers
+│   ├── services/         ← Day 74–76: logic na walang Express — admin · users · auth/ (registration · login · session · password · verification)
 │   ├── middleware/       ← requireAuth.ts — "naka-login ka ba?" (401) · requireRole.ts — "admin ka ba?" (403, Day 46) · rateLimiter.ts — "sobra na ang subok?" (Day 43)
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)

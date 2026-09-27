@@ -45,8 +45,3 @@ export function auditFor(req: Request): Audit {
   };
   return (event) => writeAudit(source, event, req.log ?? logger);
 }
-
-// Ang lumang paraan (Day 48–73). Pansamantala habang inililipat ang mga route sa controllers/services (Day 74–76)
-export async function audit(req: Request, event: AuditEvent): Promise<void> {
-  await auditFor(req)(event);
-}

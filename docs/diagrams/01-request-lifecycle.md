@@ -21,8 +21,8 @@ flowchart TD
     Body --> Match{"May route ba na tugma sa<br/>'/api' + METHOD + PATH?"}
     Match -->|"GET /health<br/>routes/health.ts"| Health["res.json({ status, time })"]
     Match -->|"POST /echo<br/>routes/echo.ts"| Echo["res.json({ received: req.body })"]
-    Match -->|"GET /users/count<br/>routes/users.ts"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
-    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts → controllers (Day 74–75)"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
+    Match -->|"GET /users/count<br/>routes → controller → service (Day 76)"| Users["➡️ tingnan ang diagram sa ibaba<br/>(kumakausap sa database)"]
+    Match -->|"/auth/register · login ·<br/>me · logout<br/>routes/auth.ts → controllers (Day 74–76)"| AuthR["➡️ tingnan ang diagrams<br/>03 register · 04 login ·<br/>05 middleware · 06 sequence"]
     Match -->|"wala (hal. GET /api/echo)"| NotFound["404 { error: 'Not found' }<br/>(notFound, Day 41 · dati: HTML 'Cannot GET ...')"]
     Health --> OK["200 OK · application/json"]
     Echo --> OK
@@ -50,13 +50,13 @@ flowchart TD
 
 ## Kapag kailangan ang database: `GET /api/users/count`
 
-> 📅 Day 10 · Phase 3 (Unang database) · **Code:** `backend/src/routes/users.ts`,
+> 📅 Day 10 · Phase 3 (Unang database) · in-update sa Day 76 · **Code:** `backend/src/controllers/users.controller.ts` · `services/users.service.ts`,
 > `backend/src/db/index.ts` · **Subukan:** `backend/http/03-users-count.http`
 
 ```mermaid
 flowchart TD
-    Req(["GET /api/users/count"]) --> Route["routes/users.ts<br/>async (req, res) =>"]
-    Route --> Await["await db.$count(users)<br/>Drizzle → SQL: select count(*) from users"]
+    Req(["GET /api/users/count"]) --> Route["routes/users.ts → controllers/users.controller.ts<br/>async (req, res) =>"]
+    Route --> Await["services/users.service.ts: countUsers()<br/>db.$count(users) — Drizzle → SQL: select count(*) from users"]
     Await --> Pool["db/index.ts · pg Pool<br/>kumokonekta sa DATABASE_URL (.env)<br/>localhost:5435"]
     Pool --> Up{"Buhay ba ang Postgres?"}
     Up -->|"oo"| Rows["Postgres: { count: 2 }"]

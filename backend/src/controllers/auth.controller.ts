@@ -3,12 +3,19 @@ import { z } from 'zod';
 import { auditFor } from '../lib/audit.ts';
 import { runInBackground } from '../lib/background.ts';
 import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
-import { changePasswordSchema, loginSchema, registerSchema } from '../validations/auth.ts';
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+  verifyEmailSchema,
+} from '../validations/auth.ts';
 import { login as loginService } from '../services/auth/login.service.ts';
-import { changePassword as changePasswordService } from '../services/auth/password.service.ts';
+import { changePassword as changePasswordService, requestPasswordReset, resetPassword as resetPasswordService } from '../services/auth/password.service.ts';
 import { registerUser } from '../services/auth/registration.service.ts';
 import { getMe, listMySessions, logout as logoutService, refreshSession, revokeMySession } from '../services/auth/session.service.ts';
-import { sendVerificationEmail } from '../services/auth/verification.service.ts';
+import { checkResendVerification, sendVerificationEmail, verifyEmail as verifyEmailService } from '../services/auth/verification.service.ts';
 import { clearSessionCookies, deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
 
 // Auth controllers (Day 74) — HTTP LANG: suriin ang input → tawagin ang service → isalin ang resulta sa status, body at cookies.
@@ -158,4 +165,60 @@ export const changePassword: RequestHandler = async (req, res) => {
   setRefreshCookie(res, result.refreshToken);
   setDeviceCookie(res, result.deviceToken);
   res.status(204).end();
+};
+
+// POST /api/auth/forgot-password { email } — LAGING parehong sagot, may account man o wala.
+// Sumasagot MUNA, tapos saka ang lahat (sa background) — kung hindi, mas matagal ang sagot kapag may account
+// (database + Resend), at iyon ang magsasabi. Ang pagkakasunod na ito ay HTTP, kaya nasa controller
+export const forgotPassword: RequestHandler = async (req, res) => {
+  const input = parseOr400(forgotPasswordSchema, req.body, res);
+  if (!input) return;
+  res.status(202).json({ message: 'If an account exists for that email, a reset link has been sent.' });
+  const audit = auditFor(req); // basahin ang req NGAYON (hindi sa loob ng background task)
+  runInBackground('password_reset_email', () => requestPasswordReset(input.email, audit));
+};
+
+// POST /api/auth/reset-password { token, newPassword }
+export const resetPassword: RequestHandler = async (req, res) => {
+  const input = parseOr400(resetPasswordSchema, req.body, res);
+  if (!input) return;
+  const result = await resetPasswordService(input, auditFor(req));
+  if (result.status === 'invalid') {
+    res.status(400).json({ error: 'This reset link is invalid or has expired' });
+    return;
+  }
+  // Nai-commit na: pagkatiwalaan ang browser na ito (Day 64)
+  setDeviceCookie(res, result.deviceToken);
+  res.status(204).end(); // walang auto-login: mag-login gamit ang bagong password
+};
+
+// POST /api/auth/verify-email { token } — hindi kailangang naka-login
+export const verifyEmail: RequestHandler = async (req, res) => {
+  const input = parseOr400(verifyEmailSchema, req.body, res);
+  if (!input) return;
+  if ((await verifyEmailService(input.token, auditFor(req))) === 'invalid') {
+    res.status(400).json({ error: 'This verification link is invalid or has expired' });
+    return;
+  }
+  res.status(204).end();
+};
+
+// POST /api/auth/resend-verification — naka-login (requireAuth + rate limit sa route); bagong link, ang luma ay mawawalan ng bisa
+export const resendVerification: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (userId === undefined) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  const result = await checkResendVerification(userId);
+  if (result.status === 'no_user') {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  if (result.status === 'already_verified') {
+    res.status(409).json({ error: 'Email is already verified' });
+    return;
+  }
+  res.status(202).json({ message: 'A new verification link has been sent.' });
+  runInBackground('verify_email', () => sendVerificationEmail(userId, result.email));
 };

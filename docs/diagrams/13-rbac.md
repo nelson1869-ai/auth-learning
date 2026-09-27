@@ -1,7 +1,7 @@
 # 13 — RBAC: 401 vs 403 (sino ka vs ano ang pinapayagan sa iyo)
 
 > 📅 Day 46 · Phase 10 (Roles at admin)
-> **Code:** `backend/src/routes/admin.ts` · `backend/src/middleware/requireAuth.ts` · `backend/src/middleware/requireRole.ts`
+> **Code:** `backend/src/routes/admin.ts` (ang bantay) · `controllers/admin.controller.ts` · `services/admin.service.ts` (Day 76) · `backend/src/middleware/requireAuth.ts` · `backend/src/middleware/requireRole.ts`
 > **Subukan:** `backend/http/13-admin-rbac.http` · test: `backend/src/routes/admin.test.ts`
 
 **RBAC** = Role-Based Access Control: ang pinapayagan sa iyo ay nakadepende sa role mo (`user` o `admin`).
@@ -15,7 +15,7 @@ flowchart TD
     Cookie -->|"oo → req.userId"| Lookup["requireRole('admin')<br/>SELECT role FROM users WHERE id = userId<br/>(sa DATABASE, hindi sa JWT)"]
     Lookup -->|"walang row<br/>(nabura ang account)"| R401b["401 Not authenticated"]
     Lookup -->|"role = user"| R403["403 Forbidden<br/>(kilala ka, pero BAWAL)<br/>+ log: event 'forbidden'"]
-    Lookup -->|"role = admin"| Route["routes/admin.ts<br/>?page & ?limit (Day 47) → 400 kung mali<br/>200 { users, page, limit, total, totalPages }<br/>walang password_hash"]
+    Lookup -->|"role = admin"| Route["controllers/admin.controller.ts → services/admin.service.ts (Day 76)<br/>?page & ?limit (Day 47) → 400 kung mali<br/>200 { users, page, limit, total, totalPages }<br/>walang password_hash"]
 ```
 
 ## Bakit sa database ang role, hindi sa JWT

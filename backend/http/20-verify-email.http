@@ -14,7 +14,7 @@
 ### Sa dev: WALANG totoong email — ang email ay nasa terminal ng `npm run dev`:
 ###   📧 Email … "Confirm your auth-learning email address" … /verify-email#token=XXXX ← kopyahin
 ###
-### Code: backend/src/routes/auth.ts · lib/verificationTokens.ts · lib/email.ts (verifyEmailEmail)
+### Code: backend/src/services/auth/verification.service.ts (verifyEmail, checkResendVerification, Day 76) · controllers/auth.controller.ts · lib/verificationTokens.ts · lib/email.ts
 ### Test: backend/src/routes/verify-email.test.ts · Diagram: docs/diagrams/19-verify-email.md
 ### =========================================================================
 

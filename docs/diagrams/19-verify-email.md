@@ -1,7 +1,7 @@
 # 19 — Email verification (soft)
 
 > 📅 Day 60 · Phase 12 (Email) · **Desisyon:** D-026
-> **Code:** `backend/src/routes/auth.ts` (`/auth/verify-email`, `/auth/resend-verification`) · `services/auth/verification.service.ts` (ang email, Day 74) · `controllers/auth.controller.ts` (register) · `lib/verificationTokens.ts` · `lib/email.ts`
+> **Code:** `backend/src/services/auth/verification.service.ts` (`verifyEmail`, `checkResendVerification`, mga email — Day 74–76) · `controllers/auth.controller.ts` · `controllers/auth.controller.ts` (register) · `lib/verificationTokens.ts` · `lib/email.ts`
 > **Frontend (Day 61):** paalala sa Profile · `/verify-email` — diagram 07
 > **Subukan:** `backend/http/20-verify-email.http` · test: `backend/src/routes/verify-email.test.ts`
 
