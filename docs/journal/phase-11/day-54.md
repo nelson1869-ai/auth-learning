@@ -37,6 +37,13 @@ At **404, hindi 403**: ang 403 ay nagsasabing "totoo ang id, pero hindi sa iyo".
 
 ## Mga tanong ko pa / hindi pa malinaw
 
+**Sarili kong tanong (2026-09-27, sinubukan ko sa production):** *"Naka-login ako sa phone, pero sa PC ay 'Chrome sa Windows' lang ang lumalabas. Nasaan ang phone?"*
+Magkaibang **account** pala: sa PC ay `nel…@gmail.com` (admin #7), at sa phone ay `phone@gmail.com` (user #1). Kinumpirma sa database.
+Ang "Mga device ko" ay mga device ng **account na ito**, hindi ng tao. Hindi alam ng server na iisa ang may-ari ng dalawang account.
+Kung lalabas ang phone ng ibang account sa listahan ko, **IDOR bug** iyon. Para makita ang dalawa, dapat iisang account ang naka-login
+sa dalawang device. (Muntik pang mag-login ulit ang phone sa lumang account dahil sa autofill ng Chrome.)
+
+
 > ✍️ Sinulat ng AI sa hiling ko ("answer all question all days … act as me"): mga tanong na malamang ay tinanong ko sa araw na ito, at ang sagot.
 
 - **T: Kung UUID ang id (mahirap hulaan), kailangan pa ba ng IDOR check?**
