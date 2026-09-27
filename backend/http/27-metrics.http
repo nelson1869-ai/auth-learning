@@ -1,0 +1,30 @@
+### =========================================================================
+### 🎓 METRICS — "ilan, gaano kabilis, ilang error" (OpenTelemetry → Prometheus)
+### 📅 Day 81 · Phase 17 (Observability) · Desisyon: D-028
+### =========================================================================
+### LOG vs METRIC: ang log ay isang kuwento bawat request (sino, ano, bakit). Ang metric ay mga NUMERO sa paglipas ng oras.
+###   Mura ang metric kahit milyon ang request, at dito nakabatay ang mga dashboard (Day 82–83) at alert (Day 84).
+###
+### Hiwalay na port: METRICS_PORT (default 9464; sa PC na ito, 9474 sa backend/.env — gamit ng ibang app ang 9464).
+### 🔐 HINDI ito publiko: ang Cloudflare Tunnel ay papunta lang sa backend:3000. Sa production, ang Prometheus lang (sa loob ng
+###    Docker network) ang makakabasa nito — https://api.nelson1869.com ay walang /metrics
+###
+### Mga metric (eksaktong pangalan — gagamitin sa mga query sa Day 82):
+###   http_server_request_duration_bucket / _sum / _count { http_request_method, http_route, http_response_status_code }
+###   auth_audit_events_total { action }        ← hal. action="account_locked", "refresh_reuse", "login_failed"
+### 🔐 Ang http_route ay ang TEMPLATE ("/api/auth/sessions/:id") o "unmatched" — HINDI ang totoong URL (cardinality)
+###
+### Code: backend/src/lib/metrics.ts · middleware/metrics.ts · lib/audit.ts (auditEvents) · index.ts
+### Test: backend/src/lib/metrics.test.ts
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Gumawa muna ng ilang request (hal. 06-me.http na walang login → 401), tapos basahin ang metrics.
+###    Ang inaasahan: 200 · text/plain · hanapin ang:
+###      http_server_request_duration_count{http_request_method="GET",http_route="/api/auth/me",http_response_status_code="401",…} N
+###      target_info{service_name="auth-learning-backend",…}   ← siguraduhing ITO ang app na sumasagot
+GET http://localhost:9474/metrics
+
+### -------------------------------------------------------------------------
+### 2. Ang API port ay WALANG /metrics. Ang inaasahan: 404 { "error": "Not found" }
+GET http://localhost:3000/metrics

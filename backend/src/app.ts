@@ -10,6 +10,7 @@ import adminRouter from './routes/admin.ts';
 import docsRouter from './routes/docs.ts';
 import { env } from './config/env.ts';
 import { requestLogger } from './middleware/requestLogger.ts';
+import { recordMetrics } from './middleware/metrics.ts';
 import { notFound, errorHandler } from './middleware/errorHandler.ts';
 import { requireSameOrigin } from './middleware/csrf.ts';
 
@@ -18,6 +19,7 @@ const app = express();
 
 // Logging (Day 42) — PINAKAUNA: bawat request ay may ID at naitatala, kahit ang hinarang pa ng
 // ibang middleware (hal. CORS, 429). Ang log mismo ay isinusulat kapag tapos na ang sagot
+app.use(recordMetrics); // Day 81: tagal + status ng bawat request (para sa Prometheus) — una, para kasama pati ang mga hinarang
 app.use(requestLogger);
 
 // Secure headers (Day 39) — una sa lahat: nosniff, HSTS, frameguard, CSP para sa API, at tinatanggal

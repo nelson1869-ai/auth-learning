@@ -37,7 +37,7 @@ Node.js · Express · JavaScript (→ TypeScript sa Phase 7) · Zod · argon2 ·
 ```
 backend/
 ├── src/
-│   ├── app.ts            ← requestLogger → helmet → cors → csrf → json → cookies → routers → notFound → errorHandler
+│   ├── app.ts            ← recordMetrics (Day 81) → requestLogger → helmet → cors → csrf → json → cookies → routers → notFound → errorHandler
 │   ├── index.ts          ← app.listen(3000) lang
 │   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
 │   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
@@ -50,13 +50,13 @@ backend/
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
-│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67)
+│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67) · metrics.ts (OpenTelemetry → /metrics sa METRICS_PORT, Day 81)
 │   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?" (+ responses.ts: ang hugis ng mga sagot, Day 78)
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–26 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–27 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
