@@ -41,6 +41,7 @@ Pagbabago iyon ng UX (hindi agad makakapag-login pagka-register). Hindi ito kasa
 | Sadyang sira A: walang `lockedUntil: null` sa upsert (ang ugali ng reference) | ✅ bumagsak ang expiry test |
 | Sadyang sira B: hindi binibilang ang walang account | ✅ bumagsak ang 4 na test |
 | 23 `.http` (review script, may 23 na) | ✅ 23/23 |
+| Production: 6 maling password sa email na **walang account** (walang email na ipinadala; 6 < 10 sa IP limit) | ✅ 401 ×5 → 423 + `retry-after: 900`, **pareho ng totoong account noong Day 63** · hash lang sa table · 13 migration · binura ang row |
 
 ## Mga pagkakamali ko ngayon (nahuli)
 1. **Ang expiry test ay binago ang LAHAT ng row** sa table (may 11 naka-lock mula sa ibang test), kaya bumagsak ito kahit tama ang code.
