@@ -33,7 +33,7 @@ pagkatapos masagot ang request.
 | Sinira ang `verifyEmail` at `resetPassword` sa mga service | ✅ bumagsak ang 4 at 6 na test |
 | 23 `.http` (review script) | ✅ 23/23 |
 | Mga manual na hakbang na nagbago ngayon: reset gamit ang totoong token · verify at resend · `db:set-role` → admin · patay na DB → `/users/count` | ✅ 202 204 400 200 · 202 204 400 409 · 403 → 200, 400 sa `limit=999`, audit-logs 200 · 500 + requestId |
-| Production | (pagkatapos ng deploy) |
+| Production (`delivered+…@resend.dev`) | ✅ register 201 · login 200 · resend 202 · forgot 202 · reset/verify na pekeng token 400/400 · admin bilang karaniwang user 403/403 · admin nang walang login 401 · users count 200 · audit: `access_denied` ×2 (ang `requireRole` na may `auditFor`), `password_reset_requested` (mula sa background) · 1 aktibong link bawat uri · binura |
 
 ## Mga diagram at docs: "LAHAT ng diagram" (ayon sa roadmap)
 - **00 (architecture):** isinulat ulit ang backend: **routes → controllers → services → lib/db**.
