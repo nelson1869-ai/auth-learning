@@ -65,8 +65,14 @@ mula sa working copy, at kusang nagre-reload ang Grafana (bawat ~10s). Ang banta
 Kaya ang pagpalit ng branch sa PC ay nagbabago agad ng dashboard (at ng alert rules, sa susunod na restart ng Prometheus). Maliit ang panganib (monitoring lang,
 hindi ang app), pero dapat malaman. Backlog: kopyahin ang monitoring config sa oras ng deploy, sa halip na bind mount ng working copy.
 
-## Production
-*(Pupunan pagkatapos ng deploy: ang unang takbo, ang metrics, ang dashboard.)*
+## Production (deploy `6e9dc13`)
+| Sinuri | Resulta |
+|---|---|
+| `deploy.sh` (lahat ng bantay ng Day 89) | ✅ attestation · migrations 13/13 verified · Live |
+| **Unang takbo** (+60s) | ✅ `Retention cleanup done` · **`verificationTokens: 2`**, 0 sa iba · 781ms (kasama ang biyahe papuntang Neon) |
+| Tugma sa hula? | ✅ Oo: ang 2 expired na verification token na nakita sa sukat bago magsimula — iyon lang ang dapat mabura |
+| Prometheus | ✅ `auth_retention_deleted_total{table="verificationTokens"}` = 2, ang iba = 0 · `auth_retention_runs_total` ok = 1, skipped = 0, failed = 0 |
+| Grafana | ✅ 10 panel, kasama ang 2 panel ng Retention |
 
 ## Kumpara sa reference
 - **Pareho:** sa loob ng app, bawat oras, 60s ang unang takbo, `runInBackground`, `pg_try_advisory_xact_lock`, buong family ng refresh token, audit logs 1 taon,
