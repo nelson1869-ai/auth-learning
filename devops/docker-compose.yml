@@ -12,5 +12,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  # Day 92: Redis para sa rate limiter (dev at tests). Walang data na kailangang itago (mga bilang lang, may expiry),
+  # kaya walang volume. 127.0.0.1 lang; 6380 (hindi 6379) para hindi bumangga sa ibang Redis sa PC
+  redis:
+    image: redis:8.8.3-alpine # naka-pin
+    command: ["redis-server", "--save", "", "--appendonly", "no"] # walang persistence
+    ports:
+      - "127.0.0.1:6380:6379"
+
 volumes:
   pgdata:
