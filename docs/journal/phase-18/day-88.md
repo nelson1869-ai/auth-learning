@@ -65,8 +65,23 @@ Nang tanungin ang **OSV** tungkol sa zlib ng lumang image: **walang laman**. Per
 Ang dahilan: **wala pang ayos ang Alpine**, kaya wala pa ito sa database ng Alpine. Nahanap ito ng Grype sa **NVD**.
 Aral: iba-iba ang database, at ang scanner na tumitingin sa marami ay mas maaasahan.
 
-## Production
-*(Pupunan pagkatapos ng deploy.)*
+## Production (deploy `00c85d2`)
+| Sinuri | Resulta |
+|---|---|
+| CI: Grype sa image job (log) | ✅ tumakbo talaga — 2 Medium (busybox), pareho ng lokal · ~80s (dina-download ang database ng CVE) |
+| `deploy.sh` | ✅ migrate · ready (Neon, TLS) · Live · step 7 |
+| Ang pinalitang container | ✅ **exit 0**: ang unang deploy na may graceful shutdown na ang luma (Day 85) |
+| Ang bagong container | ✅ healthy · 283MB · UID 1000 · walang `/sbin/apk` · 0 ERROR sa log |
+| Puwang habang nagde-deploy | 2.5s (dati 3.8s) |
+| Mga pampublikong URL (curl) | ✅ health 200 · http → 301 · `/me` 401 · frontend 200 · CORS preflight 204 |
+| **argon2 sa production** nang hindi gumagawa ng account | ✅ login ng email na walang account → **401**. Dumadaan pa rin ito sa `argon2.verify` (dummy hash, Day 71), kaya gumagana ang native module |
+
+**Dalawang maling alarma, parehong inimbestigahan:**
+1. **403 "error code: 1010"** sa lahat ng request ng `prod/01-production.http` gamit ang review script ko.
+   Galing ito sa **Cloudflare** (Browser Integrity Check), na humaharang sa user agent ng Python (`Python-urllib`). Hindi ito nakarating sa app.
+   Sa `curl`, pareho ang lahat ng inaasahan. (Sa VS Code REST Client, hindi ito problema.)
+2. **Mabagal ang login sa production (600–1075ms).** Pero kahit ang `/api/health` na walang database ay 0.35–1.4s, kaya ang **network** ang mabagal sa sandaling iyon.
+   Para patas: pinatakbo nang lokal ang **luma at bagong image**, parehong PC at database, 8 login bawat isa → **~110ms pareho**. Walang epekto sa bilis ang bagong image.
 
 ## Kumpara sa reference
 - **Pareho:** multi-stage, Grype sa CI (binary na sinuri ang checksum ang sa reference; dito, image na naka-pin sa digest), inalis ang npm/npx/corepack.
