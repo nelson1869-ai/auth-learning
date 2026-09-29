@@ -2,7 +2,7 @@
 # 🐳 Backend image — ISANG stage lang: walang build step, si Node 24 mismo ang
 # nagpapatakbo ng .ts (D-018). Ikumpara sa reference: 2 stages (tsc → dist/).
 # =============================================================================
-FROM node:24-alpine
+FROM node:25-alpine
 # Iniuugnay ang image sa repo sa GitHub (GHCR) — makikita kung saang code ito galing
 LABEL org.opencontainers.image.source=https://github.com/nelson1869-ai/auth-learning
 WORKDIR /app
