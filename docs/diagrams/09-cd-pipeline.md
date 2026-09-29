@@ -1,6 +1,6 @@
 # 09 — CD pipeline (pull-based deploy)
 
-> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · Day 82–84 (monitoring, pre-flight) · Day 85 (graceful shutdown) · Day 89 (ligtas na CD) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
+> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · Day 82–84 (monitoring, pre-flight) · Day 85 (graceful shutdown) · Day 89 (ligtas na CD) · Day 91 (backup bago mag-migrate) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
 > `devops/docker-compose.prod.yml` · `backend/src/db/migrate.ts` · `backend/src/db/verifyMigrations.ts` · **Desisyon:** D-020, D-031
 
 ## Mula merge hanggang live
@@ -23,7 +23,9 @@ flowchart TD
     Pre -->|"OK"| Pull["docker pull …:&lt;SHA&gt; → DIGEST"]
     Pull --> C{"Day 89 (c) — gh attestation verify DIGEST<br/>signer = ci.yml · source = main · commit = SHA<br/>· hindi self-hosted runner"}
     C -->|"hindi mapatunayan"| X
-    C -->|"✅"| Mig["docker run IMAGE@DIGEST node src/db/migrate.ts<br/>migrations MUNA (Neon)"]
+    C -->|"✅"| Bk{"Day 91 (e) — BACKUP bago mag-migrate<br/>database/backups/backup.sh pre-deploy-&lt;sha&gt;"}
+    Bk -->|"pumalya (walang ALLOW_NO_BACKUP=1)"| X
+    Bk -->|"💾 ok"| Mig["docker run IMAGE@DIGEST node src/db/migrate.ts<br/>migrations MUNA (Neon)"]
     Mig --> D{"Day 89 (d) — lahat ba ng migration sa image<br/>ay NASA database? (at walang mas bago,<br/>maliban kung ROLLBACK=1)"}
     D -->|"hindi"| Abort["❌ huminto — hindi nagalaw ang tumatakbong app"]
     D -->|"oo"| Up["IMAGE_TAG=&lt;SHA&gt; docker compose up -d backend<br/>Day 85: ang LUMANG container ay SIGTERM → graceful shutdown"]

@@ -623,3 +623,20 @@
 - **Consequences:**
   - Ang imbestigasyon ng insidenteng mahigit 1 taon na ang nakalipas ay walang audit trail.
   - Tumatakbo lang kapag buhay ang app (at ang unang takbo ay 60s pagkatapos ng bawat restart).
+
+## D-033 · Sariling backup (pg_dump) sa labas ng Neon: bago mag-migrate + araw-araw; regular na restore drill
+
+- **Petsa:** 2026-09-29 (Day 91)
+- **Context:** Ang tanging backup ay ang point-in-time restore ng Neon: **6 na oras** (Free plan), sa iisang account. Kapag napansin ang maling pagbura
+  pagkalipas ng 6 na oras (hal. bug sa retention job ng Day 90), o nagkaproblema ang account, wala nang maibabalik.
+- **Mga pagpipilian:** mag-upgrade ng Neon plan (mas mahabang history, pero parehong account at parehong provider) ·
+  **sariling `pg_dump` sa PC** · parehong ito at isang kopya sa ibang lugar.
+- **Pinili:** sariling `pg_dump` (rekomendasyon ng AI; "go" ni Nelson), sa tatlong sandali:
+  **bago mag-migrate sa bawat deploy** (fatal kapag pumalya — `ALLOW_NO_BACKUP=1` para lumampas), **araw-araw** (systemd user timer + linger, pinayagan ni Nelson),
+  at manual. 14 ang itinatago. May `.counts` at `.sha256` ang bawat isa para mapatunayan ang restore.
+- **Bakit:** libre, hiwalay sa Neon, at ang backup bago mag-migrate ay RPO na 0 para sa pinakamapanganib na hakbang ng deploy.
+- **Consequences:**
+  - Nasa iisang PC ang mga dump (backlog: naka-encrypt na kopya sa ibang lugar).
+  - Tumatakbo lang ang timer kapag buhay ang PC/WSL (`Persistent=true`: hahabol pagka-boot).
+  - May personal na data ang mga dump: 700/600, hindi sa repo.
+  - Ang restore drill ay **hindi opsyonal**: kasama sa review day. Ang RTO sa Neon ay susukatin sa isang staging branch.
