@@ -566,3 +566,23 @@
   - Ang `.gitleaksignore` ay para lang sa **sinuring** false positive, may dahilan bawat isa. Kapag totoong secret: i-rotate, hindi ignore.
   - Ang Dependabot PRs ay dumadaan sa parehong CI; ako ang nagme-merge.
   - Ang audit ay para sa **kilalang** butas lang. Hindi nito nahuhuli ang bagong malisyosong package (kaya ang cooldown, lockfile, at `npm ci`).
+
+## D-030 · Runtime image: multi-stage sa Alpine na walang package manager (hindi distroless)
+
+- **Petsa:** 2026-09-29 (Day 88)
+- **Context:** Ang image na naka-deploy: 332MB, Grype = 1 High (zlib) + 3 Medium, lahat sa Alpine packages at walang ayos pa.
+  Ang dating `rm -rf` ng npm ay nasa sariling layer, kaya nagtatago lang ng file at hindi nagpapaliit ng image. May yarn, C headers at apk pa sa base.
+- **Mga pagpipilian:**
+  - **manatili** sa isang stage at tanggapin ang mga CVE;
+  - **distroless** (`gcr.io/distroless/nodejs24`): walang shell. Pero Debian (glibc) ito, kaya iba ang build ng argon2; ang ENTRYPOINT ay `node` (masisira ang
+    `docker run IMAGE node src/db/migrate.ts` ng deploy.sh); walang `docker exec sh` sa pag-debug; at kailangang palitan ang HEALTHCHECK;
+  - **multi-stage sa Alpine:** `npm ci` sa node image, tapos malinis na `alpine` + `node` binary + `node_modules` + code, at inaalis ng apk ang sarili nito
+    at ang mga library na siya lang ang gumagamit (libssl3, libcrypto3, zlib, ssl_client).
+- **Pinili:** ang multi-stage sa Alpine (rekomendasyon ng AI; "go" ni Nelson).
+- **Bakit:** nawala ang High at 2 sa 3 Medium, 332 → 283MB, at walang nagbago sa deploy, HEALTHCHECK o pag-debug.
+  Sinuri gamit ang `ldd` na musl, libstdc++ at libgcc lang ang kailangan ng `node` (naka-embed ang OpenSSL at zlib nito).
+- **Tinanggap:** CVE-2025-60876 (busybox, Medium): tungkol sa `wget` ng busybox, na hindi pinapatakbo ng app. Naiwan ang busybox dahil sa shell.
+- **Consequences:**
+  - **Parehong Alpine version sa dalawang FROM** (`node:24-alpine3.24` at `alpine:3.24`): binuo ang `node` para sa libstdc++ nito. Iisang Dependabot group.
+  - Hindi na opisyal na node image ang runtime: kami na ang may-ari ng user `node` (UID 1000) at ng listahan ng aalisin. Nakikita pa rin ng scanner ang `node` binary.
+  - Grype sa CI (`--fail-on high`, bago ang push): ang bagong High, kahit walang ayos, ay haharang sa deploy. Ang sagot ay alisin ang package kung hindi kailangan, o tanggapin nang tahasan.

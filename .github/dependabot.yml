@@ -35,6 +35,10 @@ updates:
     directory: /backend
     schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
     cooldown: { default-days: 7 }
+    groups:
+      # Day 88: dalawang FROM na dapat PAREHO ang Alpine (node:24-alpine3.24 at alpine:3.24) — kinokopya ang node binary
+      # mula sa una papunta sa pangalawa, at binuo ito para sa libstdc++ ng Alpine na iyon. Kaya iisang PR para sa dalawa
+      base-images: { patterns: ["*"] }
     ignore:
       # Node: LTS lang (even na numero: 24, 26…). Ang unang PR ng Dependabot ay 24 → 25, na HINDI LTS (maikling suporta).
       # Ang pagpalit ng LTS ay sadyang desisyon (tests + Neon + deps), hindi lingguhang PR. Berde ang CI sa PR na iyon, pero

@@ -673,7 +673,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit mapanganib ang dependencies · *Reference: `Dependabot, npm audit gate, and secret scanning`*
 
 ### Day 88 — Container scanning
-- [ ] I-scan ang Docker image sa CI (Grype); tanggalin ang hindi kailangan sa runtime image
+- [x] I-scan ang Docker image sa CI (Grype); tanggalin ang hindi kailangan sa runtime image *(sinukat muna: 332MB, 1 High (zlib) + 3 Medium · ang dating `rm -rf npm` ay hindi nagpaliit (ibang layer) · multi-stage: walang apk/npm/yarn/headers/OpenSSL at zlib ng system → 283MB, 2 Medium · gumagana pa: migrate, argon2, HEALTHCHECK, shutdown, TLS sa Neon · Grype gate: ang lumang image ay papalya, ang bago ay pumapasa · D-030)*
+- [x] 📝 `backend/http/32-container-scanning.http` · 📊 diagram 08 — in-update
 - **Matututunan:** CVEs · *Reference: `CI image scanning`*
 
 ### Day 89 — Ligtas na CD

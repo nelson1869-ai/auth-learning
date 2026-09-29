@@ -1,0 +1,45 @@
+### =========================================================================
+### 🎓 CONTAINER SCANNING — paano nalalaman ng Grype na may butas ang isang package sa loob ng image?
+### 📅 Day 88 · Phase 18 (Production maturity) · Desisyon: D-030
+### =========================================================================
+### Kapareho ng 31-supply-chain.http (npm), pero para sa mga package ng OPERATING SYSTEM sa loob ng Docker image (Alpine).
+### Ang Grype ay (1) naglilista ng lahat ng package sa image — apk, npm, at pati ang `node` binary —
+### tapos (2) hinahanap ang bawat isa sa mga database ng butas (Alpine secdb, NVD, GitHub advisories…).
+###
+### Sa CI (job `image`, bago ang push sa GHCR):
+###   grype <image> --fail-on high      ← pumapalya sa High/Critical
+### Sinukat (Day 88):
+###   DATI  (single stage, 332MB): 1 High (zlib) + 3 Medium → PAPALYA ang gate
+###   NGAYON (multi-stage, 283MB, walang apk/zlib/OpenSSL ng system): 2 Medium (busybox) → pumapasa
+###
+### Subukan nang lokal (walang HTTP — Docker):
+###   docker build -t auth-learning-backend:local backend
+###   docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:v0.119.0 auth-learning-backend:local --fail-on high
+###
+### Ang mga request dito ay sa OSV (osv.dev, ng Google), isang pampublikong database ng butas na ginagamit din ng mga scanner.
+### ⚠️ Nagbabago ang mga sagot araw-araw.
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Isang LUMANG zlib sa Alpine. Ang inaasahan: 200 · "vulns": [ ALPINE-CVE-… ] — mga butas na may AYOS na ang Alpine
+###    (kaya ang solusyon ay i-update ang base image — iyan ang gagawin ng Dependabot, group na base-images)
+POST https://api.osv.dev/v1/query
+Content-Type: application/json
+
+{ "package": { "name": "zlib", "ecosystem": "Alpine:v3.24" }, "version": "1.3.1-r0" }
+
+### -------------------------------------------------------------------------
+### 2. Ang zlib na nasa lumang image natin (Day 88). Ang inaasahan: 200 {} — walang laman!
+###    Pero nakakita ang Grype ng High (CVE-2026-85091) dito. Bakit? Iba-iba ang pinagkukunan: WALA PANG AYOS ang Alpine,
+###    kaya wala pa sa database ng Alpine; nahanap ito ng Grype sa NVD. Aral: huwag umasa sa iisang database.
+###    (Ang ginawa natin: inalis ang zlib sa runtime image — hindi ito kailangan ng node)
+POST https://api.osv.dev/v1/query
+Content-Type: application/json
+
+{ "package": { "name": "zlib", "ecosystem": "Alpine:v3.24" }, "version": "1.3.2-r0" }
+
+### -------------------------------------------------------------------------
+### 3. Ang natitirang Medium (busybox) — basahin ang "details". Ang inaasahan: 200 · tungkol ito sa `wget` ng busybox
+###    (tumatanggap ng CR/LF sa URL). HINDI kailanman pinapatakbo ng app natin ang wget → mababa ang tunay na panganib.
+###    Kaya sadyang iniwan ang busybox (kailangan ng shell para sa HEALTHCHECK at sa pag-debug) — D-030
+GET https://api.osv.dev/v1/vulns/CVE-2025-60876
