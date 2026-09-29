@@ -1,0 +1,34 @@
+### =========================================================================
+### 🎓 ATTESTATION — patunay na ang image sa production ay galing sa CI, sa eksaktong commit
+### 📅 Day 89 · Phase 18 (Production maturity) · Desisyon: D-031
+### =========================================================================
+### Ang problema: ang `ghcr.io/…/auth-learning-backend:<sha>` ay PANGALAN lang (tag). Kahit sinong may `packages:write`
+### ay puwedeng mag-push ng ibang laman sa parehong pangalan. Kaya hindi sapat na "may image na may ganitong tag".
+###
+### Ang solusyon: pagkatapos ng push, ang CI (actions/attest-build-provenance) ay lumilikha ng NILAGDAANG pahayag:
+###   "ang image na may DIGEST na ito ay binuo ng .github/workflows/ci.yml, sa refs/heads/main, mula sa commit <sha>"
+### Nilagdaan gamit ang OIDC ng GitHub (Sigstore) — walang key na iniimbak natin, at hindi ito mapepeke nang walang workflow na iyon.
+###
+### Sinusuri ito ng devops/deploy.sh BAGO mag-migrate (bantay c):
+###   gh attestation verify oci://ghcr.io/nelson1869-ai/auth-learning-backend@<digest> --repo nelson1869-ai/auth-learning \
+###     --signer-workflow nelson1869-ai/auth-learning/.github/workflows/ci.yml --source-ref refs/heads/main \
+###     --source-digest <sha> --deny-self-hosted-runners
+### Sinubukan (Day 89): tamang commit → exit 0 · ibang commit → exit 1 ("expected SourceRepositoryDigest…") · ibang workflow → exit 1
+###
+### Ang DIGEST ng isang image: docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/nelson1869-ai/auth-learning-backend:<sha>
+### Pampubliko ang API na ito (public ang repo) — walang login. 60 request bawat oras bawat IP
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Ang attestation ng image na na-deploy noong Day 89 (commit 7c3f620). Ang inaasahan: 200 · "attestations": [ { "bundle": … } ]
+###    Ang laman ay nasa bundle.dsseEnvelope.payload (base64). Kapag na-decode (hal. sa DevTools: JSON.parse(atob(payload))):
+###      subject[0].digest.sha256                                  → ang digest ng image
+###      predicate.buildDefinition.externalParameters.workflow     → { path: ".github/workflows/ci.yml", ref: "refs/heads/main" }
+###      predicate.buildDefinition.resolvedDependencies[0].digest  → { gitCommit: "7c3f620…" }
+###    Ang signature (bundle.dsseEnvelope.signatures) at ang certificate ang sinusuri ng `gh attestation verify` — hindi lang ang JSON
+GET https://api.github.com/repos/nelson1869-ai/auth-learning/attestations/sha256:d1bd4f3e5617cd5e03aeb8c72ec75e54698526c8351474f20f3b4ec4c953e41e
+
+### -------------------------------------------------------------------------
+### 2. Isang digest na WALANG attestation (hal. isang image na hindi galing sa CI natin, o bago pa ang Day 89).
+###    Ang inaasahan: 404 — kaya tumatanggi ang deploy.sh ("Hindi mapatunayan…"), maliban kung ALLOW_UNATTESTED=1
+GET https://api.github.com/repos/nelson1869-ai/auth-learning/attestations/sha256:0000000000000000000000000000000000000000000000000000000000000000

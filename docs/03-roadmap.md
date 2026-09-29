@@ -678,8 +678,9 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** CVEs · *Reference: `CI image scanning`*
 
 ### Day 89 — Ligtas na CD
-- [ ] Deploy lang ang eksaktong commit na pumasa sa CI; i-verify ang migrations bago mag-restart
-- [ ] 📊 I-update ang `09-cd-pipeline.md`: ang mga bagong safety check
+- [x] Deploy lang ang eksaktong commit na pumasa sa CI; i-verify ang migrations bago mag-restart *(sinukat: ang config ay galing sa working copy, nababago ang tag, at **tahimik na nilalaktawan ng drizzle** ang migration na mas luma ang timestamp · ngayon: attestation ng digest, `devops/` = commit, walang aksidenteng rollback, migrations na sinusuri (exit 1) · D-031)*
+- [x] 📊 I-update ang `09-cd-pipeline.md`: ang mga bagong safety check *(+ pagtatama: "hindi ang working copy" ay totoo lang para sa image)*
+- [x] 📝 `backend/http/33-attestation.http`
 - **Matututunan:** mga totoong insidente sa reference · *Reference: `fix(cd)` (2 commits)*
 
 ### Day 90 — Data retention
