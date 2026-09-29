@@ -56,7 +56,7 @@ backend/
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–31 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–32 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
@@ -93,11 +93,16 @@ docker run --rm --env-file /tmp/container.env --add-host=host.docker.internal:ho
   -p 127.0.0.1:3099:3000 auth-learning-backend:dev
 curl localhost:3099/api/health
 ```
-- **Isang stage, walang build** — `node src/index.ts` (D-018); `node` user, hindi root; walang `npm` sa image
+- **Walang build step** — `node src/index.ts` (D-018); `node` user, hindi root
+- **Dalawang stage (Day 88, D-030):** `npm ci --omit=dev` sa `node:24-alpine3.24`, tapos malinis na `alpine:3.24` + ang `node` binary + `node_modules` + code.
+  Wala sa image: npm, npx, corepack, yarn, C headers, **apk** (package manager), at ang OpenSSL/zlib ng system (naka-embed sa node).
+  332MB → **283MB** · Grype: 1 High + 3 Medium → **2 Medium** (busybox `wget`, hindi ginagamit — sadyang iniwan ang shell)
+- **Scan:** `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype:v0.119.0 auth-learning-backend:dev --fail-on high`
+  (pareho sa CI — pumapalya sa High/Critical bago ang push sa GHCR). `backend/http/32-container-scanning.http`
 - **Ang `node` ay PID 1** (Day 85) — kapag walang SIGTERM handler, hindi pinapansin ang `docker stop` (14.6s → SIGKILL, exit 137).
   May handler na (`lib/shutdown.ts`): `docker stop` ≈ 1.3s, exit 0, at tinatapos ang mga request. Subukan: `docker stop` + `docker inspect -f '{{.State.ExitCode}}'`
 - **Walang secret sa image** — ibinibigay sa `--env-file` (o compose `env_file`) sa pagpapatakbo
-- `.dockerignore`: walang `.env*`, tests, `http/`, `playground/`, migrations sa image
+- `.dockerignore`: walang `.env*`, tests, `http/`, `playground/` sa image. **Kasama** ang `drizzle/` (migrations): kailangan ng `deploy.sh` (Day 37)
 - `NODE_ENV=production` sa image → `Secure` cookie (HTTPS lang) at walang detalye sa 500
 
 ## Production database (Day 35 — Neon)

@@ -1,9 +1,9 @@
 # 08 — CI pipeline (GitHub Actions)
 
-> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection), Phase 7 (type-check) at Day 87 (supply chain)
+> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection), Phase 7 (type-check), Day 87 (supply chain) at Day 88 (container scanning)
 >
 > **Code:** `.github/workflows/ci.yml` · `.github/dependabot.yml` · `.gitleaksignore` · `backend/src/test/setup.ts` · `backend/vitest.config.ts`
-> **Subukan (Day 87):** `backend/http/31-supply-chain.http`
+> **Subukan (Day 87–88):** `backend/http/31-supply-chain.http` · `32-container-scanning.http`
 > **Subukan:** gumawa ng PR → tingnan ang "Checks" sa PR, o ang tab na **Actions** sa GitHub
 
 ```mermaid
@@ -30,7 +30,8 @@ flowchart LR
     BE --> R{"Lahat pumasa?"}
     FE --> R
     SS --> R
-    R -->|"oo"| OK["✅ berde sa PR — puwedeng i-merge<br/>(main: + job image → GHCR)"]
+    R -->|"oo"| OK["✅ berde sa PR — puwedeng i-merge"]
+    OK --> IMG["job: image — docker build (multi-stage, Day 88)<br/>→ Grype scan: pumapalya sa High/Critical<br/>→ (main lang) push sa GHCR"]
     R -->|"hindi"| NO["❌ pula — BAWAL i-merge<br/>ruleset main-protection (Day 28)"]
 ```
 
@@ -62,6 +63,8 @@ flowchart LR
 - **Dependabot** (`.github/dependabot.yml`): lingguhan, npm ×2, actions, Docker base image, at mga image sa `devops/`.
   **cooldown 7 araw:** hindi agad nagmumungkahi ng bagong labas na version (ang mga malisyosong version ay kadalasang inaalis sa loob ng ilang araw).
 - **GitHub (Settings):** secret scanning + push protection = **naka-on** (Day 87, libre sa public repo). Dependabot alerts = naka-off (desisyon ni Nelson).
+- **Container scanning (Day 88, D-030):** Grype sa built image, bago ang push. Ang image na naka-deploy noon (single stage) ay papalya (zlib High);
+  ang multi-stage ay pumapasa. Nakikita ng scanner ang Alpine packages, ang npm packages, **at ang `node` binary** (sinuri gamit ang syft).
 
 ## Branch protection (Day 28)
 
