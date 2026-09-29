@@ -586,3 +586,25 @@
   - **Parehong Alpine version sa dalawang FROM** (`node:24-alpine3.24` at `alpine:3.24`): binuo ang `node` para sa libstdc++ nito. Iisang Dependabot group.
   - Hindi na opisyal na node image ang runtime: kami na ang may-ari ng user `node` (UID 1000) at ng listahan ng aalisin. Nakikita pa rin ng scanner ang `node` binary.
   - Grype sa CI (`--fail-on high`, bago ang push): ang bagong High, kahit walang ayos, ay haharang sa deploy. Ang sagot ay alisin ang package kung hindi kailangan, o tanggapin nang tahasan.
+
+## D-031 · Ligtas na CD: attestation + pagsusuri ng config sa working copy (hindi hiwalay na deploy clone)
+
+- **Petsa:** 2026-09-29 (Day 89)
+- **Context:** "Deploy lang ang eksaktong commit na pumasa sa CI; i-verify ang migrations bago mag-restart." Nang sukatin: galing sa CI ang image,
+  pero ang compose/monitoring/cloudflared config ay galing sa working copy (anumang branch); ang tag ng image ay nababago; at ang `migrate()`
+  ay tahimik na lumalaktaw ng migration na mas luma ang timestamp.
+- **Mga pagpipilian (config):**
+  - **hiwalay na deploy-only clone** (gaya ng reference, #18): laging nasa eksaktong SHA ang config. Pero kailangang ilipat doon ang mga
+    gitignored na secret (`devops/.env`, `backend/.env.production`), na hindi puwedeng kopyahin ng AI;
+  - **tumanggi kapag iba ang `devops/` sa commit** (`git diff <SHA> -- devops/`), sa parehong working copy.
+- **Mga pagpipilian (image):** tag lang (dati) · label na `revision` (hindi patunay: kahit sino ay puwedeng maglagay) · **GitHub build-provenance attestation**.
+- **Pinili:** ang pagsusuri ng `devops/` + attestation (rekomendasyon ng AI; "go" ni Nelson).
+- **Bakit:** walang paglilipat ng secret, at pareho ang proteksyon sa karaniwang kaso (maling branch, hindi pa naka-commit na pagbabago).
+  Ang attestation ay nilagdaan ng OIDC ng GitHub (Sigstore): walang key na iniimbak, libre sa public repo, at sinusuri ang workflow, ang ref,
+  ang commit at ang uri ng runner — hindi lang ang pangalan.
+- **Consequences:**
+  - Hindi na puwedeng mag-deploy mula sa isang feature branch na may binagong `devops/`. Sadya ito.
+  - **Rollback:** `ROLLBACK=1`, na nagpapahintulot din ng config na iba sa lumang commit (ang config NGAYON ang ginagamit) at ng database na mas bago.
+  - Ang mga image bago ang Day 89 ay walang attestation: `ALLOW_UNATTESTED=1`, para lang sa rollback sa mga iyon.
+  - Ang `migrate.ts` ay pumapalya na (exit 1) kapag may migration na hindi na-apply. Kapag nangyari: bigyan ang migration ng mas bagong
+    timestamp (i-regenerate), huwag i-edit ang `__drizzle_migrations` nang kamay.
