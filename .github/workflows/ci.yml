@@ -144,6 +144,16 @@ jobs:
       - name: Build the backend image
         run: docker build -t "$IMAGE:${{ github.sha }}" backend
 
+      # Day 88: may kilalang butas ba ang IMAGE (Alpine packages, ang node binary, at ang npm packages sa loob)?
+      # Pumapalya sa High o Critical — BAGO ang push, kaya hindi aabot sa GHCR (at sa production) ang image na may ganoon.
+      # Grype bilang image na naka-pin sa digest (parehong dahilan ng gitleaks, D-029). Sinukat: ang image na naka-deploy
+      # noong Day 88 (single stage, may zlib High) ay PAPALYA rito; ang multi-stage ay pumapasa (2 Medium, busybox — D-030)
+      - name: Scan the image (Grype — pumapalya sa High/Critical)
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock
+          anchore/grype:v0.119.0@sha256:8c2c9234a345577a6d321a4753aa3ee1276d8975c8452d2344a56b57733ecad3
+          "$IMAGE:${{ github.sha }}" --fail-on high
+
       - name: Push to GHCR (main lang, pagkatapos ng merge)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
