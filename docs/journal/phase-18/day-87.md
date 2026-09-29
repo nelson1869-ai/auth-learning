@@ -56,7 +56,16 @@ isang mas lumang major version, kaya hindi ginawa. Tinanggap at nakasulat (D-029
   kaya nabago ang `ci.yml` ngayong araw.
 
 ## Pagkatapos ng merge
-*(Pupunan pagkatapos ng merge: ang unang takbo ng `secret-scan` sa CI, ang mga unang PR ng Dependabot, at ang ruleset.)*
+- **Ruleset `main-protection`** (pinili ko): required na ang **`backend`, `frontend`, `secret-scan`**. Buo pa rin ang 4 na rule.
+- **CI sa main (`68dccd7`):** berde ang `secret-scan`, `backend`, `frontend`, `image`.
+- **Dependabot:** tumakbo nang walang error para sa lahat ng 5 ecosystem, at nagbukas agad ng **2 PR**. Parehong **berde ang CI, at parehong mapanganib:**
+  - **#140 — node 24 → 25:** ang Node 25 ay **hindi LTS**.
+  - **#141 — 4 na image sa `devops/`:** Prometheus 3.7 → 3.14, Alertmanager 0.28 → 0.34, **Grafana 12 → 13 (major)**, at **Postgres 17 → 18** sa dev compose.
+    Ang major ng Postgres ay **hindi makakapagsimula sa lumang data ng volume**, kaya masisira ang dev database ko.
+  - **Bakit berde ang CI?** Hindi ginagamit ng CI ang mga image na iyon. Ang image job ay **binubuo** lang ang Node 25 image; sa Node 24 (setup-node) tumatakbo ang tests.
+    **Ang berdeng CI sa PR ng Dependabot ay hindi patunay na ligtas** — isa na namang "pumasa sa maling dahilan".
+  - **Ayos sa config:** huwag imungkahi ang major ng `node` at `postgres` (sadyang desisyon ang mga iyon); sa `devops/`, minor/patch lang ang pinagsasama,
+    at hiwalay na PR ang bawat major. **Hindi ko minerge ang #140 at #141** — desisyon ko kung isasara.
 
 ## Kumpara sa reference
 - **Pareho:** Dependabot (lingguhan, grouped), `npm audit --omit=dev` sa CI, gitleaks.
