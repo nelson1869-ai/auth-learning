@@ -111,6 +111,7 @@ backend/
 ├── drizzle/              ← migrations 0000–0012
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
+├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
 └── http/                 ← 01–30 .http walkthroughs
 ```
 
@@ -177,6 +178,7 @@ frontend/src/
 ├── hooks/            ← useHashToken.ts (Day 61) — token mula sa #fragment ng link sa email
 ├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button) — wala pang laman (Day 50)
 └── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar: auth.ts, admin.ts
+                         · openapi.generated.ts (Day 78 — mga type mula sa spec, ginawa ng `npm run openapi`; huwag i-edit nang kamay)
 ```
 
 **Bakit may sariling `api/`:** kapag nagbago ang URL o nagdagdag ng CSRF token,
