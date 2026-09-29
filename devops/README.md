@@ -76,7 +76,9 @@ docker compose down         # ihinto — buhay pa rin ang data sa volume
 ```bash
 cd devops
 ./deploy.sh                                               # i-deploy ang huling BERDENG main (Day 37)
-./deploy.sh <sha>                                         # isang tiyak na commit (rollback)
+ROLLBACK=1 ./deploy.sh <sha>                              # bumalik sa mas lumang commit (Day 89: kailangan ang ROLLBACK=1)
+ROLLBACK=1 ALLOW_UNATTESTED=1 ./deploy.sh <sha>           # ...sa image na bago pa ang Day 89 (walang attestation)
+gh attestation verify oci://ghcr.io/nelson1869-ai/auth-learning-backend:<sha> --repo nelson1869-ai/auth-learning   # sino ang gumawa ng image?
 export IMAGE_TAG=$(cat .deployed-sha)                    # ⚠️ kailangan ng ps/logs/down/restart (itinatakda lang ng deploy.sh)
 docker compose -f docker-compose.prod.yml ps              # backend (healthy) + cloudflared
 docker compose -f docker-compose.prod.yml logs cloudflared | grep Registered   # 4 na koneksyon
@@ -96,6 +98,9 @@ curl https://api.nelson1869.com/api/health/ready  # readiness: naaabot ba ang Ne
 - **Secrets, wala sa repo:** `backend/.env.production` (Neon, JWT secret) at
   `~/.cloudflared/<tunnel-id>.json` (credentials ng tunnel) · `~/.cloudflared/cert.pem`
   (pang-gawa ng tunnel/DNS — huwag i-share)
+- **Mga bantay ng `deploy.sh` (Day 89, D-031)** — tumatanggi bago gumalaw ng kahit ano kapag: mas luma ang commit kaysa sa naka-deploy
+  (walang `ROLLBACK=1`) · wala sa `main` · **iba ang `devops/` sa commit** (ibang branch, o may binago na hindi naka-commit) ·
+  walang valid na attestation ang image. Pagkatapos ng migrate: tumatanggi kapag may migration na hindi na-apply. Diagram: `docs/diagrams/09-cd-pipeline.md`
 - `name: auth-learning-prod` — hiwalay sa dev (`auth-learning`), iwas-banggaan
 - **Ang image ay galing sa CI** (`ghcr.io/nelson1869-ai/auth-learning-backend:<sha>`), hindi binubuo sa PC —
   tumatanggi ang compose kung walang `IMAGE_TAG` (itinatakda ng `deploy.sh`). Diagram: `docs/diagrams/09-cd-pipeline.md`
