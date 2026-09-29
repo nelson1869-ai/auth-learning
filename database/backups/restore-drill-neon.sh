@@ -25,8 +25,11 @@ STAGING_ENV=database/backups/.env.staging
 [[ -f "$STAGING_ENV" ]] || { echo "❌ Walang $STAGING_ENV (tingnan ang itaas ng script)" >&2; exit 1; }
 git check-ignore -q "$STAGING_ENV" || { echo "❌ Hindi gitignored ang $STAGING_ENV — huminto" >&2; exit 1; }
 
-# 🔐 Bantay: HINDI ang production. Ikinukumpara ang Neon endpoint (ep-…) — hindi ipinapakita ang URL
-endpoint() { grep "^$1=" "$2" | cut -d= -f2- | sed -E 's#^[a-z]+://[^@]*@([^/.:]+).*#\1#'; }
+# 🔐 Bantay: HINDI ang production. Ikinukumpara ang Neon endpoint (ep-…) — hindi ipinapakita ang URL.
+#    Inaalis ang `-pooler`: ang pooled na URL ng PAREHONG database ay `ep-abc-pooler`, at ang direkta ay `ep-abc`. Magkaiba bilang string,
+#    iisang database. Nahuli noong Day 91: ang unang na-paste na "staging" URL ay ang POOLED na URL ng PRODUCTION, at lulusot sana
+#    sa unang bersyon ng bantay na ito — at mabubura ang production
+endpoint() { grep "^$1=" "$2" | cut -d= -f2- | sed -E 's#^[a-z]+://[^@]*@([^/.:]+).*#\1#; s#-pooler$##'; }
 PROD_EP="$(endpoint DATABASE_URL backend/.env.production)"
 STAGING_EP="$(endpoint STAGING_DATABASE_URL "$STAGING_ENV")"
 if [[ -z "$STAGING_EP" || "$STAGING_EP" == "$PROD_EP" ]]; then
