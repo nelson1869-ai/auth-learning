@@ -113,7 +113,7 @@ backend/
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
 ├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
-└── http/                 ← 01–35 .http walkthroughs
+└── http/                 ← 01–36 .http walkthroughs
 ```
 
 **`devops/` (production, Day 36 → Day 82):**
@@ -122,6 +122,7 @@ devops/
 ├── docker-compose.prod.yml   ← backend · cloudflared · prometheus (127.0.0.1:9091) · grafana (127.0.0.1:3002) · alertmanager (127.0.0.1:9094)
 ├── deploy.sh                 ← pre-flight (compose config) → pull → migrate → backend → healthy → ready → monitoring (step 7, hindi fatal)
 ├── cloudflared/config.yml    ← tunnel → backend:3000 lang (walang daan sa :9464, :9091, :3002)
+├── lab/                      ← Day 91b: docker-compose.lb.yml + Caddyfile — 2 backend + Caddy (project auth-learning-lab, HINDI production)
 └── monitoring/               ← Day 82: prometheus/prometheus.yml · grafana/provisioning/ (datasource + app-overview.json)
                                  Day 84: prometheus/alerts.yml + alerts.test.yml · alertmanager/ (alertmanager.yml + start.sh)
 ```

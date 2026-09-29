@@ -695,11 +695,11 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** RPO/RTO — gaano karaming data ang puwedeng mawala, at gaano katagal bago bumalik
 
 ### Day 91b — Load balancing (idinagdag — tanong ni Nelson)
-- [ ] 2 backend container + **load balancer** (Caddy) sa harap nila; round-robin
-- [ ] Patayin ang isang container habang may request → tuloy pa rin ba ang serbisyo? (health checks)
-- [ ] **Makita ang problema:** ang in-memory rate limiter ay may sariling bilang sa bawat container
-      → 10 na limit ay nagiging ~20 → dahilan ng Day 92
-- [ ] 📊 I-update ang `00-architecture.md`
+- [x] 2 backend container + **load balancer** (Caddy) sa harap nila; round-robin *(lab: `devops/lab/`, hindi production — D-034 · 4/4)*
+- [x] Patayin ang isang container habang may request → tuloy pa rin ba ang serbisyo? (health checks) *(0 error sa ~525 request, stop at kill · pero ang request na nasa kalagitnaan sa SIGKILL → 502)*
+- [x] **Makita ang problema:** ang in-memory rate limiter ay may sariling bilang sa bawat container
+      → 10 na limit ay nagiging ~20 → dahilan ng Day 92 *(nasukat: eksaktong 20 · + ang IP ng Caddy ang nakikita para sa lahat ng user)*
+- [x] 📊 I-update ang `00-architecture.md` *(+ 📝 `backend/http/36-load-balancing.http`)*
 - **Matututunan:** horizontal scaling, stateless na server (bakit JWT sa cookie ay madaling i-scale),
   health checks. ⚠️ Sa iisang PC — para sa konsepto, hindi para sa tunay na pakinabang
 
