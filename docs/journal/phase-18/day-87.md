@@ -44,6 +44,10 @@ isang mas lumang major version, kaya hindi ginawa. Tinanggap at nakasulat (D-029
 | `.http` 31 | ✅ 3/3 |
 
 ## 🐛 Mga nahuli (at isang pagtatama)
+- **Nahuli ng gitleaks ang sarili nitong ignore file.** Sa comment ng `.gitleaksignore`, SINIPI ko ang tekstong nahuli, kaya pareho itong nahuli ulit,
+  sa mismong file ng mga ignore. **Pula ang unang CI run.** Pumasa ito nang lokal dahil sinuri ko ang history **bago** ko i-commit ang file;
+  ang CI ay sumusuri ng naka-commit na estado. Ayos: hindi na sinisipi ang teksto, at ang commit na naka-push na ay idinagdag sa ignore (walang force-push).
+  **Aral (parehong aral ng Day 21 ng reference):** subukan ang eksaktong estadong susuriin ng CI, hindi ang working copy.
 - **Hindi ma-block ng `secret-scan` ang merge** kung hindi ito "required check" sa ruleset. Ang required ay `backend` at `frontend` lang.
   Kailangan ito ng image job, pero ang PR ay puwede pa ring i-merge kahit pula ito. (Tingnan ang "Pagkatapos ng merge".)
 - **Kahit ang lodash 4.17.21, na dating "ang ayos", ay may bagong advisory na** (prototype pollution sa `_.unset`). Ang "malinis" ngayon ay puwedeng may butas bukas.
