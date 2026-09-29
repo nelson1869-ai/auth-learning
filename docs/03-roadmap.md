@@ -668,7 +668,8 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 18 — Production maturity · 🚀 *DevOps* + 🗄️ *Database* · Day 87–93
 
 ### Day 87 — Supply-chain security
-- [ ] Dependabot, `npm audit` sa CI, secret scanning (gitleaks)
+- [x] Dependabot, `npm audit` sa CI, secret scanning (gitleaks) *(sinukat muna: PUBLIC ang repo, naka-off ang lahat ng proteksyon ng GitHub · gitleaks sa 361 commit: 1 false positive · gitleaks = image na naka-pin sa digest · audit ×2 sa backend AT frontend · mga action naka-pin sa SHA · Dependabot na may cooldown · secret scanning + push protection naka-on · D-029)*
+- [x] 📝 `backend/http/31-supply-chain.http` · 📊 diagram 08 (CI) — in-update
 - **Matututunan:** bakit mapanganib ang dependencies · *Reference: `Dependabot, npm audit gate, and secret scanning`*
 
 ### Day 88 — Container scanning

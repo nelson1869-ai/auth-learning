@@ -112,7 +112,7 @@ backend/
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
 ├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
-└── http/                 ← 01–30 .http walkthroughs
+└── http/                 ← 01–31 .http walkthroughs
 ```
 
 **`devops/` (production, Day 36 → Day 82):**
