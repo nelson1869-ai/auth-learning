@@ -65,7 +65,11 @@ isang mas lumang major version, kaya hindi ginawa. Tinanggap at nakasulat (D-029
   - **Bakit berde ang CI?** Hindi ginagamit ng CI ang mga image na iyon. Ang image job ay **binubuo** lang ang Node 25 image; sa Node 24 (setup-node) tumatakbo ang tests.
     **Ang berdeng CI sa PR ng Dependabot ay hindi patunay na ligtas** — isa na namang "pumasa sa maling dahilan".
   - **Ayos sa config:** huwag imungkahi ang major ng `node` at `postgres` (sadyang desisyon ang mga iyon); sa `devops/`, minor/patch lang ang pinagsasama,
-    at hiwalay na PR ang bawat major. **Hindi ko minerge ang #140 at #141** — desisyon ko kung isasara.
+    at hiwalay na PR ang bawat major. **Hindi ko minerge ang #140 at #141.**
+  - **Pagkatapos ng ayos (#142):** kusang **isinara** ng Dependabot ang #140 at #141, at pinalitan ng **#143** (Prometheus 3.14 + Alertmanager 0.34, minor lang)
+    at **#144** (Grafana 13, major, hiwalay). Wala nang Postgres 18 o Node 25.
+  - **Hindi pa minerge ang #143 at #144:** hindi sila sinusuri ng CI, kaya kailangang subukan nang lokal ang monitoring stack (dashboard, alerts, promtool) bago i-merge.
+    Gawain para sa susunod (o para sa akin).
 
 ## Kumpara sa reference
 - **Pareho:** Dependabot (lingguhan, grouped), `npm audit --omit=dev` sa CI, gitleaks.
