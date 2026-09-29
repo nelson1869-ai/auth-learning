@@ -35,11 +35,24 @@ updates:
     directory: /backend
     schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
     cooldown: { default-days: 7 }
+    ignore:
+      # Node: LTS lang (even na numero: 24, 26…). Ang unang PR ng Dependabot ay 24 → 25, na HINDI LTS (maikling suporta).
+      # Ang pagpalit ng LTS ay sadyang desisyon (tests + Neon + deps), hindi lingguhang PR. Berde ang CI sa PR na iyon, pero
+      # WALANG kahulugan: sa Node 24 (setup-node) tumatakbo ang tests, binubuo lang ang image
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
 
   # Mga image sa devops/ (postgres, cloudflared, prometheus, grafana, alertmanager) — naka-pin sa eksaktong version
   - package-ecosystem: docker-compose
     directory: /devops
     schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
     cooldown: { default-days: 7 }
+    ignore:
+      # Postgres: ang major (17 → 18) ay hindi makakapagsimula sa lumang data ng volume — kailangan ng dump/restore.
+      # At dapat pareho sa Neon (17) at sa CI (postgres:17-alpine). Sadyang desisyon, hindi lingguhang PR
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
     groups:
-      devops-images: { patterns: ["*"] }
+      # minor/patch lang ang pinagsasama; ang bawat MAJOR (hal. Grafana 12 → 13) ay hiwalay na PR, para masuri nang isa-isa.
+      # ⚠️ Hindi ginagamit ng CI ang mga image na ito — ang berdeng CI ay hindi patunay; subukan nang lokal bago i-merge
+      devops-images: { patterns: ["*"], update-types: [minor, patch] }
