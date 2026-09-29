@@ -18,3 +18,9 @@ pool.on('error', (err: Error) => {
 });
 
 export const db = drizzle(pool);
+
+// Day 85: isinasara ng graceful shutdown (index.ts), PAGKATAPOS matapos ang mga request at background tasks.
+// Hinihintay ng pool.end() na maibalik ang mga koneksyong ginagamit pa, tapos isinasara ang lahat
+export async function closeDb(): Promise<void> {
+  await pool.end();
+}
