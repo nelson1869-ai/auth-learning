@@ -42,4 +42,7 @@ kapag **walang handler**, hindi pinapansin ang signal. Kaya naghihintay ang Dock
 | **Ngayon** | **1.3s** (≈1ms ang app; ang iba ay Docker) | **0** | **200**, hinihintay (2.5s kung 2s ang request) |
 
 - **Hindi pa ito zero-downtime.** Iisa lang ang backend: habang pinapalitan ng `deploy.sh` ang container, walang sumasagot (cloudflared → 502).
-  Ang nagawa: walang **napuputol** na request o email, at mas maikli ang puwang. Para sa tunay na zero-downtime, kailangan ng dalawang instance (backlog).
+  Ang nagawa: walang **napuputol** na request o email, at mas mabilis ang deploy. **Hindi umikli ang puwang** (3.8s ng 502 bago at pagkatapos, sinukat sa production):
+  sumasagot pa ang lumang app habang hinihintay ng Docker ang 10s, kaya ang puwang ay ang pagsisimula lang ng bagong container.
+  Para sa tunay na zero-downtime, kailangan ng dalawang instance (backlog).
+- **Sa production (`docker events`):** luma → SIGTERM, hindi pinansin, SIGKILL pagkalipas ng 10s, exit 137 · bago → SIGTERM, exit 0 pagkalipas ng 1s.
