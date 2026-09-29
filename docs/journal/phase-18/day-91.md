@@ -70,6 +70,24 @@ Hindi ko ito binago: ang bantay (d) ng deploy (Day 89) na ang sumusuri ng schema
 Tama ang kinalabasan, pero nagkataon lang. Ang dahilan: sa `mkdir … && chmod …`, **hindi humihinto ang `set -e`** kapag pumalya ang unang command ng isang `&&`.
 Ayos: magkahiwalay na linya. Sinuri ko rin ang lahat ng iba pang `&&` sa mga script: sinadya ang iba (kondisyon), o nasa subshell na tama ang exit code.
 
+## 🚨 Muntik nang mabura ang production (at ang bantay na hindi sapat)
+Nang ilagay ko ang "staging" na connection string sa `.env.staging`, sinuri ito ng AI (oo/hindi lang) bago patakbuhin ang drill:
+tamang hugis, Neon, `ep-…`, "iba sa production" — **pero may `-pooler`**. Nang alisin ang `-pooler` at ikumpara ulit: **PRODUCTION ITO**
+(ang pooled na URL ng production branch, hindi ng staging).
+
+**Ang unang bersyon ng bantay sa `restore-drill-neon.sh` ay LULUSOT dito:** ikinukumpara nito ang `ep-…` bilang string, at magkaiba ang
+`ep-abc` (direkta, nasa `.env.production`) at `ep-abc-pooler` (pooled) kahit **iisang database**. Ang unang hakbang ng drill ay
+`DROP SCHEMA public CASCADE` sa target. **Mabubura sana ang buong production.**
+
+- Hindi pinatakbo ang drill; binura ang `.env.staging` (may production credentials).
+- **Ayos:** inaalis ang `-pooler` bago ikumpara. Sinubukan: pooled na URL ng production → "HINDI ito tatakbo".
+  Ang lumang bantay ay HINDI pinatakbo para patunayan ito (kung lumusot, mabubura ang production) — ang paghahambing lang, walang database: lulusot nga.
+- **Mga aral:**
+  1. Ang bantay na sinubukan ko lang sa **iisang anyo** ng mapanganib na input (ang eksaktong `.env.production` URL) ay hindi pa napatunayan.
+     Ang ibang anyo (pooled, iba ang query string) ay kailangang isipin.
+  2. **Tama ang ugaling suriin muna ang file bago patakbuhin**, kahit may bantay ang script. Dalawang layer ang nagligtas dito, hindi isa.
+  3. Sa Neon console, ang "Connect" ay default na naka-**production** branch. Kailangang piliin ang `staging` nang tahasan.
+
 ## Kumpara sa reference
 Walang sariling backup o restore drill ang reference (umaasa rin sa backup ng database provider). Lahat ng ito ay bago.
 
