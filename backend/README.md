@@ -54,9 +54,9 @@ backend/
 │   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?" (+ responses.ts: ang hugis ng mga sagot, Day 78)
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
-│   └── db/               ← koneksyon + schema ng tables
+│   └── db/               ← koneksyon + schema ng tables · migrate.ts + verifyMigrations.ts (ang ginagamit ng deploy — sinusuri ang migrations, Day 89)
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–32 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–33 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)
@@ -109,7 +109,11 @@ curl localhost:3099/api/health
 - `backend/.env.production` (gitignored, `600`): `DATABASE_URL` ng Neon (**direct**, walang
   `-pooler`; `sslmode=verify-full`), ibang `JWT_PRIVATE_KEY` kaysa dev (Day 56; nandoon pa ang lumang `JWT_SECRET` para sa rollback sa lumang image), `CLIENT_URL=https://nelson1869.com`,
   `NODE_ENV=production`
-- Migrations sa production: `node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate`
+- Migrations sa production: **`devops/deploy.sh` lang** (Day 37) — pinapatakbo ang `node src/db/migrate.ts` sa LOOB ng image na ide-deploy,
+  at mula Day 89, **sinusuri** na lahat ng migration sa image ay nasa database (exit 1 kung hindi, bago i-restart ang backend).
+  ⚠️ Huwag nang gamitin ang dating `drizzle-kit migrate` mula sa PC: ibang code (ang working copy, hindi ang image) at walang pagsusuri.
+  Kapag "Not applied": may migration na mas luma ang timestamp kaysa sa huling na-apply (tahimik itong nilalaktawan ng drizzle) —
+  i-regenerate ito para magkaroon ng mas bagong timestamp
 - **Admin (Day 45):** `npm run db:set-role -- <email> admin` (dev) — para sa production, tingnan ang `devops/README.md`.
   Walang default na admin account o password sa code.
 - **Restore:** Neon → Backup & Restore → branch `production` → **ilagay ang oras nang tahasan**
