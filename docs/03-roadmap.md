@@ -658,10 +658,10 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** zero-drop deploys · *Reference: `graceful shutdown`*
 
 ### Day 86 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(28/28 napatakbo · 14 at 15 nilaktawan (walang password file) · bawat URL ng 30 file ay nasa spec · 157 path ang umiiral · 50/50 diagram)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(2 kulang, inayos: `openapi.generated.ts`, `playground/`)*
 
-**✅ Checkpoint (`checkpoint-phase-17`):** Nakatanggap ka ng alert email nang sadyang patayin ang app.
+**✅ Checkpoint (`checkpoint-phase-17`):** Nakatanggap ka ng alert email nang sadyang patayin ang app. — **TAPOS ✅ (2026-09-29)**: FIRING at RESOLVED sa inbox ko (2026-09-28); ang paliwanag ay nasa `journal/phase-17/day-86.md`
 
 ---
 
