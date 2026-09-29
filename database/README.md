@@ -25,23 +25,25 @@ mabilis mahanap ang data, at — pinakamahalaga — **paano hindi ito mawawala**
 ## Tools
 PostgreSQL · Docker · SQL · Drizzle ORM · Neon (Phase 8 — Singapore, Postgres 17) — tingnan ang [tech stack](../docs/02-tech-stack.md).
 
-## Ano ang lalaman ng folder na ito (plano)
+## Ang laman ng folder na ito
 ```
 database/
 ├── sql-practice/       ← mga SQL na isinulat mo habang natututo
-├── migrations/         ← mga pagbabago ng schema, sunod-sunod
-└── backups/            ← mga script at dokumentasyon ng backup
+└── backups/            ← Day 91: backup.sh · restore-drill.sh (lokal) · restore-drill-neon.sh · systemd/ (araw-araw na timer)
 ```
+> Ang migrations ay nasa `backend/drizzle/` (tingnan ang paalala sa ibaba) — hindi na natuloy ang planong `database/migrations/`.
 > Tapat na paalala: sa totoong trabaho, madalas nasa loob ng `backend/` ang
 > schema at migrations. Hiwalay natin sila rito para matutunan ang role.
 
-## Ngayon: ano na ang totoong mayroon (in-update Day 48)
+## Ngayon: ano na ang totoong mayroon (in-update Day 91)
 | | |
 |---|---|
-| **Tables** | `users` (may `role`: enum `user` \| `admin`, Day 45) · `audit_logs` (Day 48) · `refresh_tokens` (Day 51) · `verification_tokens` (Day 59) — tingnan ang [ER diagram](../docs/diagrams/02-er-diagram.md) |
+| **Tables** | `users` (may `role`: enum `user` \| `admin`, Day 45) · `audit_logs` (Day 48) · `refresh_tokens` (Day 51) · `verification_tokens` (Day 59) · `trusted_devices` (Day 64) · `unknown_login_attempts` (Day 71) — tingnan ang [ER diagram](../docs/diagrams/02-er-diagram.md) |
 | **Schema at migrations** | `backend/src/db/schema.ts` → `backend/drizzle/0000`–`0012` (nasa backend, hindi dito — tingnan ang paalala sa itaas) |
 | **Mga database** | dev `auth_learning` at test `auth_learning_test` (Docker, `localhost:5435`) · production: **Neon** (Singapore, `verify-full`) |
-| **Backup** | Neon restore — sinubukan ang drill noong Day 35 (ilagay ang oras nang tahasan; 6 na oras sa Free plan) |
+| **Backup** | (1) Neon point-in-time restore — 6 na oras (Free plan), sinubukan Day 35 · (2) **sariling `pg_dump` sa PC** (Day 91): bago mag-migrate sa bawat deploy, araw-araw sa 03:00 (systemd timer), 14 ang itinatago — `~/backups/auth-learning` (600, hindi sa repo) |
+| **Restore drill** | `database/backups/restore-drill.sh` — staging container, sinisira, nire-restore, inoorasan (lokal: 0.7s). Neon drill: `restore-drill-neon.sh` (tumatanggi kapag production ang target) |
+| **Data retention** | oras-oras (Day 90, D-032) — tingnan ang `docs/diagrams/24-retention.md` |
 | **Mga script** | `npm run db:migrate` · `db:migrate:test` · `db:studio` · **`db:set-role -- <email> admin`** (Day 45, D-023) |
 | **Mga patakaran sa database mismo** | `UNIQUE` email · `NOT NULL` · enum ng role · `audit_logs.actor_id ON DELETE SET NULL` (hindi nawawala ang kasaysayan) |
 | **Nasa `sql-practice/`** | `01-crud.sql` (Day 08) · `02-constraints.sql` (Day 09) |

@@ -1,0 +1,31 @@
+### =========================================================================
+### 🎓 BACKUP DRILL — "ang backup na hindi pa nasusubukang i-restore ay hindi backup"
+### 📅 Day 91 · Phase 18 (Production maturity) · Desisyon: D-033
+### =========================================================================
+### Mga backup natin:
+###   1. Neon point-in-time restore — 6 na ORAS lang (Free plan), nasa iisang account (Day 35)
+###   2. SARILING pg_dump sa PC (~/backups/auth-learning, 600) — Day 91:
+###        · bago mag-migrate sa bawat deploy (devops/deploy.sh, bantay e)
+###        · araw-araw, 03:00 (systemd user timer — database/backups/systemd/)
+###        · manual: database/backups/backup.sh [label]
+###
+### Ang drill (HINDI ginagalaw ang production):
+###   KEEP_STAGING=1 database/backups/restore-drill.sh
+###   → staging Postgres (pansamantala) → restore → suriin ang bilang ng bawat table → ang PRODUCTION image laban dito (port 3098)
+###   → 💥 DROP SCHEMA public CASCADE → restore ulit → orasan
+### Sinukat (Day 91, lokal): restore 0.7s · mula sa sira hanggang tama ulit ang sagot: 0.9s (napakaliit pa ng database)
+###
+### Ang mga request sa ibaba ay para sa staging app na naiwan ng `KEEP_STAGING=1` (port 3098).
+### Kapag tapos na: docker rm -f auth-learning-staging-app auth-learning-staging && docker network rm auth-learning-staging-net
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Handa ba ang app sa na-restore na database? Ang inaasahan: 200 { "status": "ready", "checks": { "database": "ok" } }
+###    ⚠️ Aral ng Day 91: 200 pa rin ito kahit BURADO ang lahat ng table (SELECT 1 lang ang sinusuri: "naaabot ko ang database",
+###    hindi "may laman ito"). Kaya ang #2 ang tunay na patunay na bumalik ang data
+GET http://localhost:3098/api/health/ready
+
+### -------------------------------------------------------------------------
+### 2. Bumalik ba ang data? Ang inaasahan: 200 { "count": N } — N = ang bilang ng users sa oras ng backup
+###    (tingnan ang ~/backups/auth-learning/<pinakabago>.counts, linyang public.users)
+GET http://localhost:3098/api/users/count

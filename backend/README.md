@@ -57,7 +57,7 @@ backend/
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables · migrate.ts + verifyMigrations.ts (ang ginagamit ng deploy — sinusuri ang migrations, Day 89)
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–34 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–35 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)

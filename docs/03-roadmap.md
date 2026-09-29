@@ -690,7 +690,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
 
 ### Day 91 — Backup drill
-- [ ] Sadyang "sirain" ang staging DB at i-restore mula sa backup; orasan ito
+- [x] Sadyang "sirain" ang staging DB at i-restore mula sa backup; orasan ito *(sinukat: Neon 6 na oras LANG ang backup → sariling `pg_dump` sa PC: bago mag-migrate sa bawat deploy + araw-araw (systemd timer) · drill: staging container, `DROP SCHEMA`, restore 0.7s, tama ulit ang app sa 0.9s · nahuli: 200 pa rin ang "ready" kahit walang table · ☐ Neon drill: naghihintay ng staging branch · D-033)*
+- [x] 📝 `backend/http/35-backup-drill.http` · 📊 `docs/diagrams/25-backup-drill.md` (+ diagram 09: bantay e)
 - **Matututunan:** RPO/RTO — gaano karaming data ang puwedeng mawala, at gaano katagal bago bumalik
 
 ### Day 91b — Load balancing (idinagdag — tanong ni Nelson)
