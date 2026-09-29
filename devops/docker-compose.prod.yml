@@ -33,7 +33,7 @@ services:
   # Ibang port sa mga default (9090, 3001 ay gamit na sa PC na ito). May limit ng memory: hindi dapat kainin
   # ng monitoring ang kailangan ng app mismo (iisang PC lang ito)
   prometheus:
-    image: prom/prometheus:v3.7.3 # naka-pin
+    image: prom/prometheus:v3.14.0 # naka-pin
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=15d # 15 araw lang — hindi lalaki nang walang hangganan
@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
 
   grafana:
-    image: grafana/grafana:12.3.0 # naka-pin
+    image: grafana/grafana:13.2.2 # naka-pin
     environment:
       GF_SECURITY_ADMIN_USER: admin
       # Galing sa devops/.env (gitignored) — hindi kailanman naka-commit
@@ -80,7 +80,7 @@ services:
   # Walang secret sa config: ang password at ang recipient ay galing sa devops/.env, at isinusulat ng start.sh
   # sa isang tmpfs (memory lang) na ang may-ari ay ang user ng alertmanager (nobody, 65534)
   alertmanager:
-    image: prom/alertmanager:v0.28.1 # naka-pin
+    image: prom/alertmanager:v0.34.1 # naka-pin
     entrypoint: ["/bin/sh", "/etc/alertmanager/start.sh"]
     environment:
       ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:?set ALERT_EMAIL_TO in devops/.env}
