@@ -684,8 +684,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** mga totoong insidente sa reference · *Reference: `fix(cd)` (2 commits)*
 
 ### Day 90 — Data retention
-- [ ] Oras-oras na paglilinis ng expired na data, may advisory lock
-- [ ] 📝 `backend/http/NN-retention.http` — gabay kung paano obserbahan ang cleanup job
+- [x] Oras-oras na paglilinis ng expired na data, may advisory lock *(sinukat: 1 user, 8MB — para sa hangganan at privacy · buong family ng refresh token lang (reuse detection) · audit logs 1 taon (desisyon ko) · 10 test, 6 na sadyang sira ang nahuli · + metrics at 2 Grafana panel · D-032)*
+- [x] 📝 `backend/http/34-retention.http` — gabay kung paano obserbahan ang cleanup job · 📊 `docs/diagrams/24-retention.md`
 - [ ] 📊 `docs/diagrams/NN-retention.md`
 - **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
 

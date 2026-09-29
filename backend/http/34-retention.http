@@ -1,0 +1,48 @@
+### =========================================================================
+### 🎓 DATA RETENTION — paano OBSERBAHAN ang oras-oras na paglilinis ng lumang data
+### 📅 Day 90 · Phase 18 (Production maturity) · Desisyon: D-032
+### =========================================================================
+### Walang endpoint ang retention: tumatakbo ito sa LOOB ng backend, 60s pagka-start, tapos bawat oras
+### (backend/src/jobs/retentionScheduler.ts → services/retention.service.ts). Kaya ang pag-obserba ay sa tatlong paraan:
+###
+###   1. LOG (bawat takbo):
+###        docker compose -f devops/docker-compose.prod.yml logs backend | grep retention_
+###        → "retention_done"    { deleted: { refreshTokens, verificationTokens, trustedDevices, unknownLoginAttempts, auditLogs }, ms }
+###        → "retention_skipped" (may ibang instance na may hawak ng advisory lock)
+###        → "background_failed" task: "retention" (pumalya — may stack sa log)
+###   2. METRICS (Prometheus — ang mga request sa ibaba) · 3. GRAFANA: http://127.0.0.1:3002/d/auth-learning-app (2 panel sa ibaba)
+###
+### Mga patakaran (D-032):
+###   refresh_tokens          → BUONG family, kapag expired na ang LAHAT (kailangan ng reuse detection ang revoked na token ng buhay na family)
+###   verification_tokens     → expired na
+###   trusted_devices         → expired na
+###   unknown_login_attempts  → walang attempt nang 30+ araw AT hindi naka-lock
+###   audit_logs              → mahigit 1 taon (desisyon ko)
+###
+### ⚠️ Production stack ang kailangan (Prometheus sa 127.0.0.1:9091). Sa dev: tingnan ang log ng `npm run dev` pagkalipas ng 60s.
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Ilang takbo sa huling 24 oras, ayon sa resulta. Ang inaasahan: 200 · status="ok" ≈ 24 (isa bawat oras),
+###    "failed" = 0. Kapag "skipped" ang lahat: may ibang may hawak ng lock (o may nakabiting transaction)
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum by (status) (increase(auth_retention_runs_total[24h]))
+
+### -------------------------------------------------------------------------
+### 2. Ilang row ang binura bawat table sa huling 24 oras. Ang inaasahan: 200 · isang serye bawat table (0 kung wala).
+###    Sa maliit na app natin, madalas 0 — ayos lang iyon: ang punto ay may HANGGANAN ang paglaki
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum by (table) (increase(auth_retention_deleted_total[24h]))
+
+### -------------------------------------------------------------------------
+### 3. Tumatakbo pa ba ang scheduler? Ilang matagumpay na takbo sa huling 2 oras. Ang inaasahan: 200 · value ≥ 1
+###    (kapag 0 at buhay ang backend nang higit 2 oras: may problema ang scheduler — tingnan ang log)
+###    ⚠️ Pagkatapos ng restart/deploy, bumabalik sa 0 ang counter — hinahawakan iyon ng increase(); sa unang 60s, wala pang takbo
+POST http://127.0.0.1:9091/api/v1/query
+Content-Type: application/x-www-form-urlencoded
+
+query=sum(increase(auth_retention_runs_total{status="ok"}[2h]))
