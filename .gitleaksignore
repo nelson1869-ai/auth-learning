@@ -1,0 +1,11 @@
+# gitleaks (Day 87): mga natuklasang SINURI at HINDI totoong secret. Isang linya bawat isa (fingerprint = commit:file:rule:linya),
+# at may dahilan sa itaas ng bawat isa. Kapag totoong secret: HUWAG ilagay dito — i-rotate ang secret, tapos alisin sa history.
+# ⚠️ Huwag SIPIIN dito ang tekstong natuklasan: magiging bagong finding ito (nangyari na — tingnan ang pangalawa)
+
+# Pangalan ng function ng argon2 sa isang tanong sa journal ng Day 14 — hindi key. Nahuli ng generic-api-key dahil sa entropy.
+# Sinuri noong Day 87 (nakatakip ang output, walang secret na ipinakita)
+74250e98cf6f03f8470b038302509bf7258fd7f6:docs/journal/phase-4/day-14.md:generic-api-key:26
+
+# Ang unang bersyon ng file na ito ay SUMIPI ng teksto sa itaas sa isang comment, kaya pareho ring nahuli (nahuli ng CI, hindi ng lokal
+# na pagsubok ko — sinuri ko ang history BAGO ko i-commit ang file). Nasa history na, at walang force-push, kaya ignore
+97d79da7a0ba30c8ea8ef5f2ee8352bdcda532d7:.gitleaksignore:generic-api-key:4

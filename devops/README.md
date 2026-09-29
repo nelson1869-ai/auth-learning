@@ -46,6 +46,8 @@ devops/
 ```
 > Ang GitHub Actions workflows ay nasa `/.github/workflows/` sa root —
 > requirement iyon ng GitHub, hindi puwedeng ilipat dito.
+> Day 87: `/.github/dependabot.yml` (lingguhang update PRs) at `/.gitleaksignore` (mga sinuring false positive ng gitleaks) —
+> nasa root din, requirement ng GitHub at ng gitleaks. Tingnan ang `docs/diagrams/08-ci-pipeline.md` at D-029.
 
 ## Paano patakbuhin ang database (Day 07)
 

@@ -1,0 +1,42 @@
+### =========================================================================
+### 🎓 SUPPLY CHAIN — paano nalalaman ng `npm audit` na may butas ang isang package?
+### 📅 Day 87 · Phase 18 (Production maturity)
+### =========================================================================
+### Walang bagong endpoint ang app ngayong araw. Ang mga request dito ay sa mga PUBLIKONG serbisyong ginagamit ng CI natin,
+### para makita kung ano ang nangyayari sa likod ng `npm audit`:
+###   1. ipinapadala ng npm ang listahan ng { package: [mga version] } mula sa package-lock.json
+###   2. sumasagot ang registry ng mga "advisory" (kilalang butas) para sa mga version na iyon
+###   3. pumapalya ang `npm audit --audit-level=X` kapag may advisory na X o mas mataas
+###
+### Sa CI (.github/workflows/ci.yml), backend AT frontend:
+###   npm audit --omit=dev --audit-level=moderate   ← production (ang tumatakbo sa server / napupunta sa browser)
+###   npm audit --audit-level=high                  ← lahat, kasama ang dev tools
+### Iba pang bantay (Day 87): gitleaks (secret sa BUONG history) · Dependabot (.github/dependabot.yml) ·
+###   secret scanning + push protection ng GitHub (naka-on sa Settings) · mga action na naka-pin sa commit SHA
+###
+### ⚠️ Nagbabago ang mga sagot dito sa paglipas ng panahon: may natutuklasang bagong butas araw-araw.
+###    (Noong Day 87: kahit ang lodash 4.17.21, na dating "ang ayos", ay may bagong advisory na.)
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Isang LUMANG version na maraming kilalang butas. Ang inaasahan: 200 · "lodash": [ …advisory… ]
+###    Bawat isa: "severity" (low/moderate/high/critical), "title", at "url" (GitHub Advisory, GHSA-…)
+###    Ito ang dahilan kung bakit pumalya ang audit gate nang sadya kong subukan ang lodash@4.17.20 (Day 87)
+POST https://registry.npmjs.org/-/npm/v1/security/advisories/bulk
+Content-Type: application/json
+
+{ "lodash": ["4.17.20"] }
+
+### -------------------------------------------------------------------------
+### 2. Ang zod version na gamit natin (tingnan ang backend/package-lock.json). Ang inaasahan: 200 {} — walang kilalang butas
+POST https://registry.npmjs.org/-/npm/v1/security/advisories/bulk
+Content-Type: application/json
+
+{ "zod": ["4.6.5"] }
+
+### -------------------------------------------------------------------------
+### 3. Ang advisory na TINANGGAP natin (Day 87): esbuild dev server, dumarating via drizzle-kit (dev lang).
+###    Ang inaasahan: 200 · "severity": "medium" · basahin ang "description": may epekto lang kapag pinatakbo ang `esbuild serve`,
+###    na hindi ginagamit ng drizzle-kit. Ang "fix" ng npm ay downgrade sa drizzle-kit 0.18, kaya hindi ginawa
+###    (walang login ang GitHub API dito: 60 request bawat oras bawat IP)
+GET https://api.github.com/advisories/GHSA-67mh-4wv8-2f99

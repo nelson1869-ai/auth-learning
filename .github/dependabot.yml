@@ -1,0 +1,45 @@
+# Dependabot (Day 87): kusang PR kapag may bagong version ng isang dependency. Sinusuri ito ng CI gaya ng ibang PR,
+# at ako (Nelson) ang nagme-merge — walang auto-merge.
+#
+# cooldown: maghintay ng 7 araw pagkatapos ilabas ang isang version bago mag-PR. Ang mga malisyosong version sa npm
+# (hal. ninakaw ang account ng maintainer) ay kadalasang natutuklasan at inaalis sa loob ng ilang araw.
+# groups: iisang PR para sa lahat ng minor/patch → mas kaunting ingay; ang major ay hiwalay (maaaring may breaking change).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /backend
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
+    cooldown: { default-days: 7 }
+    groups:
+      backend-minor-patch: { update-types: [minor, patch] }
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
+    cooldown: { default-days: 7 }
+    groups:
+      frontend-minor-patch: { update-types: [minor, patch] }
+    open-pull-requests-limit: 5
+
+  # Ang mga action sa .github/workflows — naka-pin sa commit SHA; ina-update ng Dependabot ang SHA at ang `# vX.Y.Z` na comment
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
+    cooldown: { default-days: 7 }
+    groups:
+      actions: { patterns: ["*"] }
+
+  # Base image ng backend (node:24-alpine) — dito nanggagaling ang karamihan ng CVE sa isang container (Day 88)
+  - package-ecosystem: docker
+    directory: /backend
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
+    cooldown: { default-days: 7 }
+
+  # Mga image sa devops/ (postgres, cloudflared, prometheus, grafana, alertmanager) — naka-pin sa eksaktong version
+  - package-ecosystem: docker-compose
+    directory: /devops
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: Asia/Manila }
+    cooldown: { default-days: 7 }
+    groups:
+      devops-images: { patterns: ["*"] }

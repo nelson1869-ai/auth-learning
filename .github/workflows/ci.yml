@@ -40,9 +40,9 @@ jobs:
       CLIENT_URL: http://localhost:5173
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: npm
@@ -51,8 +51,13 @@ jobs:
       - name: Install (eksaktong versions mula sa package-lock.json)
         run: npm ci
 
+      # Day 87: dalawang antas. Production (ang tumatakbo sa server): pumapalya kahit moderate.
+      # Lahat (kasama ang dev tools): high lang — ang 4 na moderate ay esbuild via drizzle-kit (dev server lang, hindi ginagamit;
+      # ang "fix" ng npm ay downgrade sa drizzle-kit 0.18). Tingnan ang journal ng Day 87
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Audit all dependencies (incl. dev tools)
+        run: npm audit --audit-level=high
 
       - name: Lint (Oxlint)
         run: npm run lint
@@ -78,9 +83,9 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: npm
@@ -88,6 +93,13 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      # Day 87: ang dependencies ng frontend ay NAPUPUNTA sa browser ng user (sa bundle), at ang dev tools (vite)
+      # ang gumagawa ng bundle — kaya pareho silang sinusuri
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Audit all dependencies (incl. build tools)
+        run: npm audit --audit-level=high
 
       - name: Lint (Oxlint)
         run: npm run lint
@@ -98,11 +110,28 @@ jobs:
       - name: Build
         run: npm run build
 
+  # Day 87: may secret ba sa KAHIT ANONG commit (hindi lang sa huli)? Public ang repo — kapag naka-push, nakita na ng lahat.
+  # gitleaks bilang Docker image na naka-pin sa DIGEST (hindi tag, hindi third-party action): ang tag ay puwedeng ilipat
+  # ng may-ari (o ng nakapasok na attacker) sa ibang code; ang digest ay hindi. Aral ng reference: ang trivy-action tags (2026-03)
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # buong history, hindi lang ang huling commit
+      - name: gitleaks (buong history · --redact = hindi ipinapakita ang secret sa log)
+        run: >-
+          docker run --rm -v "$PWD:/repo:ro"
+          ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git /repo --no-banner --redact --verbose
+
   # CD, bahagi 1 (Day 37): gumagawa ng backend image. Sa bawat PR — build lang (sinusuri ang
   # Dockerfile). Sa merge sa main — push din sa GHCR, naka-tag sa EKSAKTONG commit na pumasa.
   # Walang self-hosted runner: ang PC ang kumukuha ng image (devops/deploy.sh) — D-020.
   image:
-    needs: [backend, frontend] # image lang kapag pumasa ang tests
+    needs: [backend, frontend, secret-scan] # image lang kapag pumasa ang tests at walang secret
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -110,7 +139,7 @@ jobs:
     env:
       IMAGE: ghcr.io/nelson1869-ai/auth-learning-backend
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Build the backend image
         run: docker build -t "$IMAGE:${{ github.sha }}" backend

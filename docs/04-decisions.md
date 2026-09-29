@@ -542,3 +542,27 @@
   - `/metrics` sa hiwalay na port (`METRICS_PORT`, default 9464), hindi publiko (hindi dinadaanan ng tunnel).
   - Ang pagpalya ng metrics server ay hindi nagpapabagsak sa app.
 
+
+## D-029 · Supply chain: gitleaks bilang image na naka-pin sa digest · npm audit sa dalawang antas · Dependabot na may cooldown
+
+- **Petsa:** 2026-09-29 (Day 87)
+- **Context:** "Dependabot, `npm audit` sa CI, secret scanning (gitleaks)" ang nasa roadmap. Nang sukatin: **public ang repo**, at naka-off ang
+  secret scanning, push protection at Dependabot ng GitHub. May `npm audit --omit=dev --audit-level=high` na sa backend, pero wala sa frontend.
+- **Mga pagpipilian (secret scanning sa CI):**
+  - **`gitleaks/gitleaks-action`** (gaya ng reference): third-party action, naka-pin sa tag;
+  - **gitleaks bilang Docker image na naka-pin sa `@sha256:` digest**, pinapatakbo nang direkta.
+- **Pinili:** ang pangalawa (rekomendasyon ng AI; "go" ni Nelson).
+- **Bakit:** ang tag ay puwedeng ilipat ng may-ari, o ng attacker na nakapasok sa account, sa ibang code. Ang digest ay hindi.
+  Nangyari na ito: ang trivy-action tags (2026-03, aral ng reference). Walang dagdag na action na may access sa `GITHUB_TOKEN`.
+  Sa parehong dahilan, ang `actions/checkout` at `actions/setup-node` ay naka-pin na sa commit SHA (ina-update ng Dependabot).
+- **npm audit:** backend AT frontend (ang deps ng frontend ay napupunta sa browser ng user; ang vite ang gumagawa ng bundle).
+  Production → `--audit-level=moderate`; lahat → `high`. Mas mahigpit ang production dahil iyon ang tumatakbo; ang `high` sa lahat ay para hindi
+  mapula ang bawat PR dahil sa dev tool na hindi naman tumatakbo sa server.
+  **Tinanggap:** GHSA-67mh-4wv8-2f99 (esbuild dev server, moderate) via drizzle-kit, dev lang. Ang "fix" ng npm ay downgrade sa drizzle-kit 0.18.
+- **Dependabot:** lingguhan, may **cooldown na 7 araw** (hindi agad nagmumungkahi ng bagong labas na version, dahil ang mga malisyosong
+  version ay kadalasang natutuklasan at inaalis sa loob ng ilang araw), mga minor/patch ay pinagsasama. Walang auto-merge.
+- **GitHub settings (desisyon ni Nelson):** secret scanning + push protection **naka-on**; Dependabot alerts **naka-off**.
+- **Consequences:**
+  - Ang `.gitleaksignore` ay para lang sa **sinuring** false positive, may dahilan bawat isa. Kapag totoong secret: i-rotate, hindi ignore.
+  - Ang Dependabot PRs ay dumadaan sa parehong CI; ako ang nagme-merge.
+  - Ang audit ay para sa **kilalang** butas lang. Hindi nito nahuhuli ang bagong malisyosong package (kaya ang cooldown, lockfile, at `npm ci`).
