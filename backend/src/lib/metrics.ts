@@ -39,6 +39,11 @@ export const auditEvents = meter.createCounter('auth.audit.events', { descriptio
 // ang unang account_locked pagkatapos ng deploy ay dapat mag-alert
 for (const action of AUDIT_ACTIONS) auditEvents.add(0, { action });
 
+// Day 90: retention cleanup — ilang row ang binura bawat table, at ilang takbo (ok / skipped / failed).
+// Sinisimulan sa 0 ng jobs/retentionScheduler.ts (aral ng Day 82: ang serye na ipinanganak sa 1 ay hindi nakikita ng increase())
+export const retentionDeleted = meter.createCounter('auth.retention.deleted', { description: 'Mga row na binura ng retention cleanup' });
+export const retentionRuns = meter.createCounter('auth.retention.runs', { description: 'Mga takbo ng retention cleanup ayon sa resulta' });
+
 export async function startMetricsServer(): Promise<void> {
   await prometheusExporter.startServer();
 }

@@ -53,7 +53,7 @@ flowchart LR
   (provisioning). Kapag nabura ang volume ng Grafana, babalik ang lahat sa susunod na boot.
 - **🔐 127.0.0.1 lang** ang dalawang port. Walang password ang Prometheus; ang Grafana ay may admin password (sa `devops/.env`),
   walang sign-up at walang anonymous.
-- **Ang dashboard (8 panel):** up · requests/s · 5xx % · p95 · requests/s ayon sa status · p95 ayon sa route · security events · mga route na may 4xx/5xx.
+- **Ang dashboard (8 panel; + 2 retention panel sa Day 90):** up · requests/s · 5xx % · p95 · requests/s ayon sa status · p95 ayon sa route · security events · mga route na may 4xx/5xx.
   Ang mga query ay nasa `backend/http/28-prometheus-queries.http`.
 
 ### 🐛 Dalawang nahuli sa dashboard

@@ -97,7 +97,7 @@ backend/
 │   │                        · docs.ts (/api/openapi.json, /api/docs — Day 78)
 │   ├── controllers/      ← HTTP lang (Day 74–76): http.ts (cookies, deviceOf, parseOr400) · auth.controller.ts · admin.controller.ts ·
 │   │                        users.controller.ts · health.controller.ts (live/ready, Day 80)
-│   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts · health.service.ts (Day 80)
+│   ├── services/         ← logic, WALANG Express (Day 74–76): admin.service.ts · users.service.ts · health.service.ts (Day 80) · retention.service.ts (Day 90)
 │   │   └── auth/         ← registration · login · session (me, refresh, logout, sessions) · password (change, forgot, reset) ·
 │   │                        verification (verify, resend, mga email)
 │   ├── middleware/       ← requireAuth · requireRole · csrf · rateLimiter · requestLogger · errorHandler · metrics (Day 81)
@@ -105,6 +105,7 @@ backend/
 │   ├── openapi/          ← Day 78: document.ts (OpenAPI 3.1 mula sa Zod) · typescript.ts (generator ng frontend types) · openapi.test.ts
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
 │   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85)
+│   ├── jobs/             ← retentionScheduler.ts (Day 90) — oras-oras na trabaho sa loob ng app (sinisimulan ng index.ts, hinihinto ng shutdown)
 │   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) — mga script, hindi endpoint
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · verifyMigrations.ts (Day 89) · set-role.ts
 │   └── test/setup.ts     ← .env.test + pananggalang na *_test
@@ -112,7 +113,7 @@ backend/
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
 ├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
-└── http/                 ← 01–33 .http walkthroughs
+└── http/                 ← 01–34 .http walkthroughs
 ```
 
 **`devops/` (production, Day 36 → Day 82):**

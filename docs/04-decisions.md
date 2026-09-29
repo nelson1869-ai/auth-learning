@@ -608,3 +608,18 @@
   - Ang mga image bago ang Day 89 ay walang attestation: `ALLOW_UNATTESTED=1`, para lang sa rollback sa mga iyon.
   - Ang `migrate.ts` ay pumapalya na (exit 1) kapag may migration na hindi na-apply. Kapag nangyari: bigyan ang migration ng mas bagong
     timestamp (i-regenerate), huwag i-edit ang `__drizzle_migrations` nang kamay.
+
+## D-032 · Data retention: oras-oras, sa loob ng app, may advisory lock; audit logs = 1 taon
+
+- **Petsa:** 2026-09-29 (Day 90)
+- **Context:** Walang binubura ang app. Nang sukatin ang production: 1 user, 8MB, 2 expired na verification token. Hindi pa ito problema sa laki,
+  pero lumalaki nang walang hangganan ang `audit_logs` (may IP at user agent), `unknown_login_attempts` at mga token.
+- **Mga pagpipilian:** hiwalay na cron/container · **sa loob ng app** (timer + `runInBackground`) · wala.
+- **Pinili:** sa loob ng app, bawat oras, isang transaction na may `pg_try_advisory_xact_lock` (rekomendasyon ng AI; "go" ni Nelson).
+  **Audit logs: 1 taon** (desisyon ni Nelson, mula sa 90 araw / 1 taon / 2 taon / huwag burahin).
+- **Bakit:** walang dagdag na bahagi sa deploy; hinihintay ng graceful shutdown; ligtas sa maraming instance (lock); at nakikita sa log, Prometheus at Grafana.
+- **Mga patakaran:** refresh_tokens = buong family kapag expired na ang lahat (reuse detection) · verification_tokens at trusted_devices = expired ·
+  unknown_login_attempts = idle 30+ araw at hindi naka-lock · audit_logs = mahigit 1 taon.
+- **Consequences:**
+  - Ang imbestigasyon ng insidenteng mahigit 1 taon na ang nakalipas ay walang audit trail.
+  - Tumatakbo lang kapag buhay ang app (at ang unang takbo ay 60s pagkatapos ng bawat restart).
