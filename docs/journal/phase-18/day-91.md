@@ -60,6 +60,16 @@ Hindi ko ito binago: ang bantay (d) ng deploy (Day 89) na ang sumusuri ng schema
 | `.http` 35 (laban sa staging na `KEEP_STAGING=1`) | ✅ 200 · `{"count":1}` |
 | 53 diagram | ✅ 53/53 |
 
+## Production (deploy `4d5711c`)
+| Sinuri | Resulta |
+|---|---|
+| Deploy na may bantay (e) | ✅ attestation → **💾 `pre-deploy-4d5711c.dump`** (7 table) → migrations 13/13 verified → Live |
+| Deploy na **pumapalya ang backup** (`BACKUP_DIR` na hindi masusulatan) | ✅ "Pumalya ang backup — hindi nag-migrate, walang ginalaw sa app" · healthy pa rin ang naka-deploy |
+
+**🐛 Isang nakatagong bug na lumabas sa pagsubok na iyon:** pumalya ang `mkdir`, pero **tumuloy pa rin** ang `backup.sh` sa `docker run` (na pumalya rin).
+Tama ang kinalabasan, pero nagkataon lang. Ang dahilan: sa `mkdir … && chmod …`, **hindi humihinto ang `set -e`** kapag pumalya ang unang command ng isang `&&`.
+Ayos: magkahiwalay na linya. Sinuri ko rin ang lahat ng iba pang `&&` sa mga script: sinadya ang iba (kondisyon), o nasa subshell na tama ang exit code.
+
 ## Kumpara sa reference
 Walang sariling backup o restore drill ang reference (umaasa rin sa backup ng database provider). Lahat ng ito ay bago.
 

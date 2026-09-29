@@ -23,7 +23,10 @@ ENV_FILE=backend/.env.production     # DATABASE_URL ng Neon — hindi kailanman 
 IMAGE=postgres:17-alpine             # PAREHONG major version ng Neon (17) — ang pg_dump ay hindi puwedeng mas luma sa server
 
 umask 077
-mkdir -p "$DEST" && chmod 700 "$DEST"
+# Magkahiwalay na linya: sa `a && b`, HINDI humihinto ang `set -e` kapag pumalya ang `a` (nahuli noong Day 91:
+# pumalya ang mkdir pero tumuloy sa docker run)
+mkdir -p "$DEST"
+chmod 700 "$DEST"
 NAME="$(date -u +%Y%m%dT%H%M%SZ)${1:+-$1}"
 
 # Bilang ng row bawat table (public + drizzle), sa IISANG query — ikukumpara ng restore-drill.sh
