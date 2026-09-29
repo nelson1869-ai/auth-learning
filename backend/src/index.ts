@@ -1,6 +1,7 @@
 import app from './app.ts';
 import { env } from './config/env.ts';
 import { closeDb } from './db/index.ts';
+import { startRetentionScheduler } from './jobs/retentionScheduler.ts';
 import { drainBackground } from './lib/background.ts';
 import { logger } from './lib/logger.ts';
 import { prometheusExporter, startMetricsServer } from './lib/metrics.ts';
@@ -19,6 +20,9 @@ const server = app.listen(PORT, () => {
 // Hindi dinadaanan ng Cloudflare Tunnel (backend:3000 lang), kaya hindi publiko
 // HINDI fatal kapag pumalya (hal. may gumagamit na ng port): ang monitoring ay hindi dapat magpabagsak sa mismong serbisyo.
 // ERROR sa log, at tuloy ang app — nang walang /metrics (nahuli noong Day 81: dati, namamatay ang buong server)
+// Day 90: oras-oras na paglilinis ng lumang data (unang takbo pagkalipas ng 60s)
+const stopRetention = startRetentionScheduler();
+
 let metricsStarted = false;
 try {
   await startMetricsServer();
@@ -43,7 +47,8 @@ async function onSignal(signal: NodeJS.Signals): Promise<void> {
   const code = await shutdown(server, {
     timeoutMs: SHUTDOWN_TIMEOUT_MS,
     cleanup: [
-      ['background tasks', drainBackground], // hal. ang email ng forgot-password — kailangan pa nito ang database
+      ['retention timer', async () => stopRetention()], // UNA: walang bagong paglilinis habang nagsasara
+      ['background tasks', drainBackground], // hal. ang email ng forgot-password, o ang retention na tumatakbo pa — kailangan nila ang database
       ['metrics server', async () => (metricsStarted ? prometheusExporter.stopServer() : undefined)],
       ['database pool', closeDb], // HULI: baka kailangan pa ng mga naunang hakbang
     ],
