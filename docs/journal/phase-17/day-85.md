@@ -14,7 +14,8 @@ Pinatakbo ko nang lokal ang **eksaktong image na naka-deploy**, tapos `docker st
 | log ng pagsasara | wala |
 
 **Bakit:** sa loob ng container, ang `node` ay **PID 1**. Ang PID 1 ay hindi awtomatikong namamatay sa SIGTERM: kapag **walang handler**, hindi nito pinapansin ang signal.
-Kaya naghihintay ang Docker ng 10 segundo, at saka SIGKILL. Sa bawat deploy: **+10s na downtime**, **napuputol ang mga request**, at **nawawala ang mga email na nasa background**.
+Kaya naghihintay ang Docker ng 10 segundo, at saka SIGKILL. Sa bawat deploy: **+10s na mas mabagal na deploy**, at sa dulo nito, **napuputol ang mga request** at **nawawala ang mga email na nasa background**.
+*(Unang isinulat ko: "+10s na downtime". **Mali**, tingnan ang "Production" sa ibaba: sumasagot pa ang lumang app sa loob ng 10s na iyon.)*
 
 ## Ano ang ginawa
 - **`lib/shutdown.ts`** — ang pagkakasunod, kapag SIGTERM (deploy, `docker stop`) o SIGINT (Ctrl+C):
@@ -47,7 +48,8 @@ Kaya naghihintay ang Docker ng 10 segundo, at saka SIGKILL. Sa bawat deploy: **+
 
 ## ⚠️ Hindi pa ito zero-downtime
 Iisa lang ang backend. Habang pinapalitan ng `deploy.sh` ang container, walang sumasagot, at 502 ang ibinibigay ng cloudflared.
-Ang nagawa: **walang napuputol** na request o email, at **mas maikli ang puwang** (hindi na 10s ng paghihintay sa SIGKILL).
+Ang nagawa: **walang napuputol** na request o email, at **mas mabilis ang deploy**. Ang puwang ng 502 ay **hindi** umikli (3.8s bago at pagkatapos):
+iyon ang pagsisimula ng bagong container, hindi ang pagsasara ng luma. *(Unang isinulat ko na umikli ito. Mali, nasukat sa production.)*
 Ang tunay na zero-downtime ay nangangailangan ng dalawang instance (luma at bago nang sabay, tapos ilipat ang traffic). Nasa backlog, hindi pa kailangan sa laki ng app natin.
 
 ## 🔥 Natuklasan habang ginagawa: 40 oras na down, walang alert
@@ -80,6 +82,19 @@ Pagkatapos ng restart:
 | Buong suite · tsc · lint (oxlint + knip) | ✅ 198 · ✅ · ✅ |
 | `.http` 30 (at 26, 29) | ✅ · ⚠️ hindi napatakbo ang buong review: may 17 demo account pa sa dev DB, at wala ang password ng admin |
 | 50 diagram | ✅ 50/50 |
+
+## Production (deploy `0642c15`)
+Pinoll ko ang `https://api.nelson1869.com/api/health` bawat 0.2s habang nagde-deploy, at binasa ang `docker events` ng mga container:
+
+| | SIGTERM | Ano ang nangyari | exit | 502 mula sa internet |
+|---|---|---|---|---|
+| **Lumang** container (ang deploy na ito — walang handler pa) | 11:17:20 | hindi pinansin → **SIGKILL** sa 11:17:30 | **137** | 3.8s |
+| **Bagong** container (`--force-recreate` pagkatapos) | 11:18:07 | graceful → tapos sa 11:18:08 | **0** | 3.8s |
+
+**Ang aral:** tama ang hula kong "hindi pinapansin ang SIGTERM", pero **mali ang hula ko sa epekto nito sa user**. Inakala kong 10s na downtime;
+ang totoo, **sumasagot pa nang normal ang lumang app** sa loob ng 10s na iyon (hindi nito pinansin ang signal!), kaya ang 502 ay ang pagsisimula lang ng bago.
+Ang totoong pinsala ay ang **SIGKILL sa dulo**: ang request o email na tumatakbo sa sandaling iyon ay napuputol, nang walang bakas.
+Hindi ko ito malalaman kung hindi ko sinukat.
 
 ## Kumpara sa reference
 - **Pareho:** `server.close()`, deadline, drain ng background bago isara ang database, bantay sa pangalawang signal.
