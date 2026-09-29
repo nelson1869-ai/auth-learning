@@ -1,0 +1,55 @@
+# =============================================================================
+# 🧪 LAB (Day 91b) — load balancing: 2 backend + Caddy sa harap. HINDI production.
+#
+#   cd devops/lab && IMAGE_TAG=$(cat ../.deployed-sha) docker compose -f docker-compose.lb.yml up -d
+#   curl -i localhost:8088/api/health       # tingnan ang X-Served-By: nagpapalitan ang dalawang backend
+#   docker compose -f docker-compose.lb.yml down   # 🧹 (walang volume: nasa memory ang database)
+#
+# 🚨 SARILING project name (auth-learning-lab): kapag wala, ang mga service na parehong pangalan sa ibang compose file sa
+#    parehong folder ay magbabanggaan (aral ng reference: napatay ang dev Postgres). Walang port na kapareho ng prod o dev.
+# Ang IMAGE ay ang PRODUCTION image (galing sa CI). Ang database ay sariling Postgres na nasa memory lang — walang totoong data.
+# =============================================================================
+name: auth-learning-lab
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: lab-only-not-a-secret # pang-lab lang, gaya ng password ng CI
+      POSTGRES_DB: auth_learning_lab
+    tmpfs: [/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "lab"]
+      interval: 2s
+      retries: 30
+
+  # Migrations muna (parehong image), gaya ng deploy.sh
+  migrate:
+    image: ghcr.io/nelson1869-ai/auth-learning-backend:${IMAGE_TAG:?IMAGE_TAG=$(cat ../.deployed-sha)}
+    command: ["node", "src/db/migrate.ts"]
+    environment: &db
+      DATABASE_URL: postgres://lab:lab-only-not-a-secret@postgres:5432/auth_learning_lab
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  # DALAWANG kopya ng parehong app. Walang state sa memory ang app… maliban sa rate limiter (Day 92)
+  backend:
+    image: ghcr.io/nelson1869-ai/auth-learning-backend:${IMAGE_TAG:?IMAGE_TAG=$(cat ../.deployed-sha)}
+    deploy:
+      replicas: 2
+    env_file: ../../backend/.env # dev na JWT key at CLIENT_URL (hindi ang sa production)
+    environment:
+      <<: *db
+      NODE_ENV: production
+      RESEND_API_KEY: re_dummy_not_real # walang ipapadalang email
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  caddy:
+    image: caddy:2.11.4-alpine # naka-pin
+    ports:
+      - "127.0.0.1:8088:80" # sa PC lang
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on: [backend]

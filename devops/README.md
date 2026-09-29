@@ -158,6 +158,17 @@ docker compose -f docker-compose.prod.yml logs alertmanager | grep WARN
 - **⚠️ Hindi nito nakikita ang pagkamatay ng buong PC** (kasama nitong namamatay ang Prometheus at Alertmanager), o ng tunnel lang.
   Kailangan ng bantay mula sa labas (backlog).
 
+## Lab: load balancing (Day 91b) — HINDI production
+```bash
+cd devops/lab && export IMAGE_TAG=$(cat ../.deployed-sha)
+docker compose -f docker-compose.lb.yml up -d        # 2 backend + Caddy (127.0.0.1:8088) + sariling Postgres sa memory
+curl -i localhost:8088/api/health                    # X-Served-By: nagpapalitan
+docker stop auth-learning-lab-backend-1              # subukang patayin ang isa — tuloy pa rin
+docker compose -f docker-compose.lb.yml down         # 🧹 walang natitira
+```
+- **Sariling project name** (`auth-learning-lab`) at walang kaparehong port: hindi babangga sa prod o dev (aral ng reference).
+- Bakit hindi pa production: dodoble ang limit ng login (rate limiter sa memory ng bawat backend) — Day 92. Tingnan ang D-034.
+
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit
 - **Manual na hakbang na walang dokumentasyon** — kung ikaw lang ang nakakaalam, hindi ito maulit

@@ -107,5 +107,27 @@ flowchart LR
     GH -.->|"kusang build + deploy"| Pages
 ```
 
+## Lab: load balancing (Day 91b — HINDI production)
+
+> 📅 Day 91b · **Code:** `devops/lab/docker-compose.lb.yml` · `devops/lab/Caddyfile` · **Subukan:** `backend/http/36-load-balancing.http` · **Desisyon:** D-034
+
+```mermaid
+flowchart LR
+    Client(["curl / REST Client"]) -->|"127.0.0.1:8088"| Caddy["Caddy 2.11<br/>round robin<br/>active health check /api/health/live bawat 2s<br/>retry sa ibang backend (5s)"]
+    Caddy -->|"1, 3, 5…"| B1["backend-1<br/>(production image)<br/>🧮 rate limiter: SARILING bilang"]
+    Caddy -->|"2, 4, 6…"| B2["backend-2<br/>(production image)<br/>🧮 rate limiter: SARILING bilang"]
+    B1 --> PG[("Postgres (lab)<br/>nasa memory")]
+    B2 --> PG
+    B1 -.->|"retention: advisory lock<br/>(hindi SABAY — pero puwedeng dalawang beses)"| PG
+```
+
+| Sinukat | Resulta |
+|---|---|
+| Pagkakahati | 4/4 sa 8 request |
+| Patayin ang isang backend (`docker stop` o `docker kill`) habang 20 req/s | **0 error** sa ~525 request — ang health check at retry ng Caddy |
+| Request na nasa **kalagitnaan** sa backend na SIGKILL | **502** (kaya mahalaga pa rin ang graceful shutdown, Day 85) |
+| Rate limiter ng login | **20** maling login bago ang 429, hindi 10 — may sariling bilang ang bawat backend (**→ Day 92**) |
+| IP na nakikita ng app | ang IP ng **Caddy** para sa lahat ng user → iisang bilang para sa lahat (kailangang pagkatiwalaan ang `X-Forwarded-For` ng proxy) |
+
 > Babalikan at ia-update natin ang mga diagram na ito habang nabubuo ang project —
 > dapat laging tugma ang diagram sa totoong code.

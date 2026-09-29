@@ -640,3 +640,18 @@
   - Tumatakbo lang ang timer kapag buhay ang PC/WSL (`Persistent=true`: hahabol pagka-boot).
   - May personal na data ang mga dump: 700/600, hindi sa repo.
   - Ang restore drill ay **hindi opsyonal**: kasama sa review day. Ang RTO sa Neon ay susukatin sa isang staging branch.
+
+## D-034 · Load balancing: lab muna, hindi pa production
+
+- **Petsa:** 2026-09-29 (Day 91b)
+- **Context:** Roadmap: "2 backend + Caddy; ⚠️ sa iisang PC — para sa konsepto". Ang tunay na pakinabang sa production ay deploy na walang puwang
+  (3.8s ngayon, Day 85). Pero sa oras na maging dalawa ang backend, ang in-memory rate limiter ay nagiging dalawang bilang, at dodoble ang limit ng login.
+- **Mga pagpipilian:** ilagay agad sa production · **hiwalay na lab** (`devops/lab/`, sariling compose project, sariling database sa memory, ang production image).
+- **Pinili:** lab (rekomendasyon ng AI, ayon sa roadmap; "go" ni Nelson).
+- **Bakit:** nasukat ang lahat ng konsepto (round robin, health checks, pagpatay sa isang backend, rate limiter) nang hindi pinahihina ang production.
+  Ang production ay maaaring sumunod pagkatapos ng Day 92 (shared rate limiter).
+- **Consequences / kung ilalagay sa production balang araw:**
+  - Kailangan muna ang shared rate limiter (Day 92) at ang tamang IP ng user sa likod ng proxy (`X-Forwarded-For`/`CF-Connecting-IP`).
+  - Kailangang i-scrape ng Prometheus ang BAWAT backend (hindi ang iisang `backend:9464`).
+  - Kailangan ng rolling na deploy sa `deploy.sh` (isa-isa, hintaying healthy) para talagang walang puwang.
+  - Ang retention job ay tatakbo sa bawat backend (ang advisory lock ay "hindi sabay", hindi "isang beses bawat oras") — walang pinsala.

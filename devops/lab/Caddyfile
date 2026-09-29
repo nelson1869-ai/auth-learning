@@ -1,0 +1,21 @@
+# Caddy bilang load balancer (Day 91b, lab). Ang dalawang backend ay may pangalang galing sa compose (<project>-<service>-<n>)
+:80 {
+	reverse_proxy auth-learning-lab-backend-1:3000 auth-learning-lab-backend-2:3000 {
+		# Salitan: 1, 2, 1, 2, …
+		lb_policy round_robin
+
+		# ACTIVE health check: bawat 2s, tinatanong ng Caddy ang bawat backend. Ang hindi sumasagot ay hindi na pinapadalhan
+		health_uri /api/health/live
+		health_interval 2s
+		health_timeout 1s
+
+		# PASSIVE: kapag pumalya ang isang request sa isang backend, iiwasan ito nang 10s
+		fail_duration 10s
+		# RETRY: kapag hindi maabot ang isang backend, subukan ang iba sa loob ng 5s — hindi makikita ng user ang pagpalya
+		lb_try_duration 5s
+		lb_try_interval 100ms
+
+		# Para makita sa lab kung aling backend ang sumagot (HUWAG sa production: ibinubunyag ang loob)
+		header_down X-Served-By {rp.upstream.hostport}
+	}
+}

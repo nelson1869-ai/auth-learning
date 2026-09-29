@@ -1,0 +1,36 @@
+### =========================================================================
+### 🎓 LOAD BALANCING — 2 backend sa likod ng Caddy (LAB, hindi production)
+### 📅 Day 91b · Phase 18 (Production maturity) · Desisyon: D-034
+### =========================================================================
+### Simulan ang lab (hiwalay na project: auth-learning-lab — hindi ginagalaw ang prod o dev):
+###   cd devops/lab && IMAGE_TAG=$(cat ../.deployed-sha) docker compose -f docker-compose.lb.yml up -d
+### Tapusin:  docker compose -f docker-compose.lb.yml down   (nasa memory ang database — walang natitira)
+###
+###   curl/REST Client → Caddy :8088 → round robin → backend-1 / backend-2 → Postgres (lab)
+###
+### Sinukat (Day 91b):
+###   · salitan: 4/4 sa 8 request
+###   · 20 req/s, pinatay ang isang backend (docker stop, at docker kill) → 0 error sa ~525 request
+###   · ⚠️ request na nasa KALAGITNAAN sa backend na biglang namatay (SIGKILL) → 502
+###   · ⚠️ RATE LIMITER: 20 maling login bago ang 429, hindi 10 — may sariling bilang ang bawat backend (→ Day 92)
+###   · ⚠️ ang IP na nakikita ng app ay ang IP ng Caddy para sa LAHAT ng user → iisang bilang para sa lahat
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Ulitin ito nang ilang beses at tingnan ang header na X-Served-By: nagpapalitan (backend-1, backend-2, …)
+###    Ang inaasahan: 200 { "status": "ok" }
+GET http://localhost:8088/api/health
+
+### -------------------------------------------------------------------------
+### 2. Parehong request ulit — ang kabilang backend na ang sasagot (round robin)
+GET http://localhost:8088/api/health
+
+### -------------------------------------------------------------------------
+### 3. Isang request na tumatama sa database (pareho ang database ng dalawang backend, kaya pareho ang sagot)
+###    Ang inaasahan: 200 { "count": 0 } — walang user sa lab
+GET http://localhost:8088/api/users/count
+
+### -------------------------------------------------------------------------
+### 4. Subukan ang pagpatay: sa terminal, `docker stop auth-learning-lab-backend-1`, tapos ipadala ulit ang #1 nang ilang beses.
+###    Ang inaasahan: 200 pa rin, laging backend-2 ang sumasagot. Buhayin: `docker start auth-learning-lab-backend-1`
+GET http://localhost:8088/api/health
