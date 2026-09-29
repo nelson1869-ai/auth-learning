@@ -58,5 +58,5 @@ password reset (email sa Inbox), email verification (soft), mga page sa frontend
 per-account lockout, device cookies laban sa lockout DoS. **✅ Phase 14 — tama kahit sabay-sabay tapos (2026-09-27)**, tag `checkpoint-phase-14`: race tests, atomic na lockout,
 transaction bago ang cookies sa login, partial UNIQUE indexes. **✅ Phase 15 — huwag ibunyag kung sino ang may account tapos (2026-09-27)**, tag `checkpoint-phase-15`:
 pareho ang sagot at ang oras ng login, may account man o wala (natitira: register 409). **✅ Phase 16 — malinis na architecture tapos (2026-09-27)**, tag `checkpoint-phase-16`: routes → controllers (HTTP) → services (logic),
-mass-assignment guard, OpenAPI + Swagger UI + frontend types mula sa spec, knip. **Ngayon: Phase 17 — observability** (✅ Day 80 health checks: live vs ready · ✅ Day 81 metrics: OpenTelemetry → /metrics · ✅ Day 82–83 Prometheus + Grafana dashboard · ✅ Day 84 alerts sa email).
+mass-assignment guard, OpenAPI + Swagger UI + frontend types mula sa spec, knip. **Ngayon: Phase 17 — observability** (✅ Day 80 health checks: live vs ready · ✅ Day 81 metrics: OpenTelemetry → /metrics · ✅ Day 82–83 Prometheus + Grafana dashboard · ✅ Day 84 alerts sa email · ✅ Day 85 graceful shutdown).
 Tingnan ang [roadmap](docs/03-roadmap.md).

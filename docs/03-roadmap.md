@@ -653,7 +653,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** alert na may `for:` delay · *Reference: `monitoring stack`*
 
 ### Day 85 — Graceful shutdown
-- [ ] Tapusin ang mga kasalukuyang request bago mag-exit sa deploy
+- [x] Tapusin ang mga kasalukuyang request bago mag-exit sa deploy *(sinukat muna: ang node ay PID 1, walang handler → `docker stop` 14.6s, SIGKILL (137) · ngayon 1.3s, exit 0, at 200 ang request na tumatakbo · 8s na deadline < 10s stop_grace_period · nahuli: walang silbi ang `closeIdleConnections()` sa Node 19+ · ⚠️ hindi pa zero-downtime: iisang instance)*
+- [x] 📝 `backend/http/30-graceful-shutdown.http` · 📊 `docs/diagrams/23-graceful-shutdown.md`
 - **Matututunan:** zero-drop deploys · *Reference: `graceful shutdown`*
 
 ### Day 86 — Review day
