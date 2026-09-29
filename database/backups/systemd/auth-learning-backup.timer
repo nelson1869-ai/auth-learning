@@ -1,0 +1,11 @@
+# Day 91: araw-araw, 03:00 (oras ng PC). Persistent=true: kapag patay ang PC sa 03:00, tatakbo pagka-boot
+[Unit]
+Description=auth-learning — araw-araw na backup ng database
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

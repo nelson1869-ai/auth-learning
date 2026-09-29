@@ -1,0 +1,12 @@
+# Day 91: araw-araw na backup ng production database (pinapatakbo ng auth-learning-backup.timer)
+# I-install: database/backups/systemd/install.sh · Log: journalctl --user -u auth-learning-backup
+[Unit]
+Description=auth-learning — pg_dump ng production (Neon) papunta sa ~/backups/auth-learning
+# Kailangan ng Docker (ang pg_dump ay nasa postgres:17-alpine) at ng internet (Neon)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/0/nelson-tutorial/auth-learning/database/backups/backup.sh daily
+# Huwag hayaang nakabitin nang walang hangganan (hal. hindi maabot ang Neon)
+TimeoutStartSec=10min

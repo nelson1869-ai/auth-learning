@@ -10,6 +10,7 @@
 #   b. ang compose at monitoring config sa PC ay DAPAT pareho ng nasa commit na iyon (hindi ang nasa kasalukuyang branch)
 #   c. ang image ay may attestation: binuo ng ci.yml, mula sa commit na iyon, sa main (hindi lang "may ganitong tag")
 #   d. ang migrations ay SINUSURI pagkatapos (lahat ng nasa image ay nasa database) — bago i-restart ang backend
+#   e. (Day 91) BACKUP ng database bago mag-migrate — kapag may sirang migration, may kopya mula mismo bago nito
 #
 # Hinihila (pull) ng PC ang image na ginawa ng CI — walang code mula sa labas na
 # kusang tumatakbo dito (walang self-hosted runner, D-020).
@@ -51,7 +52,8 @@ fi
 # b. Ang config na gagamitin (compose, monitoring, cloudflared, ang script na ito) ay galing sa WORKING COPY ng PC.
 #    Kapag ibang branch ang naka-checkout, o may binago na hindi pa naka-commit, iba ito sa sinuri ng CI (insidente #18 ng reference).
 #    Sa rollback, pinapayagan (ang config ngayon ang gagamitin) pero sinasabi
-if ! changed="$(git diff --name-only "$SHA" -- . )" || [[ -n "$changed" ]]; then
+#    Kasama ang database/backups/ (Day 91): ang backup script na tatakbo ay dapat ang nasa commit din
+if ! changed="$(git diff --name-only "$SHA" -- . ../database/backups)" || [[ -n "$changed" ]]; then
   if [[ "${ROLLBACK:-}" != "1" ]]; then
     echo "❌ Iba ang devops/ sa PC kaysa sa commit $SHA — walang ginalaw:" >&2
     echo "$changed" | sed 's/^/     /' >&2
@@ -86,6 +88,17 @@ else
   echo "❌ Hindi mapatunayan na ang image ay galing sa ci.yml at sa commit $SHA — walang ginalaw" >&2
   echo "   Tingnan: gh attestation verify oci://$IMAGE@$DIGEST --repo $REPO" >&2
   exit 1
+fi
+
+# e. Backup BAGO mag-migrate (Day 91): sariling pg_dump sa PC (~/backups/auth-learning), hindi lang ang 6 na oras ng Neon.
+#    Kapag pumalya ang backup, HUWAG mag-migrate (iyon ang pinakamapanganib na hakbang). ALLOW_NO_BACKUP=1 para lumampas (sadya)
+if ! ../database/backups/backup.sh "pre-deploy-${SHA:0:7}"; then
+  if [[ "${ALLOW_NO_BACKUP:-}" == "1" ]]; then
+    echo "⚠️ WALANG backup — pinayagan ng ALLOW_NO_BACKUP=1"
+  else
+    echo "❌ Pumalya ang backup — hindi nag-migrate, walang ginalaw sa app. Tingnan ang error sa itaas" >&2
+    exit 1
+  fi
 fi
 
 # 3. Migrations MUNA (gamit ang parehong image) — bago patakbuhin ang bagong code.
