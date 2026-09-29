@@ -1,0 +1,42 @@
+### =========================================================================
+### 🎓 GRACEFUL SHUTDOWN — tapusin muna ang trabaho bago mamatay
+### 📅 Day 85 · Phase 17 (Observability)
+### =========================================================================
+### Kapag pinapatay ang app (deploy → `docker stop` → SIGTERM, o Ctrl+C → SIGINT), ang app ay:
+###   1. humihinto sa pagtanggap ng BAGONG koneksyon
+###   2. TINATAPOS ang mga request na tumatakbo pa
+###   3. tinatapos ang trabaho sa background (hal. ang email ng forgot-password, #2 sa ibaba)
+###   4. isinasara ang metrics server, tapos ang database pool (HULI — kailangan pa ng #3 ang database)
+###   5. may deadline na 8s: ang ayaw matapos ay pinuputol, exit 1 (mas maikli sa 10s na stop_grace_period ng compose)
+###
+### Sinukat (Day 85), parehong image sa Docker:
+###   DATI:   docker stop = 14.6s, exit 137 (SIGKILL) — ang node ay PID 1, walang handler → hindi pinapansin ang SIGTERM
+###   NGAYON: docker stop = 1.3s, exit 0 · may request na mabagal ang body (2s) → 200, at 2.5s ang stop
+###
+### Code: backend/src/lib/shutdown.ts · index.ts (onSignal) · db/index.ts (closeDb) · test: lib/shutdown.test.ts
+###
+### 👉 PAANO SUBUKAN (kailangan ng terminal — hindi kayang magpadala ng signal ng REST Client):
+###   a. `npm run dev` sa backend/
+###   b. Ipadala ang #1 at #2
+###   c. Sa terminal ng dev server: Ctrl+C. Hanapin sa log, sa ganitong ayos:
+###        Shutting down gracefully
+###        HTTP server closed — all in-flight requests finished
+###        Shutdown: background tasks done → metrics server done → database pool done
+###        Shutdown complete
+###   d. Ipadala ulit ang #1 → walang sagot ("connection refused") — patay na ang server
+###   e. Ctrl+C DALAWANG beses habang nagsasara → "Second signal during shutdown — exiting now" (hindi na naghihintay)
+###   (Sa dev, ang bawat restart ng nodemon ay dumadaan din dito: `--signal SIGTERM` sa package.json)
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Buhay pa ang server. Ang inaasahan: 200 { "status": "ok" }
+GET http://localhost:3000/api/health
+
+### -------------------------------------------------------------------------
+### 2. Isang request na may trabaho sa BACKGROUND (hinahanap ang account pagkatapos sumagot, Day 59).
+###    Ang inaasahan: 202. Kapag nag-Ctrl+C ka kaagad pagkatapos, hinihintay ito ng shutdown ("background tasks done")
+###    bago isara ang database — hindi mawawala ang email
+POST http://localhost:3000/api/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "shutdown-demo@example.com" }

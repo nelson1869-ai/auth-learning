@@ -1,6 +1,6 @@
 # 09 — CD pipeline (pull-based deploy)
 
-> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · Day 82–84 (monitoring, pre-flight) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
+> 📅 Day 37 · Phase 8 · in-update sa Day 80 (liveness sa HEALTHCHECK, readiness sa deploy) · Day 82–84 (monitoring, pre-flight) · Day 85 (graceful shutdown) · **Code:** `.github/workflows/ci.yml` (job `image`) · `devops/deploy.sh` ·
 > `devops/docker-compose.prod.yml` · `backend/src/db/migrate.ts` · **Desisyon:** D-020
 
 ## Mula merge hanggang live
@@ -19,7 +19,7 @@ flowchart TD
     Pre -->|"OK"| Pull["docker pull …:&lt;SHA&gt;<br/>ang EKSAKTONG image na pumasa"]
     Pull --> Mig["docker run … node src/db/migrate.ts<br/>migrations MUNA (Neon)"]
     Mig -->|"pumalya"| Abort["❌ huminto — hindi nagalaw ang tumatakbong app"]
-    Mig -->|"OK"| Up["IMAGE_TAG=&lt;SHA&gt; docker compose up -d backend<br/>(hindi ginagalaw ang cloudflared)"]
+    Mig -->|"OK"| Up["IMAGE_TAG=&lt;SHA&gt; docker compose up -d backend<br/>(hindi ginagalaw ang cloudflared)<br/>Day 85: ang LUMANG container ay SIGTERM → graceful shutdown (≤10s)"]
     Up --> Health{"HEALTHCHECK healthy?<br/>(LIVENESS: /api/health/live — walang database, bawat 30s)"}
     Health -->|"oo"| Ready{"Day 80 — READINESS mula sa internet (isang beses):<br/>https://api.nelson1869.com/api/health/ready<br/>tunnel → bagong code → Neon"}
     Health -->|"hindi"| Fail["❌ tingnan ang logs<br/>rollback: ./deploy.sh &lt;lumang SHA&gt;"]

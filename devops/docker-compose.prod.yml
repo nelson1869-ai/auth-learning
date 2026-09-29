@@ -9,6 +9,9 @@ services:
     # Secrets (Neon DATABASE_URL, JWT_PRIVATE_KEY, …) — gitignored, hindi kailanman nasa image
     env_file: ../backend/.env.production
     restart: unless-stopped
+    # Day 85: gaano katagal maghihintay ang `docker stop` (at ang deploy) bago SIGKILL. Ang app ay may sariling deadline
+    # na 8s (index.ts), MAS MAIKLI rito — para ang app ang magpasya kung ano ang puputulin, at may log ito
+    stop_grace_period: 10s
     # Walang `ports:` — hindi kailangang buksan sa PC; si cloudflared lang ang kumakausap dito
 
   cloudflared:
