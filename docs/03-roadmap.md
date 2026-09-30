@@ -731,7 +731,7 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** ang konsepto bago ang code · *Reference: `WebAuthn/passkey`*
 
 ### Day 95–96 — Pagdagdag ng passkey
-- [x] Registration ceremony (backend + frontend button) *(migration 0013: `passkeys`, `webauthn_challenges` · 4 na endpoint · `/passkeys` page · **kailangan ang kasalukuyang password para magdagdag** · RP ID mula sa `CLIENT_URL` · challenge sa database, isang subok (`DELETE … RETURNING`) · 18 test gamit ang software authenticator (replay, phishing, maling RP ID, challenge ng iba, sabay-sabay) · 10 sadyang pagsira, nahuli lahat · totoong browser + virtual authenticator · nahuli: napunta sa audit log ang challenge → kategorya na lang · D-037)*
+- [x] Registration ceremony (backend + frontend button) *(migration 0013: `passkeys`, `webauthn_challenges` · 4 na endpoint · `/passkeys` page · **kailangan ang kasalukuyang password para magdagdag** · RP ID mula sa `CLIENT_URL` · challenge sa database, isang subok (`DELETE … RETURNING`) · 18 test gamit ang software authenticator (replay, phishing, maling RP ID, challenge ng iba, sabay-sabay) · 10 sadyang pagsira, nahuli lahat · totoong browser + virtual authenticator · nahuli: napunta sa audit log ang challenge → kategorya na lang · **production:** migration 0013, `rpId: nelson1869.com`, buong flow sa browser ✅ · D-037)*
 - [x] 📝 `backend/http/38-passkeys.http` — options at mga pagtanggi (kailangan ng browser para sa verify)
 - [x] 📊 `docs/diagrams/28-passkey-register.md` (+ `02-er-diagram.md`, `00-architecture.md`)
 

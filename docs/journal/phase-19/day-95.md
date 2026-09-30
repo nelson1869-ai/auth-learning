@@ -80,6 +80,27 @@ Headless Chromium + **virtual authenticator** (Chrome DevTools Protocol): ang to
 
 **Hindi ito sa karaniwang dev setup.** Okupado ang port 5173 ng **ibang project ko** (`mern-ecommerce`), at ang 3000 ng dev server ko. Kaya pansamantalang backend sa 3055 (parehong code, `CLIENT_URL=http://localhost:5174`) at Vite sa 5174. Pinatay pagkatapos. *(Unang sinubukan ang 3001: okupado pala ng Grafana ng ibang project. Hindi ito ginalaw.)*
 
+## Production (deploy `0b7d320`)
+PR #165. `deploy.sh`: attestation ✅ · backup bago mag-migrate ✅ · **14/14 migrations** (0013 ang bago) · `ready`.
+
+Parehong browser test, sa **`https://nelson1869.com/passkeys`**, gamit ang test account na `delivered+passkey…@resend.dev` (ang sink ng Resend, hindi totoong inbox):
+
+| Hakbang | Nakita |
+|---|---|
+| Maling password | "Incorrect password" · 0 credential sa device |
+| Tamang password | naidagdag · sa device: **`rpId: nelson1869.com`**, resident, may private key |
+| Parehong device ulit | tumanggi ang browser ("May passkey na ang device na ito") |
+| Reload | "Virtual device" nasa listahan |
+| Burahin | "Wala ka pang passkey" |
+| Audit log ng account | `register`, `login`, `passkey_add_failed:wrong_password`, `passkey_added`, `passkey_removed` |
+
+Pagkatapos: **binura ang test account** ayon sa eksaktong id (36) at email. Burado rin ang naiwang challenge (CASCADE). 1 user ulit: ako.
+Ang RP ID sa production ay `nelson1869.com` nang walang binagong setting — iyon ang punto ng paghango nito sa `CLIENT_URL`.
+
+**Tapat:** virtual authenticator pa rin ito, hindi totoong device. At isang linya ng script ang nagbasa ng listahan bago ito na-refresh (`added: []`); ang sumunod na mga hakbang (bilang = 1, at pagkatapos ng reload) ang nagpatunay na naroon ito.
+
+**CI:** pumalya ang unang takbo ng `backend` job sa `npm ci` (`ETXTBSY` sa postinstall ng `esbuild` — isang race sa runner, bago pa tumakbo ang kahit anong test). Hindi ginalaw ng PR ang `esbuild`. Inulit ang job: pumasa.
+
 ## 🐛 Mga nahuli sa daan
 1. **Napunta sa audit log ang mismong challenge.** Ang mensahe ng error ng library ay `Unexpected registration response challenge "…", expected "<ang totoong challenge>"`, at isinulat ko iyon nang buo sa `audit_logs.metadata`. Nakita nang tingnan ang database pagkatapos patakbuhin ang `.http`. Nasunog na ang challenge noon (isang gamit), kaya walang magagamit — pero hindi dapat naroon ang mga halagang galing sa umaatake o sa loob ng library. **Ayos:** kategorya lang (`challenge_mismatch`, `origin_mismatch`, …). May test: hindi dapat lumabas ang challenge sa audit log.
 2. **Hindi kilala ng sarili nating type generator ang `maxItems`.** Pumalya nang malakas (gaya ng dapat) ang `npm run openapi`. Idinagdag sa mga keyword na pang-validation lang.
