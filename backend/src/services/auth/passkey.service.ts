@@ -74,6 +74,17 @@ export type FinishRegistrationResult =
   | { status: 'too_many' }
   | { status: 'created'; passkey: PublicPasskey };
 
+// Bakit pumalya — isang maikling kategorya para sa audit log. HINDI ang mensahe ng library: kasama roon ang inaasahang challenge
+// at ang origin na ipinadala ng client (nakita sa totoong takbo: napunta sa audit_logs ang buong challenge)
+function failureReason(err: unknown): string {
+  const message = err instanceof Error ? err.message : '';
+  if (/challenge/i.test(message)) return 'challenge_mismatch';
+  if (/origin/i.test(message)) return 'origin_mismatch';
+  if (/RP ID/i.test(message)) return 'rp_id_mismatch';
+  if (/user verification|user presence/i.test(message)) return 'user_not_verified';
+  return 'verification_error';
+}
+
 export async function finishPasskeyRegistration(input: FinishRegistrationInput, audit: Audit): Promise<FinishRegistrationResult> {
   const { userId } = input;
   const fail = async (reason: string, result: FinishRegistrationResult) => {
@@ -96,7 +107,7 @@ export async function finishPasskeyRegistration(input: FinishRegistrationInput, 
     });
   } catch (err) {
     // Nagta-throw ang library sa karamihan ng pagpalya. Ang DAHILAN ay sa audit lang — hindi sa sagot (walang tulong sa umaatake)
-    return fail(err instanceof Error ? err.message.slice(0, 200) : 'verify_error', { status: 'invalid' });
+    return fail(failureReason(err), { status: 'invalid' });
   }
   if (!verification.verified) return fail('not_verified', { status: 'invalid' });
 

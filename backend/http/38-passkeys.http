@@ -1,0 +1,149 @@
+### =========================================================================
+### 🎓 PASSKEYS (WebAuthn) — pagdagdag ng passkey sa account (registration ceremony)
+### 📅 Day 95–96 · Phase 19 (Passkeys) · Desisyon: D-037
+### =========================================================================
+### Passkey = key pair na ginawa ng DEVICE mo. Ang private key ay hindi umaalis doon; PUBLIC key lang ang sine-save ng server.
+### (Ang ideya: docs/diagrams/27-webauthn-concept.md at backend/playground/02-passkey-concept.js)
+###
+### Dalawang hakbang, dahil may device sa gitna:
+###   1. POST /api/auth/passkeys/register/options  — password → challenge + kung sino tayo (RP) + kung sino ang user
+###        … ang BROWSER at ang device: fingerprint / mukha / PIN → bagong key pair → pirma …
+###   2. POST /api/auth/passkeys/register/verify   — ang sagot ng device → suriin → i-save ang public key
+###   GET /api/auth/passkeys · DELETE /api/auth/passkeys/:id — ang listahan, at pagbura
+###
+### ⚠️ HINDI matatapos ang hakbang 2 mula rito: kailangan nito ng totoong device (o browser). Ang REST Client ay walang
+###    private key na ipapampirma. Dito: ang options, at ang mga PAGTANGGI. Ang buong flow:
+###      - sa browser:  http://localhost:5173/passkeys  (cd frontend && npm run dev)
+###      - sa tests:    backend/src/routes/passkeys.test.ts — may "device" na gawa sa code (test/softAuthenticator.ts)
+###
+### 🔐 Bakit humihingi ng PASSWORD ang hakbang 1? Ang passkey ay isang bagong paraan ng pagpasok. Kung session lang ang kailangan,
+###    ang nakaw na session ay makakapagdagdag ng sarili niyang passkey — at mananatili kahit palitan mo ang password.
+###
+### Ang RP ID (domain kung saan nakatali ang passkey) at ang origin ay hinango sa CLIENT_URL ng backend/.env:
+###    dev: localhost · production: nelson1869.com
+###
+### Code: backend/src/services/auth/passkey.service.ts · lib/webauthn.ts · controllers/passkey.controller.ts · routes/auth.ts
+###       db/schema.ts (passkeys, webauthn_challenges — migration 0013) · frontend/src/pages/PasskeysPage.tsx
+### Diagram: docs/diagrams/28-passkey-register.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 0a. Paghahanda: gumawa ng account. Ang inaasahan: 201 (o 409 kung nagawa mo na — ayos lang)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "passkey-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 0b. Login. Ang inaasahan: 200 + cookies (itinatago ng REST Client para sa mga susunod na request)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "passkey-demo@example.com",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 1. Options nang HINDI naka-login. Ang inaasahan:
+###    Status:  401 { "error": "Not authenticated" }
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/register/options
+Content-Type: application/json
+
+{
+  "currentPassword": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 2. Naka-login, pero MALING password. Ang inaasahan:
+###    Status:  400 { "error": "Invalid input", "fields": { "currentPassword": ["Incorrect password"] } }
+###    (400, hindi 401 — gaya ng change password: ang 401 ay magpapa-refresh at magpapaulit ng request sa frontend)
+###    Sa audit_logs: passkey_add_failed · metadata: { "reason": "wrong_password" }
+###    May limit: 10 PALPAK bawat 15 minuto (429 pagkatapos)
+POST http://localhost:3000/api/auth/passkeys/register/options
+Content-Type: application/json
+
+{
+  "currentPassword": "hula-lang-ito"
+}
+
+### -------------------------------------------------------------------------
+### 3. Tamang password → ang options. Ang inaasahan:
+###    Status:  200
+###    Header:  Cache-Control: no-store
+###    Body (ang mahahalaga):
+###      "challenge": "…43 na titik, base64url…"     ← random, BAGO sa bawat send, 5 minuto, isang gamit lang
+###      "rp": { "name": "auth-learning", "id": "localhost" }   ← sa production: "nelson1869.com"
+###      "user": { "id": "…", "name": "passkey-demo@example.com", "displayName": "passkey-demo@example.com" }
+###                 └ base64url ng id mo sa database (hindi ang email) — itinatago ito ng device kasama ng key
+###      "pubKeyCredParams": [ { "alg": -8, … }, { "alg": -7, … }, { "alg": -257, … } ]   ← EdDSA, ES256, RS256
+###      "authenticatorSelection": { "residentKey": "required", "userVerification": "required", "requireResidentKey": true }
+###      "attestation": "none"          ← hindi natin tinatanong kung sino ang gumawa ng device
+###      "excludeCredentials": []       ← ang mga passkey mo na: sasabihin ng browser "may passkey ka na sa device na ito"
+###
+### 🔍 I-send ulit: iba na ang challenge, at ang luma ay hindi na gagana (isa lang bawat user).
+POST http://localhost:3000/api/auth/passkeys/register/options
+Content-Type: application/json
+
+{
+  "currentPassword": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 4. Hakbang 2 na may GAWA-GAWANG sagot (tamang hugis, pero walang totoong pirma). Ang inaasahan:
+###    Status:  400 { "error": "Passkey registration failed. Please try again." }
+###
+### 🔍 IISANG mensahe para sa lahat ng pagpalya: maling challenge, maling origin (phishing), maling RP ID, maling pirma,
+###    expired, o nagamit na. Hindi sinasabi kung alin — ang dahilan ay nasa audit_logs lang (passkey_add_failed · metadata.reason).
+###    At NASUNOG na ang challenge ng #3: isang subok lang. Kailangang i-send ulit ang #3 para sa bagong challenge.
+POST http://localhost:3000/api/auth/passkeys/register/verify
+Content-Type: application/json
+
+{
+  "name": "Gawa-gawa",
+  "response": {
+    "id": "Z2F3YS1nYXdh",
+    "rawId": "Z2F3YS1nYXdh",
+    "type": "public-key",
+    "response": {
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIn0",
+      "attestationObject": "Z2F3YS1nYXdh"
+    },
+    "clientExtensionResults": {}
+  }
+}
+
+### -------------------------------------------------------------------------
+### 5. Hakbang 2 na MALI ANG HUGIS. Ang inaasahan:
+###    Status:  400 { "error": "Invalid input", "fields": { "response": [ … ] } }
+###    (Zod muna, bago ang kahit anong trabaho — at dito, HINDI nasusunog ang challenge)
+POST http://localhost:3000/api/auth/passkeys/register/verify
+Content-Type: application/json
+
+{
+  "response": { "id": "may espasyo at !!", "type": "password" }
+}
+
+### -------------------------------------------------------------------------
+### 6. Ang mga passkey ko. Ang inaasahan:
+###    Status:  200 { "passkeys": [] }     ← wala pa (hindi natapos ang hakbang 2 mula rito)
+###    Kapag nagdagdag ka sa browser (http://localhost:5173/passkeys), ganito ang bawat isa:
+###      { "id": 1, "name": "Laptop ko", "deviceType": "multiDevice", "backedUp": true, "createdAt": "…", "lastUsedAt": null }
+###    🔐 WALANG public key o credential id sa sagot — hindi sikreto ang mga iyon, pero hindi rin kailangan ng page.
+GET http://localhost:3000/api/auth/passkeys
+
+### -------------------------------------------------------------------------
+### 7. Burahin ang passkey na HINDI akin (o wala). Ang inaasahan:
+###    Status:  404 { "error": "Not found" }
+###    🔐 IDOR (gaya ng 17-sessions.http): pareho ang sagot sa passkey ng ibang user at sa id na wala — hindi nalalaman kung totoo ang id.
+###    Ang sariling passkey: 204, at passkey_removed sa audit_logs.
+DELETE http://localhost:3000/api/auth/passkeys/999999
+
+### -------------------------------------------------------------------------
+### 8. Id na hindi numero. Ang inaasahan:
+###    Status:  404 { "error": "Not found" }     ← hindi 500, at hindi umaabot sa database
+DELETE http://localhost:3000/api/auth/passkeys/abc

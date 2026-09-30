@@ -118,7 +118,7 @@ describe('POST /api/auth/passkeys/register/verify', () => {
     expect(res.body).toEqual(FAILED); // hindi sinasabi kung alin ang mali
     expect(await stored(userId)).toHaveLength(0);
     const [log] = await audits(userId, 'passkey_add_failed');
-    expect(String(log?.metadata?.reason)).toMatch(/origin/i); // ang dahilan ay nasa audit log
+    expect(log?.metadata).toEqual({ reason: 'origin_mismatch' }); // ang dahilan ay nasa audit log — kategorya lang, hindi ang origin ng umaatake
   });
 
   it('rejects a passkey bound to another domain (wrong RP ID)', async () => {
@@ -127,6 +127,7 @@ describe('POST /api/auth/passkeys/register/verify', () => {
     const res = await verify(agent, softCreate({ challenge, origin: EXPECTED_ORIGIN, rpId: 'evil.example' }).response);
     expect(res.status).toBe(400);
     expect(await stored(userId)).toHaveLength(0);
+    expect((await audits(userId, 'passkey_add_failed'))[0]?.metadata).toEqual({ reason: 'rp_id_mismatch' });
   });
 
   it('rejects a device that did not verify the user (no fingerprint/PIN)', async () => {
@@ -135,6 +136,7 @@ describe('POST /api/auth/passkeys/register/verify', () => {
     const res = await verify(agent, softCreate({ challenge, origin: EXPECTED_ORIGIN, rpId: RP_ID, userVerified: false }).response);
     expect(res.status).toBe(400);
     expect(await stored(userId)).toHaveLength(0);
+    expect((await audits(userId, 'passkey_add_failed'))[0]?.metadata).toEqual({ reason: 'user_not_verified' });
   });
 
   it("rejects an answer to ANOTHER user's challenge, and a made-up challenge", async () => {
@@ -146,6 +148,10 @@ describe('POST /api/auth/passkeys/register/verify', () => {
     await optionsOf(attacker.agent);
     expect((await verify(attacker.agent, softCreate({ challenge: 'gawa-gawa-lang', origin: EXPECTED_ORIGIN, rpId: RP_ID }).response)).status).toBe(400);
     expect(await stored(attacker.userId)).toHaveLength(0);
+    // 🔐 Ang audit log ay may KATEGORYA lang — hindi ang challenge (nahuli sa totoong takbo: isinulat ng library ang inaasahang challenge sa mensahe)
+    const logs = await audits(attacker.userId, 'passkey_add_failed');
+    expect(logs.map((l) => l.metadata)).toEqual([{ reason: 'challenge_mismatch' }, { reason: 'challenge_mismatch' }]);
+    expect(JSON.stringify(logs)).not.toContain(challenge);
   });
 
   it('rejects when there is no challenge at all, and when it has expired (5 minutes)', async () => {
