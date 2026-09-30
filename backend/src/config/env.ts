@@ -40,6 +40,9 @@ const envSchema = z.object({
   // Metrics (Day 81): hiwalay na port para sa /metrics (Prometheus). HINDI ito dinadaanan ng Cloudflare Tunnel (backend:3000 lang),
   // kaya hindi ito publiko — sa loob lang ng Docker network (at localhost sa dev)
   METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9464),
+  // Rate limiter (Day 92): kapag may REDIS_URL, iisa ang bilang ng LAHAT ng kopya ng app (at hindi nare-reset sa bawat deploy).
+  // Kapag wala: sa memory ng process (ayos lang sa iisang kopya — dev at tests)
+  REDIS_URL: z.url({ protocol: /^rediss?$/ }).optional(),
 })
   // Sa production, BAWAL walang email provider: kung hindi, tahimik na mawawala ang reset/verification emails
   .refine((env) => env.NODE_ENV !== 'production' || env.RESEND_API_KEY !== undefined, {

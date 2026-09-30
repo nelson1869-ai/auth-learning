@@ -91,6 +91,7 @@ stateDiagram-v2
 | `HighLatency` | p95 > 1s | 10m | mabagal ang Neon o puno ang CPU |
 | `RefreshTokenReuse` | kahit 1 sa 10m | wala | 🔐 posibleng ninakaw na token (Day 53) |
 | `ManyAccountLockouts` | ≥ 3 sa 15m | wala | 🔐 posibleng password guessing |
+| `RedisDown` (Day 92) | `auth_redis_up == 0` | 5m | hindi ipinapatupad ang rate limit (fail-open); nasa database pa rin ang account lockout |
 
 - **Inhibit:** kapag `AppDown`, hindi na ipinapadala ang `HighErrorRate`/`HighLatency` (iisang problema, iisang email).
 - **Mga test ng rule (promtool):** ang timing (ang 30s na blip ay hindi dapat mag-alert), ang mga threshold, at ang aral ng Day 82

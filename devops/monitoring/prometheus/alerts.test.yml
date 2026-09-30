@@ -102,3 +102,28 @@ tests:
       - eval_time: 12m
         alertname: HighErrorRate
         exp_alerts: []
+
+  # 8. Day 92: Redis na hindi maabot nang 5 minuto → alert · saglit na pagkaputol (1 minuto) → wala
+  - interval: 15s
+    input_series:
+      - series: 'auth_redis_up{job="auth-learning-backend"}'
+        values: '1x4 0x40'
+    alert_rule_test:
+      - eval_time: 5m # 4 na minuto pa lang na patay
+        alertname: RedisDown
+        exp_alerts: []
+      - eval_time: 7m
+        alertname: RedisDown
+        exp_alerts:
+          - exp_labels: { severity: warning, job: auth-learning-backend }
+            exp_annotations:
+              summary: 'Hindi konektado sa Redis — hindi ipinapatupad ang rate limit'
+              description: 'Pumapasok ang lahat ng request sa rate limiter (fail-open). Tingnan: docker compose -f docker-compose.prod.yml ps redis / logs redis'
+  - interval: 15s
+    input_series:
+      - series: 'auth_redis_up{job="auth-learning-backend"}'
+        values: '1x4 0x4 1x40'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RedisDown
+        exp_alerts: []

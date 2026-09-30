@@ -44,6 +44,15 @@ for (const action of AUDIT_ACTIONS) auditEvents.add(0, { action });
 export const retentionDeleted = meter.createCounter('auth.retention.deleted', { description: 'Mga row na binura ng retention cleanup' });
 export const retentionRuns = meter.createCounter('auth.retention.runs', { description: 'Mga takbo ng retention cleanup ayon sa resulta' });
 
+// Day 92: konektado ba ang app sa Redis? 1 = oo, 0 = hindi (fail-open ang rate limiter — hindi ipinapatupad ang limit).
+// Gauge, hindi counter ng error: kapag walang traffic, walang error kahit patay ang Redis — pero dapat pa ring malaman.
+// Tinatawag ng lib/redis.ts kapag may REDIS_URL; kapag wala, walang serye (memory ang store)
+export function observeRedis(isUp: () => boolean): void {
+  meter
+    .createObservableGauge('auth.redis.up', { description: '1 kapag konektado sa Redis, 0 kapag hindi' })
+    .addCallback((result) => result.observe(isUp() ? 1 : 0));
+}
+
 export async function startMetricsServer(): Promise<void> {
   await prometheusExporter.startServer();
 }

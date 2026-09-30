@@ -104,7 +104,7 @@ backend/
 │   ├── validations/      ← auth.ts · pagination.ts (Zod, input) · responses.ts (Zod, mga sagot — Day 78)
 │   ├── openapi/          ← Day 78: document.ts (OpenAPI 3.1 mula sa Zod) · typescript.ts (generator ng frontend types) · openapi.test.ts
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
-│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85)
+│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85) · redis.ts (Day 92)
 │   ├── jobs/             ← retentionScheduler.ts (Day 90) — oras-oras na trabaho sa loob ng app (sinisimulan ng index.ts, hinihinto ng shutdown)
 │   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) — mga script, hindi endpoint
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · verifyMigrations.ts (Day 89) · set-role.ts
@@ -119,10 +119,11 @@ backend/
 **`devops/` (production, Day 36 → Day 82):**
 ```
 devops/
-├── docker-compose.prod.yml   ← backend · cloudflared · prometheus (127.0.0.1:9091) · grafana (127.0.0.1:3002) · alertmanager (127.0.0.1:9094)
+├── docker-compose.yml        ← dev: Postgres (5435) · Redis (127.0.0.1:6380, Day 92)
+├── docker-compose.prod.yml   ← backend · redis (Day 92, walang port) · cloudflared · prometheus (127.0.0.1:9091) · grafana (127.0.0.1:3002) · alertmanager (127.0.0.1:9094)
 ├── deploy.sh                 ← pre-flight (compose config) → pull → migrate → backend → healthy → ready → monitoring (step 7, hindi fatal)
 ├── cloudflared/config.yml    ← tunnel → backend:3000 lang (walang daan sa :9464, :9091, :3002)
-├── lab/                      ← Day 91b: docker-compose.lb.yml + Caddyfile — 2 backend + Caddy (project auth-learning-lab, HINDI production)
+├── lab/                      ← Day 91b: docker-compose.lb.yml + Caddyfile — 2 backend + Caddy + Redis (Day 92) (project auth-learning-lab, HINDI production)
 └── monitoring/               ← Day 82: prometheus/prometheus.yml · grafana/provisioning/ (datasource + app-overview.json)
                                  Day 84: prometheus/alerts.yml + alerts.test.yml · alertmanager/ (alertmanager.yml + start.sh)
 ```

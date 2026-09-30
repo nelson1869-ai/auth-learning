@@ -5,6 +5,7 @@ import { startRetentionScheduler } from './jobs/retentionScheduler.ts';
 import { drainBackground } from './lib/background.ts';
 import { logger } from './lib/logger.ts';
 import { prometheusExporter, startMetricsServer } from './lib/metrics.ts';
+import { redis } from './lib/redis.ts';
 import { shutdown } from './lib/shutdown.ts';
 
 const PORT = 3000;
@@ -13,16 +14,17 @@ const SHUTDOWN_TIMEOUT_MS = 8_000;
 
 // Simulan ang pakikinig sa port — hindi hihinto hangga't walang SIGTERM o Ctrl+C
 const server = app.listen(PORT, () => {
-  logger.info({ port: PORT }, 'Server running');
+  // Day 92: saan nakatago ang bilang ng rate limiter — sa memory (iisang kopya lang ang tama) o sa Redis (pinagsasaluhan)
+  logger.info({ port: PORT, rateLimitStore: redis ? 'redis' : 'memory' }, 'Server running');
 });
+
+// Day 90: oras-oras na paglilinis ng lumang data (unang takbo pagkalipas ng 60s)
+const stopRetention = startRetentionScheduler();
 
 // Metrics (Day 81): hiwalay na maliit na server para sa Prometheus — http://localhost:<METRICS_PORT>/metrics.
 // Hindi dinadaanan ng Cloudflare Tunnel (backend:3000 lang), kaya hindi publiko
 // HINDI fatal kapag pumalya (hal. may gumagamit na ng port): ang monitoring ay hindi dapat magpabagsak sa mismong serbisyo.
 // ERROR sa log, at tuloy ang app — nang walang /metrics (nahuli noong Day 81: dati, namamatay ang buong server)
-// Day 90: oras-oras na paglilinis ng lumang data (unang takbo pagkalipas ng 60s)
-const stopRetention = startRetentionScheduler();
-
 let metricsStarted = false;
 try {
   await startMetricsServer();
@@ -50,6 +52,7 @@ async function onSignal(signal: NodeJS.Signals): Promise<void> {
       ['retention timer', async () => stopRetention()], // UNA: walang bagong paglilinis habang nagsasara
       ['background tasks', drainBackground], // hal. ang email ng forgot-password, o ang retention na tumatakbo pa — kailangan nila ang database
       ['metrics server', async () => (metricsStarted ? prometheusExporter.stopServer() : undefined)],
+      ['redis', async () => void (await redis?.quit())], // Day 92: tapos na ang lahat ng request, wala nang gagamit ng rate limiter
       ['database pool', closeDb], // HULI: baka kailangan pa ng mga naunang hakbang
     ],
   });

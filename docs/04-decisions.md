@@ -655,3 +655,24 @@
   - Kailangang i-scrape ng Prometheus ang BAWAT backend (hindi ang iisang `backend:9464`).
   - Kailangan ng rolling na deploy sa `deploy.sh` (isa-isa, hintaying healthy) para talagang walang puwang.
   - Ang retention job ay tatakbo sa bawat backend (ang advisory lock ay "hindi sabay", hindi "isang beses bawat oras") — walang pinsala.
+
+## D-035 · Rate limiter sa Redis: fail-open, opsyonal, at nasa production
+
+- **Petsa:** 2026-09-30 (Day 92)
+- **Context:** Sinukat sa lab (Day 91b): sa 2 backend, 20 maling login ang nakakalusot sa halip na 10, dahil nasa memory ng bawat process ang bilang.
+- **Mga pagpipilian (kapag PATAY ang Redis):**
+  - **fail-closed:** 500/429 sa lahat ng login hanggang bumalik ang Redis — ang pagkamatay ng Redis ay pagkamatay ng login;
+  - **fail-open:** papasukin ang request nang walang rate limit.
+- **Pinili:** fail-open (`passOnStoreError` + `enableOfflineQueue: false`), rekomendasyon ng AI; "go" ni Nelson.
+  **`REDIS_URL` ay opsyonal** (wala → memory, gaya ng dati). **Nasa production din** (desisyon ni Nelson), kahit iisa pa ang backend.
+- **Bakit:** ang rate limiter ay isa lang sa mga depensa. Ang account lockout (Day 63, sa database) ay pumipigil pa rin sa panghuhula ng password ng isang account.
+  Mas masama ang pagbagsak ng login ng lahat kaysa sa ilang minutong walang IP rate limit, at may alert (`RedisDown`, 5m) para malaman ito.
+- **Dalawang bug sa kilos ng `rate-limit-redis`, inayos sa `ResilientRedisStore`:** (1) nire-reload lang nito ang Lua script kapag `NOSCRIPT`,
+  kaya kapag patay ang Redis pagka-start, HINDI na kailanman naipapatupad ang limit kahit bumalik ito; (2) sa BAWAT normal na startup, kumokonekta pa
+  ang Redis kapag ginawa ang limiter, kaya hindi nabibilang ang unang request. Ayos: i-load ulit ang script sa bawat `ready` at pagkatapos ng bawat pagpalya.
+- **Consequences:**
+  - Habang patay ang Redis, kahit ang IP na naka-block na ay pinapasok (nakita sa lab). Tinanggap.
+  - Hindi na nare-reset ang bilang sa restart ng app: `redis-cli flushall` sa dev (nakasulat sa `08-rate-limit.http`).
+  - Walang password ang Redis: walang port sa labas, sa loob lang ng Docker network. Kapag inilabas, kailangan ng password at TLS.
+  - Habang patay ang Redis, nagpi-print ang `express-rate-limit` ng stack trace sa console bawat request (hindi JSON, hindi mapapatay). Isang ERROR lang ang sa atin.
+  - Sa lab, ang IP na nakikita ng app ay ang sa Caddy pa rin (iisang bilang para sa lahat). Hindi ito inayos ng Redis; kailangan ng `X-Forwarded-For` na pinagkakatiwalaan (backlog).

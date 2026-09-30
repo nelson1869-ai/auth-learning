@@ -29,6 +29,17 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+      # Day 92: totoong Redis para sa mga test ng rate limiter (pinagsasaluhang bilang, fail-open, pagbalik ng Redis)
+      redis:
+        image: redis:8.8.3-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     defaults:
       run:
         working-directory: backend
@@ -38,6 +49,7 @@ jobs:
     env:
       DATABASE_URL: postgres://auth:ci-only-password@localhost:5432/auth_learning_test
       CLIENT_URL: http://localhost:5173
+      TEST_REDIS_URL: redis://localhost:6379
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

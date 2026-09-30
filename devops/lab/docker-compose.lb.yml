@@ -33,7 +33,12 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
 
-  # DALAWANG kopya ng parehong app. Walang state sa memory ang app… maliban sa rate limiter (Day 92)
+  # Day 92: ang pinagsasaluhang bilang ng rate limiter ng dalawang backend (walang persistence)
+  redis:
+    image: redis:8.8.3-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+
+  # DALAWANG kopya ng parehong app. Walang state sa memory ang app — mula Day 92, pati ang rate limiter ay nasa Redis
   backend:
     image: ghcr.io/nelson1869-ai/auth-learning-backend:${IMAGE_TAG:?IMAGE_TAG=$(cat ../.deployed-sha)}
     deploy:
@@ -43,8 +48,10 @@ services:
       <<: *db
       NODE_ENV: production
       RESEND_API_KEY: re_dummy_not_real # walang ipapadalang email
+      REDIS_URL: redis://redis:6379 # Day 92 — alisin ito para makita ulit ang problema ng Day 91b (20 sa halip na 10)
     depends_on:
       migrate: { condition: service_completed_successfully }
+      redis: { condition: service_started }
 
   caddy:
     image: caddy:2.11.4-alpine # naka-pin

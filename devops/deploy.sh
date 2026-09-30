@@ -109,6 +109,10 @@ if ! docker run --rm --env-file "$ENV_FILE" -e ROLLBACK="${ROLLBACK:-}" "$IMAGE@
   exit 1
 fi
 
+# Day 92: tiyaking tumatakbo ang Redis BAGO ang backend (walang gagawin kung buhay na). Ang backend ay `--no-deps`, kaya hindi ito
+# kusang sisimulan. Hindi fatal: kapag wala ang Redis, fail-open ang rate limiter at may alert (RedisDown)
+IMAGE_TAG="$SHA" docker compose -f docker-compose.prod.yml up -d redis || echo "⚠️ Hindi na-start ang Redis — fail-open ang rate limiter" >&2
+
 # 4. Palitan ang backend ng bagong image (hindi ginagalaw ang cloudflared)
 IMAGE_TAG="$SHA" docker compose -f docker-compose.prod.yml up -d --no-deps backend
 
