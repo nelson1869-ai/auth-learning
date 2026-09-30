@@ -112,7 +112,7 @@ backend/
 ├── drizzle/              ← migrations 0000–0012
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
-├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
+├── playground/           ← 01-hash.js · 02-passkey-concept.js (Day 94) — practice, hindi bahagi ng app
 └── http/                 ← 01–37 .http walkthroughs (+ prod/ — read-only na pagsuri sa production)
 ```
 
