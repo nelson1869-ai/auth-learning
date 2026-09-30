@@ -27,7 +27,7 @@ flowchart TD
     S --> R1["pg_restore #1"] --> V1{"bilang ng row bawat table<br/>= .counts?"}
     V1 -->|"oo"| A1["PRODUCTION image laban sa staging<br/>/api/users/count = tama"]
     A1 --> B["💥 DROP SCHEMA public CASCADE"]
-    B --> F["/api/users/count → 500<br/>⚠️ pero /api/health/ready → 200 pa rin!"]
+    B --> F["/api/users/count → 500<br/>⚠️ Day 91: /api/health/ready → 200 pa rin!<br/>(Day 93: 503 na)"]
     F --> R2["pg_restore #2 (inoorasan)"] --> V2{"bilang = .counts?"}
     V2 --> A2["tama ulit ang sagot ng app<br/>⏱️ RTO (lokal): 0.9s"]
 ```
@@ -39,7 +39,7 @@ flowchart TD
 | **RPO** — Recovery Point Objective | Gaano karaming data ang puwedeng MAWALA (gaano kaluma ang huling backup) | Neon: segundo (kung napansin sa loob ng 6 na oras) · sariling dump: **hanggang 24 oras** (araw-araw) · sa deploy: **0** kung migration ang sanhi |
 | **RTO** — Recovery Time Objective | Gaano KATAGAL bago bumalik ang serbisyo | lokal na restore: **0.7s** (8MB) · Neon (staging branch, Day 93): **restore 9.4–9.9s · 18.9–20.1s hanggang tama ulit ang app** — sa DIREKTANG endpoint lang, hindi sa `-pooler` |
 
-- **Ang "ready" ay hindi patunay na may data.** `SELECT 1` lang ang `/api/health/ready`: 200 pa rin ito nang burado ang lahat ng table.
+- **Ang "ready" ay hindi patunay na may data.** Noong Day 91, `SELECT 1` lang ang `/api/health/ready`: 200 pa rin ito nang burado ang lahat ng table. **Inayos sa Day 93:** tinatanong na nito ang table na `users` → 503 kapag wala ang table o hindi ito makita (hal. walang `search_path` pagkatapos ng restore sa pooler ng Neon). Hindi pa rin nito sinasabi kung **tama** ang data.
   Ang bantay (d) ng deploy (Day 89) ang sumusuri ng schema.
 - **🔐 May personal na data ang dump** (email, password hash, IP): 700/600, hindi sa repo, hindi sa cloud drive o chat.
 - **⚠️ Nasa iisang PC ang mga dump.** Kapag nasira ang disk ng PC, kasama silang mawawala (pero nasa Neon pa ang production). Backlog: kopya sa ibang lugar, naka-encrypt.

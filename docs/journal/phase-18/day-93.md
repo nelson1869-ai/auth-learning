@@ -94,7 +94,7 @@ Hindi na kailangan ang password ko para sa review.
 | Ano | Bakit | Kailan |
 |---|---|---|
 | ~~Neon restore drill~~ | ✅ tapos (tingnan sa itaas) | — |
-| **`/health/ready` na tumitingin sa totoong table** | Dalawang beses nang "ready" habang sira ang app: walang table (Day 91), walang `search_path` (Day 93) | desisyon ko — rekomendasyon ng AI: oo, isang `select 1 from users limit 1` |
+| ~~`/health/ready` na tumitingin sa totoong table~~ | ✅ tapos, parehong araw ("proceed … what is recommended" ang sabi ko): `select 1 from users limit 1`. Test sa totoong database (pinalitan ang pangalan ng table → 503); pumalya ang test nang ibalik ang `SELECT 1` | — |
 | Paano linisin ang pooler ng Neon pagkatapos ng maling restore | Hindi pa alam; ngayon: "i-restart ang compute" | kapag kailangan |
 | **Isama sa repo ang `.http` review script** | **Tatlong beses na itong isinulat** (nabura nang dalawang beses, at session-only ang scratchpad). Ngayon, 127 linya | desisyon ko — rekomendasyon ng AI: oo, sa `backend/scripts/` |
 | Turuan ang script na sundin ang "i-send nang N beses" | Iyan ang dahilan kung bakit lumampas ang mali sa `08` | kasama ng nasa itaas |

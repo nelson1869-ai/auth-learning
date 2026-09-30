@@ -23,7 +23,7 @@
 | Method | Path | Para saan | Auth | `.http` |
 |---|---|---|---|---|
 | GET | `/api/health` · `/api/health/live` | Buhay ba ang process? (walang database) | — | `01-health.http` · `26-health-checks.http` |
-| GET | `/api/health/ready` | Handa ba? (sinusuri ang database, 3s na limit) — Day 80 | — | `26-health-checks.http` |
+| GET | `/api/health/ready` | Handa ba? (tinatanong ang table na `users`, 3s na limit) — Day 80, Day 93 | — | `26-health-checks.http` |
 | POST | `/api/echo` | Pang-aral: ibinabalik ang body | — | `02-echo.http` |
 | GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` · `37-cache.http` |
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
