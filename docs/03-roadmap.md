@@ -711,7 +711,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] I-cache ang isang bagay na madalas basahin pero bihirang magbago (hal. `/api/users/count`), may TTL *(`lib/cache.ts`: cache-aside, TTL 60s, `X-Cache: HIT/MISS/BYPASS` · fail-open kapag patay ang Redis · walang bagong library · D-036)*
 - [x] **Cache invalidation:** burahin ang cache kapag may bagong register — ano ang mangyayari kung hindi? *(sinubukan: INSERT nang diretso sa database → 3 na ang users, 2 pa rin ang sagot hanggang maubos ang TTL · kaya laging may TTL)*
 - [x] 🔐 **Huwag i-cache ang personal na data** (`/me`) sa shared cache — at kung kailangan, susi na may user id *(sinuri sa Redis pagkatapos ng `/me`: `cache:users:count` lang ang susi · `/me` ay `no-store`, walang `X-Cache`)*
-- [x] Sukatin: gaano kabilis kapag HIT vs MISS? *(dev, 300 bawat isa: HIT 1.4ms · MISS 3.1ms median · unang MISS pagka-start ~500ms · + `auth_cache_lookups_total{result}`)*
+- [x] Sukatin: gaano kabilis kapag HIT vs MISS? *(dev, 300 bawat isa: HIT 1.4ms · MISS 3.1ms median · unang MISS pagka-start ~500ms · + `auth_cache_lookups_total{result}` · **production:** ~50ms (Neon) → 0–1ms sa server kapag HIT)*
 - [x] 📝 `backend/http/37-cache.http` · 📊 `docs/diagrams/26-cache-aside.md` (+ diagram 00, 01)
 - **Matututunan:** cache-aside pattern, TTL, "dalawang mahirap sa computer science: cache invalidation at pagpapangalan"
 
