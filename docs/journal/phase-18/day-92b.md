@@ -42,6 +42,32 @@ Kung kailangan balang araw: kasama ang user id sa susi (`cache:user:42:profile`)
 Mga 2× na mas mabilis ang HIT, pero **1.7ms lang ang natipid**. Sa dev, nasa iisang PC ang database at kakaunti ang users, kaya mabilis na ang `count(*)`.
 Hindi ito ang klase ng endpoint na "kailangan" ng cache. Ang halaga ngayong araw ay ang **pattern** at ang mga panganib nito. Sa production, mas malayo ang database (Neon, Singapore): susukatin pagkatapos ng deploy.
 
+## Production (deploy `9211cdd`)
+PR #158, berde ang CI. `deploy.sh`: attestation ✅, backup bago mag-migrate ✅, 13/13 migrations, `ready`. Sa log: `rateLimitStore: "redis", cache: "redis"`.
+
+| Pagsubok sa `https://api.nelson1869.com/api/users/count` | Resulta |
+|---|---|
+| 12 sunod-sunod na request | 1 × `MISS`, 11 × `HIT`, lahat `200` |
+| Sa Redis ng production | `cache:users:count` lang, may TTL (47s nang tingnan) |
+| `auth_cache_lookups_total` | hit 11 · miss 1 · error 0 |
+| `GET /api/auth/me` (walang cookie) | `401`, `Cache-Control: no-store`, walang `X-Cache` |
+
+**Oras sa loob ng server** (`responseTime` sa log, hindi kasama ang internet):
+
+| | Bago ang deploy (walang cache) | Pagkatapos |
+|---|---|---|
+| Karaniwang request | **47–54ms** (bawat isa ay pumupunta sa Neon) | **HIT: 0–1ms** |
+| MISS (mainit na ang koneksyon) | — | 53–57ms (4 na sample; binura ko ang susi bago ang bawat isa) |
+| Unang request pagkatapos ng katahimikan | 1041ms | 374ms at 440ms (MISS) |
+
+**Dito may totoong pakinabang:** ~50ms → ~1ms sa server, dahil nasa Singapore ang database at nasa tabi ng app ang Redis. At ang HIT ay **hindi gumigising sa Neon**.
+**Pero tapat:** hindi ito ramdam ng user. Ang oras na nakikita ng `curl` mula sa labas ay 0.3–1.5s (isang beses 5.5s) dahil sa bagong koneksyon sa Cloudflare sa bawat request; natatabunan nito ang 50ms.
+
+**Dalawang bagay na dapat kong malaman:**
+- Para makuha ang mga sample ng MISS, **binura ng AI ang `cache:users:count` sa Redis ng production nang 5 beses** (`redis-cli del`). Cache lang iyon: walang data na nawala, MISS lang ang susunod na request.
+- **Hindi natuloy ang pagsuri sa totoong browser.** Ang headless Chromium ay walang ibinalik para sa JSON na URL (isang beses pang nabitin at pinatay). Ang lahat ng nasa itaas ay mula sa `curl`, sa log ng server at sa Redis. JSON ito ng API, hindi JS asset, kaya hindi ito ang kasong binabago ng Cloudflare — pero hindi ito "nakita sa browser".
+- Walang test account na ginawa sa production. Ang pagbura sa register ay napatunayan sa tests at sa dev, hindi sa production.
+
 ## Ano ang mangyayari kung walang invalidation
 Nakita sa pagsubok: luma ang sagot hanggang maubos ang TTL. Kaya dalawa ang bantay:
 - **Pagbura sa register:** tama agad sa karaniwang kaso.
