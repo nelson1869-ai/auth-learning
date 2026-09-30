@@ -641,6 +641,14 @@
   - May personal na data ang mga dump: 700/600, hindi sa repo.
   - Ang restore drill ay **hindi opsyonal**: kasama sa review day. Ang RTO sa Neon ay susukatin sa isang staging branch.
 
+- **Dagdag (Day 93, 2026-09-30) — unang totoong Neon drill:** restore 9.4–9.9s; 18.9–20.1s mula sa sira hanggang tama ulit ang sagot ng app (staging branch, 2 takbo).
+  - **🔐 Mag-restore LAGI sa DIREKTANG endpoint, hindi sa `-pooler`.** Ang dump ay nagsisimula sa `set_config('search_path', '', false)`. Sa pooler (PgBouncer,
+    transaction mode) naiiwan iyon sa pinagsasaluhang koneksyon: "relation \"users\" does not exist" ang app sa bawat query, kahit tama ang restore, tugma ang
+    bilang ng row, at `ready` ang `/health/ready`. Nasukat: mahigit 6 na minuto pagkatapos, sira pa rin ang pooled endpoint ng staging.
+    Direkta ang `DATABASE_URL` ng production, kaya hindi ito tinamaan ng mga backup — pero **pooled ang default na kinokopya sa Neon console**.
+  - Ang `restore-drill-neon.sh` ay nag-aalis na ng `-pooler`, at humihinto na kapag pumalya ang pagbura (dati: "💥 Sinira" kahit hindi nakakonekta).
+  - **Hindi pa alam:** kung paano linisin ang pooler nang hindi nire-restart ang compute. Sa totoong sakuna: direktang URL, at i-restart ang compute kung nagamit ang pooled.
+
 ## D-034 · Load balancing: lab muna, hindi pa production
 
 - **Petsa:** 2026-09-29 (Day 91b)

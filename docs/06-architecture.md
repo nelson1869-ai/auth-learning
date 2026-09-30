@@ -120,7 +120,7 @@ backend/
 ```
 database/
 ├── backups/              ← Day 91 (D-033): backup.sh (pg_dump: bago mag-migrate sa bawat deploy + araw-araw) · restore-drill.sh (staging container)
-│   │                        · restore-drill-neon.sh (staging branch sa Neon — kailangan ng .env.staging, HINDI naka-commit)
+│   │                        · restore-drill-neon.sh (staging branch sa Neon — kailangan ng .env.staging, HINDI naka-commit · direktang endpoint, hindi -pooler)
 │   └── systemd/          ← auth-learning-backup.service + .timer + install.sh (araw-araw na backup, user timer)
 └── sql-practice/         ← 01-crud.sql · 02-constraints.sql (practice ng Phase 3, hindi bahagi ng app)
 ```

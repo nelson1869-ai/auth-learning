@@ -41,7 +41,7 @@ Hindi ko ito binago: ang bantay (d) ng deploy (Day 89) na ang sumusuri ng schema
 |---|---|
 | **RPO** | Neon: segundo, **kung** napansin sa loob ng 6 na oras · sariling dump: **hanggang 24 oras** · kapag migration ang sanhi: **0** (backup bago mag-migrate) |
 | **RTO (lokal)** | **0.7s** na restore — pero napakaliit pa ng database (8MB, 1 user) |
-| **RTO (production)** | **☐ hindi pa nasusukat.** Ang totoo: restore **papunta sa Neon** (sa internet) + palitan ang `DATABASE_URL` + deploy. Naghihintay ang `restore-drill-neon.sh` ng staging branch |
+| **RTO (production)** | **✅ Nasukat noong Day 93 (2026-09-30), sa staging branch ng Neon:** **9.4–9.9s ang restore, 18.9–20.1s mula sa sira hanggang tama ulit ang sagot ng app** (2 takbo, 2026-09-30, Day 93). Idagdag pa sa totoong sakuna: palitan ang `DATABASE_URL` + deploy (~1 minuto). *Dating nakasulat:* ☐ hindi pa nasusukat. Ang totoo: restore **papunta sa Neon** (sa internet) + palitan ang `DATABASE_URL` + deploy. Naghihintay ang `restore-drill-neon.sh` ng staging branch |
 
 ## 🐛 Mga nahuli
 - **Walang laman ang `.counts` sa unang takbo (0 table).** Sa loob ng `sh -c`, ang `$$` ay **process ID** (1), hindi SQL na quote, kaya naging `1public1` ang query.
@@ -108,5 +108,5 @@ Walang sariling backup o restore drill ang reference (umaasa rin sa backup ng da
   (walang laman ang `.counts`, maluwag ang permission). Kung sa totoong sakuna ko ito natuklasan, huli na.
 
 ## Susunod
-- **☐ Neon drill:** gawin ang `database/backups/.env.staging` (sa **WSL** na terminal), tapos `database/backups/restore-drill-neon.sh`.
+- **✅ Neon drill — tapos noong Day 93** (tingnan ang `day-93.md`: pumalya muna nang dalawang beses, at may nahuling totoong panganib sa pooled na URL). *Dating nakasulat:* gawin ang `database/backups/.env.staging` (sa **WSL** na terminal), tapos `database/backups/restore-drill-neon.sh`.
 - **Day 91b — Load balancing:** 2 backend container + Caddy.
