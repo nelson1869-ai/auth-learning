@@ -53,8 +53,21 @@ tahimik na `init()` (dati: 5 stack trace sa console sa bawat startup).
 - **Sa lab, ang IP na nakikita ng app ay ang sa Caddy pa rin**, kaya iisang bilang ang lahat ng user. Hindi ito problema ng store; kailangan ng pinagkakatiwalaang `X-Forwarded-For` (backlog).
 - **Ingay sa console:** habang patay ang Redis, nagpi-print ang `express-rate-limit` ng stack trace bawat request (hindi JSON, hindi mapapatay).
 
-## Production
-*(Pupunan pagkatapos ng deploy.)*
+## Production (deploy `83d3702`)
+| Sinuri | Resulta |
+|---|---|
+| CI | ✅ **221 tests**, kasama ang mga Redis test (tumakbo talaga, sa Redis service ng CI) |
+| `deploy.sh` | ✅ attestation · 💾 backup bago mag-migrate · migrations 13/13 · **nagawa ang `redis`** bago ang backend · Live |
+| Redis container | ✅ walang port sa labas (`6379/tcp` sa loob lang ng Docker network) |
+| Backend | ✅ `rateLimitStore: "redis"` · 0 ERROR |
+| Prometheus (pagkatapos i-restart para mabasa ang bagong rule) | ✅ `RedisDown`: inactive · `auth_redis_up` = 1 |
+| 2 maling login mula sa internet | ✅ `r=9`, tapos `r=8` — **nabilang ang UNANG request** (ang ayos sa bug #2) · sa Redis: `rl:login:<ip>` = 2, TTL 896s |
+| Paglilinis | ✅ binura ang key (walang naiwang bilang sa IP ko) |
+
+Hindi ko sinubukan ang buong 11 maling login sa production: mabo-block ang sarili kong IP nang 15 minuto, at napatunayan na iyon sa lab gamit ang parehong code.
+
+**Na-restart ulit ang PC habang ginagawa ito** (ikatlong beses): kusang bumalik ang production; **tumakbo ang backup timer pagka-boot** (`Persistent=true`, Day 91);
+hindi bumalik ang dev Postgres at dev Redis (walang restart policy ang dev); at nabura ulit ang scratchpad ng AI (mga review script).
 
 ## Kumpara sa reference
 - **Pareho:** `ioredis` + `rate-limit-redis`.
