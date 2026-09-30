@@ -13,7 +13,7 @@
 flowchart LR
     Browser(["🌐 Chrome<br/>localhost:5173"]) -->|"HTML + JS"| FE
     subgraph FEG["frontend/ · Vite 8 + React 19 + TypeScript"]
-        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49) · Sessions (Day 54) · ChangePassword (Day 55)<br/>ForgotPassword · ResetPassword · VerifyEmail (Day 61) · hooks/useHashToken<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
+        FE["App.tsx — React Router 8<br/>pages/ Login · Register · Profile · Admin (Day 49) · Sessions (Day 54) · ChangePassword (Day 55) · Passkeys (Day 95)<br/>ForgotPassword · ResetPassword · VerifyEmail (Day 61) · hooks/useHashToken<br/>api/auth.ts · api/admin.ts — apiFetch: 401 → refresh isang beses → ulit"]
     end
     FE -->|"fetch · localhost:3000<br/>CORS preflight + Cookie: token"| MW
     Client(["REST Client / curl<br/>(may cookie jar)"]) -->|"HTTP · localhost:3000<br/>+ Cookie: token"| MW
@@ -44,7 +44,7 @@ flowchart LR
     DB -->|"SQL · localhost:5435"| PG
     Mail -->|"HTTPS · Resend API<br/>SPF · DKIM · DMARC"| Resend(["📧 Resend (Tokyo)<br/>no-reply@nelson1869.com"])
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens ·<br/>verification_tokens · trusted_devices ·<br/>unknown_login_attempts · migrations 0000–0012")]
+        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens ·<br/>verification_tokens · trusted_devices ·<br/>unknown_login_attempts · passkeys · webauthn_challenges (Day 95) · migrations 0000–0013")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end

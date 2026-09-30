@@ -39,7 +39,7 @@ backend/
 ├── src/
 │   ├── app.ts            ← recordMetrics (Day 81) → requestLogger → helmet → cors → csrf → json → cookies → routers → notFound → errorHandler
 │   ├── index.ts          ← app.listen(3000) · metrics server · graceful shutdown sa SIGTERM/SIGINT (Day 85)
-│   ├── test/setup.ts     ← naglo-load ng .env.test; tumatanggi kung hindi *_test ang database
+│   ├── test/             ← setup.ts (naglo-load ng .env.test; tumatanggi kung hindi *_test ang database) · softAuthenticator.ts (Day 95: pekeng "device" para sa tests ng passkey)
 │   ├── config/env.ts     ← sinusuri ang lahat ng env variable pagka-start (Zod, fail-fast)
 │   ├── types/            ← dagdag na types (hal. req.userId sa Express)
 │   ├── routes/           ← ROUTING LANG (Day 76) · auth.ts (lahat ng /api/auth/*: register, login, me, refresh, logout, sessions, change-password, forgot/reset,
@@ -50,14 +50,14 @@ backend/
 │   │                        · requestLogger.ts — log + X-Request-Id bawat request (Day 42)
 │   │                        · errorHandler.ts — notFound (404 JSON) + errorHandler (5xx: generic, detalye sa log) (Day 41)
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
-│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67) · metrics.ts (OpenTelemetry → /metrics sa METRICS_PORT, Day 81) · shutdown.ts (graceful shutdown, Day 85) · redis.ts (Redis para sa rate limiter — opsyonal, fail-open, Day 92) · cache.ts (server cache sa Redis: cache-aside, laging may TTL, fail-open — Day 92b)
+│   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67) · metrics.ts (OpenTelemetry → /metrics sa METRICS_PORT, Day 81) · shutdown.ts (graceful shutdown, Day 85) · redis.ts (Redis para sa rate limiter — opsyonal, fail-open, Day 92) · cache.ts (server cache sa Redis: cache-aside, laging may TTL, fail-open — Day 92b) · webauthn.ts (passkeys: RP ID at origin mula sa CLIENT_URL, challenge sa database — Day 95)
 │   ├── jobs/             ← retentionScheduler.ts — oras-oras na paglilinis ng lumang data (Day 90, D-032)
 │   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?" (+ responses.ts: ang hugis ng mga sagot, Day 78)
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables · migrate.ts + verifyMigrations.ts (ang ginagamit ng deploy — sinusuri ang migrations, Day 89)
 ├── drizzle/              ← migrations (ginagawa ng `npm run db:generate`)
-├── http/                 ← 01–37 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
+├── http/                 ← 01–38 .http files para subukan ang API (+ prod/ — read-only na pagsuri sa production)
 ├── playground/           ← mga practice script: 01-hash.js (Day 12) · 02-passkey-concept.js (Day 94 — ang ideya ng passkey sa node:crypto)
 ├── .env                  ← DATABASE_URL, JWT_PRIVATE_KEY (RS256, Day 56), CLIENT_URL (SECRET — hindi sa Git)
 ├── .env.test             ← pareho, pero DATABASE_URL → auth_learning_test (hindi sa Git)

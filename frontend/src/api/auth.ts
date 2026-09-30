@@ -1,4 +1,5 @@
-import type { MeUser, PublicUser, Session as SessionFromApi } from './openapi.generated.ts';
+import { startRegistration } from '@simplewebauthn/browser';
+import type { MeUser, Passkey as PasskeyFromApi, PublicUser, Session as SessionFromApi } from './openapi.generated.ts';
 // Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
 // sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
 const API_URL: string =
@@ -161,6 +162,32 @@ export function takeTokenFromHash(): string {
   const token = new URLSearchParams(window.location.hash.slice(1)).get('token') ?? '';
   if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
   return token;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Passkeys (Day 95–96)
+export type Passkey = PasskeyFromApi;
+
+export async function getPasskeys(): Promise<Passkey[]> {
+  const res = await apiFetch('/auth/passkeys');
+  const data = await res.json();
+  if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+  return data.passkeys;
+}
+
+// Tatlong hakbang: (1) password → options mula sa server · (2) ang BROWSER at ang device: fingerprint/PIN, bagong key pair ·
+// (3) ang sagot ng device → server. Ang private key ay hindi kailanman dumadaan dito — nananatili ito sa device
+export async function addPasskey(currentPassword: string, name: string): Promise<Passkey> {
+  const options = await (await postJson('/auth/passkeys/register/options', { currentPassword })).json();
+  // Nagbubukas ng dialog ng browser. Kapag kinansela ng user, o may passkey na ang device na ito: nagtatapon ng error
+  const response = await startRegistration({ optionsJSON: options });
+  const res = await postJson('/auth/passkeys/register/verify', { response, ...(name ? { name } : {}) });
+  return (await res.json()).passkey;
+}
+
+export async function removePasskey(id: number): Promise<void> {
+  const res = await apiFetch(`/auth/passkeys/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
 }
 
 export async function logout(): Promise<void> {

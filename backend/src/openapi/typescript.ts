@@ -9,7 +9,7 @@
 type Json = Record<string, unknown>;
 
 // Para sa validation lang, hindi para sa hugis ng type
-const IGNORED = new Set(['format', 'pattern', 'minimum', 'maximum', 'minLength', 'maxLength', 'default', 'propertyNames', 'description']);
+const IGNORED = new Set(['format', 'pattern', 'minimum', 'maximum', 'minLength', 'maxLength', 'minItems', 'maxItems', 'default', 'propertyNames', 'description']);
 const HANDLED = new Set(['type', 'enum', 'const', 'anyOf', 'items', 'properties', 'required', 'additionalProperties']);
 
 // Lagyan ng panaklong ang union bago gawing array: (string | null)[] — pero ang " | " lang sa PINAKALABAS na antas,

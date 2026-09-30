@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 
 // Mga role (Day 45) — enum sa Postgres: TUMATANGGI ang database sa ibang value (hal. 'superadmin' o 'Admin'),
 // hindi lang ang app. Tatlong role ang reference; dalawa lang ang kailangan natin ngayon
@@ -45,6 +45,9 @@ export const AUDIT_ACTIONS = [
   'password_reset', // Day 59 — napalitan ang password gamit ang reset link
   'email_verified', // Day 60 — napatunayang kanya ang email (binuksan ang link)
   'account_locked', // Day 63 — 5 sunod-sunod na maling password → naka-lock nang 15 minuto (Day 64: metadata.scope)
+  'passkey_added', // Day 95 — may bagong passkey ang account (isang bagong paraan ng pagpasok: high-risk event)
+  'passkey_add_failed', // Day 95 — maling password o pumalyang pagsusuri habang nagdadagdag ng passkey
+  'passkey_removed', // Day 95 — binura ang isang passkey
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -155,3 +158,44 @@ export const unknownLoginAttempts = pgTable('unknown_login_attempts', {
   lockedUntil: timestamp('locked_until', { withTimezone: true }),
   lastAttemptAt: timestamp('last_attempt_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Passkeys (Day 95 — WebAuthn). Ang PUBLIC key lang ang naka-save: hindi ito sikreto, at hindi ito makakapirma.
+// Ang private key ay nasa device ng user at hindi kailanman dumarating sa server (tingnan ang docs/diagrams/27-webauthn-concept.md)
+export const passkeys = pgTable(
+  'passkeys',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // Ang pangalan ng credential ayon sa device (base64url). UNIQUE: hindi puwedeng mairehistro ang iisang passkey sa dalawang account
+    credentialId: text('credential_id').notNull().unique(),
+    publicKey: text('public_key').notNull(), // COSE public key, base64url
+    // Bilang ng pirma ayon sa device. Kapag bumaba ito sa susunod na login, posibleng kinopya ang key (susuriin sa Day 97).
+    // Maraming naka-sync na passkey (iCloud, Google) ay laging 0
+    counter: integer('counter').notNull().default(0),
+    transports: jsonb('transports').$type<string[]>(), // paano maaabot ang device: 'internal', 'usb', 'hybrid' … (pahiwatig para sa browser)
+    deviceType: text('device_type').$type<'singleDevice' | 'multiDevice'>().notNull(), // multiDevice = puwedeng i-sync
+    backedUp: boolean('backed_up').notNull(),
+    name: text('name').notNull(), // pangalang ibinigay ng user, para makilala niya sa listahan (hal. "Laptop ko")
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }), // NULL = hindi pa nagagamit sa login (Day 97)
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('passkeys_user_id_idx').on(table.userId)],
+);
+
+// Mga challenge ng WebAuthn (Day 95): ang random na halagang pinipirmahan ng device. Isang gamit lang, 5 minuto.
+// Sa DATABASE, hindi sa Redis: opsyonal at fail-open ang Redis natin (D-035) — ang challenge ay hindi puwedeng "mawala na lang"
+export const webauthnChallenges = pgTable(
+  'webauthn_challenges',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // NULL = wala pang kilalang user (login gamit ang passkey, Day 97)
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    purpose: text('purpose').$type<'registration' | 'authentication'>().notNull(),
+    challenge: text('challenge').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  },
+  // Huling bantay (gaya ng Day 69): ISANG challenge lang bawat user at layunin — ang bago ay pumapalit sa luma
+  (table) => [uniqueIndex('webauthn_challenges_one_per_user_idx').on(table.userId, table.purpose)],
+);

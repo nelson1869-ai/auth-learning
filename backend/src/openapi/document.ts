@@ -3,6 +3,8 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
+  passkeyRegisterOptionsSchema,
+  passkeyRegisterVerifySchema,
   registerSchema,
   resetPasswordSchema,
   verifyEmailSchema,
@@ -34,6 +36,8 @@ const requests: Record<string, Schema> = {
   ForgotPasswordInput: forgotPasswordSchema,
   ResetPasswordInput: resetPasswordSchema,
   VerifyEmailInput: verifyEmailSchema,
+  PasskeyRegisterOptionsInput: passkeyRegisterOptionsSchema,
+  PasskeyRegisterVerifyInput: passkeyRegisterVerifySchema,
 };
 const responses: Record<string, Schema> = {
   ErrorResponse: r.errorResponse,
@@ -44,6 +48,10 @@ const responses: Record<string, Schema> = {
   MeResponse: r.meResponse,
   Session: r.session,
   SessionsResponse: r.sessionsResponse,
+  Passkey: r.passkey,
+  PasskeysResponse: r.passkeysResponse,
+  PasskeyResponse: r.passkeyResponse,
+  PasskeyRegistrationOptions: r.passkeyRegistrationOptions,
   AdminUser: r.adminUser,
   AdminUsersResponse: r.adminUsersResponse,
   AuditLog: r.auditLog,
@@ -158,6 +166,49 @@ const paths: Record<string, Record<string, Op>> = {
       replies: { 204: ['Na-logout'], 401: unauthenticated, 404: ['Walang ganitong session MO', 'ErrorResponse'] },
     },
   },
+  '/api/auth/passkeys': { get: { tag: 'auth', auth: true, summary: 'Mga passkey ko (Day 95)', replies: { 200: ['Mga passkey — walang public key o credential id', 'PasskeysResponse'], 401: unauthenticated } } },
+  '/api/auth/passkeys/{id}': {
+    delete: {
+      tag: 'auth',
+      auth: true,
+      summary: 'Burahin ang isang passkey',
+      description: '404 sa passkey ng ibang user, sa id na wala, at sa id na hindi numero (IDOR — gaya ng sessions).',
+      replies: { 204: ['Nabura'], 401: unauthenticated, 404: ['Walang ganitong passkey MO', 'ErrorResponse'] },
+    },
+  },
+  '/api/auth/passkeys/register/options': {
+    post: {
+      tag: 'auth',
+      auth: true,
+      summary: 'Dagdag ng passkey, hakbang 1: humingi ng options (challenge)',
+      description:
+        'Kailangan ang kasalukuyang password (reauthentication). Ang sagot ay ipinapasa sa `navigator.credentials.create()`. Ang challenge ay 5 minuto at isang gamit lang; ang bagong options ay pumapalit sa luma.',
+      body: 'PasskeyRegisterOptionsInput',
+      replies: {
+        200: ['Options para sa browser', 'PasskeyRegistrationOptions'],
+        400: ['Mali ang input o ang kasalukuyang password', 'ErrorResponse'],
+        401: unauthenticated,
+        409: ['Naabot na ang limit (10 passkey)', 'ErrorResponse'],
+        429: tooMany,
+      },
+    },
+  },
+  '/api/auth/passkeys/register/verify': {
+    post: {
+      tag: 'auth',
+      auth: true,
+      summary: 'Dagdag ng passkey, hakbang 2: ang sagot ng device',
+      description:
+        'Sinusuri ang challenge, origin, RP ID, pirma at user verification. Iisang 400 para sa lahat ng pagpalya (ang dahilan ay sa audit log lang). Public key lang ang sine-save.',
+      body: 'PasskeyRegisterVerifyInput',
+      replies: {
+        201: ['Naidagdag', 'PasskeyResponse'],
+        400: ['Mali ang input, walang buhay na challenge, o hindi pumasa ang pagsusuri', 'ErrorResponse'],
+        401: unauthenticated,
+        409: ['Nakarehistro na ang passkey na ito, o naabot na ang limit', 'ErrorResponse'],
+      },
+    },
+  },
   '/api/auth/change-password': {
     post: {
       tag: 'auth',
@@ -228,6 +279,9 @@ export function buildOpenApiDocument() {
             const built: Json = operation(method, path, op);
             if (path === '/api/auth/sessions/{id}') {
               built.parameters = [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }];
+            }
+            if (path === '/api/auth/passkeys/{id}') {
+              built.parameters = [{ name: 'id', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }];
             }
             if (path.startsWith('/api/admin/')) built.parameters = paginationQuery;
             return [method, built];

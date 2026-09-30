@@ -135,7 +135,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **Dependabot**, **gitleaks**, **Grype** | Supply-chain at container security — Day 87: Dependabot (cooldown 7 araw) · gitleaks v8.30.1 (image na naka-pin sa digest) · `npm audit` ×2 sa backend at frontend (D-029) | DevOps / Security | 18 ✅ Day 87 · ✅ Day 88 (Grype v0.119.0 sa CI, multi-stage image, D-030) |
 | **Redis** | Shared na store ng rate limiter (maraming server) — Day 92: Redis 8.8.3 + `ioredis` + `rate-limit-redis`, fail-open, alert na `RedisDown` (D-035) · + **server cache** (Day 92b: cache-aside, TTL 60s, D-036 — walang bagong library) | DevOps | 18 ✅ Day 92 (rate limiter) · ✅ Day 92b (cache) |
 | **Caddy** | **Load balancer** sa harap ng 2 backend container (Day 91b) | DevOps | 18 |
-| **@simplewebauthn** | Passkeys (server + browser) | Security / Frontend | 19 |
+| **@simplewebauthn** | Passkeys (server + browser) — Day 95: `@simplewebauthn/server` 14 (options + verify) at `@simplewebauthn/browser` 14 (`startRegistration`), D-037 | Security / Frontend | 19 ✅ Day 95–96 (registration) |
 | **Playwright** | End-to-end test sa totoong browser | QA | 19 |
 
 > ⚠️ Madalas magbago ang presyo at libreng tier ng mga online service —

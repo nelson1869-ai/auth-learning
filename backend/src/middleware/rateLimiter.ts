@@ -123,6 +123,17 @@ export const changePasswordLimiter = skip
       trustCloudflare: env.TRUST_CLOUDFLARE,
     });
 
+// Dagdag ng passkey (Day 95): humihingi ng kasalukuyang password — 10 PALPAK bawat 15 minuto, gaya ng change password
+export const passkeyRegisterLimiter = skip
+  ? undefined
+  : createAuthLimiter({
+      name: 'passkey-register',
+      limit: 10,
+      windowMs: FIFTEEN_MINUTES,
+      skipSuccessfulRequests: true,
+      trustCloudflare: env.TRUST_CLOUDFLARE,
+    });
+
 // Forgot password (Day 59): 5 bawat 15 minuto bawat IP (lahat binibilang) — bawat request ay puwedeng
 // magpadala ng email; kung walang limit, kayang gamitin ang app para mag-spam ng inbox ng iba, at masisira ang
 // reputasyon ng domain (Day 58)
