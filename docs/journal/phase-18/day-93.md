@@ -55,7 +55,17 @@ Kaya ang app, na nagtatanong ng `users` (walang `public.`), ay nakakuha ng konek
 **Ang ibig sabihin sa totoong sakuna:** kung ni-restore ko ang production gamit ang pooled na URL, **buo ang data pero patay ang app**, at sasabihin ng lahat ng check na ayos.
 **Ligtas ba ang production ngayon?** Oo: direkta ang `DATABASE_URL` sa `.env.production` (sinuri nang yes/no), kaya ang mga backup at ang app ay hindi dumadaan sa pooler.
 **Ayos:** inaalis na ng script ang `-pooler` para sa lahat ng hakbang, at nakasulat sa D-033: **direktang endpoint lagi**.
-**Hindi pa alam:** kung paano linisin ang pooler nang hindi nire-restart ang compute. Hindi ko ito sinubukan.
+**Paano linisin ang pooler** *(unang isinulat: "hindi pa alam")*: mga 25 minuto pagkatapos, kusa na itong bumalik sa normal (hindi ko alam ang eksaktong dahilan; malamang ang pagtulog ng compute). At nang sadyang sirain ulit, isang `set_config('search_path', '"$user", public', false)` sa pooled na URL ang nagbalik nito agad. Isang beses lang sinubukan.
+
+### ✅ Ang ayos sa `/health/ready`, sinubukan laban sa TOTOONG kaso (deploy `229a2f1`)
+Pinalitan ang `SELECT 1` ng `select 1 from users limit 1` (PR #163). Pagkatapos ng deploy, sadyang ginawa ulit ng AI ang sira sa **staging**: ang unang statement ng dump, sa pooled na URL. Tapos ang bagong production image laban doon:
+
+| | Dati (`SELECT 1`) | Ngayon |
+|---|---|---|
+| `/api/users/count` | 500 | 500 |
+| `/api/health/ready` | **200 "ready"** | **503 "not_ready"** (3 sa 3) |
+
+Production pagkatapos ng deploy: `ready` 200, `{"count":1}`. Ang `deploy.sh` ay tumitingin sa `/ready`, kaya **pumapalya na ang deploy** kapag hindi makita ng app ang mga table nito.
 
 ### Ang RTO, tapat
 ~20 segundo ay **sa drill**: handa na ang script, ang backup at ang staging branch, at 28KB lang ang dump (1 user). Sa totoong sakuna, idagdag ang: pagpansin na may sira,

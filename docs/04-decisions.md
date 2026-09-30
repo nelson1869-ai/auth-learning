@@ -647,7 +647,8 @@
     bilang ng row, at `ready` ang `/health/ready`. Nasukat: mahigit 6 na minuto pagkatapos, sira pa rin ang pooled endpoint ng staging.
     Direkta ang `DATABASE_URL` ng production, kaya hindi ito tinamaan ng mga backup — pero **pooled ang default na kinokopya sa Neon console**.
   - Ang `restore-drill-neon.sh` ay nag-aalis na ng `-pooler`, at humihinto na kapag pumalya ang pagbura (dati: "💥 Sinira" kahit hindi nakakonekta).
-  - **Hindi pa alam:** kung paano linisin ang pooler nang hindi nire-restart ang compute. Sa totoong sakuna: direktang URL, at i-restart ang compute kung nagamit ang pooled.
+  - **Paano linisin ang pooler (nalaman sa parehong araw, sa staging):** (a) kusa itong bumalik sa loob ng ~25 minuto (hindi ko alam ang eksaktong dahilan — malamang ang pagtulog ng compute); (b) `select set_config('search_path', '"$user", public', false)` sa pamamagitan ng pooled na URL ay nagbalik nito agad. **Isang beses lang sinubukan, sa pooler na iisa ang koneksyon** — sa totoong sakuna, direktang URL pa rin ang tama.
+  - *(Unang isinulat: "hindi pa alam".)* Sa totoong sakuna: direktang URL, at i-restart ang compute kung nagamit ang pooled.
 
 ## D-034 · Load balancing: lab muna, hindi pa production
 
