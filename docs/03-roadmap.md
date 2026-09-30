@@ -334,7 +334,7 @@ direktang nagtatrabaho sa `main`?*
 ### Day 37 — CD ng backend: manual muna, tapos automate
 - [x] **Manual muna:** `devops/deploy.sh` — pull ng image ng huling berdeng commit → migrate (sa loob ng image) → restart → health check
 - [x] GitHub Actions (GitHub-hosted, job `image`) → Docker image → **GHCR**, naka-tag sa commit SHA; ang PC ang **kumukuha** (pull)
-- [ ] **Automate ang pull** (timer sa PC na nagpapatakbo ng `deploy.sh`) — pagkatapos ng Phase 9, kapag laging bukas na ang app
+- ↪️ *Inilipat (2026-09-30):* **Automate ang pull** (timer na nagpapatakbo ng `deploy.sh`) → Phase 20, opsyonal. Gumagana ang manual na deploy; hindi ito kailangan para matapos ang MVP
 - [x] 🔐 **Walang self-hosted runner** — public ang repo (D-016, D-017, D-020)
 - [x] Deploy lang ang eksaktong commit na pumasa sa CI
 - [x] 📊 `docs/diagrams/09-cd-pipeline.md` — merge → CI → image → pull → restart; i-update ang `00-architecture.md`
@@ -686,7 +686,6 @@ direktang nagtatrabaho sa `main`?*
 ### Day 90 — Data retention
 - [x] Oras-oras na paglilinis ng expired na data, may advisory lock *(sinukat: 1 user, 8MB — para sa hangganan at privacy · buong family ng refresh token lang (reuse detection) · audit logs 1 taon (desisyon ko) · 10 test, 6 na sadyang sira ang nahuli · + metrics at 2 Grafana panel · D-032)*
 - [x] 📝 `backend/http/34-retention.http` — gabay kung paano obserbahan ang cleanup job · 📊 `docs/diagrams/24-retention.md`
-- [ ] 📊 `docs/diagrams/NN-retention.md`
 - **Matututunan:** bakit hindi puwedeng basta burahin ang revoked refresh tokens · *Reference: `data-retention`*
 
 ### Day 91 — Backup drill
@@ -718,6 +717,8 @@ direktang nagtatrabaho sa `main`?*
 ### Day 93 — Review day
 - [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
 - [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [ ] 🗄️ **Neon restore drill** (naiwan noong Day 91): gawin ang `database/backups/.env.staging` sa WSL, patakbuhin ang
+      `database/backups/restore-drill-neon.sh`, at itala ang RTO ng production sa `journal/phase-18/day-91.md` (D-033: hindi opsyonal ang drill)
 
 ---
 
@@ -747,3 +748,53 @@ direktang nagtatrabaho sa `main`?*
 
 **✅ Checkpoint (`checkpoint-senior`):** Kaya mong ipaliwanag ang bawat bahagi ng
 system — **nang hindi tumitingin sa code.**
+
+---
+
+## Phase 20 — Para magamit sa ibang project · 🏗️ *Architect* + 🔐 *Security* · Day 101+ (opsyonal)
+
+> Idinagdag noong 2026-09-30 — tanong ni Nelson: "is this reusable? … still has missing?"
+> **Tapos na ang project sa Day 100.** Ang phase na ito ay para lang kapag may **totoong app** na gagamit nito.
+> Gawin ang isang Day kapag kailangan na, hindi nang maaga (tanong muna: "anong problema ang nilulutas nito?").
+> Nakaayos ayon sa rekomendasyon: una ang pinakamura at pinakamadalas kailanganin.
+> 🧰 Wala pang napiling library para sa mga ito: pipiliin sa araw mismo at itatala sa `04-decisions.md`.
+
+### Day 101 — Starter checklist (kopyahin ang repo para sa bagong app)
+- [ ] Isulat ang `docs/07-reuse.md`: ang LAHAT ng papalitan kapag kinopya — `.env` (bagong JWT keys, database, Redis, Resend key),
+      domain (`CLIENT_URL`, cookies, CORS, CSP sa `_headers`), text ng mga email, pangalan ng image sa GHCR, Cloudflare tunnel/Pages
+- [ ] 🔐 Alin ang HINDI dapat kopyahin: mga key, `.env`, laman ng database, mga backup
+- [ ] Subukan nang totoo: i-clone sa bagong folder, sundan ang checklist, at dapat pumasa ang `npm test` at tumakbo ang register → login
+- **Matututunan:** ang pagkakaiba ng "reusable na code" at "reusable na kaalaman"; bakit starter, hindi npm package
+
+### Day 102 — Kusang deploy (inilipat mula sa Day 37)
+- [ ] systemd user timer na nagpapatakbo ng `devops/deploy.sh` (gaya ng backup timer ng Day 91) — walang gagawin kapag walang bagong berdeng commit
+- [ ] Alert kapag pumalya ang deploy (hindi tahimik) · 📊 i-update ang `09-cd-pipeline.md`
+- **Matututunan:** kailan sulit i-automate ang isang bagay na gumagana na nang mano-mano
+
+### Day 103–104 — 2FA gamit ang TOTP (code mula sa authenticator app)
+- [ ] Enroll: secret + QR code, kumpirmahin gamit ang unang code; 🔐 naka-encrypt ang secret sa database
+- [ ] Login na may pangalawang hakbang; 🔐 may limit ang panghuhula ng code, at hindi puwedeng gamitin ulit ang parehong code
+- [ ] Recovery codes (naka-hash, isang gamit lang) — ano ang mangyayari kapag nawala ang phone?
+- [ ] 📝 `backend/http/NN-totp.http` · 📊 `docs/diagrams/NN-totp.md` (enroll + login)
+- **Matututunan:** "something you know + something you have"; bakit mas mahina ang TOTP kaysa passkey laban sa phishing (Phase 19),
+  pero kailangan pa rin bilang fallback ng mga walang passkey
+
+### Day 105–106 — Social login ("Login with Google")
+- [ ] OAuth 2.0 / OpenID Connect: authorization code flow na may PKCE at `state` 🔐
+- [ ] 🔐 **Account linking:** ano ang gagawin kapag may account na ang email na galing sa Google? (huwag basta pagsamahin — dapat verified ang email sa magkabilang panig)
+- [ ] User na walang password: ano ang ibig sabihin ng "forgot password" at "change password" para sa kanya?
+- [ ] 📝 `backend/http/NN-oauth.http` (redirect lang; kailangan ng browser para sa buong flow) · 📊 `docs/diagrams/NN-oauth-login.md`
+- **Matututunan:** ang pagkakaiba ng OAuth (pahintulot) at OIDC (pagkakakilanlan); bakit hindi tayo humahawak ng password ng Google
+
+### Day 107–108 — Isang login para sa maraming app (SSO)
+- [ ] Ilathala ang public key (`/.well-known/jwks.json`) — naka-RS256 na ang JWT mula Day 56, kaya verify lang ang gagawin ng ibang app
+- [ ] Lab: isang maliit na pangalawang app (`devops/lab/`) na nagve-verify ng token **nang walang database at walang private key**
+- [ ] **Makita ang problema:** pang-isang domain lang ang cookie natin → ano ang kailangan kapag nasa ibang domain ang app? (redirect flow, hindi shared cookie)
+- [ ] Key rotation: paano papalitan ang key nang hindi nalo-logout ang lahat? (`kid` sa header ng JWT)
+- [ ] 📊 `docs/diagrams/NN-sso.md` · i-update ang `00-architecture.md`
+- **Matututunan:** auth bilang hiwalay na serbisyo; kailan mas tama nang gumamit ng gawa na (Keycloak, Better Auth, Clerk) kaysa palakihin ito
+
+### Hindi idinagdag (at bakit)
+- **Redis sa `/health/ready`:** sinadyang wala. Fail-open ang rate limiter (D-035); ang alert na `RedisDown` ang bantay.
+- **Hiwalay na `utils/` folder:** `lib/` ang gamit ng project para sa parehong layunin (`06-architecture.md`).
+- **npm package ng auth:** masyadong nakatali ang services sa schema at sa `lib/`; starter (Day 101) ang tamang anyo ng reuse.
