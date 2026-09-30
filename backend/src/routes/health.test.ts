@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import request from 'supertest';
 import app from '../app.ts';
+import { sql } from 'drizzle-orm';
 import { db } from '../db/index.ts';
 import { isDatabaseReady } from '../services/health.service.ts';
 import { logger } from '../lib/logger.ts';
@@ -38,6 +39,21 @@ describe('readiness', () => {
     expect(res.body).toMatchObject({ status: 'not_ready', checks: { database: 'down' } });
     expect(readyResponse.safeParse(res.body).success).toBe(true);
     expect(JSON.stringify(res.body)).not.toContain('ECONNREFUSED');
+  });
+
+  // Day 93: TOTOONG database, walang mock. Dati `SELECT 1` ang readiness: "ready" kahit walang table (Day 91) at kahit walang
+  // search_path pagkatapos ng restore sa pooler ng Neon (Day 93) — habang 500 ang bawat totoong query ng app
+  it('503 not_ready when the database answers but the users table cannot be found', async () => {
+    await db.execute(sql`alter table users rename to users_renamed_by_health_test`);
+    try {
+      const res = await request(app).get('/api/health/ready');
+      expect(res.status).toBe(503);
+      expect(res.body).toMatchObject({ status: 'not_ready', checks: { database: 'down' } });
+      expect(JSON.stringify(res.body)).not.toMatch(/relation|users/); // walang detalye ng database sa sagot
+    } finally {
+      await db.execute(sql`alter table users_renamed_by_health_test rename to users`);
+    }
+    expect((await request(app).get('/api/health/ready')).status).toBe(200); // at bumabalik kapag naayos
   });
 
   it('never hangs: a database that does not answer counts as not ready after the timeout', async () => {
