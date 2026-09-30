@@ -58,7 +58,8 @@ export default function ProfilePage() {
       <p>Hello, {user.name ?? user.email}!</p>
       {!user.emailVerified && <VerifyEmailBanner />}
       <p>
-        <Link to="/sessions">📱 Mga device ko</Link> · <Link to="/change-password">🔑 Palitan ang password</Link>
+        <Link to="/sessions">📱 Mga device ko</Link> · <Link to="/change-password">🔑 Palitan ang password</Link> ·{' '}
+        <Link to="/passkeys">🪪 Mga passkey</Link>
       </p>
       {/* Admin lang ang makakakita ng link (Day 49). UX lang ito — kahit i-type ang /admin, 403 ang backend */}
       {user.role === 'admin' && (
