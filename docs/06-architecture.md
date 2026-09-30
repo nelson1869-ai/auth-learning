@@ -104,7 +104,7 @@ backend/
 │   ├── validations/      ← auth.ts · pagination.ts (Zod, input) · responses.ts (Zod, mga sagot — Day 78)
 │   ├── openapi/          ← Day 78: document.ts (OpenAPI 3.1 mula sa Zod) · typescript.ts (generator ng frontend types) · openapi.test.ts
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
-│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85) · redis.ts (Day 92)
+│   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85) · redis.ts (Day 92) · cache.ts (Day 92b)
 │   ├── jobs/             ← retentionScheduler.ts (Day 90) — oras-oras na trabaho sa loob ng app (sinisimulan ng index.ts, hinihinto ng shutdown)
 │   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) — mga script, hindi endpoint
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · verifyMigrations.ts (Day 89) · set-role.ts

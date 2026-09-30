@@ -100,7 +100,7 @@ flowchart LR
     subgraph PC["🖥️ PC ni Nelson"]
         CFD["cloudflared container<br/>devops/docker-compose.prod.yml"] -->|"http://backend:3000<br/>(Docker network lang)"| BE["backend container<br/>node src/index.ts ✅ Day 34"]
         Prom["Prometheus · Grafana · Alertmanager<br/>✅ Day 82–84 · 127.0.0.1 lang"] -->|"scrape :9464/metrics"| BE
-        BE -->|"bilang ng rate limiter<br/>(fail-open kapag patay)"| Redis[("Redis ✅ Day 92<br/>walang port sa labas · walang persistence")]
+        BE -->|"bilang ng rate limiter · server cache (Day 92b)<br/>(fail-open kapag patay)"| Redis[("Redis ✅ Day 92<br/>walang port sa labas · walang persistence")]
     end
     Prom -->|"📧 alert (Resend SMTP)"| Me(["👤 Nelson"])
     BE -->|"TLS · sslmode=verify-full"| Neon[("Neon · Singapore<br/>Postgres 17 · point-in-time restore<br/>✅ Day 35")]

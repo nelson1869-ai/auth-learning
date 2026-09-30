@@ -1,0 +1,115 @@
+### =========================================================================
+### 🎓 SERVER CACHE — itabi sa Redis ang sagot na madalas hingin pero bihirang magbago
+### 📅 Day 92b · Phase 18 (Production maturity) · Desisyon: D-036
+### =========================================================================
+### "Cache-aside": (1) tanungin ang Redis. (2) Wala? Kunin sa database, tapos itabi sa Redis nang 60 segundo (TTL).
+### (3) Kapag nagbago ang data (bagong register), BURAHIN ang naka-cache — ito ang "cache invalidation".
+###
+### Ang naka-cache: GET /api/users/count LANG. Bakit ito?
+###   - pareho ang sagot para sa LAHAT ng user (hindi personal)
+###   - madalas basahin, at nagbabago lang kapag may bagong register
+### 🔐 Ang HINDI naka-cache: /api/auth/me at lahat ng personal na data. Iisa ang susi ng cache para sa lahat; kapag inilagay
+###    doon ang /me, makikita ni B ang profile ni A. (Kung talagang kailangan: kasama ang user id sa susi.) Tingnan ang #5.
+###
+### Ang header na `X-Cache` ang nagsasabi kung saan galing ang sagot:
+###   MISS   — wala sa Redis → kinuha sa database, tapos itinabi
+###   HIT    — galing sa Redis, HINDI tinanong ang database
+###   BYPASS — walang cache: walang REDIS_URL, o PATAY ang Redis (fail-open, gaya ng rate limiter — 08-rate-limit.http)
+###
+### PAANO GAMITIN:
+###   1. cd devops && docker compose up -d            (Postgres + Redis sa 127.0.0.1:6380)
+###   2. Idagdag sa backend/.env:  REDIS_URL=redis://127.0.0.1:6380     (kapag wala ito: BYPASS ang lahat ng sagot dito)
+###   3. cd backend && npm run dev   → sa log: "Server running" … cache: "redis"
+###   4. Malinis na simula:  docker exec auth-learning-redis-1 redis-cli del cache:users:count
+###
+### Sinukat (Day 92b, dev, 300 request bawat isa):  HIT 1.4ms (median) · MISS 3.1ms · ang pinakaunang MISS pagka-start: ~500ms
+### (binubuksan pa ang koneksyon sa database). Maliit ang tipid sa dev dahil nasa iisang PC ang database.
+###
+### Code: backend/src/lib/cache.ts · services/users.service.ts · services/auth/registration.service.ts (ang pagbura)
+###       controllers/users.controller.ts (X-Cache) · test: backend/src/lib/cache.test.ts (totoong Redis)
+### Diagram: docs/diagrams/26-cache-aside.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Unang tanong (pagkatapos ng `del` sa hakbang 4). Ang inaasahan:
+###    Status:  200 OK
+###    Header:  X-Cache: MISS
+###    Body:    { "count": N }
+###
+### 🔍 Silipin ang itinabi:
+###    docker exec auth-learning-redis-1 redis-cli get cache:users:count     → "N"
+###    docker exec auth-learning-redis-1 redis-cli ttl cache:users:count     → 60 pababa (segundo bago kusang mabura)
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 2. Ulitin agad (sa loob ng 60 segundo). Ang inaasahan:
+###    Status:  200 OK
+###    Header:  X-Cache: HIT      ← hindi na tinanong ang database
+###    Body:    { "count": N }    ← parehong bilang
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 3. CACHE INVALIDATION: mag-register ng bagong user. Ang inaasahan:
+###    Status:  201 Created
+###    Body:    { "user": { "id": ..., "email": "cache-...@example.com", "name": "Cache Demo" } }
+###
+### Pagkatapos ng INSERT, binubura ng registration.service.ts ang `cache:users:count`.
+### 🔍 docker exec auth-learning-redis-1 redis-cli exists cache:users:count   → 0 (wala na)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "cache-{{$timestamp}}@example.com",
+  "name": "Cache Demo",
+  "password": "password123"
+}
+
+### -------------------------------------------------------------------------
+### 4. Bilang ulit, pagkatapos ng register. Ang inaasahan:
+###    Status:  200 OK
+###    Header:  X-Cache: MISS       ← nabura ang cache, kaya database ulit
+###    Body:    { "count": N+1 }    ← tama agad, hindi na naghintay ng 60 segundo
+###    I-send ulit → X-Cache: HIT, { "count": N+1 }
+###
+### 🔍 ANO ANG MANGYAYARI KUNG WALANG INVALIDATION? Subukan: magdagdag ng user nang HINDI dumadaan sa app
+###    (kaya walang nagbura ng cache):
+###      docker exec auth-learning-postgres-1 sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "insert into users (email, name, password_hash) values ('"'"'direct@example.com'"'"', '"'"'Direct'"'"', '"'"'x'"'"')"'
+###    I-send ito: X-Cache: HIT at LUMA pa ang bilang (sinubukan: 3 na sa database, 2 pa rin ang sagot) —
+###    hanggang maubos ang TTL (pinakamatagal: 60 segundo). Pagkatapos: MISS, at tama na.
+###    Kaya LAGING may TTL: kapag may nakalimutang pagbura (o pumalya ito), may hangganan ang pagiging luma.
+###    Linisin:  … -c "delete from users where email = 'direct@example.com'"   (parehong paraan)
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 5. 🔐 Ang personal na data ay HINDI naka-cache. Mag-login muna (05-login.http) gamit ang user ng #3, tapos i-send ito.
+###    Ang inaasahan:
+###    Status:  200 OK (kapag naka-login) · 401 { "error": "Not authenticated" } (kapag hindi)
+###    Header:  Cache-Control: no-store      ← pati ang browser at ang Cloudflare ay bawal mag-cache (Day 36b)
+###             WALANG X-Cache              ← hindi dumaan sa server cache
+###
+### 🔍 Patunay sa Redis — iisa lang ang susi ng cache, at hindi iyon ang profile mo:
+###    docker exec auth-learning-redis-1 redis-cli --scan --pattern 'cache:*'   → cache:users:count
+GET http://localhost:3000/api/auth/me
+
+### -------------------------------------------------------------------------
+### 6. Kapag PATAY ang Redis. Gawin muna:  docker stop auth-learning-redis-1
+###    Ang inaasahan:
+###    Status:  200 OK                 ← hindi 500, hindi nakabitin (~4ms)
+###    Header:  X-Cache: BYPASS        ← diretso sa database
+###    Body:    { "count": N+1 }
+###    Sa log (ISANG beses lang): ERROR "Redis unavailable — rate limits are NOT enforced and the cache is bypassed until it is back"
+###
+### Pagkatapos:  docker start auth-learning-redis-1   → sa log: "Redis is back …"
+###    I-send ulit: MISS (walang laman ang Redis pagka-restart — walang persistence), tapos HIT.
+GET http://localhost:3000/api/users/count
+
+### -------------------------------------------------------------------------
+### 7. Ang mga bilang ng cache (metrics, Day 81). Hiwalay na port — METRICS_PORT sa backend/.env (9474 sa dev, gaya ng 27-metrics.http).
+###    Ang inaasahan:
+###    Status:  200 OK, text. Hanapin ang tatlong linya:
+###      auth_cache_lookups_total{result="hit",…}   N
+###      auth_cache_lookups_total{result="miss",…}  N
+###      auth_cache_lookups_total{result="error",…} N     ← tumataas kapag patay ang Redis (#6)
+###
+### 🔍 Hit rate = hit / (hit + miss). Kapag mababa, walang silbi ang cache: masyadong maikli ang TTL, o bihira itong basahin.
+GET http://localhost:9474/metrics

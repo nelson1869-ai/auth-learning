@@ -25,7 +25,7 @@
 | GET | `/api/health` · `/api/health/live` | Buhay ba ang process? (walang database) | — | `01-health.http` · `26-health-checks.http` |
 | GET | `/api/health/ready` | Handa ba? (sinusuri ang database, 3s na limit) — Day 80 | — | `26-health-checks.http` |
 | POST | `/api/echo` | Pang-aral: ibinabalik ang body | — | `02-echo.http` |
-| GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` |
+| GET | `/api/users/count` | Ilang user ang mayroon | — | `03-users-count.http` · `37-cache.http` |
 | POST | `/api/auth/register` | Gumawa ng account | — | `04-register.http` |
 | POST | `/api/auth/login` | Patunayan kung sino ka | — | `05-login.http` |
 | GET | `/api/auth/me` | Sino ang naka-login | 🍪 cookie `token` | `06-me.http` |
@@ -61,6 +61,7 @@ kapag hindi sumagot ang database sa loob ng 3 segundo o may error. Walang detaly
 ## `GET /api/users/count`
 **Response 200:** `{ "count": 3 }` · **500** `{ "error": "Internal server error", "requestId": "..." }` kapag hindi maabot ang database (pagkalipas ng 5 segundo).
 Bilang lang — hindi kailanman ang listahan ng users.
+**Header `X-Cache`** (Day 92b): `HIT` (galing sa Redis) · `MISS` (galing sa database, itinabi nang 60s) · `BYPASS` (walang Redis o patay ito). Binubura ang cache sa bawat matagumpay na register.
 
 ## `POST /api/auth/register`
 **Request**
