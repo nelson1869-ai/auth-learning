@@ -1,6 +1,6 @@
 ### =========================================================================
 ### 🎓 RATE LIMITING — pananggalang laban sa panghuhula ng password
-### 📅 Day 43 (inagahan — bago ang MVP launch) · Phase 9 (Pangunahing hardening)
+### 📅 Day 43 (inagahan — bago ang MVP launch) · Phase 9 (Pangunahing hardening) · in-update sa Day 92 (Redis, D-035)
 ### =========================================================================
 ### Login:    10 PALPAK na subok bawat 15 minuto bawat IP (hindi binibilang ang tamang login)
 ### Register: 10 subok bawat 15 minuto bawat IP (lahat binibilang)
@@ -10,10 +10,21 @@
 ### (CF-Connecting-IP), hindi ang IP ng cloudflared container — kung hindi,
 ### iisang bilang ang lahat ng user, at kayang i-block ng isang attacker ang lahat.
 ###
-### ⚠️ Pagkatapos subukan, naka-block ang IP mo nang 15 minuto sa login.
-###    Para mag-reset sa dev: i-save ang kahit anong file sa src/ (nodemon restart).
+### SAAN NAKATAGO ANG BILANG (Day 92)? Tingnan ang log pagka-start: "Server running" … rateLimitStore: "memory" o "redis"
+###   memory — default sa dev (walang REDIS_URL). Bawat kopya ng app ay may SARILING bilang: sa 2 backend sa likod ng load
+###            balancer, 20 ang nakakalusot sa halip na 10 (sinukat sa lab, Day 91b). Nare-reset din sa bawat restart/deploy
+###   redis  — kapag may REDIS_URL (production, at ang lab). IISANG bilang ng lahat ng kopya: 10 ulit (sinukat, Day 92),
+###            at HINDI nare-reset sa restart ng app
+###   Kapag PATAY ang Redis: pinapasok ang request (fail-open) — hindi bumabagsak ang login. Nasa database pa rin ang account
+###   lockout (21-lockout.http). May alert: RedisDown (29-alerts.http)
 ###
-### Code: backend/src/middleware/rateLimiter.ts · test: rateLimiter.test.ts
+### ⚠️ Pagkatapos subukan, naka-block ang IP mo nang 15 minuto sa login. Para mag-reset sa dev:
+###    memory: i-save ang kahit anong file sa src/ (nodemon restart)
+###    redis:  docker exec auth-learning-redis-1 redis-cli flushall      (HINDI na sapat ang restart ng app)
+###    Para subukan ang Redis sa dev: cd devops && docker compose up -d redis, tapos REDIS_URL=redis://127.0.0.1:6380 sa backend/.env
+###    Silipin ang bilang: docker exec auth-learning-redis-1 redis-cli --scan --pattern 'rl:*'   (rl:<limiter>:<ip>)
+###
+### Code: backend/src/middleware/rateLimiter.ts · backend/src/lib/redis.ts · test: rateLimiter.test.ts (totoong Redis)
 ### =========================================================================
 
 ### -------------------------------------------------------------------------

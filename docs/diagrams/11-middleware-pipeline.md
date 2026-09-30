@@ -21,7 +21,7 @@ flowchart TD
     Json -->|"lampas 100kb"| Err
     Json -->|"ok"| Cookie["5 · cookieParser()<br/>req.cookies"]
     Cookie --> Routes{"6 · routers sa /api<br/>health · echo · users · auth · admin"}
-    Routes -->|"login · register · change-password<br/>forgot-password · resend-verification"| Limit{"rateLimiter (Day 43, 55, 59, 60)<br/>sobra na ang subok?"}
+    Routes -->|"login · register · change-password<br/>forgot-password · resend-verification"| Limit{"rateLimiter (Day 43, 55, 59, 60)<br/>sobra na ang subok?<br/>bilang: Redis kapag may REDIS_URL (Day 92),<br/>kung hindi, memory"}
     Limit -->|"oo"| R429["429 Too many attempts"]
     Limit -->|"hindi"| Handler["controller (Zod) → service<br/>(argon2 · db) — Day 74–76"]
     Routes -->|"/admin/* (Day 46)"| Admin{"requireAuth → requireRole('admin')<br/>401 · 403 (+ audit: access_denied)"}

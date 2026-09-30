@@ -31,8 +31,8 @@ Docker · Docker Compose · GitHub Actions · Cloudflare (domain + Tunnel) · Pr
 ## Ano ang lalaman ng folder na ito (plano)
 ```
 devops/
-├── docker-compose.yml       ← dev: Postgres (project `auth-learning`)
-├── docker-compose.prod.yml  ← production: backend + cloudflared + prometheus + grafana + alertmanager (project `auth-learning-prod`)
+├── docker-compose.yml       ← dev: Postgres + Redis (Day 92, 127.0.0.1:6380) (project `auth-learning`)
+├── docker-compose.prod.yml  ← production: backend + redis (Day 92) + cloudflared + prometheus + grafana + alertmanager (project `auth-learning-prod`)
 ├── cloudflared/config.yml   ← tunnel → api.nelson1869.com
 ├── deploy.sh                ← pull ng image mula GHCR → migrate → restart → health (Day 37)
 ├── deploy/             ← mga script at dokumentasyon ng deploy
@@ -167,7 +167,18 @@ docker stop auth-learning-lab-backend-1              # subukang patayin ang isa 
 docker compose -f docker-compose.lb.yml down         # 🧹 walang natitira
 ```
 - **Sariling project name** (`auth-learning-lab`) at walang kaparehong port: hindi babangga sa prod o dev (aral ng reference).
-- Bakit hindi pa production: dodoble ang limit ng login (rate limiter sa memory ng bawat backend) — Day 92. Tingnan ang D-034.
+- **Day 92:** may Redis na ang lab — iisang bilang ng dalawang backend (10 ulit, hindi 20). Alisin ang `REDIS_URL` sa compose para makita ulit ang problema.
+- Bakit hindi pa production ang load balancer: kailangan pa ng tamang IP ng user sa likod ng proxy, per-backend na scrape ng Prometheus, at rolling na deploy. Tingnan ang D-034.
+
+## Redis (Day 92) — ang bilang ng rate limiter
+```bash
+docker compose -f docker-compose.prod.yml ps redis                                   # production: walang port sa labas, walang persistence
+docker compose -f docker-compose.prod.yml exec redis redis-cli --scan --pattern 'rl:*'  # ang mga bilang: rl:<limiter>:<ip>
+docker compose -f docker-compose.prod.yml exec redis redis-cli del 'rl:login:<ip>'   # alisin ang block ng isang IP (hal. ako mismo)
+cd devops && docker compose up -d redis                                              # dev: 127.0.0.1:6380 (para sa tests at REDIS_URL sa backend/.env)
+```
+- **Kapag patay ang Redis:** pumapasok ang lahat ng request (fail-open) — hindi bumabagsak ang login. Alert: `RedisDown` pagkalipas ng 5m. D-035.
+- Sinisimulan ito ng `deploy.sh` bago ang backend. `REDIS_URL=redis://redis:6379` sa `backend/.env.production`.
 
 ## ❌ Hindi dapat nasa loob ng devops
 - **Totoong secrets sa Git** (passwords, keys, `.env`) — `.env.example` lang ang naka-commit

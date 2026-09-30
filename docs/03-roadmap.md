@@ -704,8 +704,8 @@ direktang nagtatrabaho sa `main`?*
   health checks. ⚠️ Sa iisang PC — para sa konsepto, hindi para sa tunay na pakinabang
 
 ### Day 92 — Distributed rate limiting
-- [ ] Redis bilang store ng rate limiter (para gumana kahit maraming server)
-- [ ] 📝 I-update ang `08-rate-limit.http`
+- [x] Redis bilang store ng rate limiter (para gumana kahit maraming server) *(lab: 10 ulit, hindi 20 · opsyonal ang `REDIS_URL` · fail-open kapag patay ang Redis + alert `RedisDown` · 2 bug sa `rate-limit-redis` ang nahuli: hindi na bumabalik ang limit kapag patay ang Redis sa startup, at hindi nabibilang ang unang request · nasa production din (desisyon ko) · D-035)*
+- [x] 📝 I-update ang `08-rate-limit.http` *(+ diagram 00, 04, 11, 22)*
 - **Matututunan:** bakit nabubutas ang in-memory limit · *Reference: `Redis-backed distributed rate limiting`*
 
 ### Day 92b — Server cache gamit ang Redis (idinagdag — tanong ni Nelson)
