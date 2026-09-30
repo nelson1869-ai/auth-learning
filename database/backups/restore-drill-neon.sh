@@ -6,6 +6,7 @@
 #
 # Kailangan: database/backups/.env.staging (gitignored) na may
 #   STAGING_DATABASE_URL=postgresql://…@ep-XXXX….neon.tech/neondb?sslmode=verify-full
+#   (ang ibinibigay ng Neon console ay `sslmode=require` — palitan ng `verify-full`, kung hindi ay tatanggi ang psql)
 # ang connection string ng Neon branch na "staging" (ginawa sa Neon console, HINDI ang production branch).
 #
 # ⚠️ BINUBURA nito ang LAHAT ng laman ng target bago mag-restore (iyon ang "sakuna"). Kaya tumatanggi ito kapag ang
@@ -45,8 +46,15 @@ PORT=3098
 trap 'docker rm -f "$APP" >/dev/null 2>&1 || true' EXIT
 now() { date +%s.%N; }
 secs() { printf '%.1f' "$(echo "$2 - $1" | bc)"; }
-# pg tools sa loob ng container; ang URL ay galing sa env file (hindi sa command line)
-pg() { docker run --rm -i --env-file "$STAGING_ENV" -e PGSSLROOTCERT=system -v "$DEST:/backups:ro" postgres:17-alpine sh -euc "$1"; }
+# 🐛 Day 93 (unang totoong takbo): HUWAG mag-restore sa POOLED na URL (`ep-…-pooler`, ang default na ibinibigay ng Neon console).
+#    Ang dump ay nagsisimula sa `set_config('search_path', '', false)`. Sa pooler (PgBouncer, transaction mode), NAIIWAN iyon sa
+#    koneksyong pinagsasaluhan — kaya ang app ay "relation \"users\" does not exist" sa BAWAT query, kahit tama ang restore at
+#    tugma ang bilang ng row (at "ready" pa rin ang /health/ready). Kaya: DIREKTANG endpoint para sa lahat dito, gaya ng production.
+STAGING_DATABASE_URL="$(grep '^STAGING_DATABASE_URL=' "$STAGING_ENV" | cut -d= -f2- | sed -E 's#(@[^/.:]+)-pooler#\1#')"
+export STAGING_DATABASE_URL
+grep -q -- '-pooler' "$STAGING_ENV" && echo "   ℹ️  pooled ang URL sa $STAGING_ENV — ginagamit ang direktang endpoint (walang -pooler)"
+# pg tools sa loob ng container; ang URL ay galing sa environment (`-e PANGALAN` na walang halaga: hindi ito lumalabas sa command line)
+pg() { docker run --rm -i -e STAGING_DATABASE_URL -e PGSSLROOTCERT=system -v "$DEST:/backups:ro" postgres:17-alpine sh -euc "$1"; }
 
 COUNT_SQL="select table_schema || '.' || table_name || ' ' ||
   (xpath('/row/c/text()', query_to_xml(format('select count(*) as c from %I.%I', table_schema, table_name), false, true, '')))[1]::text
@@ -56,7 +64,13 @@ COUNT_SQL="select table_schema || '.' || table_name || ' ' ||
 echo "   ✅ checksum"
 
 # 💥 Ang sakuna: burahin ang lahat (ang branch ay kopya ng production, kaya may laman ito)
-pg 'psql "$STAGING_DATABASE_URL" -q -v ON_ERROR_STOP=1 -c "drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;"' 2>&1 | grep -v NOTICE || true
+# Day 93: dati `… | grep -v NOTICE || true` — nilulunok nito ang ERROR ng psql, kaya lumabas ang "💥 Sinira" kahit hindi man lang
+# nakakonekta (sslmode=require). Ngayon: kapag pumalya ang pagbura, huminto at ipakita kung bakit
+if ! out="$(pg 'psql "$STAGING_DATABASE_URL" -q -v ON_ERROR_STOP=1 -c "drop schema if exists public cascade; drop schema if exists drizzle cascade; create schema public;"' 2>&1)"; then
+  echo "$out" | grep -v NOTICE >&2
+  echo "❌ Hindi nabura ang staging (hindi makakonekta?) — huminto. Kailangan ng sslmode=verify-full sa $STAGING_ENV" >&2
+  exit 1
+fi
 t_break=$(now)
 echo "💥 Sinira ang staging: walang table"
 
@@ -71,10 +85,8 @@ else
 fi
 
 # Ang production image laban sa na-restore na staging (TLS verify-full papunta sa Neon, dev na JWT key)
-URL="$(grep '^STAGING_DATABASE_URL=' "$STAGING_ENV" | cut -d= -f2-)"
-docker run -d --name "$APP" -p "127.0.0.1:$PORT:3000" --env-file backend/.env \
-  -e NODE_ENV=production -e RESEND_API_KEY=re_dummy_not_real -e DATABASE_URL="$URL" "$APP_IMAGE" >/dev/null
-unset URL
+DATABASE_URL="$STAGING_DATABASE_URL" docker run -d --name "$APP" -p "127.0.0.1:$PORT:3000" --env-file backend/.env \
+  -e NODE_ENV=production -e RESEND_API_KEY=re_dummy_not_real -e DATABASE_URL "$APP_IMAGE" >/dev/null
 for _ in $(seq 60); do curl -s -m1 -o /dev/null "localhost:$PORT/api/health/live" && break; sleep 0.5; done
 expected="$(awk '$1=="public.users"{print $2}' "$BASE.counts")"
 count="$(curl -s -m 15 "localhost:$PORT/api/users/count")"
