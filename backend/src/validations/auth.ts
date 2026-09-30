@@ -35,3 +35,28 @@ export const resetPasswordSchema = z.object({
 
 // Email verification (Day 60)
 export const verifyEmailSchema = z.object({ token: z.string().min(1).max(200) });
+
+// Passkeys (Day 95). Hakbang 1: kailangan ang KASALUKUYANG password (reauthentication, gaya ng change password — Day 55).
+// Ang passkey ay isang bagong paraan ng pagpasok: kung sapat na ang session, ang nakaw na session ay makakapagdagdag ng
+// sarili niyang passkey at mananatili sa account kahit palitan pa ang password
+export const passkeyRegisterOptionsSchema = z.object({ currentPassword: z.string().min(1).max(128) });
+
+// Hakbang 2: ang sagot ng browser (`navigator.credentials.create()` → JSON). Hugis at haba lang ang sinusuri dito;
+// ang LAMAN (challenge, origin, pirma) ay sinusuri ng @simplewebauthn/server. base64url lang ang tinatanggap na mga titik
+const base64url = (max: number) => z.string().min(1).max(max).regex(/^[A-Za-z0-9_-]+$/);
+export const passkeyRegisterVerifySchema = z.object({
+  name: z.string().trim().min(1).max(50).optional(), // pangalan sa listahan, hal. "Laptop ko"
+  response: z.object({
+    id: base64url(1024),
+    rawId: base64url(1024),
+    type: z.literal('public-key'),
+    response: z.object({
+      clientDataJSON: base64url(4096),
+      attestationObject: base64url(16384),
+      transports: z.array(z.string().max(32)).max(10).optional(),
+    }),
+    clientExtensionResults: z.record(z.string(), z.unknown()).optional(),
+    authenticatorAttachment: z.enum(['platform', 'cross-platform']).optional(),
+  }),
+});
+

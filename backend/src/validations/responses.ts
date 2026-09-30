@@ -73,3 +73,23 @@ export const readyResponse = z.strictObject({
 });
 export const countResponse = z.strictObject({ count: z.int() });
 export const echoResponse = z.strictObject({ received: z.unknown() });
+
+// Passkeys (Day 95). Ang listahan ay WALANG public key at credential id — hindi sikreto ang mga iyon, pero hindi rin kailangan ng page
+export const passkey = z.strictObject({
+  id: z.int(),
+  name: z.string(),
+  deviceType: z.enum(['singleDevice', 'multiDevice']),
+  backedUp: z.boolean(),
+  createdAt: z.iso.datetime(),
+  lastUsedAt: z.iso.datetime().nullable(),
+});
+export const passkeysResponse = z.strictObject({ passkeys: z.array(passkey) });
+export const passkeyResponse = z.strictObject({ passkey });
+// Ang options para sa `navigator.credentials.create()`. Hindi strict: ang hugis ay sa WebAuthn spec (at sa library), hindi sa atin
+export const passkeyRegistrationOptions = z.looseObject({
+  challenge: z.string(),
+  rp: z.looseObject({ id: z.string().optional(), name: z.string() }),
+  user: z.looseObject({ id: z.string(), name: z.string(), displayName: z.string() }),
+  pubKeyCredParams: z.array(z.looseObject({ alg: z.int(), type: z.string() })),
+});
+

@@ -5,6 +5,7 @@ import {
   changePasswordLimiter,
   forgotPasswordLimiter,
   loginLimiter,
+  passkeyRegisterLimiter,
   registerLimiter,
   resendVerificationLimiter,
 } from '../middleware/rateLimiter.ts';
@@ -22,6 +23,7 @@ import {
   sessions,
   verifyEmail,
 } from '../controllers/auth.controller.ts';
+import { passkeyRegisterOptions, passkeyRegisterVerify, passkeyRemove, passkeysList } from '../controllers/passkey.controller.ts';
 
 // /api/auth/* — ROUTING LANG (Day 76): aling URL → aling middleware (rate limit, requireAuth) → aling controller.
 // Ang HTTP (input, status, cookies) ay nasa controllers/auth.controller.ts; ang logic ay nasa services/auth/*
@@ -59,5 +61,12 @@ router.post('/auth/reset-password', resetPassword);
 // Hindi kailangang naka-login ang verify: puwedeng buksan ang link sa ibang device
 router.post('/auth/verify-email', verifyEmail);
 router.post('/auth/resend-verification', requireAuth, resendVerificationLimiter ?? pass, resendVerification);
+
+// Passkeys (Day 95–96) — pagdagdag ng passkey sa account na naka-login na. Dalawang hakbang (options → verify).
+// 🔐 Ang options ay humihingi ng KASALUKUYANG password, kaya may limit ito gaya ng change password
+router.post('/auth/passkeys/register/options', requireAuth, passkeyRegisterLimiter ?? pass, passkeyRegisterOptions);
+router.post('/auth/passkeys/register/verify', requireAuth, passkeyRegisterVerify);
+router.get('/auth/passkeys', requireAuth, passkeysList);
+router.delete('/auth/passkeys/:id', requireAuth, passkeyRemove);
 
 export default router;

@@ -31,6 +31,26 @@ export type VerifyEmailInput = {
   token: string;
 };
 
+export type PasskeyRegisterOptionsInput = {
+  currentPassword: string;
+};
+
+export type PasskeyRegisterVerifyInput = {
+  name?: string;
+  response: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {
+      clientDataJSON: string;
+      attestationObject: string;
+      transports?: string[];
+    };
+    clientExtensionResults?: Record<string, unknown>;
+    authenticatorAttachment?: "platform" | "cross-platform";
+  };
+};
+
 export type ErrorResponse = {
   error: string;
   fields?: Record<string, string[]>;
@@ -93,6 +113,58 @@ export type SessionsResponse = {
   }[];
 };
 
+export type Passkey = {
+  id: number;
+  name: string;
+  deviceType: "singleDevice" | "multiDevice";
+  backedUp: boolean;
+  createdAt: string;
+  lastUsedAt: string | null;
+};
+
+export type PasskeysResponse = {
+  passkeys: {
+    id: number;
+    name: string;
+    deviceType: "singleDevice" | "multiDevice";
+    backedUp: boolean;
+    createdAt: string;
+    lastUsedAt: string | null;
+  }[];
+};
+
+export type PasskeyResponse = {
+  passkey: {
+    id: number;
+    name: string;
+    deviceType: "singleDevice" | "multiDevice";
+    backedUp: boolean;
+    createdAt: string;
+    lastUsedAt: string | null;
+  };
+};
+
+export type PasskeyRegistrationOptions = {
+  challenge: string;
+  rp: {
+    id?: string;
+    name: string;
+    [key: string]: unknown;
+  };
+  user: {
+    id: string;
+    name: string;
+    displayName: string;
+    [key: string]: unknown;
+  };
+  pubKeyCredParams: {
+    alg: number;
+    type: string;
+    [key: string]: unknown;
+  }[];
+  [key: string]: unknown;
+};
+
 export type AdminUser = {
   id: number;
   email: string;
@@ -117,7 +189,7 @@ export type AdminUsersResponse = {
 
 export type AuditLog = {
   id: number;
-  action: "register" | "login" | "login_failed" | "logout" | "access_denied" | "admin_list_users" | "admin_list_audit_logs" | "refresh_reuse" | "session_revoked" | "password_changed" | "password_change_failed" | "password_reset_requested" | "password_reset" | "email_verified" | "account_locked";
+  action: "register" | "login" | "login_failed" | "logout" | "access_denied" | "admin_list_users" | "admin_list_audit_logs" | "refresh_reuse" | "session_revoked" | "password_changed" | "password_change_failed" | "password_reset_requested" | "password_reset" | "email_verified" | "account_locked" | "passkey_added" | "passkey_add_failed" | "passkey_removed";
   actorId: number | null;
   actorEmail: string | null;
   targetId: number | null;
@@ -130,7 +202,7 @@ export type AuditLog = {
 export type AuditLogsResponse = {
   logs: {
     id: number;
-    action: "register" | "login" | "login_failed" | "logout" | "access_denied" | "admin_list_users" | "admin_list_audit_logs" | "refresh_reuse" | "session_revoked" | "password_changed" | "password_change_failed" | "password_reset_requested" | "password_reset" | "email_verified" | "account_locked";
+    action: "register" | "login" | "login_failed" | "logout" | "access_denied" | "admin_list_users" | "admin_list_audit_logs" | "refresh_reuse" | "session_revoked" | "password_changed" | "password_change_failed" | "password_reset_requested" | "password_reset" | "email_verified" | "account_locked" | "passkey_added" | "passkey_add_failed" | "passkey_removed";
     actorId: number | null;
     actorEmail: string | null;
     targetId: number | null;
