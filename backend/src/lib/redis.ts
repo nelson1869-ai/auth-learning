@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
 import { env } from '../config/env.ts';
 import { logger } from './logger.ts';
+import { observeRedis } from './metrics.ts';
 
 // Redis (Day 92) — ang pinagsasaluhang bilang ng rate limiter ng lahat ng kopya ng app.
 // Ang pinakamahalagang desisyon: ano ang mangyayari kapag PATAY ang Redis? Ang sagot dito: hindi dapat bumagsak ang login.
@@ -30,3 +31,4 @@ export function createRedis(url: string): Redis {
 }
 
 export const redis = env.REDIS_URL ? createRedis(env.REDIS_URL) : undefined;
+if (redis) observeRedis(() => redis.status === 'ready'); // auth_redis_up sa Prometheus → alert RedisDown

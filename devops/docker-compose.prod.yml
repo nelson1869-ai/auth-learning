@@ -14,6 +14,18 @@ services:
     stop_grace_period: 10s
     # Walang `ports:` — hindi kailangang buksan sa PC; si cloudflared lang ang kumakausap dito
 
+  # Redis (Day 92): ang bilang ng rate limiter — hindi na nare-reset sa bawat deploy ng backend, at handa kung dalawa na ang backend.
+  # Walang `ports:` (sa loob lang ng Docker network, kaya walang password), walang persistence (mga bilang lang na may expiry),
+  # at may limit ng memory. Kapag patay ito: fail-open ang rate limiter (alert: RedisDown); nasa database ang account lockout
+  redis:
+    image: redis:8.8.3-alpine # naka-pin
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "48mb", "--maxmemory-policy", "volatile-ttl"]
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    restart: unless-stopped
+
   cloudflared:
     image: cloudflare/cloudflared:2026.9.3 # naka-pin na version — hindi `latest` (devops README)
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run

@@ -57,3 +57,14 @@ groups:
         annotations:
           summary: 'Maraming na-lock na account ({{ $value | printf "%.0f" }} sa 15 minuto)'
           description: 'Posibleng may nanghuhula ng password. Tingnan ang audit log (account_locked, login_failed): pare-pareho ba ang IP?'
+
+      # Day 92: hindi konektado ang app sa Redis → fail-open ang rate limiter (hindi ipinapatupad ang limit ng login).
+      # Nasa database pa rin ang account lockout, kaya warning, hindi critical. for: 5m — hindi sa saglit na pagkaputol o restart
+      - alert: RedisDown
+        expr: auth_redis_up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Hindi konektado sa Redis — hindi ipinapatupad ang rate limit'
+          description: 'Pumapasok ang lahat ng request sa rate limiter (fail-open). Tingnan: docker compose -f docker-compose.prod.yml ps redis / logs redis'

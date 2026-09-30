@@ -6,7 +6,7 @@ import { inArray } from 'drizzle-orm';
 import app from '../app.ts';
 import { db } from '../db/index.ts';
 import { AUDIT_ACTIONS, users } from '../db/schema.ts';
-import { prometheusExporter } from './metrics.ts';
+import { observeRedis, prometheusExporter } from './metrics.ts';
 
 // Metrics (Day 81). Binabasa ang /metrics sa pamamagitan ng handler ng exporter (hindi binubuksan ang totoong port sa tests)
 let metricsServer: Server;
@@ -74,5 +74,16 @@ describe('audit metrics', () => {
     created.push(email);
     expect((await request(app).post('/api/auth/register').send({ email, password: 'Metrics-2026-pass' })).status).toBe(201);
     expect(read(await scrape()) - before).toBe(1);
+  });
+});
+
+// Day 92: ang alert na RedisDown ay nakabatay sa gauge na ito (hindi sa bilang ng error — kapag walang traffic, walang error)
+describe('redis gauge', () => {
+  it('reports 1 while connected and 0 when not', async () => {
+    let up = true;
+    observeRedis(() => up);
+    expect(await scrape()).toMatch(/^auth_redis_up(\{[^}]*\})? 1$/m);
+    up = false;
+    expect(await scrape()).toMatch(/^auth_redis_up(\{[^}]*\})? 0$/m);
   });
 });
