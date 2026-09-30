@@ -33,6 +33,10 @@
 | POST | `/api/auth/refresh` | Bagong access token (Day 51) | 🍪 cookie `refresh_token` | `16-refresh-tokens.http` |
 | GET | `/api/auth/sessions` | Mga naka-login kong device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
 | DELETE | `/api/auth/sessions/:id` | I-logout ang isang device (Day 54) | 🍪 cookie `token` | `17-sessions.http` |
+| POST | `/api/auth/passkeys/register/options` | Dagdag ng passkey, hakbang 1: password → challenge (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
+| POST | `/api/auth/passkeys/register/verify` | Dagdag ng passkey, hakbang 2: ang sagot ng device (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
+| GET | `/api/auth/passkeys` | Mga passkey ko (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
+| DELETE | `/api/auth/passkeys/:id` | Burahin ang isang passkey (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
 | POST | `/api/auth/change-password` | Palitan ang password (Day 55) | 🍪 cookie `token` | `18-change-password.http` |
 | POST | `/api/auth/forgot-password` | Humingi ng reset link sa email (Day 59) | — | `19-password-reset.http` |
 | POST | `/api/auth/reset-password` | Bagong password gamit ang link (Day 59) | — (ang token) | `19-password-reset.http` |
@@ -175,6 +179,34 @@ Rate limit: 10 palpak bawat 15 minuto.
 | **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
 | **429** | ≥ 10 palpak sa 15 minuto | `{ "error": "Too many attempts. Please try again later." }` |
 
+## Passkeys (Day 95–96) — registration
+**Auth:** cookie `token` sa lahat. RP ID at origin: mula sa `CLIENT_URL` (dev `localhost`, production `nelson1869.com`). D-037.
+
+### `POST /api/auth/passkeys/register/options`
+**Body:** `{ "currentPassword": "…" }`. Rate limit: 10 palpak bawat 15 minuto.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Tama ang password | ang options para sa `navigator.credentials.create()`: `challenge` (5 minuto, isang gamit, pumapalit sa luma), `rp`, `user`, `pubKeyCredParams`, `excludeCredentials`, `authenticatorSelection` (`residentKey` at `userVerification`: `required`), `attestation: "none"` |
+| **400** | Maling password | `{ "error": "Invalid input", "fields": { "currentPassword": ["Incorrect password"] } }` · audit `passkey_add_failed` |
+| **401** | Hindi naka-login | `{ "error": "Not authenticated" }` |
+| **409** | 10 na ang passkey | `{ "error": "Passkey limit reached. Remove one first." }` |
+| **429** | ≥ 10 palpak sa 15 minuto | `{ "error": "Too many attempts. Please try again later." }` |
+
+### `POST /api/auth/passkeys/register/verify`
+**Body:** `{ "response": <ang JSON ng credential mula sa browser>, "name": "Laptop ko" }` (`name`: opsyonal, 1–50; default `"Passkey"`).
+
+| Status | Kailan | Body |
+|---|---|---|
+| **201** | Pumasa | `{ "passkey": { "id", "name", "deviceType", "backedUp", "createdAt", "lastUsedAt": null } }` · audit `passkey_added` |
+| **400** | Mali ang hugis | `{ "error": "Invalid input", "fields": { … } }` (hindi nasusunog ang challenge) |
+| **400** | Walang buhay na challenge, o hindi pumasa (challenge, origin, RP ID, pirma, user verification) | `{ "error": "Passkey registration failed. Please try again." }` — iisang mensahe · audit `passkey_add_failed` `{ reason }` · **nasunog na ang challenge** |
+| **409** | Nakarehistro na ang passkey (kahit sa ibang account), o 10 na | `{ "error": "This passkey is already registered" }` |
+
+### `GET /api/auth/passkeys` · `DELETE /api/auth/passkeys/:id`
+**200** `{ "passkeys": [ { "id", "name", "deviceType", "backedUp", "createdAt", "lastUsedAt" } ] }` — walang public key o credential id.
+**204** nabura (audit `passkey_removed`) · **404** `{ "error": "Not found" }` sa passkey ng ibang user, sa id na wala, at sa id na hindi numero.
+
 ## `POST /api/auth/forgot-password` (Day 59)
 **Body:** `{ "email": "…" }`. Rate limit: 5 bawat 15 minuto bawat IP.
 
@@ -248,6 +280,9 @@ Walang pagbabago sa sagot ng mga endpoint. Sa likod, may row sa `audit_logs` ang
 | `/api/admin/*` (403) | `access_denied` | ang user · — · `{ path }` |
 | `POST /api/auth/refresh` (nakaw, Day 52) | `refresh_reuse` | `null` · ang may-ari ng token · — |
 | `DELETE /api/auth/sessions/:id` (Day 54) | `session_revoked` | ang user · siya rin · `{ session }` |
+| `POST /api/auth/passkeys/register/verify` (Day 95) | `passkey_added` | ang user · siya rin · `{ passkey, deviceType }` |
+| `POST …/passkeys/register/options` o `/verify`, pumalya (Day 95) | `passkey_add_failed` | ang user · siya rin · `{ reason }` (kategorya: `wrong_password`, `no_challenge`, `challenge_mismatch`, `origin_mismatch`, `rp_id_mismatch`, `user_not_verified`, `already_registered`, `verification_error`) |
+| `DELETE /api/auth/passkeys/:id` (Day 95) | `passkey_removed` | ang user · siya rin · `{ passkey }` |
 | `POST /api/auth/change-password` (Day 55) | `password_changed` · `password_change_failed` | ang user · siya rin · — |
 | `POST /api/auth/forgot-password` (Day 59) | `password_reset_requested` | `null` · ang account kung mayroon · `{ email }` |
 | `POST /api/auth/reset-password` (Day 59) | `password_reset` | ang user · siya rin · — |

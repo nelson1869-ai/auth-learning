@@ -80,10 +80,12 @@ Content-Type: application/json
 ###      "rp": { "name": "auth-learning", "id": "localhost" }   ← sa production: "nelson1869.com"
 ###      "user": { "id": "…", "name": "passkey-demo@example.com", "displayName": "passkey-demo@example.com" }
 ###                 └ base64url ng id mo sa database (hindi ang email) — itinatago ito ng device kasama ng key
-###      "pubKeyCredParams": [ { "alg": -8, … }, { "alg": -7, … }, { "alg": -257, … } ]   ← EdDSA, ES256, RS256
+###      "pubKeyCredParams": [ { "alg": -48, … }, { "alg": -8, … }, { "alg": -7, … }, { "alg": -257, … } ]
+###                 └ ML-DSA-44 (post-quantum), EdDSA, ES256, RS256 — ang mga default ng library; ang device ang pipili ng kaya nito
 ###      "authenticatorSelection": { "residentKey": "required", "userVerification": "required", "requireResidentKey": true }
 ###      "attestation": "none"          ← hindi natin tinatanong kung sino ang gumawa ng device
 ###      "excludeCredentials": []       ← ang mga passkey mo na: sasabihin ng browser "may passkey ka na sa device na ito"
+###      + "timeout": 60000 · "extensions": { "credProps": true } · "hints": []
 ###
 ### 🔍 I-send ulit: iba na ang challenge, at ang luma ay hindi na gagana (isa lang bawat user).
 POST http://localhost:3000/api/auth/passkeys/register/options
@@ -98,7 +100,8 @@ Content-Type: application/json
 ###    Status:  400 { "error": "Passkey registration failed. Please try again." }
 ###
 ### 🔍 IISANG mensahe para sa lahat ng pagpalya: maling challenge, maling origin (phishing), maling RP ID, maling pirma,
-###    expired, o nagamit na. Hindi sinasabi kung alin — ang dahilan ay nasa audit_logs lang (passkey_add_failed · metadata.reason).
+###    expired, o nagamit na. Hindi sinasabi kung alin — ang dahilan ay nasa audit_logs lang (passkey_add_failed · metadata.reason):
+###    isang maikling KATEGORYA (dito: "challenge_mismatch"), hindi ang mensahe ng library — kasama roon ang mismong challenge.
 ###    At NASUNOG na ang challenge ng #3: isang subok lang. Kailangang i-send ulit ang #3 para sa bagong challenge.
 POST http://localhost:3000/api/auth/passkeys/register/verify
 Content-Type: application/json

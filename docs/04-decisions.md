@@ -707,3 +707,28 @@
   - Ang user na binura o idinagdag **nang hindi dumadaan sa `registerUser`** (hal. SQL, `login-timing.ts`) ay hindi nagbubura ng cache: luma nang hanggang 60s.
   - Sa production, `volatile-ttl` ang eviction ng Redis: kapag napuno ang 48MB, ang mga susing pinakamalapit nang mag-expire ang unang aalisin — ang cache (60s) bago ang bilang ng rate limiter (15m).
   - Ang `redis-cli flushall` sa dev ay nagbubura rin ng cache (walang pinsala: MISS lang ang susunod).
+
+## D-037 · Passkeys (registration): password muna, RP ID mula sa `CLIENT_URL`, challenge sa database
+
+- **Petsa:** 2026-09-30 (Day 95–96)
+- **Context:** Unang totoong code ng passkeys: pagdagdag ng passkey sa account na naka-login na. Library: `@simplewebauthn` (nasa `02-tech-stack.md` na).
+- **Mga desisyon (rekomendasyon ng AI; "yes go" ni Nelson — walang isa-isang pinag-usapan, kaya puwede kong baguhin):**
+  1. **Kailangan ang kasalukuyang password para magdagdag** (gaya ng change password, Day 55). Pagpipilian: session lang (mas madali) o password.
+     Pinili ang password: ang passkey ay bagong paraan ng pagpasok. Kung session lang, ang nakaw na session ay makakapagdagdag ng sariling passkey
+     at mananatili kahit palitan ang password. *Wala sa reference ang hakbang na ito.*
+  2. **RP ID at origin ay hinango sa `CLIENT_URL`**, walang hiwalay na env variable. Sa reference, naiwang `WEBAUTHN_RP_ID=localhost` sa production.
+  3. **Challenge sa database** (`webauthn_challenges`), 5 minuto, isa bawat user, kinukuha gamit ang `DELETE … RETURNING`. Hindi sa Redis:
+     opsyonal at fail-open ang Redis natin (D-035). **Isang subok bawat challenge**, pumasa man o hindi.
+  4. **`residentKey: required`, `userVerification: required`, `attestation: none`.** Discoverable para sa login na walang email (Day 97);
+     laging may fingerprint/PIN; hindi natin inaalam kung sino ang gumawa ng device.
+  5. **Iisang 400 sa lahat ng pagpalya ng verify**; ang dahilan ay sa audit log lang, bilang **kategorya**.
+  6. **Limit: 10 passkey bawat account.** Walang password sa pagbura (nagbabawas ng paraan ng pagpasok, hindi nagdadagdag).
+- **Consequences:**
+  - **Hindi binubura ng change/reset password ang mga passkey.** Kapag may nakapagdagdag ng passkey habang hawak ang account, mananatili iyon hanggang burahin nang kamay sa `/passkeys`. Tinanggap sa ngayon; pag-isipan sa Day 97–98 (hal. abiso sa email kapag may bagong passkey, o pagbura sa reset).
+  - **Walang email na abiso** kapag may bagong passkey. Nasa audit log lang (`passkey_added`).
+  - **Ang mga user na walang password** (kung magkakaroon, hal. social login sa Phase 20) ay hindi makakapagdagdag ng passkey sa ganitong paraan.
+  - **Hindi nililinis ng retention job ang `webauthn_challenges`.** Ngayon ay hanggang isa lang bawat user, kaya may hangganan. Sa Day 97 (challenge na walang user) ay kailangan na itong idagdag.
+  - Ang user handle (`user.id` sa options) ay ang numeric id natin. Hindi personal na data, pero sunod-sunod; sa device lang ito nakikita.
+  - Ang library ay may default na algorithm na `-48` (ML-DSA-44, post-quantum) bukod sa EdDSA, ES256 at RS256. Hindi ito binago.
+  - **Nasubukan lang sa virtual authenticator** (Chromium) at sa software authenticator ng tests. Hindi pa sa totoong phone o fingerprint reader.
+
