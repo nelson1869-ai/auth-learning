@@ -90,5 +90,19 @@ hindi bumalik ang dev Postgres at dev Redis (walang restart policy ang dev); at 
 - **T: Bakit may Redis na sa production kung iisa lang ang backend?**
   S: Hindi na nare-reset ang bilang sa bawat deploy, at handa na kapag naging dalawa ang backend. Ang kapalit ay isa pang container na babantayan, kaya may alert.
 
+**Mga tinanong ko mismo (pagkatapos ng deploy):**
+
+- **T: Bakit walang `utils/` ang project?**
+  S: Meron, `lib/` lang ang pangalan. Iisa ang layunin ng dalawa (maliliit na tool na ginagamit ng marami), kaya isa lang ang kailangan.
+  Ang iba na sa ibang project ay nasa `utils/` ay may sariling lugar dito: `config/env.ts`, `validations/`, `db/errors.ts`, `controllers/http.ts`.
+- **T: Reusable ba ito? Kung may iba akong project na kailangan ng authentication o authorization, ito ba ang gagamitin ko?**
+  S: Oo, bilang **starter** (kopyahin ang buong repo), hindi bilang package. Ang `password.service.ts` ay may 12 import (db, schema, jwt, session,
+  email…), kaya hindi ito makokopya nang mag-isa. Halos buo ang reuse ng authentication; sa authorization, ang mekanismo (`requireRole`) lang,
+  dahil iba ang mga patakaran ng bawat app.
+- **T: Maayos na ba ito o may kulang pa?**
+  S: Maayos ang `health.controller.ts` (sinadyang walang Redis sa `ready` — fail-open, D-035). Sa project: Day 92b, Day 93, Phase 19 pa.
+  Nilinis ang roadmap: inalis ang dobleng checkbox ng retention diagram (tapos na iyon noong Day 90: `24-retention.md`), ginawang
+  totoong checkbox sa Day 93 ang naiwang Neon drill, at idinagdag ang **Phase 20 (opsyonal)**: starter checklist, kusang deploy, TOTP, social login, SSO.
+
 ## Susunod
 - **Day 92b — Server cache gamit ang Redis:** i-cache ang `/api/users/count` na may TTL, at burahin ang cache kapag may bagong register.
