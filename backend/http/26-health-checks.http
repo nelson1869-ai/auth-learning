@@ -1,11 +1,13 @@
 ### =========================================================================
 ### 🎓 HEALTH CHECKS — "buhay ba?" (live) vs "handa ba?" (ready)
-### 📅 Day 80 · Phase 17 (Observability)
+### 📅 Day 80 · Phase 17 (Observability) · in-update sa Day 93 (ang ready ay tumitingin na sa totoong table)
 ### =========================================================================
 ### LIVE  — buhay ba ang process? Walang database. Ginagamit ng Docker HEALTHCHECK (bawat 30s).
 ###         Bakit walang database: kapag bawat 30s ay may SELECT 1, hindi na makakatulog ang Neon (serverless) — mauubos
 ###         ang compute hours. At kung ang database ang may problema, walang silbi ang pag-restart ng app
-### READY — handa bang maglingkod? SELECT 1 na may 3s na limit → 200, o 503 kung hindi.
+### READY — handa bang maglingkod? `select 1 from users limit 1` na may 3s na limit → 200, o 503 kung hindi.
+###         Day 93: dati `SELECT 1` — "ready" kahit walang table (Day 91) o walang search_path (restore sa pooler ng Neon, Day 93),
+###         habang 500 ang bawat totoong query. Ngayon, ang tanong ay gaya ng tanong ng app
 ###         Ginagamit ng deploy.sh (isang beses, mula sa internet): kapag 503, pumapalya ang deploy
 ###
 ### Hindi itinatala sa request log ang /api/health* (ingay lang — Day 42). Ang "hindi handa" ay may log: readiness_db_down
@@ -32,4 +34,13 @@ GET http://localhost:3000/api/health/ready
 ###      (at sa terminal ng server: WARN readiness_db_down · reason: timeout)
 ###    Ibalik:  docker compose start postgres   → #3 ay 200 ulit
 ###    🔍 Walang detalye ng error sa sagot (hal. "ECONNREFUSED") — nasa log lang (Day 41)
+GET http://localhost:3000/api/health/ready
+
+### -------------------------------------------------------------------------
+### 5. Day 93 — buhay ang database, pero HINDI makita ang table. Gawin muna (dev lang!):
+###      docker exec auth-learning-postgres-1 sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "alter table users rename to users_tmp"'
+###    Ang inaasahan: 503 { "status": "not_ready", "checks": { "database": "down" } } — agad (hindi timeout: sumagot ang database, ng error)
+###      Dati (SELECT 1): 200 "ready" — kahit 500 ang /api/users/count at ang login
+###      #1 (live) → 200 pa rin: buhay ang process, kaya walang silbi ang restart
+###    ⚠️ IBALIK AGAD:  … -c "alter table users_tmp rename to users"'   → 200 ulit
 GET http://localhost:3000/api/health/ready

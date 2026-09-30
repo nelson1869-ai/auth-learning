@@ -5,7 +5,7 @@ import { isDatabaseReady } from '../services/health.service.ts';
 //   LIVE  — buhay ba ang process? Walang database. Para sa Docker HEALTHCHECK (bawat 30s).
 //           Bakit walang database: kapag bawat 30s ay may `SELECT 1`, HINDI na makakatulog ang Neon (serverless) —
 //           mauubos ang compute hours. At kung ang database ang may problema, walang silbi ang pag-restart ng app
-//   READY — handa bang maglingkod? Sinusuri ang database. Para sa deploy (isang beses) at sa monitoring
+//   READY — handa bang maglingkod? Sinusuri ang database — ang totoong table `users` (Day 93), hindi lang `SELECT 1`. Para sa deploy (isang beses) at sa monitoring
 // Laging bago ang `time` — para makitang bagong sagot ito, hindi lumang kopya (cache)
 
 export const live: RequestHandler = (_req, res) => {
