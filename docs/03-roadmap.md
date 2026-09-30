@@ -726,7 +726,7 @@ direktang nagtatrabaho sa `main`?*
 ## Phase 19 — Passkeys · 🔐 *Security* + 🎨 *Frontend* + 🧪 *QA* · Day 94–100
 
 ### Day 94 — Paano gumagana ang WebAuthn
-- [ ] Public-key cryptography, challenge, at kung bakit hindi nananakaw ang passkey sa phishing
+- [x] Public-key cryptography, challenge, at kung bakit hindi nananakaw ang passkey sa phishing *(`backend/playground/02-passkey-concept.js`: key pair + challenge + origin sa `node:crypto` — 1 login ✅, 4 na atake ❌ (replay, phishing, binagong origin, ibang key) · pinasimple, hindi totoong WebAuthn · 📊 `docs/diagrams/27-webauthn-concept.md`)*
 - **Matututunan:** ang konsepto bago ang code · *Reference: `WebAuthn/passkey`*
 
 ### Day 95–96 — Pagdagdag ng passkey
