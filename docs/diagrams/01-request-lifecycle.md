@@ -50,17 +50,19 @@ flowchart TD
 
 ## Kapag kailangan ang database: `GET /api/users/count`
 
-> 📅 Day 10 · Phase 3 (Unang database) · in-update sa Day 76 · **Code:** `backend/src/controllers/users.controller.ts` · `services/users.service.ts`,
+> 📅 Day 10 · Phase 3 (Unang database) · in-update sa Day 76 at Day 92b (cache) · **Code:** `backend/src/controllers/users.controller.ts` · `services/users.service.ts`,
 > `backend/src/db/index.ts` · **Subukan:** `backend/http/03-users-count.http`
 
 ```mermaid
 flowchart TD
     Req(["GET /api/users/count"]) --> Route["routes/users.ts → controllers/users.controller.ts<br/>async (req, res) =>"]
-    Route --> Await["services/users.service.ts: countUsers()<br/>db.$count(users) — Drizzle → SQL: select count(*) from users"]
+    Route --> Cache{"Day 92b: nasa Redis ba?<br/>(26-cache-aside.md)"}
+    Cache -->|"HIT"| OK
+    Cache -->|"MISS · BYPASS (walang Redis)"| Await["services/users.service.ts: countUsers()<br/>db.$count(users) — Drizzle → SQL: select count(*) from users"]
     Await --> Pool["db/index.ts · pg Pool<br/>kumokonekta sa DATABASE_URL (.env)<br/>localhost:5435"]
     Pool --> Up{"Buhay ba ang Postgres?"}
     Up -->|"oo"| Rows["Postgres: { count: 2 }"]
-    Rows --> OK["200 OK<br/>{ count: 2 }"]
+    Rows --> OK["200 OK<br/>{ count: 2 } · X-Cache: HIT | MISS | BYPASS"]
     Up -->|"hindi (docker compose stop)<br/>5s timeout (Day 41)"| Fail["Error: Failed query ..."]
     Fail --> Catch["Express 5: kusang sinasalo<br/>ang error ng async route"]
     Catch --> E500["500 { error: 'Internal server error', requestId }<br/>errorHandler (Day 41) — ang SQL + stack<br/>ay nasa LOG lang"]

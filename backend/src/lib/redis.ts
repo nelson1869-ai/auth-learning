@@ -3,7 +3,7 @@ import { env } from '../config/env.ts';
 import { logger } from './logger.ts';
 import { observeRedis } from './metrics.ts';
 
-// Redis (Day 92) — ang pinagsasaluhang bilang ng rate limiter ng lahat ng kopya ng app.
+// Redis (Day 92) — ang pinagsasaluhang bilang ng rate limiter ng lahat ng kopya ng app. Day 92b: pati ang server cache (lib/cache.ts).
 // Ang pinakamahalagang desisyon: ano ang mangyayari kapag PATAY ang Redis? Ang sagot dito: hindi dapat bumagsak ang login.
 //   - enableOfflineQueue: false — kapag hindi konektado, PUMAPALYA AGAD ang command (hindi pumipila at naghihintay).
 //     Kung hindi, mabibitin ang BAWAT request na dumaan sa rate limiter hanggang bumalik ang Redis
@@ -21,10 +21,10 @@ export function createRedis(url: string): Redis {
   client.on('error', (err) => {
     if (down) return;
     down = true;
-    logger.error({ err, event: 'redis_down' }, 'Redis unavailable — rate limits are NOT enforced until it is back');
+    logger.error({ err, event: 'redis_down' }, 'Redis unavailable — rate limits are NOT enforced and the cache is bypassed until it is back');
   });
   client.on('ready', () => {
-    if (down) logger.info({ event: 'redis_up' }, 'Redis is back — rate limits enforced again');
+    if (down) logger.info({ event: 'redis_up' }, 'Redis is back — rate limits enforced and cache in use again');
     down = false;
   });
   return client;

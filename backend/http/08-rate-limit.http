@@ -20,7 +20,7 @@
 ###
 ### ⚠️ Pagkatapos subukan, naka-block ang IP mo nang 15 minuto sa login. Para mag-reset sa dev:
 ###    memory: i-save ang kahit anong file sa src/ (nodemon restart)
-###    redis:  docker exec auth-learning-redis-1 redis-cli flushall      (HINDI na sapat ang restart ng app)
+###    redis:  docker exec auth-learning-redis-1 redis-cli flushall      (HINDI na sapat ang restart ng app · binubura rin nito ang cache ng Day 92b — ayos lang)
 ###    Para subukan ang Redis sa dev: cd devops && docker compose up -d redis, tapos REDIS_URL=redis://127.0.0.1:6380 sa backend/.env
 ###    Silipin ang bilang: docker exec auth-learning-redis-1 redis-cli --scan --pattern 'rl:*'   (rl:<limiter>:<ip>)
 ###

@@ -676,3 +676,25 @@
   - Walang password ang Redis: walang port sa labas, sa loob lang ng Docker network. Kapag inilabas, kailangan ng password at TLS.
   - Habang patay ang Redis, nagpi-print ang `express-rate-limit` ng stack trace sa console bawat request (hindi JSON, hindi mapapatay). Isang ERROR lang ang sa atin.
   - Sa lab, ang IP na nakikita ng app ay ang sa Caddy pa rin (iisang bilang para sa lahat). Hindi ito inayos ng Redis; kailangan ng `X-Forwarded-For` na pinagkakatiwalaan (backlog).
+
+## D-036 · Server cache sa Redis: cache-aside, laging may TTL, fail-open, hindi para sa personal na data
+
+- **Petsa:** 2026-09-30 (Day 92b)
+- **Context:** Tanong ni Nelson (idinagdag sa roadmap): paano ginagamit ang Redis bilang cache? May Redis na mula Day 92 (D-035).
+  Ang `GET /api/users/count` ay nagtatanong sa database sa bawat request, kahit nagbabago lang ang sagot kapag may bagong register.
+- **Mga pagpipilian:**
+  - **TTL lang** (walang pagbura): pinakasimple, pero luma ang bilang nang hanggang TTL pagkatapos ng bawat register;
+  - **pagbura lang** (walang TTL): tama agad, pero kapag may nakalimutan o pumalyang pagbura, luma **magpakailanman**;
+  - **pareho** (rekomendasyon ng AI): burahin sa register, at TTL bilang huling bantay.
+- **Pinili:** pareho. `lib/cache.ts` (`getOrLoad` + `invalidate`), TTL **60s**, susi `cache:users:count`. "go" ni Nelson.
+  **Walang bagong library** (`ioredis` na ng Day 92). Kapag walang `REDIS_URL`: walang cache (`X-Cache: BYPASS`).
+- **Kapag patay ang Redis:** fail-open, gaya ng D-035. Diretso sa database; hindi pumapalya ang request, at hindi pumapalya ang register dahil sa pagbura.
+- **🔐 Ano ang puwedeng i-cache:** data lang na **pareho para sa lahat ng user**. Hindi ang `/me`, sessions o audit logs: iisa ang susi para sa lahat.
+  Kung kailangan balang araw, dapat kasama ang user id sa susi, at buburahin kapag nagbago ang data o nag-logout.
+- **Bakit 60s:** maikli para maliit ang pinsala ng lumang bilang, mahaba para may silbi kapag sunod-sunod ang basa.
+- **Consequences:**
+  - **Maliit ang tipid sa dev** (HIT 1.4ms vs MISS 3.1ms): nasa iisang PC ang database at kaunti ang users. Ang cache ay para sa konsepto at sa production (malayo ang Neon).
+  - **May natitirang race:** kapag nagsabay ang isang GET (MISS) at isang register, puwedeng maitabi ang lumang bilang pagkatapos ng pagbura. Hanggang 60s lang (TTL). Tinanggap; hindi sinubukang i-reproduce.
+  - Ang user na binura o idinagdag **nang hindi dumadaan sa `registerUser`** (hal. SQL, `login-timing.ts`) ay hindi nagbubura ng cache: luma nang hanggang 60s.
+  - Sa production, `volatile-ttl` ang eviction ng Redis: kapag napuno ang 48MB, ang mga susing pinakamalapit nang mag-expire ang unang aalisin — ang cache (60s) bago ang bilang ng rate limiter (15m).
+  - Ang `redis-cli flushall` sa dev ay nagbubura rin ng cache (walang pinsala: MISS lang ang susunod).

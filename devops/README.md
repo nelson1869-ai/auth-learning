@@ -170,7 +170,7 @@ docker compose -f docker-compose.lb.yml down         # 🧹 walang natitira
 - **Day 92:** may Redis na ang lab — iisang bilang ng dalawang backend (10 ulit, hindi 20). Alisin ang `REDIS_URL` sa compose para makita ulit ang problema.
 - Bakit hindi pa production ang load balancer: kailangan pa ng tamang IP ng user sa likod ng proxy, per-backend na scrape ng Prometheus, at rolling na deploy. Tingnan ang D-034.
 
-## Redis (Day 92) — ang bilang ng rate limiter
+## Redis (Day 92) — ang bilang ng rate limiter · Day 92b: pati ang server cache
 ```bash
 docker compose -f docker-compose.prod.yml ps redis                                   # production: walang port sa labas, walang persistence
 docker compose -f docker-compose.prod.yml exec redis redis-cli --scan --pattern 'rl:*'  # ang mga bilang: rl:<limiter>:<ip>
@@ -178,6 +178,7 @@ docker compose -f docker-compose.prod.yml exec redis redis-cli del 'rl:login:<ip
 cd devops && docker compose up -d redis                                              # dev: 127.0.0.1:6380 (para sa tests at REDIS_URL sa backend/.env)
 ```
 - **Kapag patay ang Redis:** pumapasok ang lahat ng request (fail-open) — hindi bumabagsak ang login. Alert: `RedisDown` pagkalipas ng 5m. D-035.
+- **Day 92b — server cache:** `redis-cli --scan --pattern 'cache:*'` (ngayon: `cache:users:count` lang, TTL 60s). Kapag patay ang Redis: diretso sa database (`X-Cache: BYPASS`). D-036.
 - Sinisimulan ito ng `deploy.sh` bago ang backend. `REDIS_URL=redis://redis:6379` sa `backend/.env.production`.
 
 ## ❌ Hindi dapat nasa loob ng devops
