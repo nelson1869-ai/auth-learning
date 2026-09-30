@@ -113,8 +113,18 @@ backend/
 ├── openapi.json          ← Day 78: ang spec (ginawa ng `npm run openapi`, naka-commit)
 ├── knip.jsonc            ← Day 79: mga pagbubukod ng knip (unused code), bawat isa may dahilan
 ├── playground/           ← 01-hash.js (practice, hindi bahagi ng app)
-└── http/                 ← 01–36 .http walkthroughs
+└── http/                 ← 01–37 .http walkthroughs (+ prod/ — read-only na pagsuri sa production)
 ```
+
+**`database/` (idinagdag sa Day 93 review — wala ito sa doc mula Day 91):**
+```
+database/
+├── backups/              ← Day 91 (D-033): backup.sh (pg_dump: bago mag-migrate sa bawat deploy + araw-araw) · restore-drill.sh (staging container)
+│   │                        · restore-drill-neon.sh (staging branch sa Neon — kailangan ng .env.staging, HINDI naka-commit)
+│   └── systemd/          ← auth-learning-backup.service + .timer + install.sh (araw-araw na backup, user timer)
+└── sql-practice/         ← 01-crud.sql · 02-constraints.sql (practice ng Phase 3, hindi bahagi ng app)
+```
+Ang schema at migrations ay nasa `backend/` (`src/db/schema.ts`, `drizzle/`), hindi rito.
 
 **`devops/` (production, Day 36 → Day 82):**
 ```

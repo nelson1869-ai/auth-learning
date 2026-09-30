@@ -716,8 +716,8 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** cache-aside pattern, TTL, "dalawang mahirap sa computer science: cache invalidation at pagpapangalan"
 
 ### Day 93 — Review day
-- [ ] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`)
-- [ ] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`?
+- [x] 🔍 Suriin: tugma pa ba ang LAHAT ng `.http` at diagram sa code? (i-rebuild: `node docs/diagrams/build.mjs`) *(37 file sa dev server · **1 mali, itinama:** `08-rate-limit.http` — `401 ×5 → 423 ×5 → 429` mula pa Day 71, hindi "1–10: 401" · napatakbo na ulit ang 14 at 15 (pansamantalang dev admin) · hindi napatakbo: 35, 36, 2 request ng 29 (production), 2 na kailangan ng token mula sa email · 177 URL vs spec · `prod/01` 8/8 · 57/57 diagram)*
+- [x] 🏗️ Tugma pa ba ang folder structure sa `docs/06-architecture.md`? *(2 kulang, inayos: ang buong `database/` mula Day 91, at `01–37`)*
 - [ ] 🗄️ **Neon restore drill** (naiwan noong Day 91): gawin ang `database/backups/.env.staging` sa WSL, patakbuhin ang
       `database/backups/restore-drill-neon.sh`, at itala ang RTO ng production sa `journal/phase-18/day-91.md` (D-033: hindi opsyonal ang drill)
 

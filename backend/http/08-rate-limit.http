@@ -29,8 +29,13 @@
 
 ### -------------------------------------------------------------------------
 ### 1. Maling password. I-SEND NANG 11 BESES. Ang inaasahan:
-###    1–10:  401 { "error": "Invalid email or password" }
+###    1–5:   401 { "error": "Invalid email or password" }
+###    6–10:  423 { "error": "Account temporarily locked. Please try again later." }
+###           ← mula Day 71: pati ang email na WALANG account ay nalo-lock pagkatapos ng 5 (23-user-enumeration.http).
+###             Binibilang pa rin ng rate limiter ang 423 (palpak pa rin), kaya ang ika-11 ay 429
 ###    11:    429 { "error": "Too many attempts. Please try again later." }
+###    (itinama sa Day 93 review — dati nakasulat: "1–10: 401". Sinubukan mula sa malinis na simula: 401 ×5, 423 ×5, 429)
+###    Para ulitin: kailangan ding burahin ang bilang ng email sa database (unknown_login_attempts), hindi lang ang Redis
 ###
 ### 🔍 Tingnan ang headers (sinubukan, Day 43 inagahan):
 ###    RateLimit: "10-in-15min"; r=<natitira>; t=<segundo bago mag-reset>
