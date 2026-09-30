@@ -53,6 +53,10 @@ export function observeRedis(isUp: () => boolean): void {
     .addCallback((result) => result.observe(isUp() ? 1 : 0));
 }
 
+// Day 92b: server cache — ilang HIT (galing sa Redis), MISS (kinuha sa database), at error (patay ang Redis → diretso sa database).
+// Hit rate = hit / (hit + miss). Kapag mababa, walang silbi ang cache (masyadong maikli ang TTL, o bihirang basahin)
+export const cacheLookups = meter.createCounter('auth.cache.lookups', { description: 'Mga pagtingin sa server cache ayon sa resulta' });
+
 export async function startMetricsServer(): Promise<void> {
   await prometheusExporter.startServer();
 }
