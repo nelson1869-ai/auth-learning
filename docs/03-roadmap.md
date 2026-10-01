@@ -748,7 +748,8 @@ direktang nagtatrabaho sa `main`?*
 - **Hindi ginawa (sinadya, pagkatapos ng Day 99):** ang mga inuulit na code (hooks, iisang istilo ng form), at ang nav kapag naka-login
 
 ### Day 99 — E2E test
-- [ ] Playwright + virtual authenticator — totoong browser, walang totoong hardware
+- [x] Playwright + virtual authenticator — totoong browser, walang totoong hardware *(`frontend/e2e`: 8 test — login, passkeys (dagdag, excludeCredentials, login na walang email at may email, decoy, binurang passkey), at ang 2 bug ng Day 98b · sariling mga port (3100, 5199) at ang test DB · `e2e:cleanup` na tumatanggi sa hindi *_test · job na `e2e` sa CI, at hinihintay ito ng image · 6 na sadyang pagsira, nahuli lahat · nahuli: ang `**/api/**` ko ay humarang sa mga file ng frontend mismo · D-039)*
+- [x] 📊 `docs/diagrams/30-e2e.md` (+ `08-ci-pipeline.md`)
 - **Matututunan:** kailan kailangan ng E2E sa halip na API test
 
 ### Day 100 — 🎓 Final review

@@ -106,7 +106,7 @@ backend/
 │   ├── lib/              ← logger.ts · clientIp.ts · audit.ts · session.ts (Day 51–55) · jwt.ts (RS256, Day 56) · email.ts (Day 58)
 │   │                        · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (Day 64) · loginLockout.ts (Day 67) · metrics.ts (Day 81) · shutdown.ts (Day 85) · redis.ts (Day 92) · cache.ts (Day 92b) · webauthn.ts (Day 95: RP ID/origin mula sa CLIENT_URL, taguan ng challenge · Day 97: decoy)
 │   ├── jobs/             ← retentionScheduler.ts (Day 90) — oras-oras na trabaho sa loob ng app (sinisimulan ng index.ts, hinihinto ng shutdown)
-│   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) — mga script, hindi endpoint
+│   ├── scripts/          ← send-test-email.ts (Day 58) · login-timing.ts (Day 72) · openapi.ts (Day 78) · e2e-cleanup.ts (Day 99: binubura ang mga account ng E2E, test DB lang) — mga script, hindi endpoint
 │   ├── db/               ← index.ts (Pool, 5s timeout) · errors.ts (isUniqueViolation, Day 74) · schema.ts (users, audit_logs, refresh_tokens, verification_tokens, trusted_devices, unknown_login_attempts) · migrate.ts · verifyMigrations.ts (Day 89) · set-role.ts
 │   └── test/             ← setup.ts (.env.test + pananggalang na *_test) · softAuthenticator.ts (Day 95: "device" na gawa sa code, para sa tests ng passkey)
 ├── drizzle/              ← migrations 0000–0014
@@ -192,6 +192,11 @@ frontend/src/
 ├── components/       ← maliliit na pirasong ginagamit sa maraming page (hal. Button) — wala pang laman (Day 50)
 └── api/              ← LAHAT ng pagtawag sa backend (fetch) — iisang lugar: auth.ts, admin.ts
                          · openapi.generated.ts (Day 78 — mga type mula sa spec, ginawa ng `npm run openapi`; huwag i-edit nang kamay)
+
+frontend/                (labas ng src/ — Day 99)
+├── e2e/              ← Playwright: auth.spec · passkeys.spec · server-problems.spec · helpers.ts · global-teardown.ts
+├── playwright.config.ts ← nagpapatakbo ng backend (:3100, test DB) + Vite (:5199) para sa E2E
+└── tsconfig.e2e.json ← type-check ng e2e/ (Node + DOM)
 ```
 
 **Bakit may sariling `api/`:** kapag nagbago ang URL o nagdagdag ng CSRF token,

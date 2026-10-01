@@ -1,6 +1,6 @@
 # 08 — CI pipeline (GitHub Actions)
 
-> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection), Phase 7 (type-check), Day 87 (supply chain) at Day 88 (container scanning)
+> 📅 Day 27 · Phase 6 (Tests at CI) · in-update sa Day 28 (branch protection), Phase 7 (type-check), Day 87 (supply chain), Day 88 (container scanning) at Day 99 (E2E)
 >
 > **Code:** `.github/workflows/ci.yml` · `.github/dependabot.yml` · `.gitleaksignore` · `backend/src/test/setup.ts` · `backend/vitest.config.ts`
 > **Subukan (Day 87–88):** `backend/http/31-supply-chain.http` · `32-container-scanning.http`
@@ -12,6 +12,7 @@ flowchart LR
     GH --> BE
     GH --> FE
     GH --> SS
+    GH --> E2E
     subgraph BE["job: backend (ubuntu, BAGONG makina)"]
         direction TB
         PG[("service: postgres:17-alpine<br/>auth_learning_test")]
@@ -27,9 +28,17 @@ flowchart LR
         direction TB
         S1["checkout — BUONG history<br/>(fetch-depth: 0)"] --> S2["gitleaks (Docker image, naka-pin sa DIGEST)<br/>--redact · .gitleaksignore"]
     end
+    subgraph E2E["job: e2e (Day 99)"]
+        direction TB
+        EPG[("service: postgres:17-alpine")]
+        E1["npm ci ×2 · JWT key · migrate"] --> E2["playwright install chromium"] --> E3["npm run e2e<br/>playwright.config.ts: backend :3100 + Vite :5199<br/>8 test · virtual authenticator"]
+        E3 -.-> EPG
+        E3 -->|"pumalya"| E4["artifact: playwright-report<br/>(may trace)"]
+    end
     BE --> R{"Lahat pumasa?"}
     FE --> R
     SS --> R
+    E2E --> R
     R -->|"oo"| OK["✅ berde sa PR — puwedeng i-merge"]
     OK --> IMG["job: image — docker build (multi-stage, Day 88)<br/>→ Grype scan: pumapalya sa High/Critical<br/>→ (main lang) push sa GHCR"]
     R -->|"hindi"| NO["❌ pula — BAWAL i-merge<br/>ruleset main-protection (Day 28)"]

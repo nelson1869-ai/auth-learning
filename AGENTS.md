@@ -78,7 +78,8 @@ helper), open PRs and read CI. Rules:
 ## Shipping a day (what "go" means)
 
 1. Branch → code → tests (`backend`: `npm test`, `npx tsc --noEmit`, lint;
-   `frontend`: `npx tsc -b`, lint, build). `npm run lint` includes knip (Day 79): remove
+   `frontend`: `npx tsc -b`, lint, build, and `npm run e2e` — Playwright, Day 99; it starts its own backend
+   on :3100 and Vite on :5199 against the TEST database, so it never collides with Nelson's dev servers). `npm run lint` includes knip (Day 79): remove
    dead code rather than adding an exception; every exception in `knip.jsonc` needs a reason.
    After changing a schema or an endpoint: `cd backend && npm run openapi` (Day 78) and
    commit `backend/openapi.json` + `frontend/src/api/openapi.generated.ts`. Prove a new test catches the bug by
