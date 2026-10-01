@@ -45,6 +45,11 @@ Ang **E2E (end-to-end)** ay ang buong system: React + Express + Postgres, sa tot
 **Ang `page.route('**/api/**')` ko ay humarang din sa mga file ng frontend mismo** (`http://localhost:5199/src/api/auth.ts`), kaya hindi nagbukas ang page.
 Inayos: ang backend lang (`http://localhost:3100/api/**`). Natagalan ang unang takbo (5.4 minuto) dahil hinintay ng dalawang test ang buong timeout bago pumalya.
 
+## 🐛 Nahuli ng CI (hindi ng PC ko)
+Sa unang takbo sa CI: **8/8 ang pumasa**, pero **pumalya ang paglilinis** pagkatapos: `CLIENT_URL: expected string, received undefined`.
+Sa PC, galing ang `CLIENT_URL` sa `backend/.env.test`; sa CI, walang `.env.test`. Ibinibigay na ito ng `global-teardown.ts` mismo.
+Ito mismo ang dahilan kung bakit may CI: ang "gumagana sa PC ko" ay umaasa sa mga file na wala sa ibang makina.
+
 ## Ang hindi pa sakop
 - **Admin page, sessions, change/reset password, verify email** — walang E2E (sakop ng Vitest sa API).
 - **Virtual authenticator pa rin**, hindi totoong phone.
