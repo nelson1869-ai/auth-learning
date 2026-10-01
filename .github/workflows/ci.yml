@@ -122,6 +122,70 @@ jobs:
       - name: Build
         run: npm run build
 
+  # Day 99: E2E — ang BUONG system sa totoong Chromium (frontend/e2e, Playwright): login, passkeys (virtual authenticator),
+  # at kung ano ang nakikita ng user kapag may problema ang server. Ang backend at frontend ay pinapatakbo ng playwright.config.ts
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: auth
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: auth_learning_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U auth"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    # Walang .env.test sa CI: dito galing ang mga variable ng backend (pareho ng `backend` job). Ang CLIENT_URL at PORT ay sa playwright.config.ts
+    env:
+      DATABASE_URL: postgres://auth:ci-only-password@localhost:5432/auth_learning_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install (backend at frontend)
+        run: |
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Ephemeral JWT key (CI only)
+        run: echo "JWT_PRIVATE_KEY=$(openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 | base64 -w0)" >> "$GITHUB_ENV"
+
+      - name: Migrate the test database
+        working-directory: backend
+        run: npx drizzle-kit migrate
+
+      # Ang Chromium na kapareho ng version ng @playwright/test (+ ang mga library ng Linux na kailangan nito)
+      - name: Install Chromium for Playwright
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E (Playwright)
+        working-directory: frontend
+        run: npm run e2e
+
+      # Kapag pumalya: ang report (may trace ng bawat hakbang) — i-download sa Actions → ang run → Artifacts
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 7
+
   # Day 87: may secret ba sa KAHIT ANONG commit (hindi lang sa huli)? Public ang repo — kapag naka-push, nakita na ng lahat.
   # gitleaks bilang Docker image na naka-pin sa DIGEST (hindi tag, hindi third-party action): ang tag ay puwedeng ilipat
   # ng may-ari (o ng nakapasok na attacker) sa ibang code; ang digest ay hindi. Aral ng reference: ang trivy-action tags (2026-03)
@@ -143,7 +207,7 @@ jobs:
   # Dockerfile). Sa merge sa main — push din sa GHCR, naka-tag sa EKSAKTONG commit na pumasa.
   # Walang self-hosted runner: ang PC ang kumukuha ng image (devops/deploy.sh) — D-020.
   image:
-    needs: [backend, frontend, secret-scan] # image lang kapag pumasa ang tests at walang secret
+    needs: [backend, frontend, e2e, secret-scan] # image lang kapag pumasa ang tests (pati E2E, Day 99) at walang secret
     runs-on: ubuntu-latest
     permissions:
       contents: read
