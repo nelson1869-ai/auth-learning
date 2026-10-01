@@ -1,6 +1,6 @@
 # 02 — ER Diagram (ang hugis ng database)
 
-> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) at Day 64 (`trusted_devices`, migration 0010) at Day 69 (partial UNIQUE indexes, migration 0011) at Day 71 (`unknown_login_attempts`, migration 0012 — walang FK: walang user) · ia-update tuwing may bagong table o column · Day 95 (`passkeys`, `webauthn_challenges`, migration 0013)
+> 📅 Day 11 · Phase 3 (Unang database) · in-update sa Day 13 (`password_hash`, migration 0001) Day 45 (`role`, migration 0002) at Day 48 (`audit_logs`, migration 0003) at Day 51 (`refresh_tokens`, migration 0004) at Day 52 (`revoke_reason`, migration 0005) at Day 54 (`user_agent`, `ip`, migration 0006) at Day 59 (`verification_tokens`, migration 0007) at Day 60 (`email_verified_at`, migration 0008) at Day 63 (`failed_login_attempts`, `locked_until`, migration 0009) at Day 64 (`trusted_devices`, migration 0010) at Day 69 (partial UNIQUE indexes, migration 0011) at Day 71 (`unknown_login_attempts`, migration 0012 — walang FK: walang user) · ia-update tuwing may bagong table o column · Day 95 (`passkeys`, `webauthn_challenges`, migration 0013) · Day 97 (UNIQUE `challenge`, migration 0014)
 >
 > **Source of truth:** `backend/src/db/schema.ts` → `npm run db:generate` →
 > `backend/drizzle/000N_*.sql` → `npm run db:migrate`
@@ -89,7 +89,7 @@ erDiagram
         uuid id PK
         integer user_id FK "NULL = wala pang kilalang user (Day 97) · ON DELETE CASCADE"
         text purpose "registration · authentication — UNIQUE (user_id, purpose): isa lang bawat user"
-        text challenge "NOT NULL · random, isang gamit (DELETE … RETURNING)"
+        text challenge UK "NOT NULL · random, isang gamit (DELETE … RETURNING) · Day 97: UNIQUE — hinahanap ayon sa halaga sa login"
         timestamptz expires_at "NOT NULL · 5 minuto"
     }
     users ||--o{ passkeys : "may passkey (Day 95)"

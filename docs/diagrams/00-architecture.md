@@ -44,7 +44,7 @@ flowchart LR
     DB -->|"SQL · localhost:5435"| PG
     Mail -->|"HTTPS · Resend API<br/>SPF · DKIM · DMARC"| Resend(["📧 Resend (Tokyo)<br/>no-reply@nelson1869.com"])
     subgraph Docker["Docker · project: auth-learning"]
-        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens ·<br/>verification_tokens · trusted_devices ·<br/>unknown_login_attempts · passkeys · webauthn_challenges (Day 95) · migrations 0000–0013")]
+        PG[("postgres:17-alpine<br/>users (may role) · audit_logs · refresh_tokens ·<br/>verification_tokens · trusted_devices ·<br/>unknown_login_attempts · passkeys · webauthn_challenges (Day 95) · migrations 0000–0014")]
         Vol[/"volume: auth-learning_pgdata"/]
         PG --- Vol
     end

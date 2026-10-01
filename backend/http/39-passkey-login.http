@@ -1,0 +1,117 @@
+### =========================================================================
+### 🎓 LOGIN GAMIT ANG PASSKEY (WebAuthn authentication ceremony) — at ang DECOY
+### 📅 Day 97–98 · Phase 19 (Passkeys) · Desisyon: D-038
+### =========================================================================
+### Walang password. Dalawang hakbang, gaya ng registration (38-passkeys.http):
+###   1. POST /api/auth/passkeys/login/options  — challenge (+ ang mga passkey ng email, kung may ibinigay)
+###        … ang device: piliin ang passkey, fingerprint/PIN → PIRMA gamit ang private key …
+###   2. POST /api/auth/passkeys/login/verify   — ang pirma → suriin gamit ang PUBLIC key → session (parehong cookies ng password login)
+###
+### ⚠️ Hindi matatapos ang hakbang 2 mula rito (walang private key ang REST Client). Dito: ang options, ang DECOY, at ang mga pagtanggi.
+###    Ang buong flow: Login page → "🪪 Mag-login gamit ang passkey" · tests: backend/src/routes/passkey-login.test.ts
+###
+### 🔐 ANG DECOY: kapag may email sa options, ibinibigay ang credential id ng mga passkey ng account (para alam ng browser kung alin).
+###    Kung `[]` ang sagot sa email na walang account, malalaman ng kahit sino kung sino ang may passkey. Kaya: isang PEKENG id,
+###    na PAREHO sa bawat hingi (HMAC ng email gamit ang sikreto ng server). Ikumpara ang #2, #3 at #4.
+###
+### Code: backend/src/services/auth/passkey.service.ts (startPasskeyLogin, finishPasskeyLogin) · lib/webauthn.ts (decoy, challenge)
+###       controllers/passkey.controller.ts · frontend/src/pages/LoginPage.tsx
+### Diagram: docs/diagrams/29-passkey-login.md
+### =========================================================================
+
+### -------------------------------------------------------------------------
+### 1. Options na WALANG email (ang karaniwan). Ang inaasahan:
+###    Status:  200
+###    Body:    { "rpId": "localhost", "challenge": "…43 na titik…", "allowCredentials": [], "timeout": 60000, "userVerification": "required" }
+###    Walang Set-Cookie (wala pang session)
+###    `allowCredentials: []` = ang DEVICE ang pipili ng account (discoverable passkey — residentKey: required noong Day 95)
+###    Hindi kailangang naka-login: ito mismo ang login
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/options
+Content-Type: application/json
+
+{}
+
+### -------------------------------------------------------------------------
+### 2. May email ng account na MAY passkey (magdagdag muna ng passkey sa http://localhost:5173/passkeys). Ang inaasahan:
+###    Status:  200
+###    Body:    { …, "allowCredentials": [ { "id": "<credential id ng passkey mo>", "type": "public-key" } ], … }
+###    Isa bawat passkey. WALANG "transports" — kahit alam natin: kung mayroon dito at wala sa decoy, iyon ang magbubunyag
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/options
+Content-Type: application/json
+
+{
+  "email": "passkey-demo@example.com"
+}
+
+### -------------------------------------------------------------------------
+### 3. 🔐 Email na WALANG account. Ang inaasahan:
+###    Status:  200 — hindi 404, hindi 401
+###    Body:    { …, "allowCredentials": [ { "id": "<43 na titik, pekeng id>", "type": "public-key" } ], … }
+###    PAREHONG hugis ng #2. I-send ulit: PAREHONG id (bago lang ang challenge). Kung random ito, makikita sa pag-ulit na peke.
+###    Sa browser: "walang passkey para rito sa device na ito" — pareho ng totoong user na wala sa device na ito ang passkey niya
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/options
+Content-Type: application/json
+
+{
+  "email": "walang-ganito@example.com"
+}
+
+### -------------------------------------------------------------------------
+### 4. Ibang email na wala rin. Ang inaasahan: 200, isang pekeng id na IBA sa #3 (bawat email ay may sariling decoy)
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/options
+Content-Type: application/json
+
+{
+  "email": "iba-pang-wala@example.com"
+}
+
+### -------------------------------------------------------------------------
+### 5. Hindi email. Ang inaasahan:
+###    Status:  400 { "error": "Invalid input", "fields": { "email": [ … ] } }
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/options
+Content-Type: application/json
+
+{
+  "email": "hindi-email"
+}
+
+### -------------------------------------------------------------------------
+### 6. Hakbang 2 na may GAWA-GAWANG pirma (tamang hugis). Ang inaasahan:
+###    Status:  401 { "error": "Passkey login failed. Please try again." }
+###    Walang Set-Cookie. IISANG mensahe para sa lahat: walang challenge, hindi kilalang passkey, maling pirma, maling origin,
+###    maling RP ID, walang user verification, bumabang counter (posibleng kinopyang key).
+###    Ang dahilan ay sa audit_logs lang: login_failed · metadata: { "method": "passkey", "reason": "no_challenge" }
+###    (Dito "no_challenge": ang challenge sa clientDataJSON na ito ay hindi galing sa server)
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/verify
+Content-Type: application/json
+
+{
+  "response": {
+    "id": "Z2F3YS1nYXdh",
+    "rawId": "Z2F3YS1nYXdh",
+    "type": "public-key",
+    "response": {
+      "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiZ2F3YS1nYXdhIn0",
+      "authenticatorData": "Z2F3YS1nYXdh",
+      "signature": "Z2F3YS1nYXdh"
+    },
+    "clientExtensionResults": {}
+  }
+}
+
+### -------------------------------------------------------------------------
+### 7. Hakbang 2 na mali ang HUGIS. Ang inaasahan:
+###    Status:  400 { "error": "Invalid input", "fields": { "response": [ … ] } }
+# @no-cookie-jar
+POST http://localhost:3000/api/auth/passkeys/login/verify
+Content-Type: application/json
+
+{
+  "response": { "id": "x", "type": "public-key", "response": { "clientDataJSON": "x" } }
+}
