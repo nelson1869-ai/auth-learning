@@ -57,7 +57,7 @@ Ito mismo ang dahilan kung bakit may CI: ang "gumagana sa PC ko" ay umaasa sa mg
 - May `ExperimentalWarning` (ML-DSA-44) sa log ng backend mula sa library ng passkey — hindi error, lumalabas din sa production.
 
 ## 🔍 Checklist
-- [ ] Pinatakbo ko ang `cd frontend && npm run e2e` at nakita ang 8 ✓.
+- [x] Pinatakbo ko ang `cd frontend && npm run e2e` at nakita ang 8 ✓. *(2026-10-01, sa sarili kong terminal: 8 passed sa 18.6s · `e2e:cleanup — removed 3 E2E account(s)`)*
 - [ ] Kaya kong ipaliwanag kung bakit hindi sapat ang Vitest para sa passkey sa browser.
 - [ ] Kaya kong ipaliwanag kung bakit 3100 at 5199 ang mga port, hindi 3000 at 5173.
 
