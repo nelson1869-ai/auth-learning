@@ -40,6 +40,8 @@ async function loginWith(credential: SoftCredential, userId: number, overrides: 
 }
 const failures = (userId: number | null) =>
   db.select({ metadata: auditLogs.metadata }).from(auditLogs).where(and(userId === null ? undefined : eq(auditLogs.targetId, userId), eq(auditLogs.action, 'login_failed')));
+// Ilang `login_failed` na may ganitong dahilan ang WALANG target (hal. no_challenge, unknown_credential) — bago at pagkatapos
+const countReason = async (reason: string) => (await failures(null)).filter((f) => f.metadata?.reason === reason).length;
 const FAILED = { error: 'Passkey login failed. Please try again.' };
 const cookie = (res: request.Response, name: string) => (res.get('Set-Cookie') ?? []).find((c) => c.startsWith(`${name}=`));
 
@@ -121,10 +123,13 @@ describe('POST /api/auth/passkeys/login/verify', () => {
     const { challenge } = (await options()).body;
     const answer = softGet({ credential, challenge, origin: EXPECTED_ORIGIN, rpId: RP_ID, userHandle: String(userId) });
     expect((await verify(answer)).status).toBe(200);
+    const before = await countReason('no_challenge');
     const again = await verify(answer);
     expect(again.status).toBe(401);
     expect(again.body).toEqual(FAILED);
-    expect((await failures(null)).map((f) => f.metadata)).toContainEqual({ method: 'passkey', reason: 'no_challenge' });
+    // Tumanggi dahil NAGAMIT na ang challenge — hindi dahil sa ibang bantay (hal. ang counter)
+    expect(await countReason('no_challenge')).toBe(before + 1);
+    expect(await failures(userId)).toEqual([]);
   });
 
   it('PHISHING: a signature made on another site is rejected — wrong origin, and wrong RP ID', async () => {
@@ -173,8 +178,9 @@ describe('POST /api/auth/passkeys/login/verify', () => {
     const agent = request.agent(app);
     await agent.post('/api/auth/login').send({ email, password: PASSWORD });
     expect((await agent.delete(`/api/auth/passkeys/${passkeyId}`)).status).toBe(204);
+    const before = await countReason('unknown_credential');
     expect((await loginWith(credential, userId)).status).toBe(401);
-    expect((await failures(null)).map((f) => f.metadata)).toContainEqual({ method: 'passkey', reason: 'unknown_credential' });
+    expect(await countReason('unknown_credential')).toBe(before + 1);
   });
 
   it('three verifies at the same moment with the same answer: exactly ONE session', async () => {
