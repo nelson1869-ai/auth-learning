@@ -43,19 +43,20 @@ export default function RegisterPage() {
       <h2>Register</h2>
       <label>
         Email
-        <input name="email" type="email" defaultValue={state.email} required />
+        <input name="email" type="email" autoComplete="username" defaultValue={state.email} required />
       </label>
       {state.fields?.email && <small>{state.fields.email[0]}</small>}
 
       <label>
         Password
-        <input name="password" type="password" required />
+        {/* new-password: magmumungkahi ang password manager ng bago, at ise-save ito */}
+        <input name="password" type="password" autoComplete="new-password" required />
       </label>
       {state.fields?.password && <small>{state.fields.password[0]}</small>}
 
       <label>
         Name (optional)
-        <input name="name" defaultValue={state.name} />
+        <input name="name" autoComplete="name" defaultValue={state.name} />
       </label>
       {state.fields?.name && <small>{state.fields.name[0]}</small>}
 
@@ -63,7 +64,7 @@ export default function RegisterPage() {
       <button type="submit" disabled={isPending}>
         {isPending ? 'Nagre-register…' : 'Register'}
       </button>
-      {state.error && <p>❌ {state.error}</p>}
+      {state.error && <p role="alert">❌ {state.error}</p>}
       {state.user && (
         <p>
           ✅ Nagawa ang account: {state.user.email} — <Link to="/login">Mag-login na</Link>

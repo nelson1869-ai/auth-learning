@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
       <button type="submit" disabled={isPending}>
         {isPending ? 'Nagpapadala…' : 'Ipadala ang reset link'}
       </button>
-      {state.error && <p>❌ {state.error}</p>}
+      {state.error && <p role="alert">❌ {state.error}</p>}
       <p>
         <Link to="/login">← Login</Link>
       </p>

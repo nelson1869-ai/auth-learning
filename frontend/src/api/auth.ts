@@ -34,27 +34,61 @@ export class ApiError extends Error {
   }
 }
 
+// Dalawang klase ng pagpalya na HINDI galing sa API natin (Day 99 hardening):
+//  - walang sagot na mababasa: patay ang backend, walang internet, o error page na walang CORS header (hal. ang 502 ng Cloudflare
+//    kapag patay ang backend sa production). Nagtatapon ang fetch ng TypeError ("Failed to fetch")
+//  - may sagot pero hindi JSON (hal. proxy na nagbabalik ng HTML na may CORS header). Nagtatapon ang res.json() ng SyntaxError
+// Dati, ang lumalabas sa user ay ang teknikal na mensahe ng browser. Ngayon: isang malinaw na ApiError
+const SERVER_UNREACHABLE = 'Hindi maabot ang server. Subukan ulit mamaya.';
+const SERVER_PROBLEM = 'May problema sa server. Subukan ulit mamaya.';
+
+// May hangganan ang paghihintay: nahuli sa pagsubok na ang saradong port ay hindi laging tumatanggi agad — minsan NAKABITIN ang
+// koneksyon (sa WSL: walang sagot kahit kailan). Kung walang timeout, "Loading…" pa rin habambuhay
+const REQUEST_TIMEOUT_MS = 15_000;
+
+async function send(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, signal: init.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch {
+    throw new ApiError(SERVER_UNREACHABLE);
+  }
+}
+
+// Ang mensahe kapag hindi ok ang sagot at wala tayong ibang alam: 5xx = problema sa server, iba = 'Request failed'
+function failed(res: Response): ApiError {
+  return new ApiError(res.status >= 500 ? SERVER_PROBLEM : 'Request failed', {}, res.status);
+}
+
+// res.json() na hindi nagtatapon ng error ng JSON parser — kasama ang status, para malaman ng page kung 401/403/5xx
+export async function readJson(res: Response) {
+  try {
+    return await res.json();
+  } catch {
+    throw new ApiError(SERVER_PROBLEM, {}, res.status);
+  }
+}
+
 export async function login(email: string, password: string): Promise<PublicUser> {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await send(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include', // ipadala at tanggapin ang cookie (kailangan din ng credentials: true sa CORS ng backend)
     body: JSON.stringify({ email, password }),
   });
-  const data = await res.json();
+  const data = await readJson(res);
   // fetch ay HINDI nagtatapon ng error sa 400/401 — kaya tayo mismo ang tumitingin sa res.ok
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed');
   return data.user;
 }
 
 export async function register(email: string, password: string, name?: string): Promise<PublicUser> {
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res = await send(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ email, password, name }),
   });
-  const data = await res.json();
+  const data = await readJson(res);
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields);
   return data.user;
 }
@@ -69,7 +103,7 @@ export async function register(email: string, password: string, name?: string): 
 let refreshing: Promise<boolean> | null = null;
 
 function refreshSession(): Promise<boolean> {
-  refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' })
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include', signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
     .then((res) => res.ok)
     .catch(() => false)
     .finally(() => {
@@ -80,11 +114,11 @@ function refreshSession(): Promise<boolean> {
 
 // fetch na may cookie, at kusang nagre-refresh kapag expired ang access token
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const send = () => fetch(`${API_URL}${path}`, { ...init, credentials: 'include' });
-  const res = await send();
+  const once = () => send(`${API_URL}${path}`, { ...init, credentials: 'include' });
+  const res = await once();
   if (res.status !== 401) return res;
   const refreshed = await refreshSession();
-  return refreshed ? send() : res; // hindi ma-refresh = talagang hindi naka-login → ibigay ang 401
+  return refreshed ? once() : res; // hindi ma-refresh = talagang hindi naka-login → ibigay ang 401
 }
 // ---------------------------------------------------------------------------------------------
 
@@ -92,8 +126,8 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 export async function getMe(): Promise<User | null> {
   const res = await apiFetch('/auth/me');
   if (res.status === 401) return null;
-  if (!res.ok) throw new ApiError('Request failed');
-  const data = await res.json();
+  if (!res.ok) throw failed(res);
+  const data = await readJson(res);
   return data.user;
 }
 
@@ -102,14 +136,14 @@ export type Session = SessionFromApi;
 
 export async function getSessions(): Promise<Session[]> {
   const res = await apiFetch('/auth/sessions');
-  const data = await res.json();
+  const data = await readJson(res);
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
   return data.sessions;
 }
 
 export async function revokeSession(id: string): Promise<void> {
   const res = await apiFetch(`/auth/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' });
-  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
+  if (!res.ok) throw failed(res);
 }
 
 // Change password (Day 55). 204 = napalitan; 400 = may `fields` (hal. maling kasalukuyang password)
@@ -120,7 +154,7 @@ export async function changePassword(currentPassword: string, newPassword: strin
     body: JSON.stringify({ currentPassword, newPassword }),
   });
   if (res.ok) return;
-  const data = await res.json();
+  const data = await readJson(res);
   throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
 }
 
@@ -135,7 +169,7 @@ async function postJson(path: string, body?: unknown): Promise<Response> {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (res.ok) return res;
-  const data = await res.json().catch(() => ({}));
+  const data = await readJson(res);
   throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
 }
 
@@ -170,7 +204,7 @@ export type Passkey = PasskeyFromApi;
 
 export async function getPasskeys(): Promise<Passkey[]> {
   const res = await apiFetch('/auth/passkeys');
-  const data = await res.json();
+  const data = await readJson(res);
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
   return data.passkeys;
 }
@@ -178,25 +212,25 @@ export async function getPasskeys(): Promise<Passkey[]> {
 // Tatlong hakbang: (1) password → options mula sa server · (2) ang BROWSER at ang device: fingerprint/PIN, bagong key pair ·
 // (3) ang sagot ng device → server. Ang private key ay hindi kailanman dumadaan dito — nananatili ito sa device
 export async function addPasskey(currentPassword: string, name: string): Promise<Passkey> {
-  const options = await (await postJson('/auth/passkeys/register/options', { currentPassword })).json();
+  const options = await readJson(await postJson('/auth/passkeys/register/options', { currentPassword }));
   // Nagbubukas ng dialog ng browser. Kapag kinansela ng user, o may passkey na ang device na ito: nagtatapon ng error
   const response = await startRegistration({ optionsJSON: options });
   const res = await postJson('/auth/passkeys/register/verify', { response, ...(name ? { name } : {}) });
-  return (await res.json()).passkey;
+  return (await readJson(res)).passkey;
 }
 
 // Login gamit ang passkey (Day 97–98). Walang email: ang device ang pipili ng account. May email: ang mga passkey ng account na iyon.
 // Plain na fetch, gaya ng login(): ang 401 dito ay "hindi pumasa", hindi "expired ang session" (walang dapat i-refresh)
 export async function loginWithPasskey(email?: string): Promise<PublicUser> {
   const post = (path: string, body: unknown) =>
-    fetch(`${API_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) });
+    send(`${API_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) });
   const optionsRes = await post('/auth/passkeys/login/options', email ? { email } : {});
-  const options = await optionsRes.json();
+  const options = await readJson(optionsRes);
   if (!optionsRes.ok) throw new ApiError(options.error ?? 'Request failed', options.fields, optionsRes.status);
   // Ang dialog ng browser: piliin ang passkey, fingerprint/PIN → pirma. Nagtatapon kapag kinansela
   const response = await startAuthentication({ optionsJSON: options });
   const res = await post('/auth/passkeys/login/verify', { response });
-  const data = await res.json();
+  const data = await readJson(res);
   if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
   return data.user;
 }
@@ -212,11 +246,11 @@ export function passkeyBrowserProblem(err: unknown): string | null {
 
 export async function removePasskey(id: number): Promise<void> {
   const res = await apiFetch(`/auth/passkeys/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
+  if (!res.ok) throw failed(res);
 }
 
 export async function logout(): Promise<void> {
-  await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+  await send(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
 }
 
 // Mensahe mula sa kahit anong error sa catch (`unknown` ang type doon)

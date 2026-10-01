@@ -66,7 +66,7 @@ export default function PasskeysPage() {
     }
   }
 
-  if (!passkeys && problem) return <p>❌ {problem}</p>;
+  if (!passkeys && problem) return <p role="alert">❌ {problem}</p>;
   if (!passkeys) return <p>Loading…</p>;
 
   return (
@@ -117,7 +117,7 @@ export default function PasskeysPage() {
             {busy ? 'Naghihintay sa device…' : 'Magdagdag ng passkey'}
           </button>
           {added && <p>✅ Naidagdag: {added}</p>}
-          {problem && <p>❌ {problem}</p>}
+          {problem && <p role="alert">❌ {problem}</p>}
         </form>
       ) : (
         <p>❌ Hindi kaya ng browser na ito ang passkey.</p>

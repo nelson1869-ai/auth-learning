@@ -23,7 +23,7 @@ ng resulta.
 - Magandang karanasan sa user (UX) — at sa lahat ng screen size
 
 ## Tools
-React 19 · Vite 8 · React Router 8 · fetch · plain CSS · JavaScript (→ TypeScript sa Phase 7)
+React 19 · Vite 8 · React Router 8 · fetch · plain CSS · TypeScript (mula Phase 7) · `@simplewebauthn/browser` (passkeys, Day 95)
 — tingnan ang [tech stack](../docs/02-tech-stack.md) at ang [D-013](../docs/04-decisions.md)
 ("basics muna, modern pagkatapos").
 
@@ -33,15 +33,16 @@ frontend/
 ├── src/
 │   ├── main.tsx        ← simula ng app (StrictMode)
 │   ├── App.tsx         ← aling page ang ipapakita (React Router)
-│   ├── pages/          ← Login, Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54), ChangePassword (Day 55),
-│   │                     ForgotPassword · ResetPassword · VerifyEmail (Day 61 — mula sa mga link sa email)
+│   ├── pages/          ← Login (+ passkey, Day 97), Register, Profile, Admin (Day 49 — admin lang ang may data; backend ang bantay), Sessions (Day 54),
+│   │                     ChangePassword (Day 55), ForgotPassword · ResetPassword · VerifyEmail (Day 61 — mula sa mga link sa email), Passkeys (Day 95)
 │   ├── hooks/          ← useHashToken (Day 61): token mula sa #fragment, tinatanggal agad sa address bar
 │   ├── components/     ← maliliit na pirasong ginagamit ng marami
-│   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar · openapi.generated.ts: ang mga type mula sa OpenAPI spec
+│   ├── api/            ← LAHAT ng fetch sa backend — iisang lugar. Day 98b: `send` (15s na timeout, "Hindi maabot ang server")
+│   │                     at `readJson` ("May problema sa server" kapag hindi JSON) · openapi.generated.ts: ang mga type mula sa OpenAPI spec
 │   │                     (Day 78 — GINAWA ng `npm run openapi` sa backend/; huwag i-edit)
 │   └── index.css       ← plain CSS
 ├── index.html
-├── vite.config.js
+├── vite.config.ts      ← port 5173 + strictPort (Day 98b): pumapalya kapag okupado, hindi lumilipat sa 5174
 └── package.json
 ```
 
@@ -60,6 +61,8 @@ frontend/
     (nangyari sa Cloudflare Web Analytics, PR #53). Huwag gumamit ng `'unsafe-inline'`.
   - Subukan sa preview **at** sa production domain (DevTools → Console: walang "violates")
 - Sa `npm run dev`, `http://localhost:3000/api` pa rin (walang kailangang `.env`)
+- **5173 lang** (Day 98b): ang backend ay tumatanggap lang ng `CLIENT_URL=http://localhost:5173` (CORS, CSRF, origin ng passkey).
+  Kapag `Error: Port 5173 is already in use`: may ibang project na gumagamit nito — patayin muna iyon
 
 ## ❌ Hindi dapat nasa loob ng frontend
 - **Secrets o API keys** — lahat ng nasa frontend ay nakikita ng kahit sino (View Source)
@@ -70,7 +73,7 @@ frontend/
 ## Unang gawain
 **Phase 5** ✅ — Login, Register at protektadong Profile page, kausap ang backend
 (Day 20–24). Sumunod: admin page (Day 49), mga device ko (Day 54), change password (Day 55),
-forgot/reset password at verify email (Day 61).
+forgot/reset password at verify email (Day 61), passkeys (Day 95–98), frontend hardening (Day 98b).
 Tingnan ang [roadmap](../docs/03-roadmap.md).
 
 **Mga command** (sa `frontend/`): `npm run dev` (http://localhost:5173) ·

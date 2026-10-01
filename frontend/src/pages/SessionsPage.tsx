@@ -72,7 +72,7 @@ export default function SessionsPage() {
     }
   }
 
-  if (problem) return <p>❌ {problem}</p>;
+  if (problem) return <p role="alert">❌ {problem}</p>;
   if (!sessions) return <p>Loading…</p>;
 
   return (

@@ -55,7 +55,7 @@ function VerifyForm({ token }: { token: string }) {
             {status === 'working' ? 'Kinukumpirma…' : 'Kumpirmahin ang email'}
           </button>
           {status === 'error' && (
-            <p>
+            <p role="alert">
               ❌ {error} — <Link to="/profile">magpadala ng bagong link mula sa Profile</Link>
             </p>
           )}

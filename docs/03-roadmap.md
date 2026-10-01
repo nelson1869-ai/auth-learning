@@ -739,6 +739,14 @@ direktang nagtatrabaho sa `main`?*
 - [x] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐 *(walang email = ang device ang pipili · may email = ang mga passkey ng account, o isang DECOY na id (HMAC ng email, pareho sa bawat hingi) · challenge hinahanap ayon sa halaga, isang subok · userHandle + counter (kinopyang key) · hindi hinaharang ng password lockout · retention: nililinis na ang challenges · 15 test + 10 sadyang pagsira (nahuli ang maluwag na replay test) · totoong browser ✅ · **production:** migration 0014, login gamit ang passkey sa nelson1869.com ✅ · D-038)*
 - [x] 📊 `docs/diagrams/29-passkey-login.md`, kasama ang decoy options branch · 📝 `backend/http/39-passkey-login.http`
 
+### Day 98b — Frontend hardening (idinagdag — "study first the frontend", hiling ni Nelson)
+- [x] Profile na nakabitin sa "Loading…" kapag patay ang backend → mensahe + "Subukan ulit" *(+ 15s na timeout: ang saradong port sa WSL ay nakabitin, hindi tumatanggi)*
+- [x] Malinaw na mensahe kapag hindi maabot ang server o hindi JSON ang sagot (`send` + `readJson` sa `api/auth.ts`)
+- [x] `autoComplete` sa login at register · `role="alert"` sa mga error · Vite: `port 5173` + `strictPort`
+- [x] 📊 `07-frontend-backend.md` (bagong seksyon) · `frontend/README.md` (luma na)
+- **Nahuli:** ang sarili kong bulk replace ay ginawang tawag sa sarili ang `readJson` — itinago ko ang babala ng `tsc` (`never`) gamit ang `any`. Ang browser test ang nakahuli
+- **Hindi ginawa (sinadya, pagkatapos ng Day 99):** ang mga inuulit na code (hooks, iisang istilo ng form), at ang nav kapag naka-login
+
 ### Day 99 — E2E test
 - [ ] Playwright + virtual authenticator — totoong browser, walang totoong hardware
 - **Matututunan:** kailan kailangan ng E2E sa halip na API test

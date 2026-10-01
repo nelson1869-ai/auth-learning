@@ -63,7 +63,7 @@ export default function ChangePasswordPage() {
       <button type="submit" disabled={isPending}>
         {isPending ? 'Pinapalitan…' : 'Palitan'}
       </button>
-      {state.error && !state.fields?.currentPassword && !state.fields?.newPassword && <p>❌ {state.error}</p>}
+      {state.error && !state.fields?.currentPassword && !state.fields?.newPassword && <p role="alert">❌ {state.error}</p>}
       <p>
         <Link to="/profile">← Profile</Link>
       </p>

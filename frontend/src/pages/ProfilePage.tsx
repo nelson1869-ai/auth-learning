@@ -35,15 +35,25 @@ function VerifyEmailBanner() {
 export default function ProfilePage() {
   // <User | null>: kung wala ito, `never` ang akala ni TypeScript — hindi alam ang hugis ng user
   const [user, setUser] = useState<User | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0); // "Subukan ulit" → bagong attempt → tatakbo ulit ang effect
   const navigate = useNavigate();
 
-  // Pagkatapos mag-render: tanungin ang backend kung sino ako (dalawang beses sa dev dahil sa StrictMode)
+  // Pagkatapos mag-render: tanungin ang backend kung sino ako (dalawang beses sa dev dahil sa StrictMode).
+  // Day 99 hardening: dati walang .catch — kapag patay ang backend, "Loading…" habambuhay at walang paliwanag
   useEffect(() => {
-    getMe().then((u) => {
-      if (u) setUser(u);
-      else navigate('/login', { replace: true }); // hindi naka-login → login page
-    });
-  }, [navigate]);
+    let ignore = false;
+    getMe()
+      .then((u) => {
+        if (ignore) return;
+        if (u) setUser(u);
+        else navigate('/login', { replace: true }); // hindi naka-login → login page
+      })
+      .catch((err) => !ignore && setProblem(errorMessage(err)));
+    return () => {
+      ignore = true;
+    };
+  }, [navigate, attempt]);
 
   async function handleLogout() {
     await logout();
@@ -51,6 +61,21 @@ export default function ProfilePage() {
   }
 
   // UX lang ito — ang tunay na proteksyon ay ang requireAuth ng backend (401 sa /me)
+  if (problem) {
+    return (
+      <section>
+        <p role="alert">❌ {problem}</p>
+        <button
+          onClick={() => {
+            setProblem(null);
+            setAttempt((n) => n + 1);
+          }}
+        >
+          Subukan ulit
+        </button>
+      </section>
+    );
+  }
   if (!user) return <p>Loading…</p>;
   return (
     <section>
