@@ -736,7 +736,7 @@ direktang nagtatrabaho sa `main`?*
 - [x] 📊 `docs/diagrams/28-passkey-register.md` (+ `02-er-diagram.md`, `00-architecture.md`)
 
 ### Day 97–98 — Login gamit ang passkey
-- [x] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐 *(walang email = ang device ang pipili · may email = ang mga passkey ng account, o isang DECOY na id (HMAC ng email, pareho sa bawat hingi) · challenge hinahanap ayon sa halaga, isang subok · userHandle + counter (kinopyang key) · hindi hinaharang ng password lockout · retention: nililinis na ang challenges · 15 test + 10 sadyang pagsira (nahuli ang maluwag na replay test) · totoong browser ✅ · D-038)*
+- [x] Authentication ceremony; decoy options para hindi ibunyag ang account 🔐 *(walang email = ang device ang pipili · may email = ang mga passkey ng account, o isang DECOY na id (HMAC ng email, pareho sa bawat hingi) · challenge hinahanap ayon sa halaga, isang subok · userHandle + counter (kinopyang key) · hindi hinaharang ng password lockout · retention: nililinis na ang challenges · 15 test + 10 sadyang pagsira (nahuli ang maluwag na replay test) · totoong browser ✅ · **production:** migration 0014, login gamit ang passkey sa nelson1869.com ✅ · D-038)*
 - [x] 📊 `docs/diagrams/29-passkey-login.md`, kasama ang decoy options branch · 📝 `backend/http/39-passkey-login.http`
 
 ### Day 99 — E2E test

@@ -76,6 +76,22 @@ Inayos: binibilang na ang `no_challenge` bago at pagkatapos, at dapat walang iba
 
 Pansamantalang mga port ulit (3055 at 5174). **Nag-restart ang PC habang ginagawa ito:** namatay ang dev Postgres at Redis (binuhay ulit ng AI), at nabura ang mga file ng AI sa `/tmp`. Kusang bumalik ang production.
 
+## Production (deploy `3bd3481`)
+PR #167. `deploy.sh`: attestation ✅ · backup bago mag-migrate ✅ · **15/15 migrations** (0014 ang bago) · `ready`.
+Parehong browser test sa **`https://nelson1869.com/login`**, gamit ang test account na `delivered+pklogin…@resend.dev`:
+
+| Hakbang | Nakita |
+|---|---|
+| Walang email | ✅ naka-login |
+| May email | ✅ naka-login |
+| Email na walang account (decoy) | tumanggi ang device (0.5s) |
+| `/passkeys` | "huling gamit" na-update · `signCount` 3 sa device |
+| Binura ang passkey sa server | "❌ Passkey login failed" |
+| Audit ng account | `register`, `login`, `passkey_added`, `login:passkey` ×2, `login`, `passkey_removed` |
+
+Binura ang test account ayon sa eksaktong id (38) at email. Ang mga challenge na hindi nagamit (hal. ang sa decoy) ay lilinisin ng retention job pagka-expire.
+**Napansin:** may isa pang account sa production na hindi ginawa ng AI (id 37, ginawa ngayong umaga 12:11, verified ang email, walang passkey). Hindi ito ginalaw.
+
 ## Ang hindi pa ginagawa (tapat)
 - **Hindi pa sa totoong device.** Software at virtual authenticator lang.
 - **Hindi sinukat ang oras** ng options para sa may account at wala (hindi gaya ng Day 72).
