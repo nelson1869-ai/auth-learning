@@ -7,6 +7,10 @@
 
 Dito nakatago ang data, gaya ng email at ang na-hash na password ng bawat user. Siya rin ang nag-iingat na hindi mawala o madoble ang data.
 
+**Day 100** — *✍️ draft ng AI (Day 100), mula sa journal. Hindi ito ang sarili kong salita: isulat ko ulit dito, tapos burahin ang draft. Ang nasa itaas ay ang isinulat ko noong Day 01 — huwag burahin, para maikumpara.*
+
+> Ang nag-iingat sa data at ang HULING BANTAY: UNIQUE, foreign keys, transactions, at atomic na mga query ang pumipigil sa mali kahit makalimot ang code. Hash lang ang naka-save (password, tokens), may retention para hindi itago ang hindi na kailangan, at may backup na nasubukang i-restore — sa tamang URL (hindi sa pooled).
+
 ---
 
 ## Ang role

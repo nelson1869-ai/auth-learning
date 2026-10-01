@@ -753,12 +753,13 @@ direktang nagtatrabaho sa `main`?*
 - **Matututunan:** kailan kailangan ng E2E sa halip na API test
 
 ### Day 100 — 🎓 Final review
-- [ ] Isulat sa journal: ang buong paglalakbay, ang pinakamahirap, ang pinakanatutunan
-- [ ] I-update ang "Sa sarili kong salita" sa 4 na role README — ikumpara sa Day 01!
-- [ ] Ihambing ang project mo sa reference project — ano ang pareho, ano ang mas maganda?
+- [x] Isulat sa journal: ang buong paglalakbay, ang pinakamahirap, ang pinakanatutunan *(`journal/phase-19/day-100.md` — draft ng AI mula sa 96 na journal, sa hiling ko)*
+- [ ] I-update ang "Sa sarili kong salita" sa 4 na role README — ikumpara sa Day 01! *(may DRAFT ng AI sa ilalim ng isinulat ko noong Day 01 — pero dapat sa akin manggaling; hindi pa tapos)*
+- [x] Ihambing ang project mo sa reference project — ano ang pareho, ano ang mas maganda? *(nasa `day-100.md`: ang mayroon lang sa reference — tracing, coverage, CSRF token, self-hosted runner — at ang mayroon lang dito)*
 
 **✅ Checkpoint (`checkpoint-senior`):** Kaya mong ipaliwanag ang bawat bahagi ng
 system — **nang hindi tumitingin sa code.**
+— **⏳ HINIHINTAY KO** (2026-10-01): nasa `journal/phase-19/day-100.md` ang 8 tanong. Ang tag ay gagawin lang kapag nasagot ko nang walang tinitingnan.
 
 ---
 

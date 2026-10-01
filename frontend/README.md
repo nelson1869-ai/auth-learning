@@ -7,6 +7,10 @@
 
 Ito ang nakikita at kinikilik ko sa browser: ang login form, mga button, at mga mensahe. Ipinapasa nito ang ginawa ko sa backend.
 
+**Day 100** — *✍️ draft ng AI (Day 100), mula sa journal. Hindi ito ang sarili kong salita: isulat ko ulit dito, tapos burahin ang draft. Ang nasa itaas ay ang isinulat ko noong Day 01 — huwag burahin, para maikumpara.*
+
+> Ang lahat ng hinahawakan ng user: 10 page sa React na tumatawag sa backend, na hindi kailanman nagtatago ng token (httpOnly cookie ang gamit). Ang pinakamahirap na natutunan ko: ang frontend ay UX lang — ang backend ang tunay na bantay — pero ang user ang unang makakakita kapag may mali, kaya dapat malinaw ang mensahe kahit patay ang server. At ang passkey: ang browser mismo ang naglalagay ng origin, kaya kailangan ng totoong browser (E2E) para masubukan.
+
 ---
 
 ## Ang role
