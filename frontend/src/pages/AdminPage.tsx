@@ -70,7 +70,7 @@ export default function AdminPage() {
       </section>
     );
   }
-  if (problem) return <p>❌ {problem}</p>;
+  if (problem) return <p role="alert">❌ {problem}</p>;
   if (!users || !logs) return <p>Loading…</p>;
 
   return (

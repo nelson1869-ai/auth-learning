@@ -58,7 +58,7 @@ function ResetForm({ token }: { token: string }) {
         {isPending ? 'Pinapalitan…' : 'Palitan ang password'}
       </button>
       {state.error && (
-        <p>
+        <p role="alert">
           ❌ {state.error} — <Link to="/forgot-password">humingi ng bagong link</Link>
         </p>
       )}

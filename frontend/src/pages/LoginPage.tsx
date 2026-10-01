@@ -40,12 +40,14 @@ export default function LoginPage() {
       {/* Controlled input: galing sa state ang value, bawat tipa ay nagbabago ng state */}
       <label>
         Email
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        {/* autoComplete: para alam ng password manager kung alin ang username at ang password */}
+        <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </label>
       <label>
         Password
         <input
           type="password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -59,7 +61,7 @@ export default function LoginPage() {
         </button>
       )}
 
-      {error && <p>❌ {error}</p>}
+      {error && <p role="alert">❌ {error}</p>}
       <p>
         <Link to="/forgot-password">Nakalimutan ang password?</Link>
       </p>
