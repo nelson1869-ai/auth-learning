@@ -756,3 +756,20 @@
   - **Hindi binabago ng passkey login ang bilang ng maling password** (ni hindi nire-reset). Ang lock ay nananatili hanggang mag-expire.
   - Nasubukan sa software authenticator (tests) at virtual authenticator (Chromium). **Hindi pa sa totoong device.**
 
+## D-039 · E2E: Playwright sa `frontend/`, sariling mga port, test database, at hinihintay ng image
+
+- **Petsa:** 2026-10-01 (Day 99)
+- **Context:** Hanggang ngayon, ang pagsubok sa browser ay mano-mano o mula sa `/tmp` ng AI (na nabura ng restart ng PC noong Day 97). Playwright ay nasa `02-tech-stack.md` na.
+- **Mga desisyon (rekomendasyon ng AI; "go" ni Nelson):**
+  1. **Sa `frontend/e2e/`**, hindi sa bagong top-level na folder: ang sinusubok ay ang nakikita sa browser; ang frontend ang may Vite at TypeScript config. Ang backend ay pinapatakbo ng `playwright.config.ts` (`webServer`).
+  2. **Sariling mga port (3100, 5199)** at `reuseExistingServer: false`: hindi bumabangga sa dev server o sa ibang project, at laging ang code ngayon ang sinusubok. Kailangan ang `PORT` sa backend (default 3000).
+  3. **Test database + `NODE_ENV=test`** (walang rate limit). Ang mga account ay `e2e-…@example.com`, binubura ng `e2e:cleanup` pagkatapos — **tumatanggi ito kapag hindi `*_test` ang database** (sinubukan sa dev DB: exit 1).
+  4. **`retries: 0`, `workers: 1`.** Ang paminsan-minsang pagpalya ay bug na dapat makita, hindi itago.
+  5. **Mga problema ng server gamit ang `page.route`** sa :3100 lang — walang server na pinapatay.
+  6. **Job na `e2e` sa CI, at hinihintay ito ng `image`:** walang image (kaya walang deploy) kapag sira ang flow sa browser. Report bilang artifact kapag pumalya.
+- **Consequences:**
+  - Mas mahaba ang CI: + isang job (Chromium + `--with-deps`).
+  - Ang mga E2E ay kaunti at para sa mahahalagang flow lang. Wala pa: admin page, sessions, change/reset password, verify email (sakop ng Vitest sa API).
+  - Ang virtual authenticator ay hindi totoong phone. Ang decoy test ay umaasa sa kilos ng Chromium (kinakansela kapag walang tugmang credential).
+  - May `ExperimentalWarning` (ML-DSA-44, Web Crypto) sa log ng backend mula sa `@simplewebauthn/server` — hindi error; lumalabas din sa production.
+

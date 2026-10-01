@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "oxlint && knip",
     "preview": "vite preview",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^14.0.0",
@@ -17,6 +18,7 @@
     "react-router": "^8.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

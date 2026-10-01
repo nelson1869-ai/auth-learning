@@ -52,7 +52,7 @@ backend/
 │   │                        · csrf.ts — Origin check: POST/PUT/DELETE mula sa frontend lang (Day 44)
 │   ├── lib/              ← logger.ts (Pino, redact) · clientIp.ts (totoong IP sa likod ng Cloudflare) · audit.ts (audit_logs, Day 48) · session.ts (access + refresh token, Day 51) · jwt.ts (RS256, Day 56) · email.ts (Resend, Day 58) · verificationTokens.ts · background.ts (Day 59) · trustedDevices.ts (device cookies, Day 64) · loginLockout.ts (atomic na bilang, Day 67) · metrics.ts (OpenTelemetry → /metrics sa METRICS_PORT, Day 81) · shutdown.ts (graceful shutdown, Day 85) · redis.ts (Redis para sa rate limiter — opsyonal, fail-open, Day 92) · cache.ts (server cache sa Redis: cache-aside, laging may TTL, fail-open — Day 92b) · webauthn.ts (passkeys: RP ID at origin mula sa CLIENT_URL, challenge sa database — Day 95)
 │   ├── jobs/             ← retentionScheduler.ts — oras-oras na paglilinis ng lumang data (Day 90, D-032)
-│   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang)
+│   ├── scripts/          ← send-test-email.ts (`npm run email:test -- <email>`, Day 58) · login-timing.ts (`npm run timing:login`, Day 72, dev lang) · e2e-cleanup.ts (`npm run e2e:cleanup`, Day 99 — tinatawag ng E2E; tumatanggi kapag hindi *_test ang DB)
 │   ├── validations/      ← Zod schemas — "tama ba ang input?" (+ responses.ts: ang hugis ng mga sagot, Day 78)
 │   ├── openapi/          ← Day 78: OpenAPI spec mula sa Zod · generator ng frontend types · /api/docs (Swagger UI)
 │   └── db/               ← koneksyon + schema ng tables · migrate.ts + verifyMigrations.ts (ang ginagamit ng deploy — sinusuri ang migrations, Day 89)

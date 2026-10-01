@@ -1,5 +1,5 @@
 {
-  // Dalawang bahagi: ang app (src/, tumatakbo sa browser) at ang config ng Vite (tumatakbo sa Node)
+  // Tatlong bahagi: ang app (src/, browser), ang config ng Vite (Node), at ang E2E (Day 99: Playwright, Node + DOM)
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }, { "path": "./tsconfig.e2e.json" }]
 }

@@ -40,6 +40,9 @@ const envSchema = z.object({
   // Metrics (Day 81): hiwalay na port para sa /metrics (Prometheus). HINDI ito dinadaanan ng Cloudflare Tunnel (backend:3000 lang),
   // kaya hindi ito publiko — sa loob lang ng Docker network (at localhost sa dev)
   METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9464),
+  // Port ng API (Day 99). Default 3000 (dev, Docker, Cloudflare Tunnel). Iba lang para sa E2E test (frontend/playwright.config.ts):
+  // para hindi bumangga sa dev server na tumatakbo na sa 3000
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   // Rate limiter (Day 92): kapag may REDIS_URL, iisa ang bilang ng LAHAT ng kopya ng app (at hindi nare-reset sa bawat deploy).
   // Kapag wala: sa memory ng process (ayos lang sa iisang kopya — dev at tests)
   REDIS_URL: z.url({ protocol: /^rediss?$/ }).optional(),

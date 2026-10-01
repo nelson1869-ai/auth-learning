@@ -136,7 +136,7 @@ Idadagdag lang kapag dumating na ang phase nila — hindi pa ngayon.
 | **Redis** | Shared na store ng rate limiter (maraming server) — Day 92: Redis 8.8.3 + `ioredis` + `rate-limit-redis`, fail-open, alert na `RedisDown` (D-035) · + **server cache** (Day 92b: cache-aside, TTL 60s, D-036 — walang bagong library) | DevOps | 18 ✅ Day 92 (rate limiter) · ✅ Day 92b (cache) |
 | **Caddy** | **Load balancer** sa harap ng 2 backend container (Day 91b) | DevOps | 18 |
 | **@simplewebauthn** | Passkeys (server + browser) — Day 95: `@simplewebauthn/server` 14 (options + verify) at `@simplewebauthn/browser` 14 (`startRegistration`), D-037 | Security / Frontend | 19 ✅ Day 95–96 (registration) · ✅ Day 97–98 (login, `startAuthentication`) |
-| **Playwright** | End-to-end test sa totoong browser | QA | 19 |
+| **Playwright** | End-to-end test sa totoong browser — Day 99: `@playwright/test` 1.63 sa `frontend/`, Chromium + virtual authenticator (CDP), job na `e2e` sa CI (D-039) | QA | 19 ✅ Day 99 |
 
 > ⚠️ Madalas magbago ang presyo at libreng tier ng mga online service —
 > tingnan ang kasalukuyang pricing page bago mag-sign up.
