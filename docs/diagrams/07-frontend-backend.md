@@ -1,6 +1,6 @@
 # 07 — Frontend ↔ backend
 
-> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check), Day 49 (admin page), Day 51 (refresh) at Day 61 (mga page mula sa email)
+> 📅 Day 21 · Phase 5 (Login page) · in-update sa Day 22 (fetch + CORS) Day 23 (React 19 `useActionState`) Day 24 (React Router, protektadong page) Day 44 (CSRF: Origin check), Day 49 (admin page), Day 51 (refresh), Day 61 (mga page mula sa email) at Day 98b (kapag hindi maabot ang server)
 >
 > **Code:** `frontend/src/App.tsx` (routes) · `frontend/src/pages/*.tsx` · `frontend/src/api/auth.ts` · `backend/src/index.ts` (cors)
 > **Subukan:** sa browser (F12 → Network) · `backend/http/05-login.http` #6–#7 (preflight)
@@ -197,3 +197,26 @@ flowchart TD
 - Sinubukan (Day 61, Playwright, dev): 15 check — banner · resend → bagong link · lumang link → error · walang # sa URL ·
   verify → wala na ang banner · parehong mensahe kahit walang account · maikling password → error · bagong password → login OK ·
   gamit na ang link → error · page na walang token.
+
+## Kapag ang problema ay WALA sa API natin (Day 98b — frontend hardening)
+
+> 📅 Day 98b · Phase 19 · **Code:** `frontend/src/api/auth.ts` (`send`, `readJson`, `failed`) · `frontend/src/pages/ProfilePage.tsx` · `frontend/vite.config.ts`
+
+```mermaid
+flowchart TD
+    Call(["kahit anong tawag sa backend"]) --> Send["send(): fetch + 15s na timeout"]
+    Send -->|"walang sagot na mababasa:<br/>patay ang backend, walang internet,<br/>nakabitin na koneksyon, error page na walang CORS"| Unreach["ApiError: 'Hindi maabot ang server. Subukan ulit mamaya.'"]
+    Send -->|"may sagot"| Json{"readJson():<br/>JSON ba?"}
+    Json -->|"hindi (hal. HTML na 502)"| Problem["ApiError: 'May problema sa server…' + status"]
+    Json -->|"oo"| Ok{"res.ok?"}
+    Ok -->|"oo"| Data["ang data"]
+    Ok -->|"hindi"| Api["ApiError: ang `error` ng backend<br/>(o 'May problema sa server' kung 5xx na walang body)"]
+    Unreach --> Page["page: &lt;p role='alert'&gt;❌ …&lt;/p&gt;<br/>Profile: + 'Subukan ulit'"]
+    Problem --> Page
+    Api --> Page
+```
+
+- **Dati:** walang `.catch` ang Profile → "Loading…" habambuhay kapag patay ang backend. At ang `res.json()` sa HTML ay nagpapakita ng error ng JSON parser.
+- **Bakit may timeout:** sa pagsubok, ang saradong port sa WSL ay **nakabitin**, hindi tumatanggi. Kung walang timeout, nakabitin din ang page.
+- **`role="alert"`:** inaanunsyo ng screen reader ang error kapag lumabas ito.
+- **Sinubukan sa totoong browser:** patay na backend → mensahe pagkalipas ng ~15s · HTML na 502 → mensahe agad · normal na login at passkey → gumagana.
