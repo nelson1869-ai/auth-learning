@@ -5,6 +5,8 @@ import {
   changePasswordLimiter,
   forgotPasswordLimiter,
   loginLimiter,
+  passkeyLoginLimiter,
+  passkeyLoginOptionsLimiter,
   passkeyRegisterLimiter,
   registerLimiter,
   resendVerificationLimiter,
@@ -23,7 +25,14 @@ import {
   sessions,
   verifyEmail,
 } from '../controllers/auth.controller.ts';
-import { passkeyRegisterOptions, passkeyRegisterVerify, passkeyRemove, passkeysList } from '../controllers/passkey.controller.ts';
+import {
+  passkeyLoginOptions,
+  passkeyLoginVerify,
+  passkeyRegisterOptions,
+  passkeyRegisterVerify,
+  passkeyRemove,
+  passkeysList,
+} from '../controllers/passkey.controller.ts';
 
 // /api/auth/* — ROUTING LANG (Day 76): aling URL → aling middleware (rate limit, requireAuth) → aling controller.
 // Ang HTTP (input, status, cookies) ay nasa controllers/auth.controller.ts; ang logic ay nasa services/auth/*
@@ -68,5 +77,9 @@ router.post('/auth/passkeys/register/options', requireAuth, passkeyRegisterLimit
 router.post('/auth/passkeys/register/verify', requireAuth, passkeyRegisterVerify);
 router.get('/auth/passkeys', requireAuth, passkeysList);
 router.delete('/auth/passkeys/:id', requireAuth, passkeyRemove);
+
+// Login gamit ang passkey (Day 97–98) — hindi kailangang naka-login (ito mismo ang login)
+router.post('/auth/passkeys/login/options', passkeyLoginOptionsLimiter ?? pass, passkeyLoginOptions);
+router.post('/auth/passkeys/login/verify', passkeyLoginLimiter ?? pass, passkeyLoginVerify);
 
 export default router;

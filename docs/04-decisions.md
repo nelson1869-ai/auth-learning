@@ -732,3 +732,27 @@
   - Ang library ay may default na algorithm na `-48` (ML-DSA-44, post-quantum) bukod sa EdDSA, ES256 at RS256. Hindi ito binago.
   - **Nasubukan lang sa virtual authenticator** (Chromium) at sa software authenticator ng tests. Hindi pa sa totoong phone o fingerprint reader.
 
+## D-038 · Passkey login: opsyonal na email na may decoy, challenge ayon sa halaga, hiwalay sa password lockout
+
+- **Petsa:** 2026-10-01 (Day 97–98)
+- **Context:** Ang login gamit ang passkey. Ayon sa roadmap: "decoy options para hindi ibunyag ang account".
+- **Mga desisyon (rekomendasyon ng AI; "yes go" ni Nelson):**
+  1. **Opsyonal ang email.** Walang email (default sa Login page): `allowCredentials: []`, ang device ang pipili ng account — walang tinatanong tungkol
+     sa kahit sino. May email: ang mga credential id ng account, para sa user na gustong pumili ng account o may maraming account sa device.
+  2. **Decoy** para sa email na walang account o walang passkey: isang pekeng id = HMAC-SHA256 ng email. **Pareho sa bawat hingi** (kung random, makikita sa
+     pag-ulit). Ang susi ay hinango sa private key ng JWT (walang bagong env variable; kapag pinalitan ang JWT key, magbabago ang mga decoy — walang pinsala).
+     **Walang `transports`** sa listahan, kahit sa totoo: kung mayroon sa totoo at wala sa decoy, iyon ang magbubunyag.
+  3. **Ang challenge ay walang user** at hinahanap ayon sa halaga nito sa `clientDataJSON` (`DELETE … RETURNING`, UNIQUE index — migration 0014). Isang subok.
+  4. **Sinusuri ang `userHandle`** laban sa may-ari ng passkey, at ang **counter** (kapag bumaba: posibleng kinopyang key → tanggihan).
+  5. **Hindi hinaharang ng password lockout.** Ang lockout ay laban sa panghuhula; hindi nahuhulaan ang pirma. Ang may-ari ay makakapasok habang may nanghuhula ng password niya.
+     Sariling limit: 30 options + 10 palpak na verify bawat 15 minuto bawat IP.
+  6. **Parehong session at audit ng password login** (`login` / `login_failed` + `metadata.method = 'passkey'`) — gumagana pa rin ang mga alert at ang audit page.
+  7. **Nililinis na ng retention job ang expired na `webauthn_challenges`** (ang sa login ay walang user, kaya walang CASCADE na maglilinis).
+- **Consequences / hindi tinatakpan:**
+  - **Bilang ng id:** laging 1 ang decoy. Ang account na may 2+ passkey ay may 2+ id → nakikilala. **Haba ng id:** ang decoy ay laging 32 bytes (43 na titik); ang totoo ay depende sa device.
+    Kaya ang walang-email ang default at ang inirerekomenda.
+  - **Oras:** pareho ang query (may account man o wala), pero hindi sinukat ang pagkakaiba ng oras (hindi gaya ng Day 72).
+  - **Sa browser:** sa decoy, sinasabi ng browser na walang passkey sa device na ito — pareho ng totoong user na nasa ibang device ang passkey.
+  - **Hindi binabago ng passkey login ang bilang ng maling password** (ni hindi nire-reset). Ang lock ay nananatili hanggang mag-expire.
+  - Nasubukan sa software authenticator (tests) at virtual authenticator (Chromium). **Hindi pa sa totoong device.**
+

@@ -1,4 +1,4 @@
-import { startRegistration } from '@simplewebauthn/browser';
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 import type { MeUser, Passkey as PasskeyFromApi, PublicUser, Session as SessionFromApi } from './openapi.generated.ts';
 // Iisang lugar ng lahat ng pagtawag sa backend. Ang URL ay galing sa build (VITE_API_URL):
 // sa Cloudflare Pages → https://api.nelson1869.com/api; sa `npm run dev` → localhost
@@ -183,6 +183,31 @@ export async function addPasskey(currentPassword: string, name: string): Promise
   const response = await startRegistration({ optionsJSON: options });
   const res = await postJson('/auth/passkeys/register/verify', { response, ...(name ? { name } : {}) });
   return (await res.json()).passkey;
+}
+
+// Login gamit ang passkey (Day 97–98). Walang email: ang device ang pipili ng account. May email: ang mga passkey ng account na iyon.
+// Plain na fetch, gaya ng login(): ang 401 dito ay "hindi pumasa", hindi "expired ang session" (walang dapat i-refresh)
+export async function loginWithPasskey(email?: string): Promise<PublicUser> {
+  const post = (path: string, body: unknown) =>
+    fetch(`${API_URL}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) });
+  const optionsRes = await post('/auth/passkeys/login/options', email ? { email } : {});
+  const options = await optionsRes.json();
+  if (!optionsRes.ok) throw new ApiError(options.error ?? 'Request failed', options.fields, optionsRes.status);
+  // Ang dialog ng browser: piliin ang passkey, fingerprint/PIN → pirma. Nagtatapon kapag kinansela
+  const response = await startAuthentication({ optionsJSON: options });
+  const res = await post('/auth/passkeys/login/verify', { response });
+  const data = await res.json();
+  if (!res.ok) throw new ApiError(data.error ?? 'Request failed', data.fields, res.status);
+  return data.user;
+}
+
+// Ang mga error ng BROWSER (hindi ng server) kapag hindi natuloy ang dialog ng passkey. null = hindi galing sa browser
+export function passkeyBrowserProblem(err: unknown): string | null {
+  if (!(err instanceof Error)) return null;
+  if (err.name === 'NotAllowedError') return 'Kinansela, o naubos ang oras. Subukan ulit.';
+  if (err.name === 'InvalidStateError') return 'May passkey na ang device na ito para sa account mo.';
+  if (err.name === 'NotSupportedError' || err.name === 'SecurityError') return 'Hindi kaya ng browser o device na ito ang passkey.';
+  return null;
 }
 
 export async function removePasskey(id: number): Promise<void> {

@@ -3,6 +3,8 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
+  passkeyLoginOptionsSchema,
+  passkeyLoginVerifySchema,
   passkeyRegisterOptionsSchema,
   passkeyRegisterVerifySchema,
   registerSchema,
@@ -38,6 +40,8 @@ const requests: Record<string, Schema> = {
   VerifyEmailInput: verifyEmailSchema,
   PasskeyRegisterOptionsInput: passkeyRegisterOptionsSchema,
   PasskeyRegisterVerifyInput: passkeyRegisterVerifySchema,
+  PasskeyLoginOptionsInput: passkeyLoginOptionsSchema,
+  PasskeyLoginVerifyInput: passkeyLoginVerifySchema,
 };
 const responses: Record<string, Schema> = {
   ErrorResponse: r.errorResponse,
@@ -52,6 +56,7 @@ const responses: Record<string, Schema> = {
   PasskeysResponse: r.passkeysResponse,
   PasskeyResponse: r.passkeyResponse,
   PasskeyRegistrationOptions: r.passkeyRegistrationOptions,
+  PasskeyAuthenticationOptions: r.passkeyAuthenticationOptions,
   AdminUser: r.adminUser,
   AdminUsersResponse: r.adminUsersResponse,
   AuditLog: r.auditLog,
@@ -206,6 +211,30 @@ const paths: Record<string, Record<string, Op>> = {
         400: ['Mali ang input, walang buhay na challenge, o hindi pumasa ang pagsusuri', 'ErrorResponse'],
         401: unauthenticated,
         409: ['Nakarehistro na ang passkey na ito, o naabot na ang limit', 'ErrorResponse'],
+      },
+    },
+  },
+  '/api/auth/passkeys/login/options': {
+    post: {
+      tag: 'auth',
+      summary: 'Login gamit ang passkey, hakbang 1: options (challenge)',
+      description:
+        'Hindi kailangang naka-login. Walang email: ang device ang pipili ng account (discoverable). May email: ang mga passkey ng account — o isang DECOY na id kapag walang account o walang passkey (pareho sa bawat hingi), para hindi malaman kung sino ang may passkey.',
+      body: 'PasskeyLoginOptionsInput',
+      replies: { 200: ['Options para sa `navigator.credentials.get()`', 'PasskeyAuthenticationOptions'], 400: invalid, 429: tooMany },
+    },
+  },
+  '/api/auth/passkeys/login/verify': {
+    post: {
+      tag: 'auth',
+      summary: 'Login gamit ang passkey, hakbang 2: ang pirma ng device',
+      description: 'Pumasa → parehong cookies ng password login. Iisang 401 sa lahat ng pagpalya (ang dahilan ay nasa audit log).',
+      body: 'PasskeyLoginVerifyInput',
+      replies: {
+        200: ['Naka-login (+ `token`, `refresh_token`, at `device_token` sa bagong browser)', 'UserResponse'],
+        400: invalid,
+        401: ['Hindi pumasa (o walang buhay na challenge)', 'ErrorResponse'],
+        429: tooMany,
       },
     },
   },

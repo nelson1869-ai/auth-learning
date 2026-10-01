@@ -51,6 +51,26 @@ export type PasskeyRegisterVerifyInput = {
   };
 };
 
+export type PasskeyLoginOptionsInput = {
+  email?: string;
+};
+
+export type PasskeyLoginVerifyInput = {
+  response: {
+    id: string;
+    rawId: string;
+    type: "public-key";
+    response: {
+      clientDataJSON: string;
+      authenticatorData: string;
+      signature: string;
+      userHandle?: string;
+    };
+    clientExtensionResults?: Record<string, unknown>;
+    authenticatorAttachment?: "platform" | "cross-platform";
+  };
+};
+
 export type ErrorResponse = {
   error: string;
   fields?: Record<string, string[]>;
@@ -162,6 +182,18 @@ export type PasskeyRegistrationOptions = {
     type: string;
     [key: string]: unknown;
   }[];
+  [key: string]: unknown;
+};
+
+export type PasskeyAuthenticationOptions = {
+  challenge: string;
+  rpId?: string;
+  allowCredentials?: {
+    id: string;
+    type: string;
+    [key: string]: unknown;
+  }[];
+  userVerification?: string;
   [key: string]: unknown;
 };
 

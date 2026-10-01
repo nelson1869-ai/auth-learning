@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { login, errorMessage } from '../api/auth.ts';
+import { login, errorMessage, loginWithPasskey, passkeyBrowserProblem } from '../api/auth.ts';
 
 export default function LoginPage() {
   // State: naaalala ng component; kapag binago (setX), nire-render ulit ng React ang UI
@@ -22,6 +22,18 @@ export default function LoginPage() {
     }
   }
 
+  // Day 97: walang password. Kung may tinype na email, ang mga passkey ng account na iyon lang; kung wala, ang device ang pipili
+  async function handlePasskey() {
+    setError('');
+    try {
+      await loginWithPasskey(email.trim() || undefined);
+      navigate('/profile');
+    } catch (err) {
+      setError(passkeyBrowserProblem(err) ?? errorMessage(err));
+    }
+  }
+  const passkeySupported = typeof window.PublicKeyCredential !== 'undefined';
+
   return (
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
@@ -40,6 +52,12 @@ export default function LoginPage() {
         />
       </label>
       <button type="submit">Login</button>
+      {passkeySupported && (
+        // type="button": hindi isinusumite ang form (hindi kailangan ng password)
+        <button type="button" onClick={handlePasskey}>
+          🪪 Mag-login gamit ang passkey
+        </button>
+      )}
 
       {error && <p>❌ {error}</p>}
       <p>

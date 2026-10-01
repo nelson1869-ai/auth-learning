@@ -37,6 +37,8 @@
 | POST | `/api/auth/passkeys/register/verify` | Dagdag ng passkey, hakbang 2: ang sagot ng device (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
 | GET | `/api/auth/passkeys` | Mga passkey ko (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
 | DELETE | `/api/auth/passkeys/:id` | Burahin ang isang passkey (Day 95) | 🍪 cookie `token` | `38-passkeys.http` |
+| POST | `/api/auth/passkeys/login/options` | Login gamit ang passkey, hakbang 1 (Day 97) | — | `39-passkey-login.http` |
+| POST | `/api/auth/passkeys/login/verify` | Login gamit ang passkey, hakbang 2 (Day 97) | — | `39-passkey-login.http` |
 | POST | `/api/auth/change-password` | Palitan ang password (Day 55) | 🍪 cookie `token` | `18-change-password.http` |
 | POST | `/api/auth/forgot-password` | Humingi ng reset link sa email (Day 59) | — | `19-password-reset.http` |
 | POST | `/api/auth/reset-password` | Bagong password gamit ang link (Day 59) | — (ang token) | `19-password-reset.http` |
@@ -206,6 +208,28 @@ Rate limit: 10 palpak bawat 15 minuto.
 ### `GET /api/auth/passkeys` · `DELETE /api/auth/passkeys/:id`
 **200** `{ "passkeys": [ { "id", "name", "deviceType", "backedUp", "createdAt", "lastUsedAt" } ] }` — walang public key o credential id.
 **204** nabura (audit `passkey_removed`) · **404** `{ "error": "Not found" }` sa passkey ng ibang user, sa id na wala, at sa id na hindi numero.
+
+## Login gamit ang passkey (Day 97–98)
+**Walang auth** (ito mismo ang login). D-038.
+
+### `POST /api/auth/passkeys/login/options`
+**Body:** `{}` o `{ "email": "…" }` (trim + lowercase). Rate limit: 30 bawat 15 minuto (lahat binibilang).
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Laging (kapag tama ang hugis) | `{ "rpId", "challenge", "allowCredentials", "timeout", "userVerification": "required" }` · walang email: `allowCredentials: []` · may email: ang mga credential id ng account, **o isang decoy** kapag walang account o walang passkey (pareho sa bawat hingi; walang `transports` kahit sa totoo) |
+| **400** | Hindi email | `{ "error": "Invalid input", "fields": { "email": [ … ] } }` |
+
+### `POST /api/auth/passkeys/login/verify`
+**Body:** `{ "response": <ang JSON mula sa navigator.credentials.get()> }`. Rate limit: 10 palpak bawat 15 minuto.
+
+| Status | Kailan | Body |
+|---|---|---|
+| **200** | Pumasa | `{ "user": { "id", "email", "name" } }` + `token`, `refresh_token` (+ `device_token` sa bagong browser) · audit `login` `{ method: "passkey", passkey }` |
+| **400** | Mali ang hugis | `{ "error": "Invalid input", "fields": { … } }` |
+| **401** | Walang buhay na challenge, hindi kilalang passkey, maling userHandle, maling pirma/origin/RP ID, walang user verification, bumabang counter | `{ "error": "Passkey login failed. Please try again." }` · audit `login_failed` `{ method: "passkey", reason }` |
+
+Hindi hinaharang ng password lockout (423) ang passkey login.
 
 ## `POST /api/auth/forgot-password` (Day 59)
 **Body:** `{ "email": "…" }`. Rate limit: 5 bawat 15 minuto bawat IP.

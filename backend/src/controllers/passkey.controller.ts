@@ -1,9 +1,17 @@
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import { auditFor } from '../lib/audit.ts';
-import { finishPasskeyRegistration, listPasskeys, removePasskey, startPasskeyRegistration } from '../services/auth/passkey.service.ts';
-import { passkeyRegisterOptionsSchema, passkeyRegisterVerifySchema } from '../validations/auth.ts';
-import { parseOr400 } from './http.ts';
+import { DEVICE_COOKIE } from '../lib/trustedDevices.ts';
+import {
+  finishPasskeyLogin,
+  finishPasskeyRegistration,
+  listPasskeys,
+  removePasskey,
+  startPasskeyLogin,
+  startPasskeyRegistration,
+} from '../services/auth/passkey.service.ts';
+import { passkeyLoginOptionsSchema, passkeyLoginVerifySchema, passkeyRegisterOptionsSchema, passkeyRegisterVerifySchema } from '../validations/auth.ts';
+import { deviceOf, parseOr400, setAccessCookie, setDeviceCookie, setRefreshCookie } from './http.ts';
 
 // Passkey controllers (Day 95–96) — HTTP lang. requireAuth muna sa lahat ng route na ito (routes/auth.ts)
 
@@ -85,3 +93,27 @@ export const passkeyRemove: RequestHandler = async (req, res) => {
   }
   res.status(204).end();
 };
+
+// POST /api/auth/passkeys/login/options — HINDI kailangang naka-login. Opsyonal na email
+export const passkeyLoginOptions: RequestHandler = async (req, res) => {
+  const input = parseOr400(passkeyLoginOptionsSchema, req.body ?? {}, res);
+  if (!input) return;
+  res.json(await startPasskeyLogin(input.email));
+};
+
+// POST /api/auth/passkeys/login/verify — ang pirma ng device → session (parehong cookies ng password login)
+export const passkeyLoginVerify: RequestHandler = async (req, res) => {
+  const input = parseOr400(passkeyLoginVerifySchema, req.body, res);
+  if (!input) return;
+  const result = await finishPasskeyLogin({ ...input, deviceToken: req.cookies[DEVICE_COOKIE], device: deviceOf(req) }, auditFor(req));
+  if (result.status === 'invalid') {
+    // Iisang sagot sa lahat ng pagpalya (walang challenge, hindi kilalang passkey, maling pirma, maling origin …)
+    res.status(401).json({ error: 'Passkey login failed. Please try again.' });
+    return;
+  }
+  setAccessCookie(res, result.accessToken);
+  setRefreshCookie(res, result.refreshToken);
+  if (result.newDeviceToken) setDeviceCookie(res, result.newDeviceToken);
+  res.json({ user: result.user });
+};
+
