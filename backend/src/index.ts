@@ -8,7 +8,7 @@ import { prometheusExporter, startMetricsServer } from './lib/metrics.ts';
 import { redis } from './lib/redis.ts';
 import { shutdown } from './lib/shutdown.ts';
 
-const PORT = 3000;
+const PORT = env.PORT; // Day 99: 3000 pa rin, maliban sa E2E (config/env.ts)
 // Day 85: mas maikli sa 10s ng `docker stop` (stop_grace_period sa compose), para tayo ang magpasya bago ang SIGKILL
 const SHUTDOWN_TIMEOUT_MS = 8_000;
 

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright (Day 99): mga resulta ng takbo, hindi source
+/test-results/
+/playwright-report/

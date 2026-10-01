@@ -16,7 +16,8 @@
     "db:set-role": "node --env-file=.env src/db/set-role.ts",
     "email:test": "node --env-file=.env src/scripts/send-test-email.ts",
     "timing:login": "node --env-file=.env src/scripts/login-timing.ts",
-    "openapi": "node src/scripts/openapi.ts"
+    "openapi": "node src/scripts/openapi.ts",
+    "e2e:cleanup": "node --env-file-if-exists=.env.test src/scripts/e2e-cleanup.ts"
   },
   "keywords": [],
   "author": "",
