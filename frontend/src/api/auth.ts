@@ -42,19 +42,27 @@ export class ApiError extends Error {
 const SERVER_UNREACHABLE = 'Hindi maabot ang server. Subukan ulit mamaya.';
 const SERVER_PROBLEM = 'May problema sa server. Subukan ulit mamaya.';
 
+// May hangganan ang paghihintay: nahuli sa pagsubok na ang saradong port ay hindi laging tumatanggi agad — minsan NAKABITIN ang
+// koneksyon (sa WSL: walang sagot kahit kailan). Kung walang timeout, "Loading…" pa rin habambuhay
+const REQUEST_TIMEOUT_MS = 15_000;
+
 async function send(url: string, init: RequestInit): Promise<Response> {
   try {
-    return await fetch(url, init);
+    return await fetch(url, { ...init, signal: init.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   } catch {
     throw new ApiError(SERVER_UNREACHABLE);
   }
 }
 
+// Ang mensahe kapag hindi ok ang sagot at wala tayong ibang alam: 5xx = problema sa server, iba = 'Request failed'
+function failed(res: Response): ApiError {
+  return new ApiError(res.status >= 500 ? SERVER_PROBLEM : 'Request failed', {}, res.status);
+}
+
 // res.json() na hindi nagtatapon ng error ng JSON parser — kasama ang status, para malaman ng page kung 401/403/5xx
-// `any`, gaya ng res.json() mismo — ang bawat tumatawag ang nagsasabi ng hugis (galing sa openapi.generated.ts)
-export async function readJson(res: Response): Promise<any> {
+export async function readJson(res: Response) {
   try {
-    return await readJson(res);
+    return await res.json();
   } catch {
     throw new ApiError(SERVER_PROBLEM, {}, res.status);
   }
@@ -95,7 +103,7 @@ export async function register(email: string, password: string, name?: string): 
 let refreshing: Promise<boolean> | null = null;
 
 function refreshSession(): Promise<boolean> {
-  refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' })
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include', signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
     .then((res) => res.ok)
     .catch(() => false)
     .finally(() => {
@@ -118,7 +126,7 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 export async function getMe(): Promise<User | null> {
   const res = await apiFetch('/auth/me');
   if (res.status === 401) return null;
-  if (!res.ok) throw new ApiError('Request failed');
+  if (!res.ok) throw failed(res);
   const data = await readJson(res);
   return data.user;
 }
@@ -135,7 +143,7 @@ export async function getSessions(): Promise<Session[]> {
 
 export async function revokeSession(id: string): Promise<void> {
   const res = await apiFetch(`/auth/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' });
-  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
+  if (!res.ok) throw failed(res);
 }
 
 // Change password (Day 55). 204 = napalitan; 400 = may `fields` (hal. maling kasalukuyang password)
@@ -238,7 +246,7 @@ export function passkeyBrowserProblem(err: unknown): string | null {
 
 export async function removePasskey(id: number): Promise<void> {
   const res = await apiFetch(`/auth/passkeys/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new ApiError('Request failed', {}, res.status);
+  if (!res.ok) throw failed(res);
 }
 
 export async function logout(): Promise<void> {
