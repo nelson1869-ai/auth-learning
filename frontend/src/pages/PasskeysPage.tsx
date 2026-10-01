@@ -1,21 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { addPasskey, ApiError, errorMessage, getPasskeys, removePasskey } from '../api/auth.ts';
+import { addPasskey, ApiError, errorMessage, getPasskeys, passkeyBrowserProblem, removePasskey } from '../api/auth.ts';
 import type { FieldErrors, Passkey } from '../api/auth.ts';
 
 // Mga passkey (Day 95–96): idagdag ang device na ito bilang passkey, tingnan ang mga mayroon, at magbura.
 // Ang login gamit ang passkey ay sa Day 97 — sa ngayon, nairerehistro pa lang.
 // Kailangan ang KASALUKUYANG password para magdagdag: ang passkey ay isang bagong paraan ng pagpasok sa account
-
-// Ang mga error ng browser (hindi ng server) kapag hindi natuloy ang dialog
-function browserProblem(err: unknown): string | null {
-  if (!(err instanceof Error)) return null;
-  if (err.name === 'NotAllowedError') return 'Kinansela, o naubos ang oras. Subukan ulit.';
-  if (err.name === 'InvalidStateError') return 'May passkey na ang device na ito para sa account mo.';
-  if (err.name === 'NotSupportedError' || err.name === 'SecurityError') return 'Hindi kaya ng browser o device na ito ang passkey.';
-  return null;
-}
 
 export default function PasskeysPage() {
   const navigate = useNavigate();
@@ -59,7 +50,7 @@ export default function PasskeysPage() {
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) navigate('/login', { replace: true });
       else if (err instanceof ApiError && Object.keys(err.fields).length > 0) setFields(err.fields);
-      else setProblem(browserProblem(err) ?? errorMessage(err));
+      else setProblem(passkeyBrowserProblem(err) ?? errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -85,7 +76,7 @@ export default function PasskeysPage() {
       <p>
         <small className="note">
           Ang passkey ay isang susi na nasa device mo (fingerprint, mukha o PIN ang nagbubukas). Public key lang ang napupunta sa server — walang
-          password na mananakaw, at hindi ito gagana sa pekeng site. Sa ngayon ay nairerehistro pa lang; ang login gamit ito ay idadagdag pa.
+          password na mananakaw, at hindi ito gagana sa pekeng site. Pagkatapos idagdag: "Mag-login gamit ang passkey" sa Login page.
         </small>
       </p>
 
