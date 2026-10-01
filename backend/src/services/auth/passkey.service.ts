@@ -1,13 +1,25 @@
 import argon2 from 'argon2';
-import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server';
+import { generateAuthenticationOptions, generateRegistrationOptions, verifyAuthenticationResponse, verifyRegistrationResponse } from '@simplewebauthn/server';
 import { and, asc, count, eq } from 'drizzle-orm';
 import type { z } from 'zod';
 import { db } from '../../db/index.ts';
 import { isUniqueViolation } from '../../db/errors.ts';
 import { passkeys, users } from '../../db/schema.ts';
 import type { Audit } from '../../lib/audit.ts';
-import { consumeRegistrationChallenge, EXPECTED_ORIGIN, RP_ID, RP_NAME, saveRegistrationChallenge } from '../../lib/webauthn.ts';
-import type { passkeyRegisterVerifySchema } from '../../validations/auth.ts';
+import { signAccessToken } from '../../lib/jwt.ts';
+import { createRefreshToken, type Device } from '../../lib/session.ts';
+import { createTrustedDevice, findTrustedDevice } from '../../lib/trustedDevices.ts';
+import {
+  consumeAuthenticationChallenge,
+  consumeRegistrationChallenge,
+  decoyCredentialId,
+  EXPECTED_ORIGIN,
+  RP_ID,
+  RP_NAME,
+  saveAuthenticationChallenge,
+  saveRegistrationChallenge,
+} from '../../lib/webauthn.ts';
+import type { passkeyLoginVerifySchema, passkeyRegisterVerifySchema } from '../../validations/auth.ts';
 
 // Passkeys (Day 95–96) — ang REGISTRATION ceremony: pagdagdag ng passkey sa account na naka-login na.
 // Business logic lang: walang req/res (Day 75). Ang login gamit ang passkey ay sa Day 97.
@@ -81,7 +93,8 @@ function failureReason(err: unknown): string {
   if (/challenge/i.test(message)) return 'challenge_mismatch';
   if (/origin/i.test(message)) return 'origin_mismatch';
   if (/RP ID/i.test(message)) return 'rp_id_mismatch';
-  if (/user verification|user presence/i.test(message)) return 'user_not_verified';
+  if (/user verification|user presence|user not present/i.test(message)) return 'user_not_verified';
+  if (/counter/i.test(message)) return 'counter_regression'; // Day 97: posibleng kinopya ang key
   return 'verification_error';
 }
 
@@ -155,3 +168,112 @@ export async function removePasskey(userId: number, passkeyId: number, audit: Au
   await audit({ action: 'passkey_removed', actorId: userId, targetId: userId, metadata: { passkey: passkeyId } });
   return true;
 }
+
+// ---------------------------------------------------------------------------------------------
+// LOGIN gamit ang passkey (Day 97–98) — ang AUTHENTICATION ceremony. Walang password, walang kilalang user sa simula.
+//   1. options: challenge (+ ang mga credential ng email kung may ibinigay — o DECOY)
+//   2. ang device: fingerprint/PIN → PIRMA sa challenge at origin gamit ang private key na naka-save mula sa registration
+//   3. verify: hanapin ang passkey ayon sa credential id → suriin ang pirma gamit ang PUBLIC key → session (gaya ng password login)
+
+export async function startPasskeyLogin(email?: string) {
+  let allowCredentials: { id: string }[] = [];
+  if (email !== undefined) {
+    // Laging may query, may account man o wala (pareho ang trabaho)
+    const rows = await db.select({ credentialId: passkeys.credentialId }).from(passkeys).innerJoin(users, eq(users.id, passkeys.userId)).where(eq(users.email, email));
+    // 🔐 Walang account, o walang passkey → DECOY: isang pekeng id na pareho sa bawat hingi. Walang `transports` kahit sa totoo:
+    // kung mayroon sa totoo at wala sa decoy, iyon mismo ang magbubunyag
+    allowCredentials = rows.length > 0 ? rows.map((row) => ({ id: row.credentialId })) : [{ id: decoyCredentialId(email) }];
+  }
+  const options = await generateAuthenticationOptions({ rpID: RP_ID, allowCredentials, userVerification: 'required' });
+  await saveAuthenticationChallenge(options.challenge);
+  return options;
+}
+
+export type PasskeyLoginInput = z.infer<typeof passkeyLoginVerifySchema> & {
+  deviceToken: unknown; // ang raw na device_token cookie (Day 64)
+  device: Device;
+};
+export type PasskeyLoginResult =
+  | { status: 'invalid' }
+  | {
+      status: 'ok';
+      user: { id: number; email: string; name: string | null };
+      accessToken: string;
+      refreshToken: string;
+      newDeviceToken: string | undefined;
+    };
+
+// Ang challenge na pinirmahan ng device ay nasa `clientDataJSON` (base64url ng JSON). Hindi pa ito pinagkakatiwalaan dito —
+// ginagamit lang para HANAPIN ang challenge sa database; ang library pa rin ang magsusuri kung tugma
+function challengeOf(clientDataJSON: string): string | undefined {
+  try {
+    const value = JSON.parse(Buffer.from(clientDataJSON, 'base64url').toString('utf8')) as { challenge?: unknown };
+    return typeof value.challenge === 'string' ? value.challenge : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function finishPasskeyLogin(input: PasskeyLoginInput, audit: Audit): Promise<PasskeyLoginResult> {
+  const { response } = input;
+  const fail = async (reason: string, targetId: number | null = null): Promise<PasskeyLoginResult> => {
+    // Ang parehong `login_failed` ng password login — para sa parehong mga alert at audit page — may `method`
+    await audit({ action: 'login_failed', targetId, metadata: { method: 'passkey', reason } });
+    return { status: 'invalid' };
+  };
+
+  // 1. Ang challenge: kunin AT burahin (isang subok lang, kahit pumalya ang susunod na hakbang)
+  const challenge = challengeOf(response.response.clientDataJSON);
+  if (!challenge || !(await consumeAuthenticationChallenge(challenge))) return fail('no_challenge');
+
+  // 2. Kaninong passkey ito? (ang credential id ang "pangalan" ng passkey ayon sa device)
+  const [found] = await db
+    .select({ passkey: passkeys, user: { id: users.id, email: users.email, name: users.name } })
+    .from(passkeys)
+    .innerJoin(users, eq(users.id, passkeys.userId))
+    .where(eq(passkeys.credentialId, response.id));
+  if (!found) return fail('unknown_credential'); // hal. nabura ang passkey dito, pero nasa device pa
+  const { passkey, user } = found;
+
+  // 3. Ang user handle (itinago ng device noong registration) ay dapat tumugma sa may-ari ng passkey
+  if (response.response.userHandle !== undefined && Buffer.from(response.response.userHandle, 'base64url').toString('utf8') !== String(user.id)) {
+    return fail('user_handle_mismatch', user.id);
+  }
+
+  // 4. Ang pirma, gamit ang PUBLIC key na naka-save. + challenge, origin, RP ID, user verification, counter
+  let verification;
+  try {
+    verification = await verifyAuthenticationResponse({
+      response: { ...response, clientExtensionResults: response.clientExtensionResults ?? {} },
+      expectedChallenge: challenge,
+      expectedOrigin: EXPECTED_ORIGIN,
+      expectedRPID: RP_ID,
+      requireUserVerification: true,
+      credential: {
+        id: passkey.credentialId,
+        publicKey: Buffer.from(passkey.publicKey, 'base64url'),
+        counter: passkey.counter,
+        transports: passkey.transports ?? undefined,
+      },
+    });
+  } catch (err) {
+    return fail(failureReason(err), user.id);
+  }
+  if (!verification.verified) return fail('bad_signature', user.id);
+
+  // 5. Pumasa. Session, gaya ng password login: LAHAT ng pagsulat sa iisang transaction, saka ang cookies (Day 68)
+  const trusted = await findTrustedDevice(input.deviceToken, user.id);
+  const { refreshToken, newDeviceToken } = await db.transaction(async (tx) => {
+    await tx
+      .update(passkeys)
+      .set({ counter: verification.authenticationInfo.newCounter, lastUsedAt: new Date() })
+      .where(eq(passkeys.id, passkey.id));
+    return {
+      refreshToken: await createRefreshToken(user.id, input.device, undefined, tx),
+      newDeviceToken: trusted ? undefined : await createTrustedDevice(user.id, tx),
+    };
+  });
+  await audit({ action: 'login', actorId: user.id, targetId: user.id, metadata: { method: 'passkey', passkey: passkey.id } });
+  return { status: 'ok', user, accessToken: signAccessToken(user.id), refreshToken, newDeviceToken };
+}
+

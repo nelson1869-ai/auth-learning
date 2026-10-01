@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { db } from '../db/index.ts';
-import { auditLogs, refreshTokens, trustedDevices, unknownLoginAttempts, users, verificationTokens } from '../db/schema.ts';
+import { auditLogs, refreshTokens, trustedDevices, unknownLoginAttempts, users, verificationTokens, webauthnChallenges } from '../db/schema.ts';
 import { drainBackground } from '../lib/background.ts';
 import { createRefreshToken, hashToken, rotateRefreshToken } from '../lib/session.ts';
 import { FIRST_RUN_DELAY_MS, INTERVAL_MS, cleanupAndLog, startRetentionScheduler } from '../jobs/retentionScheduler.ts';
@@ -94,6 +94,24 @@ describe('runRetentionCleanup — other tables', () => {
       .from(unknownLoginAttempts)
       .where(inArray(unknownLoginAttempts.emailHash, [idle, idleButLocked, recent]));
     expect(left.map((row) => row.emailHash).sort()).toEqual([idleButLocked, recent].sort());
+  });
+
+  // Day 97: ang mga challenge ng login ay walang user — walang CASCADE na maglilinis sa kanila. Kung wala ito, lalaki nang walang hangganan
+  it('deletes expired WebAuthn challenges (login ones have no user), keeps live ones', async () => {
+    const [expired, live, expiredOfUser] = [randomUUID(), randomUUID(), randomUUID()];
+    await db.insert(webauthnChallenges).values([
+      { userId: null, purpose: 'authentication', challenge: expired, expiresAt: ago(1000) },
+      { userId: null, purpose: 'authentication', challenge: live, expiresAt: later(60_000) },
+      { userId, purpose: 'registration', challenge: expiredOfUser, expiresAt: ago(1000) },
+    ]);
+    const result = await runRetentionCleanup();
+    const left = await db
+      .select({ challenge: webauthnChallenges.challenge })
+      .from(webauthnChallenges)
+      .where(inArray(webauthnChallenges.challenge, [expired, live, expiredOfUser]));
+    expect(left).toEqual([{ challenge: live }]);
+    expect(result.status === 'ok' && result.deleted.webauthnChallenges).toBeGreaterThanOrEqual(2);
+    await db.delete(webauthnChallenges).where(eq(webauthnChallenges.challenge, live));
   });
 
   it('deletes audit logs older than 1 year, keeps younger ones', async () => {

@@ -1,6 +1,6 @@
 import { and, isNull, lt, or, sql } from 'drizzle-orm';
 import { db } from '../db/index.ts';
-import { auditLogs, refreshTokens, trustedDevices, unknownLoginAttempts, verificationTokens } from '../db/schema.ts';
+import { auditLogs, refreshTokens, trustedDevices, unknownLoginAttempts, verificationTokens, webauthnChallenges } from '../db/schema.ts';
 
 // Data retention (Day 90) — ang data na wala nang silbi ay binubura, para may HANGGANAN ang paglaki ng database
 // at para hindi itinatago nang walang dahilan ang personal na data (IP, user agent, bakas ng mga login).
@@ -12,13 +12,14 @@ import { auditLogs, refreshTokens, trustedDevices, unknownLoginAttempts, verific
 //   trusted_devices       — expired na
 //   unknown_login_attempts — walang attempt nang 30+ araw AT hindi naka-lock (hindi mabubura ang lock ng umaatake)
 //   audit_logs            — mahigit 1 taon (desisyon ni Nelson, Day 90)
+//   webauthn_challenges   — expired na (Day 97: ang mga challenge ng login ay walang user, kaya walang ibang naglilinis)
 const UNKNOWN_ATTEMPTS_IDLE_MS = 30 * 24 * 60 * 60 * 1000;
 const AUDIT_LOG_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
 // Isang numero para sa advisory lock: kapag dalawang instance ang sabay na naglilinis, isa lang ang gagawa (ang isa: `skipped`).
 // Nakatali ang lock sa transaction (xact): kusang binibitawan sa commit o rollback, kahit mamatay ang process
 export const RETENTION_LOCK_KEY = 90_001;
 
-export const RETENTION_TABLES = ['refreshTokens', 'verificationTokens', 'trustedDevices', 'unknownLoginAttempts', 'auditLogs'] as const;
+export const RETENTION_TABLES = ['refreshTokens', 'verificationTokens', 'trustedDevices', 'unknownLoginAttempts', 'auditLogs', 'webauthnChallenges'] as const;
 
 export type RetentionResult =
   | { status: 'skipped' } // may ibang naglilinis ngayon
@@ -60,6 +61,10 @@ export async function runRetentionCleanup(now: Date = new Date()): Promise<Reten
       .delete(auditLogs)
       .where(lt(auditLogs.createdAt, new Date(now.getTime() - AUDIT_LOG_RETENTION_MS)))
       .returning({ id: auditLogs.id });
+    const challenges = await tx
+      .delete(webauthnChallenges)
+      .where(lt(webauthnChallenges.expiresAt, now))
+      .returning({ id: webauthnChallenges.id });
 
     return {
       status: 'ok',
@@ -69,6 +74,7 @@ export async function runRetentionCleanup(now: Date = new Date()): Promise<Reten
         trustedDevices: devices.length,
         unknownLoginAttempts: unknown.length,
         auditLogs: audit.length,
+        webauthnChallenges: challenges.length,
       },
     };
   });

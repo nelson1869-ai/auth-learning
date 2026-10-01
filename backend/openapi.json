@@ -216,6 +216,97 @@
           "response"
         ]
       },
+      "PasskeyLoginOptionsInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "PasskeyLoginVerifyInput": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "rawId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "public-key"
+              },
+              "response": {
+                "type": "object",
+                "properties": {
+                  "clientDataJSON": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "authenticatorData": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "userHandle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  }
+                },
+                "required": [
+                  "clientDataJSON",
+                  "authenticatorData",
+                  "signature"
+                ]
+              },
+              "clientExtensionResults": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              "authenticatorAttachment": {
+                "type": "string",
+                "enum": [
+                  "platform",
+                  "cross-platform"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "rawId",
+              "type",
+              "response"
+            ]
+          }
+        },
+        "required": [
+          "response"
+        ]
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -733,6 +824,43 @@
           "rp",
           "user",
           "pubKeyCredParams"
+        ],
+        "additionalProperties": {}
+      },
+      "PasskeyAuthenticationOptions": {
+        "type": "object",
+        "properties": {
+          "challenge": {
+            "type": "string"
+          },
+          "rpId": {
+            "type": "string"
+          },
+          "allowCredentials": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "userVerification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge"
         ],
         "additionalProperties": {}
       },
@@ -1832,6 +1960,122 @@
           },
           "409": {
             "description": "Nakarehistro na ang passkey na ito, o naabot na ang limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login/options": {
+      "post": {
+        "operationId": "postAuthPasskeysLoginOptions",
+        "summary": "Login gamit ang passkey, hakbang 1: options (challenge)",
+        "tags": [
+          "auth"
+        ],
+        "description": "Hindi kailangang naka-login. Walang email: ang device ang pipili ng account (discoverable). May email: ang mga passkey ng account — o isang DECOY na id kapag walang account o walang passkey (pareho sa bawat hingi), para hindi malaman kung sino ang may passkey.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyLoginOptionsInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Options para sa `navigator.credentials.get()`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyAuthenticationOptions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Mali ang input (Zod) — may `fields` bawat field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit: masyadong maraming subok mula sa IP na ito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/login/verify": {
+      "post": {
+        "operationId": "postAuthPasskeysLoginVerify",
+        "summary": "Login gamit ang passkey, hakbang 2: ang pirma ng device",
+        "tags": [
+          "auth"
+        ],
+        "description": "Pumasa → parehong cookies ng password login. Iisang 401 sa lahat ng pagpalya (ang dahilan ay nasa audit log).",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyLoginVerifyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Naka-login (+ `token`, `refresh_token`, at `device_token` sa bagong browser)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Mali ang input (Zod) — may `fields` bawat field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Hindi pumasa (o walang buhay na challenge)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit: masyadong maraming subok mula sa IP na ito",
             "content": {
               "application/json": {
                 "schema": {

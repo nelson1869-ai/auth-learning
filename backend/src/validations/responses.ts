@@ -92,4 +92,11 @@ export const passkeyRegistrationOptions = z.looseObject({
   user: z.looseObject({ id: z.string(), name: z.string(), displayName: z.string() }),
   pubKeyCredParams: z.array(z.looseObject({ alg: z.int(), type: z.string() })),
 });
+// Day 97: ang options para sa `navigator.credentials.get()`
+export const passkeyAuthenticationOptions = z.looseObject({
+  challenge: z.string(),
+  rpId: z.string().optional(),
+  allowCredentials: z.array(z.looseObject({ id: z.string(), type: z.string() })).optional(),
+  userVerification: z.string().optional(),
+});
 

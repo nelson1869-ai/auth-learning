@@ -196,6 +196,11 @@ export const webauthnChallenges = pgTable(
     challenge: text('challenge').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   },
-  // Huling bantay (gaya ng Day 69): ISANG challenge lang bawat user at layunin — ang bago ay pumapalit sa luma
-  (table) => [uniqueIndex('webauthn_challenges_one_per_user_idx').on(table.userId, table.purpose)],
+  (table) => [
+    // Huling bantay (gaya ng Day 69): ISANG challenge lang bawat user at layunin — ang bago ay pumapalit sa luma.
+    // (Ang mga challenge ng login ay walang user — NULL — kaya hindi sila sakop nito: magkakaiba ang NULL sa UNIQUE)
+    uniqueIndex('webauthn_challenges_one_per_user_idx').on(table.userId, table.purpose),
+    // Day 97: sa login, hinahanap ang challenge ayon sa HALAGA nito (walang user pa). UNIQUE: mabilis, at hindi puwedeng doble
+    uniqueIndex('webauthn_challenges_challenge_idx').on(table.challenge),
+  ],
 );

@@ -1,4 +1,5 @@
-import { and, eq, gt } from 'drizzle-orm';
+import { createHash, createHmac } from 'node:crypto';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 import { env } from '../config/env.ts';
 import { db } from '../db/index.ts';
 import { webauthnChallenges } from '../db/schema.ts';
@@ -47,3 +48,36 @@ export async function hasRegistrationChallenge(userId: number, now: Date = new D
     .where(and(eq(webauthnChallenges.userId, userId), eq(webauthnChallenges.purpose, 'registration'), gt(webauthnChallenges.expiresAt, now)));
   return rows.length > 0;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Login gamit ang passkey (Day 97). Walang kilalang user habang humihingi ng options — kaya ang challenge ay walang `user_id`,
+// at hinahanap ito sa verify ayon sa HALAGA nito (nasa `clientDataJSON` na pinirmahan ng device)
+
+export async function saveAuthenticationChallenge(challenge: string, now: Date = new Date()): Promise<void> {
+  await db.insert(webauthnChallenges).values({ userId: null, purpose: 'authentication', challenge, expiresAt: new Date(now.getTime() + CHALLENGE_TTL_MS) });
+}
+
+// Kunin AT burahin sa iisang statement, gaya ng registration: isang subok lang bawat challenge, kahit sabay-sabay
+export async function consumeAuthenticationChallenge(challenge: string, now: Date = new Date()): Promise<boolean> {
+  const [row] = await db
+    .delete(webauthnChallenges)
+    .where(and(eq(webauthnChallenges.challenge, challenge), eq(webauthnChallenges.purpose, 'authentication'), isNull(webauthnChallenges.userId)))
+    .returning({ expiresAt: webauthnChallenges.expiresAt });
+  return row !== undefined && row.expiresAt > now;
+}
+
+// 🔐 DECOY (Day 97–98): kapag may email sa options, ibinibigay ang mga credential id ng account — para alam ng browser kung aling
+// passkey ang hahanapin. Pero kapag ang sagot ay `[]` para sa email na walang account (o walang passkey), malalaman ng kahit
+// sino kung sino ang may passkey dito. Kaya: isang PEKENG credential id para sa mga iyon, na:
+//   - PAREHO sa bawat hingi (HMAC ng email) — kung random, makikita ang pagkakaiba sa pag-ulit
+//   - hindi mahuhulaan nang walang sikreto — ang susi ay hinango sa private key ng JWT (walang bagong env variable)
+// Hindi ito sumasagot sa lahat: tingnan ang D-038 (bilang ng credential, oras)
+const DECOY_KEY = createHash('sha256')
+  .update('passkey-decoy-v1:')
+  .update(env.JWT_PRIVATE_KEY.export({ type: 'pkcs8', format: 'der' }))
+  .digest();
+
+export function decoyCredentialId(email: string): string {
+  return createHmac('sha256', DECOY_KEY).update(email).digest('base64url');
+}
+

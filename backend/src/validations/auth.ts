@@ -60,3 +60,23 @@ export const passkeyRegisterVerifySchema = z.object({
   }),
 });
 
+// Login gamit ang passkey (Day 97). Opsyonal ang email: kapag wala, ang DEVICE ang magsasabi kung kaninong account
+// (discoverable — `residentKey: required` sa registration). Kapag mayroon: ang mga passkey lang ng account na iyon (o decoy)
+export const passkeyLoginOptionsSchema = z.object({ email: z.string().trim().toLowerCase().pipe(z.email()).optional() });
+
+export const passkeyLoginVerifySchema = z.object({
+  response: z.object({
+    id: base64url(1024),
+    rawId: base64url(1024),
+    type: z.literal('public-key'),
+    response: z.object({
+      clientDataJSON: base64url(4096),
+      authenticatorData: base64url(4096),
+      signature: base64url(1024),
+      userHandle: base64url(256).optional(), // ang user id na itinago ng device noong registration
+    }),
+    clientExtensionResults: z.record(z.string(), z.unknown()).optional(),
+    authenticatorAttachment: z.enum(['platform', 'cross-platform']).optional(),
+  }),
+});
+

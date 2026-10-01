@@ -134,6 +134,21 @@ export const passkeyRegisterLimiter = skip
       trustCloudflare: env.TRUST_CLOUDFLARE,
     });
 
+// Login gamit ang passkey (Day 97). Hindi nahuhulaan ang pirma, pero bawat options ay isang row sa database (challenge, 5 min),
+// kaya may hangganan: 30 options bawat 15 minuto (lahat binibilang), at 10 PALPAK na verify
+export const passkeyLoginOptionsLimiter = skip
+  ? undefined
+  : createAuthLimiter({ name: 'passkey-login-options', limit: 30, windowMs: FIFTEEN_MINUTES, trustCloudflare: env.TRUST_CLOUDFLARE });
+export const passkeyLoginLimiter = skip
+  ? undefined
+  : createAuthLimiter({
+      name: 'passkey-login',
+      limit: 10,
+      windowMs: FIFTEEN_MINUTES,
+      skipSuccessfulRequests: true,
+      trustCloudflare: env.TRUST_CLOUDFLARE,
+    });
+
 // Forgot password (Day 59): 5 bawat 15 minuto bawat IP (lahat binibilang) — bawat request ay puwedeng
 // magpadala ng email; kung walang limit, kayang gamitin ang app para mag-spam ng inbox ng iba, at masisira ang
 // reputasyon ng domain (Day 58)
