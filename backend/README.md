@@ -13,6 +13,10 @@ sa input (Zod), hindi nagtatago ng password (hash lang), hindi nagbubunyag kung 
 may account, at pagkatapos ng login, isang pirmadong token sa cookie ang nagpapakilala
 sa user sa bawat request.
 
+**Day 100** — *✍️ draft ng AI (Day 100), mula sa journal. Hindi ito ang sarili kong salita: isulat ko ulit dito, tapos burahin ang draft. Ang nasa itaas ay ang isinulat ko noong Day 01 — huwag burahin, para maikumpara.*
+
+> Ang humahawak ng bawat request: suriin ang hugis (Zod), ipatupad ang patakaran (services), at sumagot nang hindi nagbubunyag (pareho ang mensahe at oras). Hindi lang "tama ba ang password": rate limit, lockout, tokens na kayang bawiin, audit log, at mga bagay na nangyayari nang sabay. Ang natutunan ko: ang code na tama kapag isa-isa ay puwedeng mali kapag sabay.
+
 ---
 
 ## Ang role

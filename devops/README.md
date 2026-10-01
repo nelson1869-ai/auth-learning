@@ -7,6 +7,10 @@
 
 Siya ang nagpapatakbo ng app sa labas ng PC ko: Docker, automatic tests, at deploy sa internet, para gumana ito para sa lahat.
 
+**Day 100** — *✍️ draft ng AI (Day 100), mula sa journal. Hindi ito ang sarili kong salita: isulat ko ulit dito, tapos burahin ang draft. Ang nasa itaas ay ang isinulat ko noong Day 01 — huwag burahin, para maikumpara.*
+
+> Ang nagpapatakbo, nagbabantay at bumubuhay ulit sa app: CI na humaharang sa sirang code, deploy ng EKSAKTONG image na pumasa (may attestation), backup bago mag-migrate, metrics at alert email. Ang natutunan ko: ang monitoring ay may sariling butas (kapag patay ang PC, patay din ang alert), at ang backup na hindi pa nasusubukang i-restore ay pangako lang.
+
 ---
 
 ## Ang role
