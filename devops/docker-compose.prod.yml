@@ -18,7 +18,7 @@ services:
   # Walang `ports:` (sa loob lang ng Docker network, kaya walang password), walang persistence (mga bilang lang na may expiry),
   # at may limit ng memory. Kapag patay ito: fail-open ang rate limiter (alert: RedisDown); nasa database ang account lockout
   redis:
-    image: redis:8.8.3-alpine # naka-pin
+    image: redis:8.10.2-alpine # naka-pin
     command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "48mb", "--maxmemory-policy", "volatile-ttl"]
     deploy:
       resources:
@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
 
   cloudflared:
-    image: cloudflare/cloudflared:2026.9.3 # naka-pin na version — hindi `latest` (devops README)
+    image: cloudflare/cloudflared:2026.10.0 # naka-pin na version — hindi `latest` (devops README)
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
     # Pareho ang UID sa may-ari ng credentials file sa PC (600/400) — para mabasa nang hindi niluluwagan ang permission
     user: "1000:1000"
@@ -45,7 +45,7 @@ services:
   # Ibang port sa mga default (9090, 3001 ay gamit na sa PC na ito). May limit ng memory: hindi dapat kainin
   # ng monitoring ang kailangan ng app mismo (iisang PC lang ito)
   prometheus:
-    image: prom/prometheus:v3.7.3 # naka-pin
+    image: prom/prometheus:v3.15.0 # naka-pin
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=15d # 15 araw lang — hindi lalaki nang walang hangganan
@@ -92,7 +92,7 @@ services:
   # Walang secret sa config: ang password at ang recipient ay galing sa devops/.env, at isinusulat ng start.sh
   # sa isang tmpfs (memory lang) na ang may-ari ay ang user ng alertmanager (nobody, 65534)
   alertmanager:
-    image: prom/alertmanager:v0.28.1 # naka-pin
+    image: prom/alertmanager:v0.34.1 # naka-pin
     entrypoint: ["/bin/sh", "/etc/alertmanager/start.sh"]
     environment:
       ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:?set ALERT_EMAIL_TO in devops/.env}
